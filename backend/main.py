@@ -308,8 +308,8 @@ async def websocket_endpoint(websocket: WebSocket):
         initial_confidence = getattr(app.state.decision_engine, "confidence_threshold", 0.65)
         initial_max_positions = getattr(app.state.risk_engine, "max_positions", 3)
         initial_hedging = getattr(app.state.risk_engine, "hedging_enabled", True)
-        initial_auto_lot = os.getenv("AUTO_LOT_ENABLED", "False").lower() == "true"
-        initial_risk_percent = float(os.getenv("RISK_PERCENT", "1.0"))
+        initial_auto_lot = os.environ.get("AUTO_LOT_ENABLED", "False").lower() == "true"
+        initial_risk_percent = float(os.environ.get("RISK_PERCENT", "1.0"))
         await websocket.send_text(json.dumps({
             "type": "settings_updated",
             "autotrade": initial_autotrade,

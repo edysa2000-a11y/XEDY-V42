@@ -17,8 +17,8 @@ class RiskEngine(BaseEngine):
         self.current_drawdown = 0.0
         self.autotrade_enabled = False # Starts disabled for safety until toggled from UI
         import os
-        self.max_positions = int(os.getenv("AVERAGING_MAX_POSITIONS", "3"))
-        self.hedging_enabled = os.getenv("HEDGING_ENABLED", "True").lower() == "true"
+        self.max_positions = int(os.environ.get("AVERAGING_MAX_POSITIONS", "3"))
+        self.hedging_enabled = os.environ.get("HEDGING_ENABLED", "True").lower() == "true"
         self._trailing_task = None
         self._logical_sls = {}
         self._hedge_locks = {}
@@ -51,10 +51,10 @@ class RiskEngine(BaseEngine):
             
         import os
         import MetaTrader5 as mt5
-        symbol = os.getenv("TRADE_SYMBOL", "XAUUSD")
+        symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
         
         # Proactively refresh the session and dynamic parameters on the fly before checking entry constraints
-        auto_lot = os.getenv("AUTO_LOT_ENABLED", "False").lower() == "true"
+        auto_lot = os.environ.get("AUTO_LOT_ENABLED", "False").lower() == "true"
         if auto_lot:
             import datetime
             utc_hour = datetime.datetime.utcnow().hour
@@ -109,7 +109,7 @@ class RiskEngine(BaseEngine):
         orders = mt5.orders_get(symbol=symbol)
         
         # Check if averaging is enabled
-        averaging_enabled = os.getenv("AVERAGING_ENABLED", "False").lower() == "true"
+        averaging_enabled = os.environ.get("AVERAGING_ENABLED", "False").lower() == "true"
         
         is_averaging = False
         first_position_volume = None
@@ -133,8 +133,8 @@ class RiskEngine(BaseEngine):
                     self.logger.info(f"Trade Blocked: Averaging is disabled and a position of direction {signal} already exists.")
                     return
                 # We have open positions of the same type. Enforce spacing limit!
-                avg_tf_name = os.getenv("AVERAGING_TIMEFRAME", "M30")
-                avg_mult = float(os.getenv("AVERAGING_ATR_MULTIPLIER", "1.0"))
+                avg_tf_name = os.environ.get("AVERAGING_TIMEFRAME", "M30")
+                avg_mult = float(os.environ.get("AVERAGING_ATR_MULTIPLIER", "1.0"))
                 
                 tf_map = {
                     "M1": mt5.TIMEFRAME_M1,
@@ -205,15 +205,15 @@ class RiskEngine(BaseEngine):
             gsi_score = self.news_engine.current_sentiment_score
             
         # Calculate base volume based on Auto Lot settings and Risk Percent
-        auto_lot = os.getenv("AUTO_LOT_ENABLED", "False").lower() == "true"
+        auto_lot = os.environ.get("AUTO_LOT_ENABLED", "False").lower() == "true"
         if auto_lot:
             acc = mt5.account_info()
             equity = acc.equity if acc else 10000.0
-            risk_percent = float(os.getenv("RISK_PERCENT", "1.0"))
+            risk_percent = float(os.environ.get("RISK_PERCENT", "1.0"))
             risk_usd = equity * (risk_percent / 100.0)
             
             # Retrieve ATR for dynamic SL distance calculation
-            avg_tf_name = os.getenv("AVERAGING_TIMEFRAME", "M30")
+            avg_tf_name = os.environ.get("AVERAGING_TIMEFRAME", "M30")
             tf_map = {
                 "M1": mt5.TIMEFRAME_M1,
                 "M5": mt5.TIMEFRAME_M5,
@@ -238,7 +238,7 @@ class RiskEngine(BaseEngine):
                 atr = float(np.mean(tr_list[-14:]))
             
             # Read current SL multiplier from env or config (defaults to 1.5)
-            sl_mult = float(os.getenv("SL_MULTIPLIER", "1.5"))
+            sl_mult = float(os.environ.get("SL_MULTIPLIER", "1.5"))
             sl_distance = sl_mult * atr
             
             # Formula: base_volume = risk_amount / (SL_distance * contract_size)
@@ -246,7 +246,7 @@ class RiskEngine(BaseEngine):
             base_volume = round(max(0.01, base_volume), 2)
             self.logger.info(f"Dynamic Auto LOT: Equity=${equity:.2f}, Risk={risk_percent}%, SL Distance={sl_distance:.2f} USD. Calculated Base Volume={base_volume} Lot")
         else:
-            base_volume = float(os.getenv("LOT_SIZE", "0.10"))
+            base_volume = float(os.environ.get("LOT_SIZE", "0.10"))
         
         # 2. Confidence-Based Sizing (Dynamic Lot Sizing)
         prob = confidence if signal == "BUY" else (1.0 - confidence)
@@ -309,7 +309,7 @@ class RiskEngine(BaseEngine):
         while True:
             try:
                 if mt5.initialize():
-                    symbol = os.getenv("TRADE_SYMBOL", "XAUUSD")
+                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
                     positions = mt5.positions_get(symbol=symbol)
                     
                     # 5. AI Review Loop (15 minutes after hedge lock)
@@ -358,7 +358,7 @@ class RiskEngine(BaseEngine):
                     if positions:
                         # 1. Basket Take Profit (Hedge Recovery Closeout)
                         combined_profit = sum(float(p.profit) for p in positions)
-                        basket_tp = float(os.getenv("BASKET_TP", "5.00"))
+                        basket_tp = float(os.environ.get("BASKET_TP", "5.00"))
                         
                         if len(positions) >= 2 and combined_profit >= basket_tp:
                             self.logger.info(f"AI Basket Target Achieved: Combined Profit {combined_profit:.2f} >= Target {basket_tp:.2f}. Closing all positions!")
@@ -367,7 +367,7 @@ class RiskEngine(BaseEngine):
                             continue
                             
                         # Calculate ATR for SL/TP calculations
-                        avg_tf_name = os.getenv("AVERAGING_TIMEFRAME", "M30")
+                        avg_tf_name = os.environ.get("AVERAGING_TIMEFRAME", "M30")
                         tf_map = {
                             "M1": mt5.TIMEFRAME_M1,
                             "M5": mt5.TIMEFRAME_M5,
