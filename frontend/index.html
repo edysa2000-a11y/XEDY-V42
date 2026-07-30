@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XEDY V42 ENTERPRISE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar d-flex align-items-center px-3 justify-content-between">
+        <div class="d-flex align-items-center">
+            <span class="fw-bold text-info-v42 me-4 fs-5">XEDY V42</span>
+            <span class="me-4 text-muted">Price: <span id="top-price" class="text-white fw-bold">---.--</span></span>
+            <span class="me-4 text-muted">Market: <span class="text-bullish fw-bold">OPEN</span></span>
+            <span class="badge bg-secondary me-2" id="status-broker">Broker: DISCONNECTED</span>
+            <span class="badge bg-secondary me-2" id="status-mt5">MT5: DISCONNECTED</span>
+            <button class="btn btn-sm btn-outline-primary me-2 py-0 px-2" style="font-size: 0.65rem; font-weight: 700; height: 20px;" id="btn-connect-mt5">🔌 CONNECT MT5</button>
+            <span class="badge bg-secondary me-2" id="status-ai">AI: STANDBY</span>
+        </div>
+        <div class="d-flex align-items-center">
+            <span class="me-3 text-muted">CPU: <span class="text-white" id="sys-cpu">12%</span></span>
+            <span class="me-3 text-muted">RAM: <span class="text-white" id="sys-ram">4GB</span></span>
+            <span class="me-3 text-muted">Latency: <span class="text-bullish" id="sys-latency">2ms</span></span>
+            <span class="me-4" style="cursor: pointer;">🔔 <span class="badge bg-danger rounded-pill" style="font-size:0.5rem; position:absolute; margin-left:-8px; margin-top:-2px;">3</span></span>
+            <span class="me-4 text-white" style="cursor: pointer;">👤 Admin</span>
+            <span class="text-white fw-bold" id="sys-time">00:00:00</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        
+        <!-- Sidebar (15%) -->
+        <div class="col-sidebar p-3">
+            <h6 class="text-muted mb-3" style="font-size: 0.7rem; letter-spacing: 1px;">NAVIGATION</h6>
+            <ul class="nav flex-column nav-pills" id="sidebar-nav">
+                <li class="nav-item"><a class="nav-link active" data-target="tab-executive" href="#">🏠 Executive Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-market" href="#">📈 Market Intelligence</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-macro" href="#">🌍 Macro Intelligence</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-technical" href="#">📐 Technical</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-smartmoney" href="#">🏛️ Smart Money</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-ai" href="#">🧠 AI Decision Center</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-trading" href="#">💹 Trading Center</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-risk" href="#">⚠ Risk Control</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-news" href="#">📰 News Intelligence</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-analytics" href="#">📊 Analytics</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-replay" href="#">▶ Replay & Backtest</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-telegram" href="#">📱 Telegram Center</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-sysops" href="#">🖥 System Operations</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-admin" href="#">⚙ Administration</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area (65%) -->
+        <div class="col-content" id="main-content">
+            
+            <!-- TAB 1: EXECUTIVE COMMAND CENTER -->
+            <div id="tab-executive" class="spa-tab">
+                <h5 class="mb-3 text-white">Executive Command Center <span class="text-muted ms-2 fs-6">⭐ Landing Page</span></h5>
+                
+                <!-- 11 KPI Cards (Dense Matrix) -->
+                <div class="row g-2 mb-2">
+                    <div class="col"><div class="kpi-card p-2 mb-0"><div class="kpi-title" style="font-size:0.65rem;">Current Price</div><div class="kpi-value text-white fs-5" id="kpi-price">---.--</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 mb-0"><div class="kpi-title" style="font-size:0.65rem;">Equity</div><div class="kpi-value text-bullish fs-5" id="kpi-equity">$0.00</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 mb-0 border-primary"><div class="kpi-title" style="font-size:0.65rem;">News Sentiment</div><div class="kpi-value text-info-v42 fs-5" id="kpi-sentiment">--.-</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 mb-0"><div class="kpi-title" style="font-size:0.65rem;">MACD Trend</div><div class="kpi-value text-white fs-5" id="kpi-macd-trend">--</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 mb-0"><div class="kpi-title" style="font-size:0.65rem;">Spread</div><div class="kpi-value text-bullish fs-5" id="kpi-spread">--</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 mb-0"><div class="kpi-title" style="font-size:0.65rem;">Margin Usage</div><div class="kpi-value text-bullish fs-5" id="kpi-margin-usage">0.0%</div></div></div>
+                </div>
+                <div class="row g-2 mb-3 justify-content-center">
+                    <div class="col-md-2"><div class="kpi-card p-2 mb-0"><div class="kpi-title" style="font-size:0.65rem;">Balance</div><div class="kpi-value text-white fs-5" id="kpi-balance">$0.00</div></div></div>
+                    <div class="col-md-2"><div class="kpi-card p-2 mb-0"><div class="kpi-title" style="font-size:0.65rem;">Margin</div><div class="kpi-value text-white fs-5" id="kpi-margin">$0.00</div></div></div>
+                    <div class="col-md-2"><div class="kpi-card p-2 mb-0"><div class="kpi-title" style="font-size:0.65rem;">Floating Profit</div><div class="kpi-value text-bullish fs-5" id="kpi-profit">$0.00</div></div></div>
+                    <div class="col-md-2"><div class="kpi-card p-2 mb-0"><div class="kpi-title" style="font-size:0.65rem;">Drawdown</div><div class="kpi-value text-white fs-5" id="kpi-drawdown">0.00%</div></div></div>
+                    <div class="col-md-2"><div class="kpi-card p-2 mb-0"><div class="kpi-title" style="font-size:0.65rem;">System Health</div><div class="kpi-value text-bullish fs-5" id="kpi-sys-health">OPTIMAL</div></div></div>
+                </div>
+
+                <!-- Chart Row -->
+                <div class="bg-dark-panel p-3 rounded mb-3">
+                    <h6 class="text-muted mb-2">Live XAUUSD Chart (1 FPS Throttled)</h6>
+                    <div id="market-chart" style="height: 400px; width: 100%;"></div>
+                </div>
+                
+                <!-- Center Command Area (Requested from ASCII Layout) -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <table class="table table-v42 mb-0">
+                                <tbody>
+                                    <tr><td>AI Market Direction</td><td class="text-info-v42 fw-bold text-end">UPTREND</td></tr>
+                                    <tr><td>Trend Strength</td><td class="text-bullish fw-bold text-end">STRONG</td></tr>
+                                    <tr><td>Probability</td><td class="text-white fw-bold text-end">75.5%</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-2">News Timeline</h6>
+                            <div class="text-white" style="font-size: 0.75rem;">
+                                <div class="mb-1"><strong>14:00</strong> <span class="text-muted">US Retail Sales</span> <span class="badge bg-warning text-dark ms-1">MED</span></div>
+                                <div><strong>13:30</strong> <span class="text-muted">NFP Report</span> <span class="badge bg-danger ms-1">HIGH</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: MARKET INTELLIGENCE -->
+            <div id="tab-market" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Market Intelligence</h5>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Live Chart & Volume</h6>
+                            <div class="tradingview-widget-container" style="height: 450px; width: 100%; border: 1px solid #30363d; border-radius: 4px; overflow: hidden; background-color: #1c2128;">
+                                <div id="tradingview_chart" style="height: 100%; width: 100%;"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                                <script type="text/javascript">
+                                    document.addEventListener("DOMContentLoaded", function() {
+                                        new TradingView.widget({
+                                            "autosize": true,
+                                            "symbol": "OANDA:XAUUSD",
+                                            "interval": "60",
+                                            "timezone": "Etc/UTC",
+                                            "theme": "dark",
+                                            "style": "1",
+                                            "locale": "en",
+                                            "enable_publishing": false,
+                                            "hide_side_toolbar": false,
+                                            "allow_symbol_change": true,
+                                            "container_id": "tradingview_chart"
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Market Metrics</h6>
+                            <table class="table table-v42">
+                                <tbody>
+                                    <tr><td>ATR (14)</td><td class="text-white text-end" id="market-atr">12.5 pips</td></tr>
+                                    <tr><td>Spread</td><td class="text-bullish text-end" id="market-spread">0.8 pips</td></tr>
+                                    <tr><td>Session</td><td class="text-info-v42 text-end" id="market-session">New York</td></tr>
+                                    <tr><td>Liquidity</td><td class="text-white text-end" id="market-liquidity">High</td></tr>
+                                    <tr><td>Volatility</td><td class="text-warning-v42 text-end" id="market-volatility">Elevated</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: MACRO INTELLIGENCE -->
+            <div id="tab-macro" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Macro Intelligence</h5>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3"><div class="kpi-card text-center border-primary"><div class="kpi-title">Macro Score</div><div class="kpi-value text-bullish" id="macro-score">BULLISH</div></div></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Internal AI Sentiment Drivers</h6>
+                            <table class="table table-v42">
+                                <thead><tr><th>Metric</th><th>Current</th><th>Impact</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Fed Rate</td><td class="text-white" id="macro-fed-rate">5.50%</td><td id="macro-fed-rate-impact"><span class="text-bearish">HAWKISH</span></td></tr>
+                                    <tr><td>US CPI (YoY)</td><td class="text-white" id="macro-cpi">3.2%</td><td id="macro-cpi-impact"><span class="text-warning-v42">ELEVATED</span></td></tr>
+                                    <tr><td>US PPI (YoY)</td><td class="text-white" id="macro-ppi">1.8%</td><td id="macro-ppi-impact"><span class="text-info-v42">STABLE</span></td></tr>
+                                    <tr><td>US PCE (YoY)</td><td class="text-white" id="macro-pce">2.6%</td><td id="macro-pce-impact"><span class="text-bullish">COOLING</span></td></tr>
+                                    <tr><td>US GDP (QoQ)</td><td class="text-white" id="macro-gdp">2.4%</td><td id="macro-gdp-impact"><span class="text-bullish">GROWING</span></td></tr>
+                                    <tr><td>NFP (Payroll)</td><td class="text-white" id="macro-nfp">190K</td><td id="macro-nfp-impact"><span class="text-bearish">MISS</span></td></tr>
+                                    <tr><td>Retail Sales</td><td class="text-white" id="macro-retail-sales">0.3%</td><td id="macro-retail-sales-impact"><span class="text-info-v42">STABLE</span></td></tr>
+                                    <tr><td>Gold ETF Flow</td><td class="text-white" id="macro-etf-flow">+$5B</td><td id="macro-etf-flow-impact"><span class="text-bullish">INFLOW</span></td></tr>
+                                    <tr><td>Central Bank Gold Reserve</td><td class="text-white" id="macro-gold-reserve">+40 Tons</td><td id="macro-gold-reserve-impact"><span class="text-bullish">ACCUMULATION</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Live Economic Calendar (Real-Time Feed)</h6>
+                            <div class="tradingview-widget-container" style="height: 380px;">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                                {
+                                  "colorTheme": "dark",
+                                  "isMaximized": true,
+                                  "width": "100%",
+                                  "height": "100%",
+                                  "locale": "en",
+                                  "importanceFilter": "0,1"
+                                }
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3A: TECHNICAL -->
+            <div id="tab-technical" class="spa-tab d-none">
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Moving Averages (MA)</h6>
+                            <table class="table table-v42">
+                                <thead><tr><th>Period</th><th>Simple</th><th>Exponential</th><th>Signal</th></tr></thead>
+                                <tbody>
+                                    <tr><td>MA 20</td><td id="ma20-simple">2045.50</td><td id="ma20-exponential">2046.10</td><td id="ma20-signal"><span class="text-bullish">BUY</span></td></tr>
+                                    <tr><td>MA 50</td><td id="ma50-simple">2038.20</td><td id="ma50-exponential">2040.50</td><td id="ma50-signal"><span class="text-bullish">BUY</span></td></tr>
+                                    <tr><td>MA 200</td><td id="ma200-simple">1995.00</td><td id="ma200-exponential">2010.80</td><td id="ma200-signal"><span class="text-bullish">BUY</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Oscillators</h6>
+                            <table class="table table-v42">
+                                <tbody>
+                                    <tr><td>RSI (14)</td><td class="text-white text-end" id="osc-rsi-val">68.5</td><td id="osc-rsi-sig"><span class="text-warning-v42">Overbought</span></td></tr>
+                                    <tr><td>MACD</td><td class="text-white text-end" id="osc-macd-val">+2.45</td><td id="osc-macd-sig"><span class="text-bullish">Bullish</span></td></tr>
+                                    <tr><td>Stochastic</td><td class="text-white text-end" id="osc-stoch-val">82.1</td><td id="osc-stoch-sig"><span class="text-warning-v42">Overbought</span></td></tr>
+                                    <tr><td>ATR (14)</td><td class="text-white text-end" id="osc-atr-val">12.5</td><td id="osc-atr-sig"><span class="text-muted">Normal</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3B: SMART MONEY -->
+            <div id="tab-smartmoney" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Smart Money Concepts (SMC)</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Order Blocks (OB) & Fair Value Gaps (FVG)</h6>
+                            <table class="table table-v42">
+                                <thead><tr><th>Level (Price)</th><th>Type</th><th>Timeframe</th><th>Status</th></tr></thead>
+                                <tbody id="smc-ob-tbody">
+                                     <tr><td colspan="4" class="text-muted text-center">Awaiting data stream...</td></tr>
+                                 </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Liquidity & Market Structure</h6>
+                            <table class="table table-v42">
+                                <tbody>
+                                    <tr><td>Current Structure (H1)</td><td class="text-white fw-bold text-end" id="smc-structure-h1">--</td></tr>
+                                    <tr><td>Current Structure (M15)</td><td class="text-white fw-bold text-end" id="smc-structure-m15">--</td></tr>
+                                    <tr><td>Buy-side Liquidity (BSL)</td><td class="text-white text-end" id="smc-bsl">--</td></tr>
+                                    <tr><td>Sell-side Liquidity (SSL)</td><td class="text-white text-end" id="smc-ssl">--</td></tr>
+                                    <tr><td>Inducement Level</td><td class="text-warning-v42 text-end" id="smc-inducement">--</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: AI DECISION CENTER -->
+            <div id="tab-ai" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">AI Decision Center</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Engine Outputs</h6>
+                            <table class="table table-v42">
+                                <tbody>
+                                    <tr><td>Trend Engine</td><td class="text-bullish fw-bold text-end" id="ai-trend">UPTREND</td></tr>
+                                    <tr><td>Momentum</td><td class="text-warning-v42 fw-bold text-end" id="ai-momentum">OVERBOUGHT</td></tr>
+                                    <tr><td>Smart Money</td><td class="text-bearish fw-bold text-end" id="ai-smartmoney">DISTRIBUTION</td></tr>
+                                    <tr><td>Intermarket</td><td class="text-info-v42 fw-bold text-end" id="ai-intermarket">NEUTRAL</td></tr>
+                                    <tr><td>ML Output</td><td class="text-bullish fw-bold text-end" id="ai-mloutput">CONTINUATION</td></tr>
+                                    <tr><td>Decision Engine</td><td class="text-warning-v42 fw-bold text-end" id="ai-decisionengine">PROCESSING</td></tr>
+                                </tbody>
+                            </table>
+                            <hr style="border-color: #30363d;">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Confidence:</span>
+                                <span class="text-white fw-bold" id="ai-confidence">75.5%</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Final Decision:</span>
+                                <span class="text-sideway fw-bold" id="ai-finaldecision">WAIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Explainable AI (XAI) Node Graph</h6>
+                            <div style="min-height: 350px;" id="ai-tree-graph"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: TRADING CENTER -->
+            <div id="tab-trading" class="spa-tab d-none">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0 text-white">Trading Center</h5>
+                    <div class="d-flex align-items-center gap-3 bg-dark-panel p-2 rounded border border-secondary flex-wrap">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" id="auto-lot-checkbox" onchange="toggleAutoLot()" style="width: 16px; height: 16px; cursor: pointer; accent-color: #2ea043;">
+                            <span class="text-white" style="font-size: 0.8rem; font-weight: bold; cursor: pointer;" onclick="document.getElementById('auto-lot-checkbox').click()">AUTO LOT</span>
+                        </div>
+                        <div class="vr bg-secondary d-none d-sm-block" style="height: 20px;"></div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted" style="font-size: 0.8rem; font-weight: bold;">% RISK:</span>
+                            <div class="input-group input-group-sm" style="width: 80px;">
+                                <input type="number" class="form-control text-center bg-dark text-white border-secondary py-0" id="risk-percent-input" value="1.0" min="0.1" max="10.0" step="0.1" style="font-weight: bold; font-size: 0.85rem;" onchange="sendTradingSettings()">
+                            </div>
+                            <span class="text-muted fw-bold" style="font-size: 0.85rem;">%</span>
+                        </div>
+                        <div class="vr bg-secondary d-none d-sm-block" style="height: 20px;"></div>
+                        <div class="d-flex align-items-center gap-2" id="lot-size-control-group">
+                            <span class="text-muted" style="font-size: 0.8rem; font-weight: bold;">LOT SIZE:</span>
+                            <div class="input-group input-group-sm" style="width: 120px;">
+                                <button class="btn btn-outline-secondary py-0" type="button" onclick="adjustLot(-0.01)">-</button>
+                                <input type="number" class="form-control text-center bg-dark text-white border-secondary py-0" id="trading-lot-input" value="0.10" min="0.01" step="0.01" style="font-weight: bold; font-size: 0.85rem;" onchange="sendTradingSettings()">
+                                <button class="btn btn-outline-secondary py-0" type="button" onclick="adjustLot(0.01)">+</button>
+                            </div>
+                        </div>
+                        <div class="vr bg-secondary d-none d-sm-block" style="height: 20px;"></div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted" style="font-size: 0.8rem; font-weight: bold;">CONFIDENCE THRESHOLD:</span>
+                            <div class="input-group input-group-sm" style="width: 110px;">
+                                <button class="btn btn-outline-secondary py-0" type="button" onclick="adjustConfidence(-5)">-</button>
+                                <input type="number" class="form-control text-center bg-dark text-white border-secondary py-0" id="confidence-threshold-input" value="65" min="50" max="99" step="1" style="font-weight: bold; font-size: 0.85rem;" onchange="sendTradingSettings()">
+                                <button class="btn btn-outline-secondary py-0" type="button" onclick="adjustConfidence(5)">+</button>
+                            </div>
+                            <span class="text-muted fw-bold" style="font-size: 0.85rem;">%</span>
+                        </div>
+                        <div class="vr bg-secondary d-none d-sm-block" style="height: 20px;"></div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted" style="font-size: 0.8rem; font-weight: bold;">MAX OP:</span>
+                            <div class="input-group input-group-sm" style="width: 95px;">
+                                <button class="btn btn-outline-secondary py-0" type="button" onclick="adjustMaxOP(-1)">-</button>
+                                <input type="number" class="form-control text-center bg-dark text-white border-secondary py-0" id="max-op-input" value="3" min="1" max="50" step="1" style="font-weight: bold; font-size: 0.85rem;" onchange="sendTradingSettings()">
+                                <button class="btn btn-outline-secondary py-0" type="button" onclick="adjustMaxOP(1)">+</button>
+                            </div>
+                        </div>
+                        <div class="vr bg-secondary" style="height: 20px;"></div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted" style="font-size: 0.8rem; font-weight: bold;">HEDGING:</span>
+                            <button class="btn btn-sm btn-outline-success" id="hedging-toggle-btn" onclick="toggleHedging()" style="font-weight: bold; min-width: 80px; transition: all 0.3s ease;">ON</button>
+                        </div>
+                        <div class="vr bg-secondary" style="height: 20px;"></div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted" style="font-size: 0.8rem; font-weight: bold;">AUTOTRADE:</span>
+                            <button class="btn btn-sm btn-outline-danger" id="autotrade-toggle-btn" onclick="toggleAutoTrade()" style="font-weight: bold; min-width: 80px; transition: all 0.3s ease;">OFF</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3"><div class="kpi-card text-center"><div class="kpi-title">Position Sizing</div><div class="kpi-value text-white" id="trade-pos-sizing">0.10 Lots</div></div></div>
+                    <div class="col-md-3"><div class="kpi-card text-center"><div class="kpi-title">Holding Time</div><div class="kpi-value text-white" id="trade-holding-time">0h 0m</div></div></div>
+                    <div class="col-md-3"><div class="kpi-card text-center"><div class="kpi-title">Floating P/L</div><div class="kpi-value text-bullish" id="trade-floating-pl">+$0.00</div></div></div>
+                    <div class="col-md-3"><div class="kpi-card text-center border-primary"><div class="kpi-title">Pending Orders</div><div class="kpi-value text-info-v42" id="trade-pending-orders">0 Active</div></div></div>
+                </div>
+                <div class="bg-dark-panel p-3 rounded">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0">Open Positions & Pending Orders</h6>
+                        <button class="btn btn-sm btn-outline-danger px-3 fw-bold" onclick="closeAllPositions()">💥 Close All Positions</button>
+                    </div>
+                    <table class="table table-v42 mb-0">
+                        <thead><tr><th>Ticket</th><th>Type</th><th>Volume</th><th>Open Price</th><th>SL</th><th>TP</th><th>P/L</th><th>Action</th></tr></thead>
+                        <tbody id="trade-open-positions-tbody">
+                            <tr><td colspan="8" class="text-muted text-center">No active positions.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-dark-panel p-3 rounded mt-3">
+                    <h6 class="text-muted mb-3">Trade History (Recent)</h6>
+                    <table class="table table-v42 mb-0">
+                        <thead><tr><th>Ticket</th><th>Type</th><th>Open Time</th><th>Close Time</th><th>Profit</th></tr></thead>
+                        <tbody id="trade-history-tbody">
+                            <tr><td colspan="5" class="text-muted text-center">No recent history.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 6: RISK CONTROL -->
+            <div id="tab-risk" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Risk Control Center</h5>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Risk Metrics</h6>
+                            <table class="table table-v42">
+                                <tbody>
+                                    <tr><td>Daily Drawdown</td><td class="text-white text-end">0.45% / <span class="text-danger">Max 2.0%</span></td></tr>
+                                    <tr><td>Max Drawdown</td><td class="text-white text-end">5.20%</td></tr>
+                                    <tr><td>Margin Level</td><td class="text-bullish text-end">2450%</td></tr>
+                                    <tr><td>Exposure</td><td class="text-warning-v42 text-end">15% of Account</td></tr>
+                                    <tr><td>Correlation Risk</td><td class="text-info-v42 text-end">LOW (0.24)</td></tr>
+                                    <tr><td>Overall Risk Score</td><td class="text-bullish fw-bold text-end">LOW</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-dark-panel p-3 rounded h-100 border-danger text-center">
+                            <h6 class="text-danger mb-3">Emergency Status</h6>
+                            <h1 class="text-bullish fw-bold my-4">SAFE</h1>
+                            <p class="text-muted" style="font-size:0.8rem;">No hard limits breached. AI and Broker connection stable.</p>
+                            <button class="btn btn-danger w-100 mt-2">TRIGGER KILL SWITCH</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 7: NEWS INTELLIGENCE -->
+            <div id="tab-news" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Hybrid News Intelligence Center</h5>
+                
+                <!-- Sentiment Gauges -->
+                <div class="row g-2 mb-3">
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center border-primary">
+                            <div class="kpi-title" style="font-size: 0.65rem; color: #58a6ff; font-weight: bold;">Global Sentiment Index (GSI)</div>
+                            <div class="kpi-value text-info-v42" id="news-tab-gsi" style="font-size: 1.15rem;">--.-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center">
+                            <div class="kpi-title" style="font-size: 0.65rem;">Sentiment Market (News)</div>
+                            <div class="kpi-value text-white" id="news-tab-sentiment" style="font-size: 1.15rem;">--.-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center">
+                            <div class="kpi-title" style="font-size: 0.65rem;">Currency Strength (DXY)</div>
+                            <div class="kpi-value text-bullish" id="news-tab-usd-strength" style="font-size: 1.15rem;">--.-%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center">
+                            <div class="kpi-title" style="font-size: 0.65rem;">Market Strength (Equity)</div>
+                            <div class="kpi-value text-white" id="news-tab-equity-strength" style="font-size: 1.15rem;">--.-%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center">
+                            <div class="kpi-title" style="font-size: 0.65rem;">Sentiment Trend (GSI)</div>
+                            <div class="kpi-value" id="news-tab-trend" style="font-size: 1.15rem;">--</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center">
+                            <div class="kpi-title" style="font-size: 0.65rem; color: #ff7b72;">OP Autotrade Filter</div>
+                            <div class="kpi-value" id="news-tab-gold-rec" style="font-size: 1.15rem;">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Dynamic Aggregated Feed -->
+                    <div class="col-md-12">
+                        <div class="bg-dark-panel p-3 rounded">
+                            <h6 class="text-muted mb-3">AI Sentiment Pipeline (Institutional Multi-Tier News Feed)</h6>
+                            <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+                                <table class="table table-v42 mb-0" style="font-size: 0.72rem; table-layout: fixed; width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 12%;">SUMBER</th>
+                                            <th style="width: 38%;">BERITA</th>
+                                            <th style="width: 7%;">REL</th>
+                                            <th style="width: 7%;">SENT</th>
+                                            <th style="width: 9%;">DAMPAK</th>
+                                            <th style="width: 9%;">YAKIN</th>
+                                            <th style="width: 6%;">DURASI</th>
+                                            <th style="width: 6%;">REZIM</th>
+                                            <th style="width: 6%;">SKOR AI</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="news-tab-feed-tbody">
+                                        <tr><td colspan="9" class="text-muted text-center">Awaiting data stream...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 8: ANALYTICS -->
+            <div id="tab-analytics" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Analytics Center</h5>
+                <div class="row g-2 mb-3">
+                    <div class="col"><div class="kpi-card p-2 text-center"><div class="kpi-title">Win Rate</div><div class="kpi-value text-bullish fs-5">68.5%</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 text-center"><div class="kpi-title">Profit Factor</div><div class="kpi-value text-info-v42 fs-5">1.85</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 text-center"><div class="kpi-title">Sharpe Ratio</div><div class="kpi-value text-white fs-5">2.1</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 text-center"><div class="kpi-title">Sortino Ratio</div><div class="kpi-value text-white fs-5">3.4</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 text-center"><div class="kpi-title">Monthly Return</div><div class="kpi-value text-bullish fs-5">+4.2%</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 text-center border-primary"><div class="kpi-title">AI Accuracy</div><div class="kpi-value text-info-v42 fs-5">72.1%</div></div></div>
+                </div>
+                <div class="bg-dark-panel p-3 rounded text-center">
+                    <h6 class="text-muted text-start mb-3">Equity Curve</h6>
+                    <div id="analytics-equity-chart" style="height: 300px; width: 100%;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 9: REPLAY & BACKTEST -->
+            <div id="tab-replay" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Replay & Backtest</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Modes</h6>
+                            <div class="d-grid gap-2" id="replay-modes-container">
+                                <button class="btn btn-primary text-start replay-mode-btn" data-sub="1"><span class="badge bg-light text-dark me-2">1</span> Replay</button>
+                                <button class="btn btn-outline-secondary text-start replay-mode-btn" data-sub="2"><span class="badge bg-dark me-2">2</span> Walk Forward</button>
+                                <button class="btn btn-outline-secondary text-start replay-mode-btn" data-sub="3"><span class="badge bg-dark me-2">3</span> Monte Carlo</button>
+                                <button class="btn btn-outline-secondary text-start replay-mode-btn" data-sub="4"><span class="badge bg-dark me-2">4</span> Backtest</button>
+                                <button class="btn btn-outline-secondary text-start replay-mode-btn" data-sub="5"><span class="badge bg-dark me-2">5</span> Optimization</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            
+                            <!-- SUB-TAB 1: REPLAY -->
+                            <div id="replay-sub-1" class="replay-sub-tab h-100 d-flex flex-column justify-content-center text-center p-4">
+                                <h4 class="text-muted mb-4">Historical Market Replay Player</h4>
+                                <div>
+                                    <button class="btn btn-primary me-2" id="btn-replay-start">▶ Start Engine</button>
+                                    <button class="btn btn-outline-secondary me-2" id="btn-replay-pause">⏸ Pause</button>
+                                    <button class="btn btn-outline-secondary" id="btn-replay-ff">⏭ Fast Forward</button>
+                                </div>
+                            </div>
+                            
+                            <!-- SUB-TAB 2: WALK FORWARD -->
+                            <div id="replay-sub-2" class="replay-sub-tab d-none">
+                                <h6 class="text-muted mb-3">Walk Forward Optimization (WFO)</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Train Window (Days)</label>
+                                            <input type="number" class="form-control form-control-sm bg-dark border-secondary text-white" value="30">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Test Window (Days)</label>
+                                            <input type="number" class="form-control form-control-sm bg-dark border-secondary text-white" value="7">
+                                        </div>
+                                        <button class="btn btn-sm btn-primary w-100 mt-2" id="btn-run-wfo">▶ Run Walk Forward</button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="bg-dark p-2 rounded border border-secondary" style="min-height: 250px; position: relative;" id="wfo-chart-div">
+                                            <div class="position-absolute top-50 start-50 translate-middle text-muted fs-7 text-center w-100">Awaiting WFO Validation...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SUB-TAB 3: MONTE CARLO -->
+                            <div id="replay-sub-3" class="replay-sub-tab d-none">
+                                <h6 class="text-muted mb-3">Monte Carlo Risk Simulator</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Simulations Count</label>
+                                            <input type="number" id="mc-runs" class="form-control form-control-sm bg-dark border-secondary text-white" value="50">
+                                        </div>
+                                        <button class="btn btn-sm btn-primary w-100 mt-3" id="btn-run-montecarlo">🎲 Simulate Paths</button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="bg-dark p-2 rounded border border-secondary" style="min-height: 250px; position: relative;" id="mc-chart-div">
+                                            <div class="position-absolute top-50 start-50 translate-middle text-muted fs-7 text-center w-100">Awaiting Monte Carlo runs...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SUB-TAB 4: BACKTEST -->
+                            <div id="replay-sub-4" class="replay-sub-tab d-none">
+                                <h6 class="text-muted mb-3">Historical AI Backtest Engine</h6>
+                                <div class="row g-2 mb-3 text-center">
+                                    <div class="col-3">
+                                        <div class="bg-dark p-2 rounded border border-secondary">
+                                            <div class="text-muted fs-7">Win Rate</div>
+                                            <div class="fw-bold text-bullish fs-6" id="bt-win-rate">--%</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="bg-dark p-2 rounded border border-secondary">
+                                            <div class="text-muted fs-7">Total Trades</div>
+                                            <div class="fw-bold text-white fs-6" id="bt-total-trades">--</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="bg-dark p-2 rounded border border-secondary">
+                                            <div class="text-muted fs-7">Net Profit</div>
+                                            <div class="fw-bold text-white fs-6" id="bt-net-profit">--</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="bg-dark p-2 rounded border border-secondary">
+                                            <div class="text-muted fs-7">Max Drawdown</div>
+                                            <div class="fw-bold text-critical fs-6" id="bt-drawdown">--%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Symbol</label>
+                                            <input type="text" id="bt-symbol" class="form-control form-control-sm bg-dark border-secondary text-white" value="XAUUSD">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Timeframe</label>
+                                            <select id="bt-timeframe" class="form-select form-select-sm bg-dark border-secondary text-white">
+                                                <option value="M15" selected>M15</option>
+                                                <option value="M30">M30</option>
+                                                <option value="H1">H1</option>
+                                                <option value="H4">H4</option>
+                                                <option value="D1">D1</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Candle Count</label>
+                                            <input type="number" id="bt-bars" class="form-control form-control-sm bg-dark border-secondary text-white" value="1000">
+                                        </div>
+                                        <button class="btn btn-sm btn-primary w-100 mt-2" id="btn-run-backtest">
+                                            <span class="spinner-border spinner-border-sm d-none" id="bt-spinner" role="status" aria-hidden="true"></span>
+                                            <span id="bt-btn-text">▶ Run AI Backtest</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="bg-dark p-2 rounded border border-secondary" style="min-height: 250px; position: relative;" id="backtest-equity-chart">
+                                            <div class="position-absolute top-50 start-50 translate-middle text-muted fs-7 text-center w-100">Awaiting Simulation... Click Run.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SUB-TAB 5: OPTIMIZATION -->
+                            <div id="replay-sub-5" class="replay-sub-tab d-none">
+                                <h6 class="text-muted mb-3">Genetic Optimization Matrix</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Population Size</label>
+                                            <input type="number" class="form-control form-control-sm bg-dark border-secondary text-white" value="30">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Generations</label>
+                                            <input type="number" class="form-control form-control-sm bg-dark border-secondary text-white" value="5">
+                                        </div>
+                                        <button class="btn btn-sm btn-primary w-100 mt-3" id="btn-run-opt">▶ Run Genetic Optimizer</button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="bg-dark p-2 rounded border border-secondary" style="min-height: 250px; position: relative;" id="opt-chart-div">
+                                            <div class="position-absolute top-50 start-50 translate-middle text-muted fs-7 text-center w-100">Awaiting Optimization Matrix...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3 d-none" id="opt-results-row">
+                                    <div class="col-12">
+                                        <h6 class="text-muted mb-2">Top Optimized Parameter Candidates</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-v42 mb-0" style="font-size: 0.75rem;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Rank</th>
+                                                        <th>RSI Period</th>
+                                                        <th>MACD Boundary</th>
+                                                        <th>Win Rate</th>
+                                                        <th>Profit Factor</th>
+                                                        <th>Drawdown</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="opt-table-body">
+                                                    <!-- Dynamic table content -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 10: TELEGRAM -->
+            <div id="tab-telegram" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Telegram Operations Center</h5>
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Bot Fleet Status</h6>
+                            <table class="table table-v42 mb-0">
+                                <thead><tr><th>Bot Component</th><th>Status</th><th>Uptime</th></tr></thead>
+                                <tbody>
+                                    <tr><td>News Bot</td><td class="text-bullish">ACTIVE</td><td>24d 1h</td></tr>
+                                    <tr><td>Trade Bot</td><td class="text-bullish">ACTIVE</td><td>24d 1h</td></tr>
+                                    <tr><td>Market Bot</td><td class="text-bullish">ACTIVE</td><td>24d 1h</td></tr>
+                                    <tr><td>Health Bot</td><td class="text-bullish">ACTIVE</td><td>24d 1h</td></tr>
+                                    <tr><td>Report Bot</td><td class="text-warning-v42">IDLE</td><td>--</td></tr>
+                                    <tr><td>Admin Bot</td><td class="text-bullish">ACTIVE</td><td>24d 1h</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Communications</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Status Pengiriman:</span>
+                                <span class="text-bullish fw-bold">ONLINE (120ms)</span>
+                            </div>
+                            <hr style="border-color: #30363d;">
+                            <h6 class="text-muted mb-2">Riwayat Pesan (Last 3)</h6>
+                            <div class="text-white" style="font-size:0.8rem;">
+                                <div class="mb-1">[14:00] <span class="text-info-v42">[News Bot]</span> Impact: HIGH</div>
+                                <div class="mb-1">[13:45] <span class="text-bullish">[Trade Bot]</span> TP Hit: +$45.00</div>
+                                <div class="mb-1">[13:00] <span class="text-warning-v42">[Health Bot]</span> Ping check OK</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 11: SYSTEM OPS -->
+            <div id="tab-sysops" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">System Operations</h5>
+                <div class="bg-dark-panel p-3 rounded">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <table class="table table-v42 mb-0">
+                                <tbody>
+                                    <tr><td>CPU</td><td class="text-white text-end" id="sysops-cpu">12%</td></tr>
+                                    <tr><td>RAM</td><td class="text-white text-end" id="sysops-ram">4.2GB</td></tr>
+                                    <tr><td>SSD</td><td class="text-white text-end" id="sysops-ssd">245GB Free</td></tr>
+                                    <tr><td>Internet</td><td class="text-bullish text-end" id="sysops-internet">24ms</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <table class="table table-v42 mb-0">
+                                <tbody>
+                                    <tr><td>Broker</td><td class="text-bullish text-end" id="sysops-broker">CONNECTED</td></tr>
+                                    <tr><td>MT5</td><td class="text-bullish text-end" id="sysops-mt5">SYNCED</td></tr>
+                                    <tr><td>Database</td><td class="text-bullish text-end" id="sysops-database">WAL READY</td></tr>
+                                    <tr><td>Scheduler</td><td class="text-info-v42 text-end" id="sysops-scheduler">ACTIVE (5 Jobs)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <table class="table table-v42 mb-0">
+                                <tbody>
+                                    <tr><td>WebSocket</td><td class="text-bullish text-end" id="sysops-websocket">OPEN</td></tr>
+                                    <tr><td>API</td><td class="text-bullish text-end" id="sysops-api">UVICORN 200 OK</td></tr>
+                                    <tr><td>Logs</td><td class="text-white text-end" id="sysops-logs">75.2MB</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 mt-1">
+                    <div class="col-md-7">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Memory Allocation Gauge (Committed Memory)</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-muted" style="font-size: 0.8rem;">
+                                    <span>Physical RAM Usage:</span>
+                                    <span id="ram-usage-text">4.2GB / 16.0GB</span>
+                                </div>
+                                <div class="progress bg-dark border border-secondary mt-1" style="height: 12px;">
+                                    <div id="ram-progress-bar" class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: 25%;"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-muted" style="font-size: 0.8rem;">
+                                    <span>Virtual RAM (Page File):</span>
+                                    <span id="vram-usage-text">8.0GB / 16.0GB</span>
+                                </div>
+                                <div class="progress bg-dark border border-secondary mt-1" style="height: 12px;">
+                                    <div id="vram-progress-bar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between text-muted" style="font-size: 0.8rem;">
+                                    <span>Combined Committed Memory (RAM + VRAM):</span>
+                                    <span id="combined-usage-text">12.2GB / 32.0GB</span>
+                                </div>
+                                <div class="progress bg-dark border border-secondary mt-1" style="height: 16px;">
+                                    <div id="combined-progress-bar" class="progress-bar bg-info progress-bar-striped" role="progressbar" style="width: 38%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">RAMMap & PageFile Config</h6>
+                            <div class="mb-3">
+                                <label class="text-muted mb-1" style="font-size: 0.75rem;">Initial Size (MB):</label>
+                                <input type="number" class="form-control form-control-sm bg-dark text-white border-secondary" id="vram-init-size" value="4096">
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted mb-1" style="font-size: 0.75rem;">Maximum Size (MB):</label>
+                                <input type="number" class="form-control form-control-sm bg-dark text-white border-secondary" id="vram-max-size" value="8192">
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary btn-sm fw-bold" onclick="applyVirtualRamSettings()"><i class="bi bi-gear-fill me-1"></i> SET VIRTUAL RAM</button>
+                                <button class="btn btn-outline-success btn-sm fw-bold" id="btn-clean-ram" onclick="cleanRamMemory()"><i class="bi bi-cpu me-1"></i> RUN RAMMAP CLEANER</button>
+                            </div>
+                            <div class="mt-3 d-flex align-items-center justify-content-between border-top border-secondary pt-2">
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="vram-auto-clean-chk" onchange="toggleAutoCleanRam()">
+                                    <label class="form-check-label text-muted mb-0" for="vram-auto-clean-chk" style="font-size: 0.75rem;">Auto-Clean RAM</label>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted me-1" style="font-size: 0.7rem;">Every:</span>
+                                    <select class="form-select form-select-sm bg-dark text-white border-secondary py-0 px-2" id="vram-auto-clean-interval" style="font-size: 0.7rem; width: 85px;" onchange="changeAutoCleanInterval()">
+                                        <option value="5">5 min</option>
+                                        <option value="15" selected>15 min</option>
+                                        <option value="30">30 min</option>
+                                        <option value="60">60 min</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 12: ADMIN -->
+            <div id="tab-admin" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Administration</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-2 rounded h-100">
+                            <div class="list-group list-group-flush" id="admin-sidebar-list">
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="user">👤 User Management</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="broker">🏦 Broker Integration</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="strategy">📈 Strategy Settings</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="telegram">💬 Telegram API</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="risk">⚠️ Risk Parameters</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="ai">🧠 AI Engine Tuning</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="scheduler">⏱️ Scheduler Config</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="backup">💾 Backup & Restore</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="update">🔄 System Update</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="license">🔑 License Management</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="bg-dark-panel p-4 rounded h-100" id="admin-content-panel" style="min-height: 480px; overflow-y: auto;">
+                            <div class="text-center d-flex flex-column justify-content-center h-100 py-5">
+                                <i class="bi bi-sliders fs-1 text-muted mb-3"></i>
+                                <h5 class="text-muted">Select an administration module from the left panel to configure settings.</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Command Panel (20%) -->
+        <div class="col-command">
+            <h6 class="text-muted mb-4" style="font-size: 0.7rem; letter-spacing: 1px;">AI COMMAND PANEL</h6>
+            
+            <div class="kpi-card text-center mb-4 border-primary">
+                <div class="kpi-title mb-2">AI DIRECTION</div>
+                <h1 class="text-sideway fw-bold mb-0" id="ai-rec" style="font-size: 2.5rem;">WAIT</h1>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Confidence:</span>
+                <span class="text-white fw-bold" id="panel-confidence">--.-%</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Trend Strength:</span>
+                <span class="text-bullish fw-bold" id="panel-trend">STRONG</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Market Regime:</span>
+                <span class="text-white" id="panel-regime">Trending</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4">
+                <span class="text-muted">Risk Score:</span>
+                <span class="text-bullish fw-bold" id="panel-risk">LOW</span>
+            </div>
+            
+            <div class="d-flex justify-content-between mb-4">
+                <span class="text-muted">Spread:</span>
+                <span class="text-info-v42 fw-bold" id="panel-spread">0.8 pips</span>
+            </div>
+
+            <hr style="border-color: #30363d;">
+
+            <div class="d-flex justify-content-between mb-2 mt-4">
+                <span class="text-muted">Open Position:</span>
+                <span class="text-white fw-bold" id="panel-open-position">0</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4">
+                <span class="text-muted">Floating P/L:</span>
+                <span class="text-white fw-bold" id="panel-floating-pl">$0.00</span>
+            </div>
+
+            <button class="btn btn-danger w-100 fw-bold py-3 mt-4" style="letter-spacing: 1px;">EMERGENCY STOP</button>
+            <button class="btn btn-outline-success w-100 fw-bold py-2 mt-2" id="server-power-btn" onclick="shutdownServer()" style="font-size: 0.8rem; letter-spacing: 1px; box-shadow: 0 0 8px rgba(46, 160, 67, 0.4);"><i class="bi bi-power me-1"></i> SERVER STATUS: ON</button>
+        </div>
+
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <div class="bottom-bar d-flex align-items-center px-3 justify-content-between">
+        <div>
+            <span class="me-3 text-muted">Broker: <span class="text-bullish" id="bottom-broker">OK</span></span>
+            <span class="me-3 text-muted">MT5: <span class="text-bullish" id="bottom-mt5">OK</span></span>
+            <span class="me-3 text-muted">API: <span class="text-bullish" id="bottom-api">OK</span></span>
+            <span class="me-3 text-muted">Database: <span class="text-bullish" id="bottom-database">OK</span></span>
+            <span class="me-3 text-muted">Scheduler: <span class="text-bullish" id="bottom-scheduler">IDLE</span></span>
+            <span class="me-3 text-muted">Telegram: <span class="text-warning-v42" id="bottom-telegram">OFF</span></span>
+            <span class="me-3 text-muted">Internet: <span class="text-bullish" id="bottom-internet">CONNECTED</span></span>
+            <span class="me-3 text-muted">WebSocket: <span class="text-bullish" id="bottom-ws">OK</span></span>
+        </div>
+        <div class="text-muted">
+            Last Update: <span class="text-white" id="bottom-update">--</span> | Version: <span class="text-white">v42.0.0 Enterprise</span>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="js/app.js?v=3"></script>
+</body>
+</html>

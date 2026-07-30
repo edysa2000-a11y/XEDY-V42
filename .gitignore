@@ -1,0 +1,38 @@
+# =========================================
+# XEDY V41 ULTIMATE - GIT IGNORE CONFIG
+# =========================================
+
+# Python System Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Environment Variables & Secrets (SANGAT PENTING!)
+.env
+.env.local
+.env.*.local
+
+# Database local (Menyimpan riwayat & saldo trading)
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs & Temporary Files
+/logs/
+/scratch/
+*.log
+/tests/.pytest_cache/
+
+# IDE Configuration
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
