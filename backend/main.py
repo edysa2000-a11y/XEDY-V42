@@ -27,6 +27,12 @@ from backend.engines.data_engine import DataEngine
 from backend.engines.news_engine import HybridNewsEngine
 from backend.telegram.bot import TelegramEcosystem
 
+import os
+import dotenv
+
+# Load environment variables with override enabled
+dotenv.load_dotenv(override=True)
+
 import logging
 logging.basicConfig(
     level=logging.INFO,
@@ -99,6 +105,7 @@ def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold:
     os.environ["HEDGING_ENABLED"] = str(hedging_enabled)
     os.environ["AUTO_LOT_ENABLED"] = str(auto_lot)
     os.environ["RISK_PERCENT"] = f"{risk_percent:.1f}"
+    dotenv.load_dotenv(env_path, override=True)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -299,6 +306,9 @@ async def websocket_endpoint(websocket: WebSocket):
     await ws_manager.connect(websocket)
     import logging
     logger = logging.getLogger("xedy.websocket")
+    
+    # Reload environment variables to sync latest settings from disk
+    dotenv.load_dotenv(override=True)
     
     # Send current settings and dashboard data immediately upon connection
     try:
