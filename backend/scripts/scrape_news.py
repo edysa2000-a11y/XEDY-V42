@@ -3,8 +3,9 @@ import urllib.request
 import urllib.parse
 import json
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import time
+import email.utils
 
 def send_telegram_notification(token, chat_id, text):
     if not token or not chat_id:
@@ -40,9 +41,20 @@ def scrape_rss(url):
                 pub_date = item.find('pubDate')
                 link = item.find('link')
                 if title is not None:
+                    raw_pub = pub_date.text if pub_date is not None else ""
+                    # Normalize time to GMT+7 (Asia/Jakarta)
+                    gmt7_pub = ""
+                    if raw_pub:
+                        try:
+                            dt = email.utils.parsedate_to_datetime(raw_pub)
+                            gmt7_dt = dt.astimezone(timezone(timedelta(hours=7)))
+                            gmt7_pub = gmt7_dt.strftime('%Y-%m-%d %H:%M:%S')
+                        except Exception:
+                            gmt7_pub = raw_pub
+                    
                     articles.append({
                         "title": title.text,
-                        "pubDate": pub_date.text if pub_date is not None else "",
+                        "pubDate": gmt7_pub,
                         "link": link.text if link is not None else ""
                     })
             return articles
@@ -113,20 +125,22 @@ def main():
     tg_news_list = []
     for idx, art in enumerate(articles[:5]):
         headline = art["title"]
-        news_text += f"- {headline}\n"
-        tg_news_list.append(f"{idx+1}. <b>{headline}</b>")
+        pub_t = art["pubDate"]
+        news_text += f"- {headline} ({pub_t})\n"
+        tg_news_list.append(f"{idx+1}. <b>{headline}</b>\n   <i>Release: {pub_t} WIB</i>")
         
     # 3. Analyze with Qwen AI in the Cloud
     print("Calling Qwen AI for Macro Analysis...")
     analysis = get_qwen_analysis(api_key, news_text)
     print(f"Qwen Bias Result: {analysis.get('bias')}")
     
-    # 4. Save results to JSON
+    # 4. Save results to JSON (timestamp in GMT+7 for local PC sync)
     output_dir = "data"
     os.makedirs(output_dir, exist_ok=True)
     
+    local_now = datetime.utcnow() + timedelta(hours=7)
     news_feed_data = {
-        "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "generated_at": local_now.strftime("%Y-%m-%d %H:%M:%S WIB"),
         "news": articles[:5],
         "macro_analysis": analysis
     }
@@ -134,10 +148,10 @@ def main():
     with open(os.path.join(output_dir, "news_feed.json"), "w") as f:
         json.dump(news_feed_data, f, indent=2)
         
-    # 5. Send Telegram Notification from Cloud
+    # 5. Send Telegram Notification from Cloud (GMT+7)
     tg_msg = (
         f"<b>📰 XEDY CLOUD INTEL REPORT</b>\n"
-        f"<i>Time: {datetime.utcnow().strftime('%H:%M:%S UTC')}</i>\n\n"
+        f"<i>Time: {local_now.strftime('%Y-%m-%d %H:%M:%S WIB')}</i>\n\n"
         f"<b>🔍 Top Headlines:</b>\n" + "\n".join(tg_news_list) + "\n\n"
         f"<b>🧠 Qwen AI Strategic Decision:</b>\n"
         f"• <b>Bias Direction</b>: <code>{analysis.get('bias')}</code>\n"

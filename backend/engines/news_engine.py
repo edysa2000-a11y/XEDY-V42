@@ -182,13 +182,29 @@ class HybridNewsEngine:
             feed_news = data.get("news", [])
             formatted_news = []
             import time
+            import datetime
             t_now = time.time()
             for art in feed_news:
                 headline = art.get("title", "")
+                pub_date_str = art.get("pubDate", "")
+                
+                # Parse pubDate (YYYY-MM-DD HH:MM:SS) back to unix timestamp for decay calculations
+                ts = t_now
+                if pub_date_str:
+                    try:
+                        dt = datetime.datetime.strptime(pub_date_str, "%Y-%m-%d %H:%M:%S")
+                        # GMT+7 to UTC
+                        utc_dt = dt - datetime.timedelta(hours=7)
+                        utc_dt = utc_dt.replace(tzinfo=datetime.timezone.utc)
+                        ts = utc_dt.timestamp()
+                    except Exception:
+                        ts = t_now
+                        
                 formatted_news.append({
                     "headline": headline,
                     "source": "Google News (Cloud)",
-                    "timestamp": t_now,
+                    "timestamp": ts,
+                    "time_str": pub_date_str,
                     "relevancy": 95,
                     "sentiment_score": 50.0,
                     "gold_impact": "NEUTRAL",
