@@ -311,14 +311,14 @@
                     <h5 class="mb-0 text-white">Trading Center</h5>
                     <div class="d-flex align-items-center gap-3 bg-dark-panel p-2 rounded border border-secondary flex-wrap">
                         <div class="d-flex align-items-center gap-2">
-                            <input type="checkbox" id="auto-lot-checkbox" onchange="toggleAutoLot()" style="width: 16px; height: 16px; cursor: pointer; accent-color: #2ea043;">
+                            <input type="checkbox" id="auto-lot-checkbox" checked onchange="toggleAutoLot()" style="width: 16px; height: 16px; cursor: pointer; accent-color: #2ea043;">
                             <span class="text-white" style="font-size: 0.8rem; font-weight: bold; cursor: pointer;" onclick="document.getElementById('auto-lot-checkbox').click()">AUTO LOT</span>
                         </div>
                         <div class="vr bg-secondary d-none d-sm-block" style="height: 20px;"></div>
                         <div class="d-flex align-items-center gap-2">
                             <span class="text-muted" style="font-size: 0.8rem; font-weight: bold;">% RISK:</span>
                             <div class="input-group input-group-sm" style="width: 80px;">
-                                <input type="number" class="form-control text-center bg-dark text-white border-secondary py-0" id="risk-percent-input" value="1.0" min="0.1" max="10.0" step="0.1" style="font-weight: bold; font-size: 0.85rem;" oninput="sendTradingSettings()">
+                                <input type="number" class="form-control text-center bg-dark text-white border-secondary py-0" id="risk-percent-input" value="5.0" min="0.1" max="10.0" step="0.1" style="font-weight: bold; font-size: 0.85rem;" oninput="sendTradingSettings()">
                             </div>
                             <span class="text-muted fw-bold" style="font-size: 0.85rem;">%</span>
                         </div>
