@@ -148,13 +148,88 @@ class HybridNewsEngine:
                     logger.error(f"Error updating macro data from GitHub: {e}")
             
             try:
-                await self._fetch_and_analyze()
+                # Try fetching pre-compiled news and Qwen analysis from GitHub Actions cloud first
+                cloud_success = await self._fetch_from_github_cloud()
+                if not cloud_success:
+                    # Fallback to local RSS scraping if cloud scraper is not configured/offline
+                    await self._fetch_and_analyze()
             except Exception as e:
                 logger.error(f"Error di Hybrid News Engine: {e}")
             
             loop_count += 1
             # Fetch every 60 seconds to avoid rate limiting
             await asyncio.sleep(60)
+
+    async def _fetch_from_github_cloud(self):
+        pat = os.getenv("GITHUB_PAT", "")
+        if not pat:
+            return False
+            
+        url = "https://raw.githubusercontent.com/edysa2000-a11y/XEDY-V42/main/data/news_feed.json"
+        try:
+            import urllib.request
+            import json
+            req = urllib.request.Request(url, headers={
+                "Authorization": f"token {pat}",
+                "User-Agent": "XEDY/v42"
+            })
+            def _fetch():
+                with urllib.request.urlopen(req, timeout=10.0) as r:
+                    return json.loads(r.read().decode('utf-8'))
+            data = await asyncio.to_thread(_fetch)
+            
+            # Map news
+            feed_news = data.get("news", [])
+            formatted_news = []
+            import time
+            t_now = time.time()
+            for art in feed_news:
+                headline = art.get("title", "")
+                formatted_news.append({
+                    "headline": headline,
+                    "source": "Google News (Cloud)",
+                    "timestamp": t_now,
+                    "relevancy": 95,
+                    "sentiment_score": 50.0,
+                    "gold_impact": "NEUTRAL",
+                    "confidence": 75.0,
+                    "duration": "24h",
+                    "regime": "Normal",
+                    "final_score": 50.0,
+                    "source_weight": 0.95
+                })
+            if formatted_news:
+                self.news_feed = formatted_news
+                self.seen_headlines = {n["headline"] for n in self.news_feed}
+                
+            # Map Qwen macro analysis decision directly to strategist
+            analysis = data.get("macro_analysis", {})
+            
+            # Update strategist dynamically
+            macro_strat = getattr(self, "macro_strategist", None)
+            if not macro_strat and hasattr(self, "decision_engine") and self.decision_engine:
+                macro_strat = getattr(self.decision_engine, "macro_strategist", None)
+                
+            if macro_strat and analysis:
+                optimal_conf = analysis.get("optimal_confidence_threshold")
+                optimal_max = analysis.get("optimal_max_op")
+                macro_bias = analysis.get("bias")
+                regime = analysis.get("regime")
+                
+                if optimal_conf is not None:
+                    macro_strat.optimal_confidence_threshold = float(optimal_conf)
+                if optimal_max is not None:
+                    macro_strat.optimal_max_op = int(optimal_max)
+                if macro_bias is not None:
+                    macro_strat.macro_bias = str(macro_bias)
+                if regime is not None:
+                    macro_strat.regime = str(regime)
+                    
+            logger.info("News Engine: Successfully retrieved precompiled Qwen AI macro analysis from GitHub Cloud Scraper!")
+            return True
+        except Exception as e:
+            logger.warning(f"News Engine: Failed to fetch precompiled cloud news from GitHub (using local scraper instead): {e}")
+            return False
 
     async def _update_real_macro_data(self):
         import urllib.request

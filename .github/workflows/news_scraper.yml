@@ -1,0 +1,37 @@
+name: XEDY Cloud Scraper
+
+on:
+  schedule:
+    - cron: '*/10 * * * *' # Run every 10 minutes
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  scrape-and-analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install python-dotenv
+
+      - name: Run Scraper Script
+        env:
+          AIVENE_API_KEY: ${{ secrets.AIVENE_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ADMIN_ID: ${{ secrets.TELEGRAM_ADMIN_ID }}
+        run: |
+          python backend/scripts/scrape_news.py
+
+      - name: Commit and Push compiled news feed
+        run: |
+          git config --global user.name "XEDY Cloud Scraper"
+          git config --global user.email "cloud-scraper@xedy.trading"
+          git add data/news_feed.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update compiled cloud news feed and Qwen AI analysis" && git push)
