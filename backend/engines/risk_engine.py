@@ -162,6 +162,16 @@ class RiskEngine(BaseEngine):
                 else:
                     atr = 9.09
                     
+                # Adaptive Volatility Spacing Adjustment
+                regime = "Normal"
+                if self.macro_strategist:
+                    regime = getattr(self.macro_strategist, "regime", "Normal")
+                
+                # Stretch spacing by 2.0x during high news/volatility to prevent clustering grid positions
+                if regime in ["HIGH_NEWS", "HIGH_VOLATILITY", "VIP (High Impact)"]:
+                    avg_mult *= 2.0
+                    self.logger.info(f"Dynamic Spacing: High volatility regime ({regime}) detected. Stretching grid multiplier to {avg_mult}x")
+                    
                 required_distance = atr * avg_mult
                 
                 # Get the last opened position of the same type
@@ -356,12 +366,16 @@ class RiskEngine(BaseEngine):
                         self._logical_sls.pop(t, None)
 
                     if positions:
-                        # 1. Basket Take Profit (Hedge Recovery Closeout)
+                        # 1. Dynamic Basket Take Profit (Volume-Weighted Recovery)
                         combined_profit = sum(float(p.profit) for p in positions)
-                        basket_tp = float(os.environ.get("BASKET_TP", "5.00"))
+                        total_volume = sum(float(p.volume) for p in positions)
+                        
+                        # Scale target profit: $15.00 for every 0.10 lot size (e.g. 1.0 lot targets $150.00)
+                        dynamic_target = (total_volume / 0.10) * 15.00
+                        basket_tp = max(5.00, round(dynamic_target, 2))
                         
                         if len(positions) >= 2 and combined_profit >= basket_tp:
-                            self.logger.info(f"AI Basket Target Achieved: Combined Profit {combined_profit:.2f} >= Target {basket_tp:.2f}. Closing all positions!")
+                            self.logger.info(f"AI Basket Target Achieved: Combined Profit {combined_profit:.2f} >= Dynamic Target {basket_tp:.2f} (Vol: {total_volume:.2f} Lot). Closing all positions!")
                             if self.execution_engine:
                                 await self.execution_engine.close_all_positions()
                             continue
