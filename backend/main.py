@@ -277,10 +277,15 @@ async def inject_news(payload: dict):
 
 @app.get("/api/v1/debug_settings")
 def debug_settings():
+    re = app.state.risk_engine
     return {
-        "lot_size": app.state.risk_engine.config.get("lot_size"),
-        "max_positions": app.state.risk_engine.max_positions,
-        "auto_lot": os.environ.get("AUTO_LOT_ENABLED")
+        "lot_size": re.config.get("lot_size"),
+        "max_positions": re.max_positions,
+        "auto_lot": os.environ.get("AUTO_LOT_ENABLED"),
+        "active_method": getattr(re, "active_method", "unknown"),
+        "autotrade_enabled": getattr(re, "autotrade_enabled", False),
+        "intra_candle_task_running": re._intra_candle_task is not None and not re._intra_candle_task.done(),
+        "trailing_task_running": re._trailing_task is not None and not re._trailing_task.done()
     }
 
 @app.post("/api/v1/system/rammap/clean")
