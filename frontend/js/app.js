@@ -2002,6 +2002,10 @@ document.addEventListener('DOMContentLoaded', () => {
             title: '⚡ Double-Sided Intra-Candle Scalper (M5)',
             desc: 'Strategi scalping frekuensi tinggi dua arah pada timeframe M5. Memanfaatkan siklus lilin 5 menit untuk eksekusi ratusan trade per hari dengan winrate mendekati 100% dan profit harian +24.0%.'
         },
+        'intra-candle-scalper-m15': {
+            title: '⚡ Double-Sided Intra-Candle Scalper (M15)',
+            desc: 'Strategi scalping frekuensi tinggi dua arah pada timeframe M15. Memanfaatkan lilin 15 menit untuk keseimbangan ideal antara jumlah trade dan winrate (100% Winrate pada pengujian 1 hari).'
+        },
         'qwen3.7-flash-dynamic': {
             title: '🤖 Qwen 3.7 Flash Dynamic (Teroptimasi)',
             desc: 'Model trading kuantitatif tingkat institusional. Menghitung dynamic stop-loss, take-profit, dan break-even trigger per sesi waktu (Asia, Eropa, US) menggunakan umpan balik MAE/MFE secara real-time.'
