@@ -265,6 +265,14 @@ async def inject_news(payload: dict):
         return {"status": "SUCCESS", "message": "News injected and Qwen3.7 Macro Strategist triggered."}
     return {"status": "ERROR", "message": "News Engine not initialized."}
 
+@app.get("/api/v1/debug_settings")
+def debug_settings():
+    return {
+        "lot_size": app.state.risk_engine.config.get("lot_size"),
+        "max_positions": app.state.risk_engine.max_positions,
+        "auto_lot": os.environ.get("AUTO_LOT_ENABLED")
+    }
+
 @app.post("/api/v1/system/rammap/clean")
 async def clean_ram_memory():
     import gc
