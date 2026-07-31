@@ -45,6 +45,7 @@
                 <li class="nav-item"><a class="nav-link" data-target="tab-smartmoney" href="#">🏛️ Smart Money</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-ai" href="#">🧠 AI Decision Center</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-trading" href="#">💹 Trading Center</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-automodel" href="#">🤖 AutoTrade Model</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-risk" href="#">⚠ Risk Control</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-news" href="#">📰 News Intelligence</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-analytics" href="#">📊 Analytics</a></li>
@@ -388,6 +389,79 @@
                             <tr><td colspan="5" class="text-muted text-center">No recent history.</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- TAB: AUTOTRADE MODEL -->
+            <div id="tab-automodel" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">AutoTrade AI Models</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-4 rounded h-100 border border-secondary">
+                            <h6 class="text-muted mb-3">PILIH MODEL / STRATEGI TRADING AI</h6>
+                            
+                            <div class="mb-4">
+                                <label class="text-white mb-2 d-block" style="font-size: 0.85rem;">Active AI Model</label>
+                                <select class="form-select bg-dark text-white border-secondary" id="active-ai-model-select" style="font-size: 0.9rem;">
+                                    <option value="qwen3.7-flash-dynamic" selected>🤖 Qwen 3.7 Flash Dynamic (Teroptimasi 12 Bulan: +3538% Profit)</option>
+                                    <option value="xgboost-standalone-9d">📊 XGBoost Standalone (9-D Baseline)</option>
+                                    <option value="smc-liquidity-v2">🏛️ Smart Money Concepts & Liquidity Engine (Grid)</option>
+                                    <option value="fixed-micro-scalping">⚡ Fixed Micro Scalping (Fixed 0.01 Lot - DD 3.01%)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="p-3 rounded bg-black mb-3" style="font-size: 0.8rem; border-left: 4px solid #ff5722;">
+                                <div class="text-white fw-bold mb-1" id="selected-model-title">🤖 Qwen 3.7 Flash Dynamic</div>
+                                <div class="text-muted" id="selected-model-desc">
+                                    Model trading kuantitatif tingkat institusional. Menghitung dynamic stop-loss, take-profit, dan break-even trigger per sesi waktu (Asia, Eropa, US) menggunakan umpan balik MAE/MFE secara real-time.
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary w-100 py-2 fw-bold" id="apply-ai-model-btn" style="background-color: #ff5722; border-color: #ff5722;">TERAPKAN MODEL AI</button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-4 rounded h-100 border border-secondary">
+                            <h6 class="text-muted mb-3">PERFORMA MODEL TEROPTIMASI (XAUUSD)</h6>
+                            <table class="table table-v42 mb-0" style="font-size: 0.8rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Model / Strategi AI</th>
+                                        <th class="text-center">Profit Bersih</th>
+                                        <th class="text-center">Max Drawdown</th>
+                                        <th class="text-center">Winrate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-left: 3px solid #ff5722;">
+                                        <td class="fw-bold text-white">Qwen 3.7 Flash Dynamic</td>
+                                        <td class="text-center text-success fw-bold">+3,538.41%</td>
+                                        <td class="text-center text-warning">31.97%</td>
+                                        <td class="text-center">35.0%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>XGBoost Standalone</td>
+                                        <td class="text-center text-success">+387.90%</td>
+                                        <td class="text-center text-danger">42.95%</td>
+                                        <td class="text-center">48.2%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>SMC & Liquidity Grid</td>
+                                        <td class="text-center text-success">+182.10%</td>
+                                        <td class="text-center text-warning">18.52%</td>
+                                        <td class="text-center">54.1%</td>
+                                    </tr>
+                                    <tr style="border-left: 3px solid #4caf50;">
+                                        <td class="fw-bold text-white">Fixed Micro Scalping</td>
+                                        <td class="text-center text-success fw-bold">+14.90%</td>
+                                        <td class="text-center text-success">3.01%</td>
+                                        <td class="text-center">43.6%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 

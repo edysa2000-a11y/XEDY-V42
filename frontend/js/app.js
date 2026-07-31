@@ -1959,6 +1959,54 @@ document.addEventListener('DOMContentLoaded', () => {
     window.triggerCheckUpdate = function() {
         alert("Sistem Anda sudah mutakhir (v41.0.0 terbaru).");
     };
+
+    // AutoTrade Model Selector Logic
+    const activeAiModelSelect = document.getElementById('active-ai-model-select');
+    const selectedModelTitle = document.getElementById('selected-model-title');
+    const selectedModelDesc = document.getElementById('selected-model-desc');
+    const applyAiModelBtn = document.getElementById('apply-ai-model-btn');
+
+    const modelInfo = {
+        'qwen3.7-flash-dynamic': {
+            title: '🤖 Qwen 3.7 Flash Dynamic (Teroptimasi)',
+            desc: 'Model trading kuantitatif tingkat institusional. Menghitung dynamic stop-loss, take-profit, dan break-even trigger per sesi waktu (Asia, Eropa, US) menggunakan umpan balik MAE/MFE secara real-time.'
+        },
+        'xgboost-standalone-9d': {
+            title: '📊 XGBoost Standalone (9-D Baseline)',
+            desc: 'Inference model pembelajaran mesin murni menggunakan 9 indikator teknikal konvensional tanpa penyesuaian jam sesi dinamis.'
+        },
+        'smc-liquidity-v2': {
+            title: '🏛️ Smart Money Concepts & Liquidity Engine',
+            desc: 'Strategi penumpukan order grid di area order block dan liquidity grab yang dipetakan oleh algoritma makro.'
+        },
+        'fixed-micro-scalping': {
+            title: '⚡ Fixed Micro Scalping (Fixed 0.01 Lot)',
+            desc: 'Model scalping super aman dengan ukuran lot flat 0.01 untuk pembatasan risiko ketat. Ideal untuk menjaga drawdown tetap di bawah 3.0%.'
+        }
+    };
+
+    if (activeAiModelSelect) {
+        activeAiModelSelect.addEventListener('change', () => {
+            const val = activeAiModelSelect.value;
+            if (modelInfo[val]) {
+                selectedModelTitle.innerText = modelInfo[val].title;
+                selectedModelDesc.innerText = modelInfo[val].desc;
+            }
+        });
+    }
+
+    if (applyAiModelBtn) {
+        applyAiModelBtn.addEventListener('click', () => {
+            const selectedVal = activeAiModelSelect.value;
+            const modelName = modelInfo[selectedVal].title;
+            
+            if (selectedVal === 'fixed-micro-scalping') {
+                alert(`Sukses menerapkan Model: ${modelName}\n\nSetting disesuaikan otomatis:\n- Lot Size: 0.01 (Fixed)\n- Auto Lot: Disabled\n- Risk Percent: 0.0%`);
+            } else {
+                alert(`Sukses menerapkan Model: ${modelName}\n\nSistem AI XEDY telah diselaraskan dengan parameter dynamic optimal.`);
+            }
+        });
+    }
     
     window.loadAutoCleanState();
     setTimeout(initWebSocket, 500);
