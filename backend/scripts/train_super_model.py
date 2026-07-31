@@ -26,8 +26,16 @@ def main():
     feature_cols = [
         'rsi', 'macd', 'adx', 'atr', 
         'nfp_surprise', 'cpi_surprise', 'fed_rate',
-        'dxy_trend', 'yield_trend'
+        'dxy_trend', 'yield_trend',
+        'session_asia', 'session_europe', 'session_america', 'session_overlap'
     ]
+    
+    # Analyze and print Trend Profiling breakdown (MAE/MFE)
+    strong_trend = clean_df[(clean_df['mfe'] >= 5.0) & (clean_df['mae'] <= 1.0)]
+    sideways_chop = clean_df[(clean_df['mfe'] <= 2.0) & (clean_df['mae'] >= 2.0)]
+    print(f"\n--- MAE/MFE TREND PROFILE ANALYSIS ---")
+    print(f"  • Strong Volatility Trends (High MFE, Low MAE): {len(strong_trend)} rows")
+    print(f"  • Sideways/Chop Ranges (Low MFE, High MAE): {len(sideways_chop)} rows")
     
     X = clean_df[feature_cols]
     y = clean_df['target']

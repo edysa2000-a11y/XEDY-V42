@@ -163,7 +163,26 @@ class RiskEngine(BaseEngine):
                 else:
                     atr = 9.09
                     
-                # Adaptive Volatility Spacing Adjustment
+                # Adaptive Volatility & Market Session Spacing Adjustment
+                import datetime
+                utc_hour = datetime.datetime.now(datetime.timezone.utc).hour
+                
+                session_name = "Asian Session"
+                session_mult = 0.8
+                
+                if utc_hour >= 8 and utc_hour < 13:
+                    session_name = "European Session"
+                    session_mult = 1.2
+                elif utc_hour >= 13 and utc_hour < 17:
+                    session_name = "London/NY Overlap"
+                    session_mult = 2.2
+                elif utc_hour >= 17 and utc_hour < 21:
+                    session_name = "American Session"
+                    session_mult = 1.8
+                    
+                avg_mult *= session_mult
+                self.logger.info(f"Session Spacing: Current session: {session_name} (Hour: {utc_hour} UTC). Spacing multiplier adjusted to {avg_mult}x")
+                
                 regime = "Normal"
                 if self.macro_strategist:
                     regime = getattr(self.macro_strategist, "regime", "Normal")
@@ -373,6 +392,15 @@ class RiskEngine(BaseEngine):
                         
                         # Scale target profit: $15.00 for every 0.10 lot size (e.g. 1.0 lot targets $150.00)
                         dynamic_target = (total_volume / 0.10) * 15.00
+                        
+                        # Adjust target based on current market session
+                        import datetime
+                        utc_hour = datetime.datetime.now(datetime.timezone.utc).hour
+                        if utc_hour >= 0 and utc_hour < 8: # Asian Session (chop): Exit quickly!
+                            dynamic_target *= 0.7
+                        elif utc_hour >= 13 and utc_hour < 21: # US Session (trend): Hold for more!
+                            dynamic_target *= 1.3
+                            
                         basket_tp = max(5.00, round(dynamic_target, 2))
                         
                         if len(positions) >= 2 and combined_profit >= basket_tp:

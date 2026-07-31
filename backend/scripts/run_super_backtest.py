@@ -159,20 +159,38 @@ def main():
             can_open_buy = False
             can_open_sell = False
             
-        # ML Inference
-        X = np.array([[curr_rsi, curr_macd, curr_adx, atr, nfp_surprise, cpi_surprise, fed_rate, dxy_trend, yield_trend]])
+        # Calculate session features
+        dt = datetime.datetime.fromtimestamp(rates[idx][0], datetime.timezone.utc)
+        hour = dt.hour
+        session_asia = 1.0 if (hour >= 0 and hour < 8) else 0.0
+        session_europe = 1.0 if (hour >= 8 and hour < 13) else 0.0
+        session_america = 1.0 if (hour >= 13 and hour < 21) else 0.0
+        session_overlap = 1.0 if (hour >= 13 and hour < 17) else 0.0
+        
+        # ML Inference with 13 features
+        X = np.array([[
+            curr_rsi, curr_macd, curr_adx, atr, 
+            nfp_surprise, cpi_surprise, fed_rate, 
+            dxy_trend, yield_trend,
+            session_asia, session_europe, session_america, session_overlap
+        ]])
         probs = model.predict_proba(X)
         prob_buy = float(probs[0][1])
         prob_sell = float(probs[0][0])
         
-        # High confidence triggers (threshold >= 0.80)
+        # Check Drawdown Halt (3.0% Kill Switch)
+        if max_dd >= 3.0:
+            can_open_buy = False
+            can_open_sell = False
+            
+        # Trigger on High Confidence
         if prob_buy >= 0.80 and can_open_buy:
             positions.append({"type": "BUY", "price": price, "volume": 0.10, "highest_profit": 0.0})
         elif prob_sell >= 0.80 and can_open_sell:
             positions.append({"type": "SELL", "price": price, "volume": 0.10, "highest_profit": 0.0})
             
-        # Hard SL protection
-        if floating_profit <= -350.0:
+        # Hard SL protection (Tightened to cap DD at 1.5% per basket failure)
+        if floating_profit <= -150.0:
             balance += floating_profit
             for p in positions:
                 pips = (price - p["price"]) if p["type"] == "BUY" else (p["price"] - price)

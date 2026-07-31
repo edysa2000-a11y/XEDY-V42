@@ -126,34 +126,72 @@ def main():
     # US10Y yields shift around 4.25 (Inversely correlated with Gold price)
     df['yield_trend'] = 4.25 - (df['close'] - df['close'].mean()) * 0.01 + np.random.normal(0, 0.01, len(df))
     
-    # 4. Target Labeling (Precise Directional Win/Loss)
-    # Define Target: 1 = Price rises by 5.0 USD within next 8 bars without dropping 3.0 USD first (Strong BUY)
-    #                0 = Price drops by 5.0 USD within next 8 bars without rising 3.0 USD first (Strong SELL)
-    #                -1 = Ranging / chop (No clear signal)
-    print("Labeling target outcomes...")
+    # 4. Market Sessions Mapping (Asia, Europe, America, Overlap)
+    print("Mapping 24-hour global market sessions...")
+    session_asia = []
+    session_europe = []
+    session_america = []
+    session_overlap = []
+    
+    for dt in df['datetime']:
+        hour = dt.hour # UTC hour
+        # Asian Session (00:00 - 08:00 UTC)
+        session_asia.append(1 if (hour >= 0 and hour < 8) else 0)
+        # European Session (08:00 - 13:00 UTC)
+        session_europe.append(1 if (hour >= 8 and hour < 13) else 0)
+        # American Session (13:00 - 21:00 UTC)
+        session_america.append(1 if (hour >= 13 and hour < 21) else 0)
+        # London/NY Overlap Session (13:00 - 17:00 UTC)
+        session_overlap.append(1 if (hour >= 13 and hour < 17) else 0)
+        
+    df['session_asia'] = session_asia
+    df['session_europe'] = session_europe
+    df['session_america'] = session_america
+    df['session_overlap'] = session_overlap
+    
+    # 5. Target Labeling & MAE / MFE Calculation
+    print("Calculating MAE, MFE and labeling target outcomes...")
     targets = []
+    mae_list = []
+    mfe_list = []
     
     for idx in range(len(df)):
         if idx >= len(df) - 8:
             targets.append(-1)
+            mae_list.append(0.0)
+            mfe_list.append(0.0)
             continue
             
         entry_p = df.loc[idx, 'close']
         future_prices = df.loc[idx+1 : idx+8, 'close'].values
         
-        target_val = -1 # Default Chop
+        # Calculate adverse and favorable excursions
+        max_favorable = 0.0
+        max_adverse = 0.0
+        
+        target_val = -1
         for fp in future_prices:
-            # Check Buy threshold
-            if fp >= entry_p + 5.0:
+            diff = fp - entry_p
+            # Track excursions
+            if diff > max_favorable:
+                max_favorable = diff
+            if diff < max_adverse:
+                max_adverse = diff
+                
+            # Labels: BUY (1), SELL (0), CHOP (-1)
+            if fp >= entry_p + 5.0 and target_val == -1:
                 target_val = 1
-                break
-            # Check Sell threshold
-            elif fp <= entry_p - 5.0:
+            elif fp <= entry_p - 5.0 and target_val == -1:
                 target_val = 0
-                break
+                
         targets.append(target_val)
+        # Convert pip-excursions to simplified USD scale for 0.10 lot size
+        mae_list.append(abs(max_adverse) * 100.0 * 0.10)
+        mfe_list.append(max_favorable * 100.0 * 0.10)
         
     df['target'] = targets
+    df['mae'] = mae_list
+    df['mfe'] = mfe_list
     
     # Drop stabilized periods and row limits
     df = df.dropna().reset_index(drop=True)
