@@ -20,19 +20,17 @@ def load_model():
         else:
             print("WARNING: Model file not found. AI will be inactive.")
 
-def cpu_bound_inference(rsi: float, macd: float) -> float:
+def cpu_bound_inference(rsi: float, macd: float, adx: float, atr: float, nfp_surprise: float, cpi_surprise: float, fed_rate: float, dxy_trend: float, yield_trend: float) -> float:
     """
     Runs in a ThreadPool. Predicts probability of BUY (class 1).
     """
     global _XGB_MODEL
     if _XGB_MODEL is None:
-        return 0.5 # Default neutral if no model
+        return 0.5
 
-    # XGBoost expects 2D array
-    X = np.array([[rsi, macd]])
+    # XGBoost expects 2D array of 9 features
+    X = np.array([[rsi, macd, adx, atr, nfp_surprise, cpi_surprise, fed_rate, dxy_trend, yield_trend]])
     probs = _XGB_MODEL.predict_proba(X)
-    
-    # predict_proba returns [[prob_0, prob_1]]
     return float(probs[0][1])
 
 class MLEngine(BaseEngine):
@@ -59,12 +57,15 @@ class MLEngine(BaseEngine):
         self.logger.info("Shutting down Thread Pool...")
         self.executor.shutdown(wait=True)
 
-    async def process_features(self, rsi: float, macd: float, price: float):
+    async def process_features(self, rsi: float, macd: float, adx: float, atr: float, nfp_surprise: float, cpi_surprise: float, fed_rate: float, dxy_trend: float, yield_trend: float, price: float):
         """Called by FeatureStore."""
         loop = asyncio.get_running_loop()
         # Offload inference to prevent blocking
         confidence = await loop.run_in_executor(
-            self.executor, cpu_bound_inference, rsi, macd
+            self.executor, cpu_bound_inference, 
+            rsi, macd, adx, atr, 
+            nfp_surprise, cpi_surprise, fed_rate, 
+            dxy_trend, yield_trend
         )
         # Pass to Decision Engine
         if self.decision_engine:
