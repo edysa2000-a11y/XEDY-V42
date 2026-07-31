@@ -22,14 +22,15 @@ class MarketEngine(BaseEngine):
         self._running = False
 
     async def start(self):
-        print("Initializing MetaTrader 5...")
+        self.logger.info("Initializing MetaTrader 5...")
         if not mt5.initialize():
-            print("MT5 initialize() failed, error code: " + str(mt5.last_error()))
+            self.logger.error("MT5 initialize() failed, error code: " + str(mt5.last_error()))
         else:
+            self.logger.info("Selecting symbol XAUUSD...")
             if not mt5.symbol_select(self.symbol, True):
-                print(f"Failed to select symbol {self.symbol}")
+                self.logger.error(f"Failed to select symbol {self.symbol}")
             else:
-                print(f"MT5 Connected. Subscribed to {self.symbol}")
+                self.logger.info(f"MT5 Connected. Subscribed to {self.symbol}")
             
         self._running = True
         # Start background polling loop
