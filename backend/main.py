@@ -126,6 +126,18 @@ async def lifespan(app: FastAPI):
     init_max_positions = int(os.getenv("AVERAGING_MAX_POSITIONS", "3"))
     init_hedging = os.getenv("HEDGING_ENABLED", "True").lower() == "true"
     init_active_method = os.getenv("ACTIVE_METHOD", "intra-candle-scalper")
+    init_auto_lot = os.getenv("AUTO_LOT_ENABLED", "False").lower() == "true"
+    init_risk_percent = float(os.getenv("RISK_PERCENT", "1.0"))
+    
+    # Set explicitly in environment to override any parent process inheritance
+    os.environ["AUTOTRADE_ENABLED"] = str(init_autotrade)
+    os.environ["LOT_SIZE"] = f"{init_lot:.2f}"
+    os.environ["CONFIDENCE_THRESHOLD"] = f"{init_confidence:.2f}"
+    os.environ["AVERAGING_MAX_POSITIONS"] = str(init_max_positions)
+    os.environ["HEDGING_ENABLED"] = str(init_hedging)
+    os.environ["AUTO_LOT_ENABLED"] = str(init_auto_lot)
+    os.environ["RISK_PERCENT"] = f"{init_risk_percent:.1f}"
+    os.environ["ACTIVE_METHOD"] = init_active_method
     
     app.state.risk_engine = RiskEngine(execution_engine=app.state.execution_engine)
     app.state.risk_engine.autotrade_enabled = init_autotrade
