@@ -123,10 +123,16 @@ async def lifespan(app: FastAPI):
     init_autotrade = os.getenv("AUTOTRADE_ENABLED", "False").lower() == "true"
     init_lot = float(os.getenv("LOT_SIZE", "0.10"))
     init_confidence = float(os.getenv("CONFIDENCE_THRESHOLD", "0.60"))
+    init_max_positions = int(os.getenv("AVERAGING_MAX_POSITIONS", "3"))
+    init_hedging = os.getenv("HEDGING_ENABLED", "True").lower() == "true"
+    init_active_method = os.getenv("ACTIVE_METHOD", "intra-candle-scalper")
     
     app.state.risk_engine = RiskEngine(execution_engine=app.state.execution_engine)
     app.state.risk_engine.autotrade_enabled = init_autotrade
     app.state.risk_engine.config["lot_size"] = init_lot
+    app.state.risk_engine.max_positions = init_max_positions
+    app.state.risk_engine.hedging_enabled = init_hedging
+    app.state.risk_engine.active_method = init_active_method
     
     app.state.decision_engine = DecisionEngine(risk_engine=app.state.risk_engine)
     app.state.decision_engine.confidence_threshold = init_confidence
