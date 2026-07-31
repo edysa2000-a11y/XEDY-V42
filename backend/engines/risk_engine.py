@@ -23,6 +23,7 @@ class RiskEngine(BaseEngine):
         self._logical_sls = {}
         self._hedge_locks = {}
         self.last_trade_time = 0.0
+        self._highest_profits = {}
 
     async def start(self):
         self.logger.info("Risk engine online.")
@@ -490,20 +491,45 @@ class RiskEngine(BaseEngine):
                                                 )
                                                 await self.execution_engine.notifier._send_safe(msg)
 
-                            # Standalone breakeven trailing stop
+                            # Method 10: Hybrid (Trailing Stop + Dynamic Break-Even) Exits
                             if same_dir_count == 1 and ticket not in self._hedge_locks:
-                                if p_type == 0: # BUY
-                                    floating_points = current_price - entry_price
-                                    if floating_points >= 2.50:
-                                        target_sl = round(entry_price + 0.50, 2)
-                                        if current_sl < entry_price:
-                                            self._modify_position_sl(ticket, target_sl, p.tp)
-                                elif p_type == 1: # SELL
-                                    floating_points = entry_price - current_price
-                                    if floating_points >= 2.50:
-                                        target_sl = round(entry_price - 0.50, 2)
-                                        if current_sl == 0 or current_sl > entry_price:
-                                            self._modify_position_sl(ticket, target_sl, p.tp)
+                                pips = (current_price - entry_price) if p_type == 0 else (entry_price - current_price)
+                                usd_profit = pips * 100.0 * float(p.volume)
+                                 
+                                # Track peak profit achieved by this ticket
+                                if ticket not in self._highest_profits:
+                                    self._highest_profits[ticket] = 0.0
+                                if usd_profit > self._highest_profits[ticket]:
+                                    self._highest_profits[ticket] = usd_profit
+                                     
+                                peak_prof = self._highest_profits[ticket]
+                                should_exit = False
+                                exit_reason = ""
+                                 
+                                # 1. Trailing Stop Lock-in ($60 trigger, exit at 50% retracement)
+                                if peak_prof >= 60.0 and usd_profit < (peak_prof * 0.5):
+                                    should_exit = True
+                                    exit_reason = f"Trailing Lock-in (Peak: ${peak_prof:.2f}, Current: ${usd_profit:.2f})"
+                                # 2. Dynamic Break-Even ($30 trigger, exit at $0.00 or reversal)
+                                elif peak_prof >= 30.0 and usd_profit <= 0.0:
+                                    should_exit = True
+                                    exit_reason = f"Break-Even Protection (Peak: ${peak_prof:.2f}, Current: ${usd_profit:.2f})"
+                                     
+                                if should_exit and self.execution_engine:
+                                    self.logger.info(f"AI Exit Triggered for Position #{ticket}: {exit_reason}. Closing position!")
+                                    await self.execution_engine.close_position(ticket)
+                                    self._highest_profits.pop(ticket, None)
+                                     
+                                    # Send Telegram Notification
+                                    if hasattr(self.execution_engine, "notifier") and self.execution_engine.notifier:
+                                        msg = (
+                                            f"👑 <b>AI HYBRID EXIT EXECUTED (METHOD 10)</b>\n\n"
+                                            f"Posisi #{ticket} ({'BUY' if p_type == 0 else 'SELL'}) telah ditutup otomatis.\n"
+                                            f"• <b>Alasan</b>: <code>{exit_reason}</code>\n"
+                                            f"• <b>Lot Size</b>: <code>{p.volume} Lot</code>\n"
+                                            f"• <b>Profit Terkunci</b>: <code>${usd_profit:.2f}</code>"
+                                        )
+                                        await self.execution_engine.notifier._send_safe(msg)
             except Exception as e:
                 self.logger.error(f"Error in trailing stop loop: {e}")
             await asyncio.sleep(5)
