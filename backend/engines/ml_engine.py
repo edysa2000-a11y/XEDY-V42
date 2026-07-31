@@ -53,13 +53,11 @@ class MLEngine(BaseEngine):
         self.executor = ThreadPoolExecutor(max_workers=2)
         
     async def start(self):
-        self.logger.info("Loading ML Models (XGBoost) into Thread Pool...")
-        loop = asyncio.get_running_loop()
-        await loop.run_in_executor(self.executor, load_model)
+        self.logger.info("Loading ML Models (XGBoost) directly...")
+        load_model()
 
     async def stop(self):
-        self.logger.info("Shutting down Thread Pool...")
-        self.executor.shutdown(wait=True)
+        self.logger.info("ML Engine offline.")
 
     async def process_features(self, rsi: float, macd: float, adx: float, atr: float, nfp_surprise: float, cpi_surprise: float, fed_rate: float, dxy_trend: float, yield_trend: float, price: float):
         """Called by FeatureStore."""
