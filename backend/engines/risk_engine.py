@@ -592,12 +592,16 @@ class RiskEngine(BaseEngine):
         while True:
             try:
                 active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
-                if active_method in ["intra-candle-scalper", "intra-candle-scalper-m15", "intra-candle-scalper-m5"] and self.autotrade_enabled:
+                if active_method in ["intra-candle-scalper", "intra-candle-scalper-m15", "intra-candle-scalper-m5", "intra-candle-scalper-h1", "intra-candle-scalper-h4"] and self.autotrade_enabled:
                     symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
                     if active_method == "intra-candle-scalper-m5":
                         tf = mt5.TIMEFRAME_M5
                     elif active_method == "intra-candle-scalper-m15":
                         tf = mt5.TIMEFRAME_M15
+                    elif active_method == "intra-candle-scalper-h1":
+                        tf = mt5.TIMEFRAME_H1
+                    elif active_method == "intra-candle-scalper-h4":
+                        tf = mt5.TIMEFRAME_H4
                     else:
                         tf = mt5.TIMEFRAME_M30
                     
