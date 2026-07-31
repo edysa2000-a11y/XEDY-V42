@@ -39,7 +39,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 
-def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold: float, max_positions: int, hedging_enabled: bool, auto_lot: bool, risk_percent: float):
+def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold: float, max_positions: int, hedging_enabled: bool, auto_lot: bool, risk_percent: float, active_method: str):
     env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
     lines = []
     if os.path.exists(env_path):
@@ -74,6 +74,9 @@ def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold:
             elif key == "RISK_PERCENT":
                 new_lines.append(f"RISK_PERCENT={risk_percent:.1f}\n")
                 keys_updated.add(key)
+            elif key == "ACTIVE_METHOD":
+                new_lines.append(f"ACTIVE_METHOD={active_method}\n")
+                keys_updated.add(key)
             else:
                 new_lines.append(line)
         else:
@@ -93,6 +96,8 @@ def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold:
         new_lines.append(f"AUTO_LOT_ENABLED={str(auto_lot)}\n")
     if "RISK_PERCENT" not in keys_updated:
         new_lines.append(f"RISK_PERCENT={risk_percent:.1f}\n")
+    if "ACTIVE_METHOD" not in keys_updated:
+        new_lines.append(f"ACTIVE_METHOD={active_method}\n")
         
     with open(env_path, "w") as f:
         f.writelines(new_lines)
@@ -105,6 +110,7 @@ def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold:
     os.environ["HEDGING_ENABLED"] = str(hedging_enabled)
     os.environ["AUTO_LOT_ENABLED"] = str(auto_lot)
     os.environ["RISK_PERCENT"] = f"{risk_percent:.1f}"
+    os.environ["ACTIVE_METHOD"] = active_method
     dotenv.load_dotenv(env_path, override=True)
 
 @asynccontextmanager
@@ -320,6 +326,7 @@ async def websocket_endpoint(websocket: WebSocket):
         initial_hedging = getattr(app.state.risk_engine, "hedging_enabled", True)
         initial_auto_lot = os.environ.get("AUTO_LOT_ENABLED", "False").lower() == "true"
         initial_risk_percent = float(os.environ.get("RISK_PERCENT", "1.0"))
+        initial_active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
         await websocket.send_text(json.dumps({
             "type": "settings_updated",
             "autotrade": initial_autotrade,
@@ -328,7 +335,8 @@ async def websocket_endpoint(websocket: WebSocket):
             "max_positions": initial_max_positions,
             "hedging_enabled": initial_hedging,
             "auto_lot": initial_auto_lot,
-            "risk_percent": initial_risk_percent
+            "risk_percent": initial_risk_percent,
+            "active_method": initial_active_method
         }))
         
         # Immediate dashboard snapshot
@@ -370,18 +378,20 @@ async def websocket_endpoint(websocket: WebSocket):
                         hedging_enabled = bool(payload.get("hedging_enabled", True))
                         auto_lot = bool(payload.get("auto_lot", False))
                         risk_percent = float(payload.get("risk_percent", 1.0))
+                        active_method = payload.get("active_method", "intra-candle-scalper")
                         
                         # Persist settings to .env file
-                        save_settings_to_env(autotrade, lot_size, confidence, max_positions, hedging_enabled, auto_lot, risk_percent)
+                        save_settings_to_env(autotrade, lot_size, confidence, max_positions, hedging_enabled, auto_lot, risk_percent, active_method)
                         
                         if hasattr(app.state, "risk_engine"):
                             app.state.risk_engine.autotrade_enabled = autotrade
                             app.state.risk_engine.config["lot_size"] = lot_size
                             app.state.risk_engine.max_positions = max_positions
                             app.state.risk_engine.hedging_enabled = hedging_enabled
+                            app.state.risk_engine.active_method = active_method
                         if hasattr(app.state, "decision_engine"):
                             app.state.decision_engine.confidence_threshold = confidence
-                        logger.info(f"Settings updated via UI: autotrade={autotrade}, lot_size={lot_size}, confidence={confidence}, max_positions={max_positions}, hedging={hedging_enabled}, auto_lot={auto_lot}, risk_percent={risk_percent}")
+                        logger.info(f"Settings updated via UI: autotrade={autotrade}, lot_size={lot_size}, confidence={confidence}, max_positions={max_positions}, hedging={hedging_enabled}, auto_lot={auto_lot}, risk_percent={risk_percent}, active_method={active_method}")
                         
                         # Broadcast settings updated to all clients
                         await ws_manager.broadcast(json.dumps({
@@ -392,7 +402,8 @@ async def websocket_endpoint(websocket: WebSocket):
                             "max_positions": max_positions,
                             "hedging_enabled": hedging_enabled,
                             "auto_lot": auto_lot,
-                            "risk_percent": risk_percent
+                            "risk_percent": risk_percent,
+                            "active_method": active_method
                         }))
                     elif payload.get("action") == "shutdown":
                         logger.warning("Shutdown command received from UI. Closing server...")

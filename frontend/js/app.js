@@ -318,6 +318,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         toggleBtn.style.boxShadow = 'none';
                     }
                 }
+                
+                if (data.active_method !== undefined) {
+                    const activeMethodBadge = document.getElementById('active-method-badge');
+                    if (activeMethodBadge) {
+                        activeMethodBadge.innerText = data.active_method.replace(/-/g, ' ').toUpperCase();
+                    }
+                    const activeAiSelect = document.getElementById('active-ai-model-select');
+                    if (activeAiSelect) {
+                        activeAiSelect.value = data.active_method;
+                        const titleEl = document.getElementById('selected-model-title');
+                        const descEl = document.getElementById('selected-model-desc');
+                        if (typeof modelInfo !== 'undefined' && modelInfo[data.active_method] && titleEl && descEl) {
+                            titleEl.innerText = modelInfo[data.active_method].title;
+                            descEl.innerText = modelInfo[data.active_method].desc;
+                        }
+                    }
+                }
             }
             if (data.type === 'server_shutdown_ack') {
                 const powerBtn = document.getElementById('server-power-btn');
@@ -1382,8 +1399,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const riskInput = document.getElementById('risk-percent-input');
         const riskPercent = riskInput ? parseFloat(riskInput.value) : 1.0;
         
+        const activeAiModelSelect = document.getElementById('active-ai-model-select');
+        const activeMethod = activeAiModelSelect ? activeAiModelSelect.value : 'intra-candle-scalper';
+        
         // Update UI styling locally right away
         updateAutoLotUI(autoLot);
+        
+        // Update badge right away
+        const activeMethodBadge = document.getElementById('active-method-badge');
+        if (activeMethodBadge) {
+            activeMethodBadge.innerText = activeMethod.replace(/-/g, ' ').toUpperCase();
+        }
         
         if (window.globalWs && window.globalWs.readyState === WebSocket.OPEN) {
             window.globalWs.send(JSON.stringify({
@@ -1394,7 +1420,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 max_positions: maxPositions,
                 hedging_enabled: hedgingEnabled,
                 auto_lot: autoLot,
-                risk_percent: riskPercent
+                risk_percent: riskPercent,
+                active_method: activeMethod
             }));
         }
     };
@@ -2003,6 +2030,11 @@ document.addEventListener('DOMContentLoaded', () => {
         applyAiModelBtn.addEventListener('click', () => {
             const selectedVal = activeAiModelSelect.value;
             const modelName = modelInfo[selectedVal].title;
+            
+            // Sync settings with backend
+            if (window.sendTradingSettings) {
+                window.sendTradingSettings();
+            }
             
             if (selectedVal === 'fixed-micro-scalping') {
                 alert(`Sukses menerapkan Model: ${modelName}\n\nSetting disesuaikan otomatis:\n- Lot Size: 0.01 (Fixed)\n- Auto Lot: Disabled\n- Risk Percent: 0.0%`);
