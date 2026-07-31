@@ -78,7 +78,7 @@ def get_qwen_analysis(api_key, news_text):
         "{\n"
         "  \"bias\": \"BUY_ONLY\" | \"SELL_ONLY\" | \"ANY\" | \"WAIT\",\n"
         "  \"regime\": \"NORMAL\" | \"HIGH_NEWS\" | \"SIDEWAYS\",\n"
-        "  \"optimal_confidence_threshold\": float (value between 0.60 and 0.78),\n"
+        "  \"optimal_confidence_threshold\": float (value between 0.60 and 0.85),\n"
         "  \"optimal_max_op\": int (value between 2 and 6),\n"
         "  \"reasoning\": \"Brief explanation\"\n"
         "}"

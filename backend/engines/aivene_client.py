@@ -40,7 +40,7 @@ class AiveneClient:
             "{\n"
             "  \"bias\": \"BUY_ONLY\" | \"SELL_ONLY\" | \"ANY\" | \"WAIT\",\n"
             "  \"regime\": \"NORMAL\" | \"HIGH_NEWS\" | \"SIDEWAYS\",\n"
-            "  \"optimal_confidence_threshold\": float (value between 0.60 and 0.78, e.g. 0.68),\n"
+            "  \"optimal_confidence_threshold\": float (value between 0.60 and 0.85, e.g. 0.72),\n"
             "  \"optimal_max_op\": int (value between 2 and 6, e.g. 4),\n"
             "  \"reasoning\": \"Brief explanation of the decision including justification for threshold and max OP based on recent MAE/MFE\"\n"
             "}"
