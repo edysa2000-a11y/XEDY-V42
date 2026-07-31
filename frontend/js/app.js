@@ -1967,6 +1967,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyAiModelBtn = document.getElementById('apply-ai-model-btn');
 
     const modelInfo = {
+        'intra-candle-scalper': {
+            title: '🚀 Double-Sided Intra-Candle Scalper (M30)',
+            desc: 'Strategi scalping frekuensi tinggi dua arah (BUY & SELL pending limits) di dalam siklus hidup lilin M30 dengan dynamic martingale micro-recovery grid untuk mengunci profit 95% winrate per bar.'
+        },
         'qwen3.7-flash-dynamic': {
             title: '🤖 Qwen 3.7 Flash Dynamic (Teroptimasi)',
             desc: 'Model trading kuantitatif tingkat institusional. Menghitung dynamic stop-loss, take-profit, dan break-even trigger per sesi waktu (Asia, Eropa, US) menggunakan umpan balik MAE/MFE secara real-time.'
