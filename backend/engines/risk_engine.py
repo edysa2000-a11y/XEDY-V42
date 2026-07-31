@@ -20,6 +20,7 @@ class RiskEngine(BaseEngine):
         self.max_positions = int(os.environ.get("AVERAGING_MAX_POSITIONS", "3"))
         self.hedging_enabled = os.environ.get("HEDGING_ENABLED", "True").lower() == "true"
         self._trailing_task = None
+        self._intra_candle_task = None
         self._logical_sls = {}
         self._hedge_locks = {}
         self.last_trade_time = 0.0
@@ -29,10 +30,13 @@ class RiskEngine(BaseEngine):
         self.logger.info("Risk engine online.")
         import asyncio
         self._trailing_task = asyncio.create_task(self._trailing_stop_loop())
+        self._intra_candle_task = asyncio.create_task(self._intra_candle_scalper_loop())
 
     async def stop(self):
         if self._trailing_task:
             self._trailing_task.cancel()
+        if self._intra_candle_task:
+            self._intra_candle_task.cancel()
         self.logger.info("Risk engine offline.")
 
     async def validate_trade(self, signal: str, price: float, confidence: float = 0.5):
@@ -575,3 +579,106 @@ class RiskEngine(BaseEngine):
             self.logger.info(f"Breakeven Locked: Moved SL of Position #{ticket} to {sl} (Profit Protected)")
         else:
             self.logger.warning(f"Failed to move SL of Position #{ticket} to {sl}: {res.comment}")
+
+    async def _intra_candle_scalper_loop(self):
+        import asyncio
+        import MetaTrader5 as mt5
+        import os
+        import pandas as pd
+        import numpy as np
+        
+        last_bar_time = 0
+        
+        while True:
+            try:
+                active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
+                if active_method == "intra-candle-scalper" and self.autotrade_enabled:
+                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    tf = mt5.TIMEFRAME_M30
+                    
+                    # 1. Fetch current candle info
+                    rates = mt5.copy_rates_from_pos(symbol, tf, 0, 15)
+                    if rates is not None and len(rates) >= 15:
+                        current_bar = rates[-1]
+                        current_bar_time = int(current_bar[0])
+                        open_price = float(current_bar[1])
+                        
+                        # Calculate ATR (14)
+                        closes = np.array([r[4] for r in rates])
+                        highs = np.array([r[2] for r in rates])
+                        lows = np.array([r[3] for r in rates])
+                        
+                        tr_list = []
+                        for i in range(1, len(rates)):
+                            tr = max(highs[i] - lows[i], max(abs(highs[i] - closes[i-1]), abs(lows[i] - closes[i-1])))
+                            tr_list.append(tr)
+                        atr = float(np.mean(tr_list[-14:]))
+                        
+                        # 2. Check if a new M30 candle has opened!
+                        if current_bar_time > last_bar_time:
+                            self.logger.info(f"New M30 candle detected at timestamp {current_bar_time}. Executing Intra-Candle Scalper...")
+                            last_bar_time = current_bar_time
+                            
+                            # Clean up old pending orders from previous bar
+                            orders = mt5.orders_get(symbol=symbol)
+                            if orders:
+                                for o in orders:
+                                    if o.type in [mt5.ORDER_TYPE_BUY_LIMIT, mt5.ORDER_TYPE_SELL_LIMIT]:
+                                        req = {
+                                            "action": mt5.TRADE_ACTION_REMOVE,
+                                            "order": o.ticket
+                                        }
+                                        mt5.order_send(req)
+                                            
+                            # Place new limit orders
+                            lot_size = float(os.environ.get("LOT_SIZE", "0.10"))
+                            buy_limit = open_price - atr * 0.05
+                            buy_tp = buy_limit + atr * 0.08
+                            buy_sl = buy_limit - atr * 1.0
+                            
+                            sell_limit = open_price + atr * 0.05
+                            sell_tp = sell_limit - atr * 0.08
+                            sell_sl = sell_limit + atr * 1.0
+                            
+                            # Send Limit Orders via execution engine
+                            # BUY LIMIT
+                            req_buy = {
+                                "action": mt5.TRADE_ACTION_PENDING,
+                                "symbol": symbol,
+                                "volume": lot_size,
+                                "type": mt5.ORDER_TYPE_BUY_LIMIT,
+                                "price": buy_limit,
+                                "sl": buy_sl,
+                                "tp": buy_tp,
+                                "type_time": mt5.ORDER_TIME_GTC,
+                                "type_filling": mt5.ORDER_FILLING_IOC
+                            }
+                            # SELL LIMIT
+                            req_sell = {
+                                "action": mt5.TRADE_ACTION_PENDING,
+                                "symbol": symbol,
+                                "volume": lot_size,
+                                "type": mt5.ORDER_TYPE_SELL_LIMIT,
+                                "price": sell_limit,
+                                "sl": sell_sl,
+                                "tp": sell_tp,
+                                "type_time": mt5.ORDER_TIME_GTC,
+                                "type_filling": mt5.ORDER_FILLING_IOC
+                            }
+                            
+                            # Let's adjust filling type dynamically for the broker account
+                            acc = mt5.account_info()
+                            filling = mt5.ORDER_FILLING_FOK
+                            if acc and "FXT" in getattr(acc, "company", ""):
+                                filling = mt5.ORDER_FILLING_IOC
+                            
+                            req_buy["type_filling"] = filling
+                            req_sell["type_filling"] = filling
+                            
+                            res1 = mt5.order_send(req_buy)
+                            res2 = mt5.order_send(req_sell)
+                            self.logger.info(f"Placed M30 pending limit orders. Buy Limit={buy_limit:.2f}, Sell Limit={sell_limit:.2f}")
+                            
+            except Exception as e:
+                self.logger.error(f"Error in _intra_candle_scalper_loop: {e}", exc_info=True)
+            await asyncio.sleep(5)
