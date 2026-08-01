@@ -757,6 +757,11 @@ class RiskEngine(BaseEngine):
                             is_bullish_cross = ema_fast > ema_slow
                             is_bearish_cross = ema_fast < ema_slow
                             
+                            # Check Qwen AI Macro Bias
+                            qwen_bias = "ANY"
+                            if hasattr(self, "macro_strategist") and self.macro_strategist:
+                                qwen_bias = getattr(self.macro_strategist, "macro_bias", "ANY")
+                            
                             # Check active positions on the symbol
                             active_positions = mt5.positions_get(symbol=symbol)
                             
@@ -764,27 +769,29 @@ class RiskEngine(BaseEngine):
                             if active_positions:
                                 for p in active_positions:
                                     should_close = False
-                                    if p.type == mt5.POSITION_TYPE_BUY and is_bearish_cross:
-                                        should_close = True
-                                    elif p.type == mt5.POSITION_TYPE_SELL and is_bullish_cross:
-                                        should_close = True
+                                    if p.type == mt5.POSITION_TYPE_BUY:
+                                        if is_bearish_cross or qwen_bias in ["SELL_ONLY", "WAIT"]:
+                                            should_close = True
+                                    elif p.type == mt5.POSITION_TYPE_SELL:
+                                        if is_bullish_cross or qwen_bias in ["BUY_ONLY", "WAIT"]:
+                                            should_close = True
                                         
                                     if should_close:
-                                        self.logger.info(f"Open Shift Close: Trend shift detected. Closing position #{p.ticket}...")
+                                        self.logger.info(f"Open Shift Close: Trend/AI shift detected. Closing position #{p.ticket}...")
                                         await self.execution_engine.close_position(p.ticket)
                                         
                             # Re-fetch positions after closures
                             active_positions = mt5.positions_get(symbol=symbol)
                             
                             # Open new position if none active
-                            if not active_positions:
+                            if not active_positions and qwen_bias != "WAIT":
                                 lot_size = float(os.environ.get("LOT_SIZE", "0.20"))
                                 acc = mt5.account_info()
                                 filling = mt5.ORDER_FILLING_FOK
                                 if acc and "FXT" in getattr(acc, "company", ""):
                                     filling = mt5.ORDER_FILLING_IOC
                                     
-                                if is_bullish_cross:
+                                if is_bullish_cross and qwen_bias in ["BUY_ONLY", "ANY"]:
                                     tp_price = open_price + atr * 3.0
                                     sl_price = open_price - atr * 2.5
                                     req = {
@@ -800,7 +807,7 @@ class RiskEngine(BaseEngine):
                                     }
                                     mt5.order_send(req)
                                     self.logger.info(f"Open Shift Close: Opened BUY position at {open_price:.2f} (TP={tp_price:.2f}, SL={sl_price:.2f})")
-                                elif is_bearish_cross:
+                                elif is_bearish_cross and qwen_bias in ["SELL_ONLY", "ANY"]:
                                     tp_price = open_price - atr * 3.0
                                     sl_price = open_price + atr * 2.5
                                     req = {

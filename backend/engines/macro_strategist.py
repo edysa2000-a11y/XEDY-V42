@@ -40,17 +40,56 @@ class MacroStrategistEngine(BaseEngine):
         self.logger.info("Macro Strategist Engine offline.")
 
     async def _macro_loop(self):
+        import time
+        import MetaTrader5 as mt5
+        import numpy as np
+        
         # Initial run delay to let other engines start
         await asyncio.sleep(5)
+        
+        last_decision_time = 0
+        last_candle_time = 0
+        symbol = "XAUUSD"
+        
         while self._running:
             try:
-                await self.update_macro_decision()
+                # Check current M30 bar time
+                rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M30, 0, 2)
+                if rates is not None and len(rates) >= 2:
+                    current_bar_time = int(rates[-1][0])
+                    prev_bar = rates[-2]
+                    
+                    if current_bar_time > last_candle_time:
+                        last_candle_time = current_bar_time
+                        
+                        # Calculate body size of previous completed bar
+                        open_p = float(prev_bar[1])
+                        close_p = float(prev_bar[4])
+                        body_size = abs(close_p - open_p)
+                        
+                        # Get ATR (14) on M30
+                        rates_atr = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M30, 0, 15)
+                        tr_list = []
+                        if rates_atr is not None:
+                            for i in range(1, len(rates_atr)):
+                                tr = max(rates_atr[i][2] - rates_atr[i][3], max(abs(rates_atr[i][2] - rates_atr[i][4]), abs(rates_atr[i][3] - rates_atr[i][4])))
+                                tr_list.append(tr)
+                        atr = float(np.mean(tr_list[-14:])) if tr_list else 1.5
+                        
+                        is_news_spike = body_size > 1.5 * atr
+                        time_elapsed = time.time() - last_decision_time
+                        
+                        # Trigger if 4 hours elapsed (14400s) OR if we have a news spike
+                        if time_elapsed >= 14400 or is_news_spike or last_decision_time == 0:
+                            reason = "4-Hour Scheduled Update" if time_elapsed >= 14400 else "Volatility News Spike Trigger"
+                            self.logger.info(f"Hybrid Qwen Trigger: {reason} detected (Body: {body_size:.2f} vs ATR threshold: {1.5*atr:.2f}). Updating macro strategist bias...")
+                            await self.update_macro_decision()
+                            last_decision_time = time.time()
+                            
             except Exception as e:
                 self.logger.error(f"Error in macro loop: {e}", exc_info=True)
-            
-            session_name, interval = self._get_current_session_info()
-            self.logger.info(f"Active Market Session: {session_name}. Dynamic Qwen polling set to {interval} seconds.")
-            await asyncio.sleep(interval)
+                
+            await asyncio.sleep(30)
 
     async def update_macro_decision(self):
         """
