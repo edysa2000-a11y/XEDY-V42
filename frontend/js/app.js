@@ -1998,6 +1998,10 @@ document.addEventListener('DOMContentLoaded', () => {
             title: '🚀 Double-Sided Intra-Candle Scalper (M30)',
             desc: 'Strategi scalping frekuensi tinggi dua arah (BUY & SELL pending limits) di dalam siklus hidup lilin M30 dengan dynamic martingale micro-recovery grid untuk mengunci profit 95% winrate per bar.'
         },
+        'open-shift-close': {
+            title: '🔄 Open Shift Close (EMA 3/25 + ATR TP/SL)',
+            desc: 'Strategi pembalikan arah adaptif dinamis pada timeframe M30. Menggunakan crossover EMA 3/25 sebagai pemicu perpindahan arah posisi (BUY/SELL) yang dilengkapi pelindung target profit 3.0x ATR dan stop loss 2.5x ATR (Konsistensi 91.7% profit bulanan).'
+        },
         'intra-candle-scalper-m5': {
             title: '⚡ Double-Sided Intra-Candle Scalper (M5)',
             desc: 'Strategi scalping frekuensi tinggi dua arah pada timeframe M5. Memanfaatkan siklus lilin 5 menit untuk eksekusi ratusan trade per hari dengan winrate mendekati 100% dan profit harian +24.0%.'

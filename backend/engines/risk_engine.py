@@ -31,12 +31,15 @@ class RiskEngine(BaseEngine):
         import asyncio
         self._trailing_task = asyncio.create_task(self._trailing_stop_loop())
         self._intra_candle_task = asyncio.create_task(self._intra_candle_scalper_loop())
+        self._open_shift_close_task = asyncio.create_task(self._open_shift_close_loop())
 
     async def stop(self):
         if self._trailing_task:
             self._trailing_task.cancel()
         if self._intra_candle_task:
             self._intra_candle_task.cancel()
+        if self._open_shift_close_task:
+            self._open_shift_close_task.cancel()
         self.logger.info("Risk engine offline.")
 
     async def validate_trade(self, signal: str, price: float, confidence: float = 0.5):
@@ -706,4 +709,114 @@ class RiskEngine(BaseEngine):
                             
             except Exception as e:
                 self.logger.error(f"Error in _intra_candle_scalper_loop: {e}", exc_info=True)
+            await asyncio.sleep(5)
+
+    async def _open_shift_close_loop(self):
+        import asyncio
+        import MetaTrader5 as mt5
+        import os
+        import pandas as pd
+        import numpy as np
+        
+        last_bar_time = 0
+        
+        while True:
+            try:
+                active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
+                if active_method == "open-shift-close" and self.autotrade_enabled:
+                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    tf = mt5.TIMEFRAME_M30
+                    
+                    # Fetch rates (need at least 50 bars to calculate EMA 25 accurately)
+                    rates = mt5.copy_rates_from_pos(symbol, tf, 0, 50)
+                    if rates is not None and len(rates) >= 30:
+                        current_bar = rates[-1]
+                        current_bar_time = int(current_bar[0])
+                        open_price = float(current_bar[1])
+                        
+                        # Calculate EMA 3 and EMA 25 on past rates (excluding the current uncompleted bar)
+                        closes = np.array([r[4] for r in rates[:-1]])
+                        highs = np.array([r[2] for r in rates[:-1]])
+                        lows = np.array([r[3] for r in rates[:-1]])
+                        
+                        df_temp = pd.DataFrame(rates[:-1])
+                        ema_fast = df_temp[4].ewm(span=3, adjust=False).mean().iloc[-1]
+                        ema_slow = df_temp[4].ewm(span=25, adjust=False).mean().iloc[-1]
+                        
+                        # Calculate ATR (14)
+                        tr_list = []
+                        for i in range(1, len(df_temp)):
+                            tr = max(highs[i] - lows[i], max(abs(highs[i] - closes[i-1]), abs(lows[i] - closes[i-1])))
+                            tr_list.append(tr)
+                        atr = float(np.mean(tr_list[-14:]))
+                        
+                        if current_bar_time > last_bar_time:
+                            last_bar_time = current_bar_time
+                            self.logger.info(f"New M30 candle detected at timestamp {current_bar_time}. Running Open Shift Close strategy...")
+                            
+                            is_bullish_cross = ema_fast > ema_slow
+                            is_bearish_cross = ema_fast < ema_slow
+                            
+                            # Check active positions on the symbol
+                            active_positions = mt5.positions_get(symbol=symbol)
+                            
+                            # Shift logic
+                            if active_positions:
+                                for p in active_positions:
+                                    should_close = False
+                                    if p.type == mt5.POSITION_TYPE_BUY and is_bearish_cross:
+                                        should_close = True
+                                    elif p.type == mt5.POSITION_TYPE_SELL and is_bullish_cross:
+                                        should_close = True
+                                        
+                                    if should_close:
+                                        self.logger.info(f"Open Shift Close: Trend shift detected. Closing position #{p.ticket}...")
+                                        await self.execution_engine.close_position(p.ticket)
+                                        
+                            # Re-fetch positions after closures
+                            active_positions = mt5.positions_get(symbol=symbol)
+                            
+                            # Open new position if none active
+                            if not active_positions:
+                                lot_size = float(os.environ.get("LOT_SIZE", "0.20"))
+                                acc = mt5.account_info()
+                                filling = mt5.ORDER_FILLING_FOK
+                                if acc and "FXT" in getattr(acc, "company", ""):
+                                    filling = mt5.ORDER_FILLING_IOC
+                                    
+                                if is_bullish_cross:
+                                    tp_price = open_price + atr * 3.0
+                                    sl_price = open_price - atr * 2.5
+                                    req = {
+                                        "action": mt5.TRADE_ACTION_DEAL,
+                                        "symbol": symbol,
+                                        "volume": lot_size,
+                                        "type": mt5.ORDER_TYPE_BUY,
+                                        "price": open_price,
+                                        "sl": sl_price,
+                                        "tp": tp_price,
+                                        "type_time": mt5.ORDER_TIME_GTC,
+                                        "type_filling": filling
+                                    }
+                                    mt5.order_send(req)
+                                    self.logger.info(f"Open Shift Close: Opened BUY position at {open_price:.2f} (TP={tp_price:.2f}, SL={sl_price:.2f})")
+                                elif is_bearish_cross:
+                                    tp_price = open_price - atr * 3.0
+                                    sl_price = open_price + atr * 2.5
+                                    req = {
+                                        "action": mt5.TRADE_ACTION_DEAL,
+                                        "symbol": symbol,
+                                        "volume": lot_size,
+                                        "type": mt5.ORDER_TYPE_SELL,
+                                        "price": open_price,
+                                        "sl": sl_price,
+                                        "tp": tp_price,
+                                        "type_time": mt5.ORDER_TIME_GTC,
+                                        "type_filling": filling
+                                    }
+                                    mt5.order_send(req)
+                                    self.logger.info(f"Open Shift Close: Opened SELL position at {open_price:.2f} (TP={tp_price:.2f}, SL={sl_price:.2f})")
+                                    
+            except Exception as e:
+                self.logger.error(f"Error in _open_shift_close_loop: {e}", exc_info=True)
             await asyncio.sleep(5)
