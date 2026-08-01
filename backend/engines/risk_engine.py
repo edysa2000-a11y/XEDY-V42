@@ -625,8 +625,16 @@ class RiskEngine(BaseEngine):
                         
                         # 2. Check if a new M30 candle has opened!
                         if current_bar_time > last_bar_time:
-                            self.logger.info(f"New M30 candle detected at timestamp {current_bar_time}. Executing Intra-Candle Scalper...")
                             last_bar_time = current_bar_time
+                            
+                            # Safety check: limit total active positions
+                            existing_positions = mt5.positions_get(symbol=symbol)
+                            max_pos = int(os.environ.get("AVERAGING_MAX_POSITIONS", "6"))
+                            if existing_positions and len(existing_positions) >= max_pos:
+                                self.logger.info(f"Intra-Candle Scalper: Active positions ({len(existing_positions)}) >= Max allowed ({max_pos}). Skipping new pending orders.")
+                                continue
+                                
+                            self.logger.info(f"New candle detected at timestamp {current_bar_time}. Executing Intra-Candle Scalper...")
                             
                             # Clean up old pending orders from previous bar
                             orders = mt5.orders_get(symbol=symbol)
