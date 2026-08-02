@@ -64,6 +64,10 @@ class RiskEngine(BaseEngine):
         import MetaTrader5 as mt5
         symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
         
+        # Default fallback values
+        thresh = float(os.environ.get("CONFIDENCE_THRESHOLD", "0.68"))
+        max_op = int(os.environ.get("AVERAGING_MAX_POSITIONS", "4"))
+        
         # Proactively refresh the session and dynamic parameters on the fly before checking entry constraints
         auto_lot = os.environ.get("AUTO_LOT_ENABLED", "False").lower() == "true"
         if auto_lot:
@@ -85,22 +89,23 @@ class RiskEngine(BaseEngine):
                 thresh = 0.72
                 max_op = 3
                 
-            # If Qwen AI has determined custom optimal parameters, we load those from the strategist engine
-            macro_strat = getattr(self, "macro_strategist", None)
-            if not macro_strat and hasattr(self, "decision_engine") and self.decision_engine:
-                macro_strat = getattr(self.decision_engine, "macro_strategist", None)
-                
-            if macro_strat:
-                qwen_thresh = getattr(macro_strat, "optimal_confidence_threshold", None)
-                qwen_max_op = getattr(macro_strat, "optimal_max_op", None)
-                if qwen_thresh is not None: thresh = float(qwen_thresh)
-                if qwen_max_op is not None: max_op = int(qwen_max_op)
-                
-            self.max_positions = max_op
             self.config["lot_size"] = lot
             os.environ["BASE_LOT_SIZE"] = str(lot)
-            os.environ["AVERAGING_MAX_POSITIONS"] = str(max_op)
-            self.logger.info(f"Entry parameter auto-refresh: Session={session_name}, Lot={lot}, Max OP={max_op}, Threshold={thresh}")
+            
+        # If Qwen AI has determined custom optimal parameters, we load those from the strategist engine (Always active)
+        macro_strat = getattr(self, "macro_strategist", None)
+        if not macro_strat and hasattr(self, "decision_engine") and self.decision_engine:
+            macro_strat = getattr(self.decision_engine, "macro_strategist", None)
+            
+        if macro_strat:
+            qwen_thresh = getattr(macro_strat, "optimal_confidence_threshold", None)
+            qwen_max_op = getattr(macro_strat, "optimal_max_op", None)
+            if qwen_thresh is not None: thresh = float(qwen_thresh)
+            if qwen_max_op is not None: max_op = int(qwen_max_op)
+            
+        self.max_positions = max_op
+        os.environ["AVERAGING_MAX_POSITIONS"] = str(max_op)
+        self.logger.info(f"Entry parameter auto-refresh: Max OP={max_op}, Threshold={thresh}")
         
         # 1. News Cool-down Filter (15 minutes before or after high-impact news)
         if self.news_engine:
