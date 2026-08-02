@@ -168,6 +168,31 @@ def main():
     output_dir = "data"
     os.makedirs(output_dir, exist_ok=True)
     
+    # Load previous macro analysis to check for changes (Anti-Spam Filter)
+    prev_analysis = {}
+    news_feed_path = os.path.join(output_dir, "news_feed.json")
+    if os.path.exists(news_feed_path):
+        try:
+            with open(news_feed_path, "r") as f:
+                prev_data = json.load(f)
+                prev_analysis = prev_data.get("macro_analysis", {})
+        except Exception as e:
+            print(f"Failed to load previous news feed: {e}")
+            
+    # Check for changes in key decision fields
+    has_changed = True
+    if prev_analysis:
+        prev_bias = prev_analysis.get("bias", "")
+        prev_regime = prev_analysis.get("regime", "")
+        prev_method = prev_analysis.get("optimal_method", "")
+        
+        curr_bias = analysis.get("bias", "")
+        curr_regime = analysis.get("regime", "")
+        curr_method = analysis.get("optimal_method", "")
+        
+        if prev_bias == curr_bias and prev_regime == curr_regime and prev_method == curr_method:
+            has_changed = False
+    
     local_now = datetime.utcnow() + timedelta(hours=7)
     news_feed_data = {
         "generated_at": local_now.strftime("%Y-%m-%d %H:%M:%S WIB"),
@@ -175,7 +200,7 @@ def main():
         "macro_analysis": analysis
     }
     
-    with open(os.path.join(output_dir, "news_feed.json"), "w") as f:
+    with open(news_feed_path, "w") as f:
         json.dump(news_feed_data, f, indent=2)
         
     # Append to Qwen Decisions Log for self-learning
@@ -229,7 +254,11 @@ def main():
         f"<b>💡 Analisis & Dasar Pemikiran:</b>\n<i>{reasoning_id}</i>"
     )
     
-    send_telegram_notification(tg_token, tg_chat, tg_msg)
+    if has_changed:
+        send_telegram_notification(tg_token, tg_chat, tg_msg)
+        print("Strategy change detected! Telegram notification sent.")
+    else:
+        print("No strategy changes detected. Telegram notification skipped to prevent spam.")
     print("Scraper completed successfully!")
 
 if __name__ == "__main__":
