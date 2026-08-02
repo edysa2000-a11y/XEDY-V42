@@ -177,6 +177,21 @@ def main():
     
     with open(os.path.join(output_dir, "news_feed.json"), "w") as f:
         json.dump(news_feed_data, f, indent=2)
+        
+    # Append to Qwen Decisions Log for self-learning
+    log_entry = {
+        "timestamp": local_now.strftime("%Y-%m-%d %H:%M:%S"),
+        "bias": analysis.get("bias"),
+        "regime": analysis.get("regime"),
+        "optimal_confidence_threshold": analysis.get("optimal_confidence_threshold"),
+        "optimal_max_op": analysis.get("optimal_max_op"),
+        "optimal_method": analysis.get("optimal_method"),
+        "economic_releases": analysis.get("economic_releases", []),
+        "reasoning": analysis.get("reasoning")
+    }
+    log_file_path = os.path.join(output_dir, "qwen_decisions_log.jsonl")
+    with open(log_file_path, "a") as lf:
+        lf.write(json.dumps(log_entry) + "\n")
          
     # Translate structural terms
     bias_map = {
