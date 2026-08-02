@@ -37,6 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     window.initAnalyticsChart();
                 }, 50);
+            } else if (targetId === 'tab-forecast' && typeof window.fetchForecastStats === 'function') {
+                setTimeout(() => {
+                    window.fetchForecastStats();
+                }, 50);
             }
             
             // Trigger resize event so charts inside hidden tabs can recalculate their size
@@ -2079,6 +2083,63 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    window.fetchForecastStats = async function() {
+        try {
+            const response = await fetch('/api/v1/forecast/stats');
+            const data = await response.json();
+            
+            if (data.error) {
+                console.error("Failed to load forecast stats:", data.error);
+                return;
+            }
+            
+            // Populate KPIs
+            const avgAccEl = document.getElementById('forecast-avg-accuracy');
+            const totalPredsEl = document.getElementById('forecast-total-preds');
+            const successHitsEl = document.getElementById('forecast-success-hits');
+            const accRateEl = document.getElementById('forecast-accuracy-rate');
+            
+            if (avgAccEl) avgAccEl.innerText = (data.avg_accuracy * 100).toFixed(1) + '%';
+            if (totalPredsEl) totalPredsEl.innerText = data.total_predictions;
+            if (successHitsEl) successHitsEl.innerText = data.successful_hits;
+            
+            const rate = data.total_predictions > 0 ? (data.successful_hits / data.total_predictions) * 100 : 0.0;
+            if (accRateEl) accRateEl.innerText = rate.toFixed(1) + '%';
+            
+            // Populate table
+            const tbody = document.getElementById('forecast-history-tbody');
+            if (tbody && data.history) {
+                if (data.history.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-muted text-center">No forecast records logged yet.</td></tr>';
+                    return;
+                }
+                
+                let html = '';
+                // Reverse to show latest first
+                [...data.history].reverse().forEach(item => {
+                    const statusClass = item.status.includes('Hit') ? 'text-bullish' : 'text-critical';
+                    html += `<tr>
+                        <td>${item.timestamp}</td>
+                        <td class="text-white">$${item.start.toFixed(2)}</td>
+                        <td class="text-white">$${item.target.toFixed(2)}</td>
+                        <td class="text-white">$${item.actual_close.toFixed(2)}</td>
+                        <td class="text-warning-v42">${(item.error_pct * 100).toFixed(2)}%</td>
+                        <td class="text-info-v42">${(item.accuracy * 100).toFixed(1)}%</td>
+                        <td class="${statusClass}">${item.status}</td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            }
+        } catch (e) {
+            console.error("Error fetching forecast stats:", e);
+        }
+    };
+    
+    // Periodically fetch every 30 seconds
+    setInterval(window.fetchForecastStats, 30000);
+    // Initial fetch
+    setTimeout(window.fetchForecastStats, 1000);
     
     window.loadAutoCleanState();
     setTimeout(initWebSocket, 500);

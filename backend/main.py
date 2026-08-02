@@ -243,6 +243,18 @@ async def health_check():
         "mt5": "DISCONNECTED",
         "ai": "STANDBY"
     }
+@app.get("/api/v1/forecast/stats")
+async def get_forecast_stats():
+    import json
+    import os
+    path = "data/forecast_accuracy_stats.json"
+    if not os.path.exists(path):
+        return {"avg_accuracy": 0.0, "total_predictions": 0, "successful_hits": 0, "history": []}
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except Exception as e:
+        return {"error": str(e), "history": []}
 
 @app.post("/api/v1/news/inject")
 async def inject_news(payload: dict):

@@ -41,6 +41,7 @@
                 <li class="nav-item"><a class="nav-link active" data-target="tab-executive" href="#">🏠 Executive Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-market" href="#">📈 Market Intelligence</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-macro" href="#">🌍 Macro Intelligence</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-forecast" href="#">🎯 Forecast</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-technical" href="#">📐 Technical</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-smartmoney" href="#">🏛️ Smart Money</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-ai" href="#">🧠 AI Decision Center</a></li>
@@ -200,6 +201,61 @@
                                 }
                                 </script>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: FORECAST ACCURACY & PRICE TARGETS -->
+            <div id="tab-forecast" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">XAUUSD Forecast & Accuracy Analysis</h5>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <div class="kpi-card text-center border-primary">
+                            <div class="kpi-title">Average Accuracy</div>
+                            <div class="kpi-value text-bullish" id="forecast-avg-accuracy">0.0%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card text-center border-primary">
+                            <div class="kpi-title">Total Predictions</div>
+                            <div class="kpi-value text-white" id="forecast-total-preds">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card text-center border-primary">
+                            <div class="kpi-title">Successful Hits</div>
+                            <div class="kpi-value text-bullish" id="forecast-success-hits">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card text-center border-primary">
+                            <div class="kpi-title">Accuracy Rate</div>
+                            <div class="kpi-value text-info-v42" id="forecast-accuracy-rate">0.0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-lg-12">
+                        <div class="bg-dark-panel p-3 rounded">
+                            <h6 class="text-muted mb-3">Historical Forecast Predictions & Target Runs</h6>
+                            <table class="table table-v42">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Start Price</th>
+                                        <th>Target Price</th>
+                                        <th>Actual Close</th>
+                                        <th>Error %</th>
+                                        <th>Accuracy</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="forecast-history-tbody">
+                                    <tr><td colspan="7" class="text-muted text-center">Loading forecast records...</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
