@@ -288,7 +288,28 @@ class MacroStrategistEngine(BaseEngine):
         
         if qwen_thresh is not None:
             thresh = float(qwen_thresh)
-            self.logger.info(f"Auto LOT Override: Using Qwen AI dynamically calculated Confidence Threshold: {thresh}")
+            
+        # Adaptive Threshold Adjustment based on active positions to prevent over-trading
+        active_ops = 0
+        re = getattr(self.decision_engine, "risk_engine", None) if hasattr(self, "decision_engine") and self.decision_engine else None
+        if re:
+            try:
+                import MetaTrader5 as mt5
+                pos = mt5.positions_get(symbol="XAUUSD") or mt5.positions_get(symbol="GOLD")
+                active_ops = len(pos) if pos else 0
+            except Exception:
+                pass
+                
+        if active_ops > 0:
+            # Prevent over-trading: Raise threshold by +0.04 per active position, capped at 0.80
+            penalty = min(0.12, active_ops * 0.04)
+            thresh = min(0.80, thresh + penalty)
+            self.logger.info(f"Adaptive Sizing: {active_ops} active positions found. Raising threshold to {thresh:.2f} to prevent over-trading.")
+        else:
+            # Capture opportunities: Lower threshold by -0.04 to make it easier to enter trades, floor at 0.60
+            thresh = max(0.60, thresh - 0.04)
+            self.logger.info(f"Adaptive Sizing: No active positions. Lowering threshold to {thresh:.2f} to ease entry.")
+            
         if qwen_max_op is not None:
             max_op = int(qwen_max_op)
             self.logger.info(f"Auto LOT Override: Using Qwen AI dynamically calculated Max OP: {max_op}")
