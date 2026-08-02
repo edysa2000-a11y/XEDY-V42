@@ -202,10 +202,32 @@ def main():
         
     print(f"Scraped {len(articles)} headlines successfully.")
     
+    # Filter articles to last 24 hours (GMT+7)
+    local_now = datetime.utcnow() + timedelta(hours=7)
+    twenty_four_hours_ago = local_now - timedelta(hours=24)
+    last_24h_articles = []
+    
+    for art in articles:
+        try:
+            art_dt = datetime.strptime(art["pubDate"], "%Y-%m-%d %H:%M:%S")
+            if art_dt >= twenty_four_hours_ago:
+                last_24h_articles.append(art)
+        except Exception:
+            # Fallback if parse fails
+            last_24h_articles.append(art)
+            
+    # Fallback to general list if no news in last 24h (e.g. weekends)
+    if not last_24h_articles:
+        print("No new articles in last 24 hours. Falling back to most recent headlines.")
+        last_24h_articles = articles[:12]
+    else:
+        print(f"Filtered to {len(last_24h_articles)} headlines from the last 24 hours.")
+        last_24h_articles = last_24h_articles[:12]
+        
     # 2. Compile and translate headlines
     news_text = ""
     tg_news_list = []
-    for idx, art in enumerate(articles[:12]):
+    for idx, art in enumerate(last_24h_articles):
         headline_en = art["title"]
         pub_t = art["pubDate"]
         
@@ -257,7 +279,7 @@ def main():
     local_now = datetime.utcnow() + timedelta(hours=7)
     news_feed_data = {
         "generated_at": local_now.strftime("%Y-%m-%d %H:%M:%S WIB"),
-        "news": articles[:12],
+        "news": last_24h_articles,
         "macro_analysis": analysis
     }
     
