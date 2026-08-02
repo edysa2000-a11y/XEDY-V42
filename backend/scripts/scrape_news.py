@@ -151,7 +151,7 @@ def main():
         headline_id = translate_to_id(headline_en)
         
         news_text += f"- {headline_en} ({pub_t})\n"
-        tg_news_list.append(f"{idx+1}. <b>{headline_id}</b>\n   <i>Rilis: {pub_t} WIB</i>")
+        tg_news_list.append(f"{idx+1}. <b><a href=\"{art['link']}\">{headline_id}</a></b>\n   <i>Rilis: {pub_t} WIB</i>")
         
     # 3. Analyze with Qwen AI in the Cloud
     print("Calling Qwen AI for Macro Analysis...")
