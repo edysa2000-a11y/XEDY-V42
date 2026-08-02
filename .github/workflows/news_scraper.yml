@@ -48,6 +48,7 @@ jobs:
           cp data/qwen_decisions_log.jsonl temp_data/data/ || true
           cp data/self_learning_feedback.json temp_data/data/ || true
           cp data/closed_trades.json temp_data/data/ || true
+          cp data/keyword_impact_memory.json temp_data/data/ || true
           
           # Switch to data-feed branch (create if not exists)
           git checkout -B data-feed

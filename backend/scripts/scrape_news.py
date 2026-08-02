@@ -90,6 +90,23 @@ def get_qwen_analysis(api_key, news_text):
         "Content-Type": "application/json",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
     }
+    
+    # Load historical keyword memory
+    memory_summary = ""
+    memory_path = "data/keyword_impact_memory.json"
+    if os.path.exists(memory_path):
+        try:
+            with open(memory_path, "r") as mf:
+                mem_data = json.load(mf)
+                # Sort memory by net profit to get top historical drivers
+                top_mem = sorted(mem_data.items(), key=lambda x: x[1].get('net_profit', 0.0), reverse=True)[:5]
+                if top_mem:
+                    memory_summary = "\nHere is your historical trade memory for similar macro keyword drivers:\n" + "\n".join([
+                        f"- {k}: Net Profit ${v['net_profit']:.2f}, Trade Count {v['trade_count']}, Winrate {v['winrate']*100:.0f}%" for k, v in top_mem
+                    ])
+        except Exception as e:
+            print(f"Failed to load keyword memory in scraper: {e}")
+            
     system_prompt = (
         "You are the Chief Strategist AI (Qwen AI) for the XEDY algorithmic trading platform.\n"
         "Analyze the news headlines, identify any recent US economic calendar data releases (like GDP, PCE, CPI, NFP) mentioned, and decide the macro trading bias.\n"
@@ -108,7 +125,7 @@ def get_qwen_analysis(api_key, news_text):
         "model": "qwen3.7-flash",
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Here is the daily news summary:\n{news_text}"}
+            {"role": "user", "content": f"Here is the daily news summary:\n{news_text}\n{memory_summary}"}
         ],
         "temperature": 0.2,
         "response_format": {"type": "json_object"}

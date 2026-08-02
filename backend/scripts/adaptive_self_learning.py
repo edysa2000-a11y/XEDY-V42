@@ -110,12 +110,53 @@ def run_self_learning():
                 feedback_results["kelly_multiplier_feedback"] = 0.15
                 feedback_results["recommended_adjustment"] = "Low performance winrate (<40%). Adjusting fractional Kelly multiplier to 0.15 to preserve capital."
                 
+        # Build Keyword-Impact Memory
+        keyword_memory_path = "data/keyword_impact_memory.json"
+        keyword_memory = {}
+        if os.path.exists(keyword_memory_path):
+            try:
+                with open(keyword_memory_path, "r") as kmf:
+                    keyword_memory = json.load(kmf)
+            except Exception as e:
+                print(f"Failed to load keyword memory: {e}")
+
+        # Correlate trades with active economic releases
+        for idx, t in df_trades.iterrows():
+            past_decisions = df_decisions[df_decisions['timestamp'] <= t['time']]
+            if not past_decisions.empty:
+                last_dec = past_decisions.iloc[-1]
+                releases = last_dec.get('economic_releases', [])
+                for rel in releases:
+                    # Clean and simplify the release string for matching
+                    key_term = rel.split(":")[0].strip() if ":" in rel else rel.strip()
+                    if key_term not in keyword_memory:
+                        keyword_memory[key_term] = {"net_profit": 0.0, "trade_count": 0, "winrate": 0.0, "wins": 0}
+                    
+                    keyword_memory[key_term]["net_profit"] += float(t['profit'])
+                    keyword_memory[key_term]["trade_count"] += 1
+                    if float(t['profit']) > 0:
+                        keyword_memory[key_term]["wins"] += 1
+                    
+                    keyword_memory[key_term]["winrate"] = keyword_memory[key_term]["wins"] / keyword_memory[key_term]["trade_count"]
+
+        # Save updated Keyword-Impact Memory
+        try:
+            with open(keyword_memory_path, "w") as kmf:
+                json.dump(keyword_memory, kmf, indent=2)
+            print("Keyword-Impact Memory updated and saved to data/keyword_impact_memory.json")
+        except Exception as e:
+            print(f"Failed to save keyword memory: {e}")
+                
     # Save self-learning feedback
     with open(feedback_path, "w") as f:
         json.dump(feedback_results, f, indent=2)
         
     print("Self-Learning feedback saved successfully to data/self_learning_feedback.json")
-    mt5.shutdown()
+    if mt5:
+        try:
+            mt5.shutdown()
+        except:
+            pass
 
 if __name__ == "__main__":
     run_self_learning()
