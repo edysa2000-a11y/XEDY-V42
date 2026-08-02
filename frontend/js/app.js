@@ -2094,6 +2094,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
+            // Populate Active 24h targets
+            const active = data.active_forecast || {};
+            const activeHighEl = document.getElementById('forecast-target-high');
+            const activeCloseEl = document.getElementById('forecast-target-close');
+            const activeLowEl = document.getElementById('forecast-target-low');
+            const activeReasonEl = document.getElementById('forecast-detailed-reasoning');
+            
+            if (activeHighEl) activeHighEl.innerText = active.forecast_high_24h ? '$' + active.forecast_high_24h.toFixed(2) : '$0.00';
+            if (activeCloseEl) activeCloseEl.innerText = active.forecast_close_24h ? '$' + active.forecast_close_24h.toFixed(2) : '$0.00';
+            if (activeLowEl) activeLowEl.innerText = active.forecast_low_24h ? '$' + active.forecast_low_24h.toFixed(2) : '$0.00';
+            if (activeReasonEl) activeReasonEl.innerText = active.forecast_reasoning_id || 'Tidak ada analisis pendorong berita baru untuk siklus jam ini.';
+            
             // Populate KPIs
             const avgAccEl = document.getElementById('forecast-avg-accuracy');
             const totalPredsEl = document.getElementById('forecast-total-preds');

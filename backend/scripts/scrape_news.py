@@ -154,7 +154,11 @@ def get_qwen_analysis(api_key, news_text, gold_price):
         "  \"economic_releases\": [\"Release 1 with value and brief impact in INDONESIAN\", \"Release 2 in INDONESIAN\"],\n"
         "  \"forecast_price_target\": float (Estimated target price for XAUUSD, e.g. 2425.50. Make it realistic based on news impact),\n"
         "  \"forecast_duration_hours\": int (Estimated duration in hours to reach target price, e.g. 24),\n"
-        "  \"reasoning\": \"Brief explanation\"\n"
+        "  \"forecast_high_24h\": float (Estimated 24-hour HIGH price for XAUUSD),\n"
+        "  \"forecast_low_24h\": float (Estimated 24-hour LOW price for XAUUSD),\n"
+        "  \"forecast_close_24h\": float (Estimated 24-hour CLOSE price for XAUUSD),\n"
+        "  \"forecast_reasoning_id\": \"Detailed explanation in INDONESIAN explaining the analysis and causes of these forecast price targets so it is easy to understand\",\n"
+        "  \"reasoning\": \"Brief explanation in English\"\n"
         "}"
     )
     payload = {
@@ -271,6 +275,10 @@ def main():
         "economic_releases": analysis.get("economic_releases", []),
         "forecast_price_target": analysis.get("forecast_price_target", 0.0),
         "forecast_duration_hours": analysis.get("forecast_duration_hours", 0),
+        "forecast_high_24h": analysis.get("forecast_high_24h", 0.0),
+        "forecast_low_24h": analysis.get("forecast_low_24h", 0.0),
+        "forecast_close_24h": analysis.get("forecast_close_24h", 0.0),
+        "forecast_reasoning_id": analysis.get("forecast_reasoning_id", ""),
         "start_gold_price": gold_price,
         "reasoning": analysis.get("reasoning")
     }

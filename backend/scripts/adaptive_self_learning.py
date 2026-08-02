@@ -159,6 +159,14 @@ def run_self_learning():
             timestamp = row["timestamp"]
             bias = row.get("bias", "ANY")
             
+            # Handle legacy NaN or missing fields
+            if pd.isna(target) or pd.isna(duration) or pd.isna(start):
+                continue
+                
+            target = float(target)
+            duration = int(duration)
+            start = float(start)
+            
             if target <= 0.0 or duration <= 0 or start <= 0.0:
                 continue
                 

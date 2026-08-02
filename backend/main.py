@@ -247,14 +247,30 @@ async def health_check():
 async def get_forecast_stats():
     import json
     import os
-    path = "data/forecast_accuracy_stats.json"
-    if not os.path.exists(path):
-        return {"avg_accuracy": 0.0, "total_predictions": 0, "successful_hits": 0, "history": []}
-    try:
-        with open(path, "r") as f:
-            return json.load(f)
-    except Exception as e:
-        return {"error": str(e), "history": []}
+    
+    # Load historical accuracy
+    hist_data = {"avg_accuracy": 0.0, "total_predictions": 0, "successful_hits": 0, "history": []}
+    hist_path = "data/forecast_accuracy_stats.json"
+    if os.path.exists(hist_path):
+        try:
+            with open(hist_path, "r") as f:
+                hist_data = json.load(f)
+        except Exception as e:
+            hist_data["error"] = str(e)
+            
+    # Load current active forecast
+    active_forecast = {}
+    news_feed_path = "data/news_feed.json"
+    if os.path.exists(news_feed_path):
+        try:
+            with open(news_feed_path, "r") as f:
+                news_data = json.load(f)
+                active_forecast = news_data.get("macro_analysis", {})
+        except Exception as e:
+            print(f"Failed to load active forecast: {e}")
+            
+    hist_data["active_forecast"] = active_forecast
+    return hist_data
 
 @app.post("/api/v1/news/inject")
 async def inject_news(payload: dict):
