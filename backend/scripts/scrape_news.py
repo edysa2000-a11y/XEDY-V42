@@ -170,16 +170,25 @@ def get_qwen_analysis(api_key, news_text, gold_price):
         "temperature": 0.2,
         "response_format": {"type": "json_object"}
     }
-    try:
-        data_bytes = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
-        with urllib.request.urlopen(req, timeout=30.0) as r:
-            res_json = json.loads(r.read().decode("utf-8"))
-            content = res_json['choices'][0]['message']['content'].strip()
-            return json.loads(content)
-    except Exception as e:
-        print(f"Error calling Qwen API: {e}")
-        return {"bias": "ANY", "regime": "NORMAL", "optimal_confidence_threshold": 0.68, "optimal_max_op": 4, "reasoning": f"API Error: {e}"}
+    # Try calling API with up to 3 retries and exponential backoff
+    for attempt in range(1, 4):
+        try:
+            print(f"Calling Qwen API (Attempt {attempt}/3)...")
+            data_bytes = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=60.0) as r:
+                res_json = json.loads(r.read().decode("utf-8"))
+                content = res_json['choices'][0]['message']['content'].strip()
+                return json.loads(content)
+        except Exception as e:
+            print(f"Attempt {attempt} failed: {e}")
+            if attempt < 3:
+                sleep_time = attempt * 3
+                print(f"Waiting {sleep_time}s before retrying...")
+                time.sleep(sleep_time)
+            else:
+                print("All Qwen API retry attempts exhausted.")
+                return {"bias": "ANY", "regime": "NORMAL", "optimal_confidence_threshold": 0.68, "optimal_max_op": 4, "reasoning": f"API Retry Error: {e}"}
 
 def main():
     api_key = os.getenv("AIVENE_API_KEY", "")
