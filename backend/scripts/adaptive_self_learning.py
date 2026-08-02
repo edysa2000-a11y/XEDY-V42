@@ -1,9 +1,13 @@
 import os
 import json
 import time
-import MetaTrader5 as mt5
 import pandas as pd
 import numpy as np
+
+try:
+    import MetaTrader5 as mt5
+except ImportError:
+    mt5 = None
 
 def run_self_learning():
     print("Starting Adaptive Self-Learning feedback loop...")
@@ -25,26 +29,38 @@ def run_self_learning():
                 
     print(f"Loaded {len(decisions)} historical Qwen decisions.")
     
-    # Initialize MT5
-    if not mt5.initialize():
-        print("MT5 Init failed. Cannot fetch trade history for feedback.")
-        return
-        
-    # Fetch trade history for the last 30 days
-    from_date = time.time() - 30 * 24 * 60 * 60
-    deals = mt5.history_deals_get(from_date, time.time())
-    
     trades = []
-    if deals:
-        for d in deals:
-            if d.entry == 1:  # Out deals (trade closed)
-                trades.append({
-                    "time": d.time,
-                    "profit": d.profit,
-                    "symbol": d.symbol,
-                    "volume": d.volume
-                })
     
+    # Initialize MT5 (Windows Local PC)
+    if mt5 and mt5.initialize():
+        print("MT5 initialized successfully. Fetching history directly...")
+        # Fetch trade history for the last 30 days
+        from_date = time.time() - 30 * 24 * 60 * 60
+        deals = mt5.history_deals_get(from_date, time.time())
+        if deals:
+            for d in deals:
+                if d.entry == 1:  # Out deals (trade closed)
+                    trades.append({
+                        "time": int(d.time),
+                        "profit": float(d.profit),
+                        "symbol": str(d.symbol),
+                        "volume": float(d.volume)
+                    })
+        mt5.shutdown()
+    else:
+        # Fallback to JSON file (Linux / GitHub Actions cloud)
+        print("MT5 not available. Falling back to data/closed_trades.json...")
+        trades_path = "data/closed_trades.json"
+        if os.path.exists(trades_path):
+            try:
+                with open(trades_path, "r") as tf:
+                    trades = json.load(tf)
+            except Exception as e:
+                print(f"Failed to read closed_trades.json: {e}")
+        else:
+            print("No closed_trades.json found. Skipping self-learning.")
+            return
+            
     print(f"Loaded {len(trades)} recent closed trades.")
     
     feedback_results = {

@@ -3,6 +3,9 @@ name: XEDY Cloud Scraper
 on:
   schedule:
     - cron: '*/1 * * * *' # Run every 1 minute
+  push:
+    branches:
+      - main
   workflow_dispatch: # Allow manual trigger from GitHub UI
 
 jobs:
@@ -16,12 +19,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+          cache: 'pip' # Step 1: Caching dependencies enabled
 
       - name: Install dependencies
         run: |
-          pip install python-dotenv
+          pip install python-dotenv pandas numpy feedparser
 
-      - name: Run Scraper Script
+      - name: Run Cloud News Scraper
         env:
           AIVENE_API_KEY: ${{ secrets.AIVENE_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -29,9 +33,30 @@ jobs:
         run: |
           python backend/scripts/scrape_news.py
 
-      - name: Commit and Push compiled news feed
+      - name: Run Cloud Self-Learning Feedback Loop
+        run: |
+          python backend/scripts/adaptive_self_learning.py
+
+      - name: Deploy data updates to data-feed branch
         run: |
           git config --global user.name "XEDY Cloud Scraper"
           git config --global user.email "cloud-scraper@xedy.trading"
-          git add data/news_feed.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update compiled cloud news feed and Qwen AI analysis" && git push)
+          
+          # Create a separate temporary folder for generated data
+          mkdir -p temp_data/data
+          cp data/news_feed.json temp_data/data/ || true
+          cp data/qwen_decisions_log.jsonl temp_data/data/ || true
+          cp data/self_learning_feedback.json temp_data/data/ || true
+          cp data/closed_trades.json temp_data/data/ || true
+          
+          # Switch to data-feed branch (create if not exists)
+          git checkout -B data-feed
+          
+          # Clean repository files except the generated data
+          rm -rf backend frontend docs models tests .github
+          mv temp_data/data .
+          rm -rf temp_data
+          
+          # Commit and force push to prevent main branch bloat
+          git add data/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Deploy cloud news feed and self-learning updates" && git push -f origin data-feed)

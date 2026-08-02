@@ -165,7 +165,7 @@ class HybridNewsEngine:
         if not pat:
             return False
             
-        url = "https://raw.githubusercontent.com/edysa2000-a11y/XEDY-V42/main/data/news_feed.json"
+        url = "https://raw.githubusercontent.com/edysa2000-a11y/XEDY-V42/data-feed/data/news_feed.json"
         try:
             import urllib.request
             import json

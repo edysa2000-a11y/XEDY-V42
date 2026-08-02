@@ -868,6 +868,20 @@ class RiskEngine(BaseEngine):
                 if deals and len(deals) > 5:
                     self.logger.info(f"Adaptive Portfolio: Analyzing {len(deals)} recent trade deals...")
                     
+                    # Export closed trades to data/closed_trades.json for cloud self-learning fallback
+                    raw_trades = []
+                    for d in deals:
+                        if d.entry == 1:
+                            raw_trades.append({
+                                "time": int(d.time),
+                                "profit": float(d.profit),
+                                "symbol": str(d.symbol),
+                                "volume": float(d.volume)
+                            })
+                    os.makedirs("data", exist_ok=True)
+                    with open("data/closed_trades.json", "w") as tf:
+                        json.dump(raw_trades, tf, indent=2)
+                        
                     # Filter out non-trading deals (like deposits/adjustments) and get profits of out deals
                     profits = [d.profit for d in deals if d.entry == 1]
                     if len(profits) > 0:
