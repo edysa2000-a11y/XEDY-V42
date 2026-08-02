@@ -144,7 +144,7 @@ def main():
     # 2. Compile and translate headlines
     news_text = ""
     tg_news_list = []
-    for idx, art in enumerate(articles[:5]):
+    for idx, art in enumerate(articles[:8]):
         headline_en = art["title"]
         pub_t = art["pubDate"]
         
@@ -196,7 +196,7 @@ def main():
     local_now = datetime.utcnow() + timedelta(hours=7)
     news_feed_data = {
         "generated_at": local_now.strftime("%Y-%m-%d %H:%M:%S WIB"),
-        "news": articles[:5],
+        "news": articles[:8],
         "macro_analysis": analysis
     }
     
