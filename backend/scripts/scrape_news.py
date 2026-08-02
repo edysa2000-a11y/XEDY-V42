@@ -125,8 +125,8 @@ def main():
     
     print("Starting Cloud News Scraper...")
     
-    # 1. Scrape Google News Gold feed
-    google_url = "https://news.google.com/rss/search?q=gold+xauusd+forex&hl=en-US&gl=US&ceid=US:en"
+    # 1. Scrape Google News Gold, geopolitical, and macroeconomic feed
+    google_url = "https://news.google.com/rss/search?q=gold+xauusd+(geopolitics+OR+war+OR+conflict+OR+fed+OR+inflation)&hl=en-US&gl=US&ceid=US:en"
     articles = scrape_rss(google_url)
     
     if not articles:
