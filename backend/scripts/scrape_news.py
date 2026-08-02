@@ -92,7 +92,7 @@ def get_qwen_analysis(api_key, news_text):
     }
     system_prompt = (
         "You are the Chief Strategist AI (Qwen AI) for the XEDY algorithmic trading platform.\n"
-        "Analyze the news headlines and decide the macro trading bias (BUY_ONLY, SELL_ONLY, ANY, or WAIT).\n"
+        "Analyze the news headlines, identify any recent US economic calendar data releases (like GDP, PCE, CPI, NFP) mentioned, and decide the macro trading bias.\n"
         "You MUST respond ONLY with a valid JSON object matching this structure, without markdown code fences:\n"
         "{\n"
         "  \"bias\": \"BUY_ONLY\" | \"SELL_ONLY\" | \"ANY\" | \"WAIT\",\n"
@@ -100,6 +100,7 @@ def get_qwen_analysis(api_key, news_text):
         "  \"optimal_confidence_threshold\": float (value between 0.60 and 0.85),\n"
         "  \"optimal_max_op\": int (value between 2 and 6),\n"
         "  \"optimal_method\": \"Opsi X: [Method Name] (e.g. Opsi 5: Scalping 1:1, Opsi 2: Breakout Stop-Entry, Opsi 8: H1 Pyramid)\",\n"
+        "  \"economic_releases\": [\"Release 1 with value and brief impact in INDONESIAN\", \"Release 2 in INDONESIAN\"],\n"
         "  \"reasoning\": \"Brief explanation\"\n"
         "}"
     )
@@ -193,12 +194,17 @@ def main():
     translated_bias = bias_map.get(analysis.get('bias', 'ANY'), analysis.get('bias', 'ANY'))
     translated_regime = regime_map.get(analysis.get('regime', 'NORMAL'), analysis.get('regime', 'NORMAL'))
          
+    # Format economic releases
+    releases = analysis.get('economic_releases', [])
+    releases_str = "\n".join([f"• <code>{r}</code>" for r in releases]) if releases else "• <code>Tidak ada rilis data penting baru</code>"
+
     # 5. Send Telegram Notification from Cloud in Indonesian (GMT+7)
     optimal_method_str = analysis.get('optimal_method', 'Tidak ditentukan')
     tg_msg = (
         f"<b>📰 LAPORAN INTEL AWAN XEDY</b>\n"
         f"<i>Waktu: {local_now.strftime('%Y-%m-%d %H:%M:%S WIB')}</i>\n\n"
         f"<b>🔍 Berita Utama Teratas (Diterjemahkan):</b>\n" + "\n".join(tg_news_list) + "\n\n"
+        f"<b>📅 Rilis Data Kalender Ekonomi Terkini:</b>\n" + releases_str + "\n\n"
         f"<b>🧠 Keputusan Strategis Qwen AI:</b>\n"
         f"• <b>Arah Bias</b>: <code>{translated_bias}</code>\n"
         f"• <b>Rezim Pasar</b>: <code>{translated_regime}</code>\n"
