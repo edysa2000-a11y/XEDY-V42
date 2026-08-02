@@ -734,14 +734,14 @@ class RiskEngine(BaseEngine):
                         current_bar_time = int(current_bar[0])
                         open_price = float(current_bar[1])
                         
-                        # Calculate EMA 3 and EMA 25 on past rates (excluding the current uncompleted bar)
+                        # Calculate EMA 5 and EMA 15 on past rates (excluding the current uncompleted bar)
                         closes = np.array([r[4] for r in rates[:-1]])
                         highs = np.array([r[2] for r in rates[:-1]])
                         lows = np.array([r[3] for r in rates[:-1]])
                         
                         df_temp = pd.DataFrame(rates[:-1])
-                        ema_fast = df_temp[4].ewm(span=3, adjust=False).mean().iloc[-1]
-                        ema_slow = df_temp[4].ewm(span=25, adjust=False).mean().iloc[-1]
+                        ema_fast = df_temp[4].ewm(span=5, adjust=False).mean().iloc[-1]
+                        ema_slow = df_temp[4].ewm(span=15, adjust=False).mean().iloc[-1]
                         
                         # Calculate ATR (14)
                         tr_list = []
@@ -752,7 +752,7 @@ class RiskEngine(BaseEngine):
                         
                         if current_bar_time > last_bar_time:
                             last_bar_time = current_bar_time
-                            self.logger.info(f"New M30 candle detected at timestamp {current_bar_time}. Running Open Shift Close strategy...")
+                            self.logger.info(f"New M30 candle detected at timestamp {current_bar_time}. Running Open Shift Close (Breakout Stop) strategy...")
                             
                             is_bullish_cross = ema_fast > ema_slow
                             is_bearish_cross = ema_fast < ema_slow
@@ -761,6 +761,18 @@ class RiskEngine(BaseEngine):
                             qwen_bias = "ANY"
                             if hasattr(self, "macro_strategist") and self.macro_strategist:
                                 qwen_bias = getattr(self.macro_strategist, "macro_bias", "ANY")
+                            
+                            # Cancel existing pending stop orders on this symbol
+                            orders = mt5.orders_get(symbol=symbol)
+                            if orders:
+                                for o in orders:
+                                    if o.type in [mt5.ORDER_TYPE_BUY_STOP, mt5.ORDER_TYPE_SELL_STOP]:
+                                        cancel_req = {
+                                            "action": mt5.TRADE_ACTION_REMOVE,
+                                            "order": o.ticket
+                                        }
+                                        mt5.order_send(cancel_req)
+                                        self.logger.info(f"Open Shift Close: Cancelled old pending order #{o.ticket}")
                             
                             # Check active positions on the symbol
                             active_positions = mt5.positions_get(symbol=symbol)
@@ -792,37 +804,39 @@ class RiskEngine(BaseEngine):
                                     filling = mt5.ORDER_FILLING_IOC
                                     
                                 if is_bullish_cross and qwen_bias in ["BUY_ONLY", "ANY"]:
-                                    tp_price = open_price + atr * 3.0
-                                    sl_price = open_price - atr * 2.5
+                                    stop_price = float(current_bar[2]) + atr * 0.05
+                                    tp_price = stop_price + atr * 3.0
+                                    sl_price = stop_price - atr * 2.5
                                     req = {
                                         "action": mt5.TRADE_ACTION_DEAL,
                                         "symbol": symbol,
                                         "volume": lot_size,
-                                        "type": mt5.ORDER_TYPE_BUY,
-                                        "price": open_price,
+                                        "type": mt5.ORDER_TYPE_BUY_STOP,
+                                        "price": stop_price,
                                         "sl": sl_price,
                                         "tp": tp_price,
                                         "type_time": mt5.ORDER_TIME_GTC,
                                         "type_filling": filling
                                     }
                                     mt5.order_send(req)
-                                    self.logger.info(f"Open Shift Close: Opened BUY position at {open_price:.2f} (TP={tp_price:.2f}, SL={sl_price:.2f})")
+                                    self.logger.info(f"Open Shift Close: Placed BUY STOP order at {stop_price:.2f} (TP={tp_price:.2f}, SL={sl_price:.2f})")
                                 elif is_bearish_cross and qwen_bias in ["SELL_ONLY", "ANY"]:
-                                    tp_price = open_price - atr * 3.0
-                                    sl_price = open_price + atr * 2.5
+                                    stop_price = float(current_bar[3]) - atr * 0.05
+                                    tp_price = stop_price - atr * 3.0
+                                    sl_price = stop_price + atr * 2.5
                                     req = {
                                         "action": mt5.TRADE_ACTION_DEAL,
                                         "symbol": symbol,
                                         "volume": lot_size,
-                                        "type": mt5.ORDER_TYPE_SELL,
-                                        "price": open_price,
+                                        "type": mt5.ORDER_TYPE_SELL_STOP,
+                                        "price": stop_price,
                                         "sl": sl_price,
                                         "tp": tp_price,
                                         "type_time": mt5.ORDER_TIME_GTC,
                                         "type_filling": filling
                                     }
                                     mt5.order_send(req)
-                                    self.logger.info(f"Open Shift Close: Opened SELL position at {open_price:.2f} (TP={tp_price:.2f}, SL={sl_price:.2f})")
+                                    self.logger.info(f"Open Shift Close: Placed SELL STOP order at {stop_price:.2f} (TP={tp_price:.2f}, SL={sl_price:.2f})")
                                     
             except Exception as e:
                 self.logger.error(f"Error in _open_shift_close_loop: {e}", exc_info=True)
