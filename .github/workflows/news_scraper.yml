@@ -25,6 +25,11 @@ jobs:
         run: |
           pip install python-dotenv pandas numpy feedparser
 
+      - name: Restore State from data-feed branch
+        run: |
+          git fetch origin data-feed || echo "No previous data-feed branch found."
+          git checkout origin/data-feed -- data/ || echo "No previous data directory found."
+
       - name: Run Cloud News Scraper
         env:
           AIVENE_API_KEY: ${{ secrets.AIVENE_API_KEY }}
