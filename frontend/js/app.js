@@ -1994,6 +1994,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyAiModelBtn = document.getElementById('apply-ai-model-btn');
 
     const modelInfo = {
+        'adaptive-auto-select': {
+            title: '🔄 ADAPTIVE SYSTEM (AUTO SELECT)',
+            desc: 'Sistem dalam mode adaptif penuh. CEO AI mengevaluasi perdagangan harian berdasarkan umpan balik MAE/MFE untuk memilih metode optimal secara otomatis dan menyesuaikan persentase risiko Kelly Dinamis.'
+        },
         'intra-candle-scalper': {
             title: '🚀 Double-Sided Intra-Candle Scalper (M30)',
             desc: 'Strategi scalping frekuensi tinggi dua arah (BUY & SELL pending limits) di dalam siklus hidup lilin M30 dengan dynamic martingale micro-recovery grid untuk mengunci profit 95% winrate per bar.'
