@@ -6,6 +6,10 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 import time
 import email.utils
+from dotenv import load_dotenv
+
+# Load local environment variables from .env file
+load_dotenv()
 
 def send_telegram_notification(token, chat_id, text):
     if not token or not chat_id:
