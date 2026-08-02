@@ -1998,9 +1998,21 @@ document.addEventListener('DOMContentLoaded', () => {
             title: '🚀 Double-Sided Intra-Candle Scalper (M30)',
             desc: 'Strategi scalping frekuensi tinggi dua arah (BUY & SELL pending limits) di dalam siklus hidup lilin M30 dengan dynamic martingale micro-recovery grid untuk mengunci profit 95% winrate per bar.'
         },
+        'open-shift-close-breakout': {
+            title: '🔄 Breakout Stop-Entry - Hybrid Qwen AI (M30)',
+            desc: 'Metode Stop-Breakout teroptimasi pada timeframe M30. Menggunakan EMA 5/15, TP 3.0x, SL 2.5x, dan stop offset 0.05x ATR untuk menangkap momentum awal breakout dengan tingkat drawdown ultra rendah (DD 14.81%, Profit +156.39%).'
+        },
+        'open-shift-close-pattern': {
+            title: '🧩 Pattern-Filter Hybrid - Qwen AI (M30)',
+            desc: 'Model penyaringan pola candlestick asimetris pada timeframe M30. Menghindari inside bar dan membatasi doji sempit untuk menyaring fase sideways market (DD 19.03%, Profit +131.72%).'
+        },
         'open-shift-close': {
-            title: '🔄 Open Shift Close (EMA 3/25 + ATR TP/SL)',
-            desc: 'Strategi pembalikan arah adaptif dinamis pada timeframe M30. Menggunakan crossover EMA 3/25 sebagai pemicu perpindahan arah posisi (BUY/SELL) yang dilengkapi pelindung target profit 3.0x ATR dan stop loss 2.5x ATR (Konsistensi 91.7% profit bulanan).'
+            title: '🔄 Baseline Hybrid Mode - Qwen AI (M30)',
+            desc: 'Model baseline EMA 5/15 + ATR TP/SL dinamis yang disaring oleh bias makro Qwen AI Hybrid (DD 34.86%, Profit +133.43%).'
+        },
+        'scalping-1-1': {
+            title: '⚡ Scalping 1:1 TP/SL (M30)',
+            desc: 'Strategi scalping crossover EMA 2/25 dengan target profit dan batas rugi simetris 1.5x ATR vs 2.0x ATR untuk winrate di atas 50%.'
         },
         'intra-candle-scalper-m5': {
             title: '⚡ Double-Sided Intra-Candle Scalper (M5)',

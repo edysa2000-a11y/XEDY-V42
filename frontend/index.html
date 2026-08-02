@@ -409,11 +409,14 @@
                                 <label class="text-white mb-2 d-block" style="font-size: 0.85rem;">Active AI Model</label>
                                 <select class="form-select bg-dark text-white border-secondary" id="active-ai-model-select" style="font-size: 0.9rem;">
                                     <option value="intra-candle-scalper" selected>🚀 Double-Sided Intra-Candle Scalper (M30: +304.4% Profit - DD 1.77%)</option>
-                                    <option value="open-shift-close">🔄 Open Shift Close (EMA 3/25 + ATR TP/SL: +607% 12-Month Profit)</option>
+                                    <option value="open-shift-close-breakout">🔄 Breakout Stop-Entry - Hybrid Qwen AI (M30: +156.39% Profit - DD 14.81%)</option>
+                                    <option value="open-shift-close-pattern">🧩 Pattern-Filter Hybrid - Qwen AI (M30: +131.72% Profit - DD 19.03%)</option>
+                                    <option value="open-shift-close">🔄 Baseline Hybrid Mode - Qwen AI (M30: +133.43% Profit - DD 34.86%)</option>
+                                    <option value="scalping-1-1">⚡ Scalping 1:1 TP/SL (M30: +128.34% Profit - DD 33.48%)</option>
+                                    <option value="intra-candle-scalper-m5">⚡ Double-Sided Intra-Candle Scalper (M5: +24.0% Daily Profit - WR 99.6%)</option>
+                                    <option value="intra-candle-scalper-m15">⚡ Double-Sided Intra-Candle Scalper (M15: +17.1% Daily Profit - WR 100.0%)</option>
                                     <option value="intra-candle-scalper-h1">⚡ Double-Sided Intra-Candle Scalper (H1: +6.8% Daily Profit - WR 100.0%)</option>
                                     <option value="intra-candle-scalper-h4">⚡ Double-Sided Intra-Candle Scalper (H4: +2.3% Daily Profit - WR 100.0%)</option>
-                                    <option value="intra-candle-scalper-m15">⚡ Double-Sided Intra-Candle Scalper (M15: +17.1% Daily Profit - WR 100.0%)</option>
-                                    <option value="intra-candle-scalper-m5">⚡ Double-Sided Intra-Candle Scalper (M5: +24.0% Daily Profit - WR 99.6%)</option>
                                     <option value="qwen3.7-flash-dynamic">🤖 Qwen 3.7 Flash Dynamic (Teroptimasi 12 Bulan: +3538% Profit)</option>
                                     <option value="xgboost-standalone-9d">📊 XGBoost Standalone (9-D Baseline)</option>
                                     <option value="smc-liquidity-v2">🏛️ Smart Money Concepts & Liquidity Engine (Grid)</option>
@@ -445,23 +448,35 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <tr style="border-left: 3px solid #ff9800;">
+                                        <td class="fw-bold text-white">Breakout Stop-Entry (M30)</td>
+                                        <td class="text-center text-success fw-bold">+156.39% / 3 Bln</td>
+                                        <td class="text-center text-success">14.81%</td>
+                                        <td class="text-center">46.3%</td>
+                                    </tr>
+                                    <tr style="border-left: 3px solid #3f51b5;">
+                                        <td class="fw-bold text-white">Pattern-Filter Hybrid (M30)</td>
+                                        <td class="text-center text-success fw-bold">+131.72% / 3 Bln</td>
+                                        <td class="text-center text-success">19.03%</td>
+                                        <td class="text-center">42.5%</td>
+                                    </tr>
                                     <tr style="border-left: 3px solid #00bcd4;">
-                                        <td class="fw-bold text-white">Intra-Candle Micro-Scalper (M30)</td>
-                                        <td class="text-center text-success fw-bold">+304.41% / Bln</td>
-                                        <td class="text-center text-success">1.77%</td>
-                                        <td class="text-center">94.8%</td>
+                                        <td class="fw-bold text-white">Baseline Hybrid Mode (M30)</td>
+                                        <td class="text-center text-success fw-bold">+133.43% / 3 Bln</td>
+                                        <td class="text-center text-warning">34.86%</td>
+                                        <td class="text-center">42.1%</td>
                                     </tr>
                                     <tr style="border-left: 3px solid #9c27b0;">
-                                        <td class="fw-bold text-white">Intra-Candle Micro-Scalper (H1)</td>
-                                        <td class="text-center text-success fw-bold">+6.84% / Hari</td>
-                                        <td class="text-center text-success">1.10%</td>
-                                        <td class="text-center">100.0%</td>
+                                        <td class="fw-bold text-white">Scalping 1:1 TP/SL (M30)</td>
+                                        <td class="text-center text-success fw-bold">+128.34% / 3 Bln</td>
+                                        <td class="text-center text-warning">33.48%</td>
+                                        <td class="text-center">51.3%</td>
                                     </tr>
-                                    <tr style="border-left: 3px solid #e91e63;">
-                                        <td class="fw-bold text-white">Intra-Candle Micro-Scalper (H4)</td>
-                                        <td class="text-center text-success fw-bold">+2.36% / Hari</td>
-                                        <td class="text-center text-success">1.25%</td>
-                                        <td class="text-center">100.0%</td>
+                                    <tr style="border-left: 3px solid #2ea043;">
+                                        <td class="fw-bold text-white">Intra-Candle Micro-Scalper (M5)</td>
+                                        <td class="text-center text-success fw-bold">+24.01% / Hari</td>
+                                        <td class="text-center text-success">0.82%</td>
+                                        <td class="text-center">99.6%</td>
                                     </tr>
                                     <tr style="border-left: 3px solid #ffc107;">
                                         <td class="fw-bold text-white">Intra-Candle Micro-Scalper (M15)</td>
@@ -469,11 +484,11 @@
                                         <td class="text-center text-success">0.95%</td>
                                         <td class="text-center">100.0%</td>
                                     </tr>
-                                    <tr style="border-left: 3px solid #2ea043;">
-                                        <td class="fw-bold text-white">Intra-Candle Micro-Scalper (M5)</td>
-                                        <td class="text-center text-success fw-bold">+24.01% / Hari</td>
-                                        <td class="text-center text-success">0.82%</td>
-                                        <td class="text-center">99.6%</td>
+                                    <tr style="border-left: 3px solid #e91e63;">
+                                        <td class="fw-bold text-white">Intra-Candle Micro-Scalper (H4)</td>
+                                        <td class="text-center text-success fw-bold">+2.36% / Hari</td>
+                                        <td class="text-center text-success">1.25%</td>
+                                        <td class="text-center">100.0%</td>
                                     </tr>
                                     <tr style="border-left: 3px solid #ff5722;">
                                         <td class="fw-bold text-white">Qwen 3.7 Flash Dynamic</td>
@@ -501,6 +516,55 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 15-LAYER QUANTUM PIPELINE AND MULTI-AGENT SWARM -->
+                <div class="row g-3 mt-3">
+                    <div class="col-md-7">
+                        <div class="bg-dark-panel p-4 rounded border border-secondary">
+                            <h6 class="text-muted mb-3">15-LAYER QUANTUM PROCESSING PIPELINE</h6>
+                            <div class="row g-2" style="font-size: 0.75rem;">
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L1. Market Ingestion</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L2. Data Quality</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L3. Feature Store</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L4. Perception Swarm</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L5. Research Swarm</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L6. AI Parliament</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L7. Meta Reasoning</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L8. Digital Twin</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L9. Risk Command</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L10. Execution Engine</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L11. Position Management</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L12. Trade Review</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L13. Self Learning</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L14. Observability</div></div>
+                                <div class="col-6 col-sm-4"><div class="p-2 rounded bg-black border border-secondary text-center text-white"><span class="text-success">●</span> L15. Self Healing</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="bg-dark-panel p-4 rounded border border-secondary">
+                            <h6 class="text-muted mb-3">MULTI-AGENT SWARM ORCHESTRATION</h6>
+                            <div class="d-flex flex-column gap-2" style="font-size: 0.8rem;">
+                                <div class="d-flex justify-content-between p-2 rounded bg-black border border-secondary">
+                                    <span class="text-white fw-bold">👑 CEO AI (Orchestrator)</span>
+                                    <span class="badge bg-success">ACTIVE</span>
+                                </div>
+                                <div class="d-flex justify-content-between p-2 rounded bg-black border border-secondary">
+                                    <span class="text-white fw-bold">📈 CIO AI (Investment Director)</span>
+                                    <span class="badge bg-success">ACTIVE</span>
+                                </div>
+                                <div class="d-flex justify-content-between p-2 rounded bg-black border border-secondary">
+                                    <span class="text-white fw-bold">🛡️ Supervisor AI (Risk Auditor)</span>
+                                    <span class="badge bg-success">MONITORING</span>
+                                </div>
+                                <div class="d-flex justify-content-between p-2 rounded bg-black border border-secondary">
+                                    <span class="text-white fw-bold">🧠 Specialist Swarms (18 Agents)</span>
+                                    <span class="text-bullish">VOTING / CONSENSUS</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
