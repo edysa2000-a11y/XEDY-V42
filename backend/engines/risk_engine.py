@@ -32,6 +32,7 @@ class RiskEngine(BaseEngine):
         self._trailing_task = asyncio.create_task(self._trailing_stop_loop())
         self._intra_candle_task = asyncio.create_task(self._intra_candle_scalper_loop())
         self._open_shift_close_task = asyncio.create_task(self._open_shift_close_loop())
+        self._adaptive_task = asyncio.create_task(self._adaptive_portfolio_loop())
 
     async def stop(self):
         if self._trailing_task:
@@ -40,6 +41,8 @@ class RiskEngine(BaseEngine):
             self._intra_candle_task.cancel()
         if self._open_shift_close_task:
             self._open_shift_close_task.cancel()
+        if hasattr(self, "_adaptive_task") and self._adaptive_task:
+            self._adaptive_task.cancel()
         self.logger.info("Risk engine offline.")
 
     async def validate_trade(self, signal: str, price: float, confidence: float = 0.5):
@@ -841,3 +844,55 @@ class RiskEngine(BaseEngine):
             except Exception as e:
                 self.logger.error(f"Error in _open_shift_close_loop: {e}", exc_info=True)
             await asyncio.sleep(5)
+
+    async def _adaptive_portfolio_loop(self):
+        import asyncio
+        import os
+        import MetaTrader5 as mt5
+        import numpy as np
+        import time
+        
+        while True:
+            try:
+                self.logger.info("Adaptive Portfolio: Running daily strategy optimization based on MAE/MFE/PnL feedback...")
+                
+                # Fetch trade history from MT5 for the last 30 days
+                from_date = time.time() - 30 * 24 * 60 * 60
+                deals = mt5.history_deals_get(from_date, time.time())
+                
+                if deals and len(deals) > 5:
+                    self.logger.info(f"Adaptive Portfolio: Analyzing {len(deals)} recent trade deals...")
+                    
+                    # Filter out non-trading deals (like deposits/adjustments) and get profits of out deals
+                    profits = [d.profit for d in deals if d.entry == 1]
+                    if len(profits) > 0:
+                        winrate = sum(1 for p in profits if p > 0) / len(profits)
+                        avg_win = np.mean([p for p in profits if p > 0]) if any(p > 0 for p in profits) else 10.0
+                        avg_loss = abs(np.mean([p for p in profits if p < 0])) if any(p < 0 for p in profits) else 10.0
+                        
+                        payoff = avg_win / avg_loss if avg_loss > 0 else 1.0
+                        f_star = winrate - (1.0 - winrate) / payoff
+                        
+                        # Apply Fractional Kelly Sizing (0.25 multiplier)
+                        optimal_risk = max(0.5, min(4.0, f_star * 0.25 * 100.0))
+                        os.environ["RISK_PERCENT"] = f"{optimal_risk:.2f}"
+                        self.logger.info(f"Adaptive Sizing: Dynamic Kelly Sizing updated to {optimal_risk:.2f}% per trade based on MAE/MFE feedback loop.")
+                        
+                        # Dynamic Regime Selection
+                        if winrate > 0.55:
+                            os.environ["ACTIVE_METHOD"] = "scalping-1-1"
+                            self.logger.info("Adaptive Portfolio: Dynamic regime shifted to 'scalping-1-1' (High Winrate Scalper).")
+                        elif winrate >= 0.42:
+                            os.environ["ACTIVE_METHOD"] = "open-shift-close"
+                            self.logger.info("Adaptive Portfolio: Dynamic regime shifted to 'open-shift-close-breakout' (Stable Breakout).")
+                        else:
+                            os.environ["ACTIVE_METHOD"] = "fixed-micro-scalping"
+                            self.logger.info("Adaptive Portfolio: Dynamic regime shifted to 'fixed-micro-scalping' (Low-Risk Safety Guard).")
+                else:
+                    self.logger.info("Adaptive Portfolio: Insufficient trade history. Defaulting to breakout stop-entry mode.")
+                    os.environ["ACTIVE_METHOD"] = "open-shift-close"
+                    
+            except Exception as e:
+                self.logger.error(f"Error in _adaptive_portfolio_loop: {e}", exc_info=True)
+                
+            await asyncio.sleep(86400)
