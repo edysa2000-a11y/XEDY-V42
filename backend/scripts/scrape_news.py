@@ -282,8 +282,7 @@ def main():
         
         escaped_link = art['link'].replace("&", "&amp;")
         news_text += f"- {headline_en} ({pub_t}) [Age: {age}h, Weight: {weight}]\n"
-        w_badge = "🔴" if "WEAK" in weight else "🟢"
-        tg_news_list.append(f"{idx+1}. {w_badge} <b><a href=\"{escaped_link}\">{headline_id}</a></b>\n   <i>Rilis: {pub_t} WIB ({art.get('weight_label')})</i>")
+        tg_news_list.append(f"{idx+1}. <a href=\"{escaped_link}\">{headline_id}</a>\n   Rilis: {pub_t} WIB ({art.get('weight_label')})")
         
     # 3. Analyze with Qwen AI in the Cloud
     print("Calling Qwen AI for Macro Analysis...")
@@ -373,25 +372,25 @@ def main():
          
     # Format economic releases
     releases = analysis.get('economic_releases', [])
-    releases_str = "\n".join([f"• <code>{r}</code>" for r in releases]) if releases else "• <code>Tidak ada rilis data penting baru</code>"
+    releases_str = "\n".join([f"• {r}" for r in releases]) if releases else "• Tidak ada rilis data penting baru"
 
     # 5. Send Telegram Notification from Cloud in Indonesian (GMT+7)
     optimal_method_str = analysis.get('optimal_method', 'Tidak ditentukan')
     tg_msg = (
-        f"<b>📰 LAPORAN INTEL AWAN XEDY</b>\n"
-        f"<i>Waktu: {local_now.strftime('%Y-%m-%d %H:%M:%S WIB')}</i>\n\n"
-        f"<b>🔍 Berita Utama Teratas (Diterjemahkan):</b>\n" + "\n".join(tg_news_list) + "\n\n"
-        f"<b>📅 Rilis Data Kalender Ekonomi Terkini:</b>\n" + releases_str + "\n\n"
-        f"<b>🧠 Keputusan Strategis Qwen AI:</b>\n"
-        f"• <b>Harga Emas Saat Ini</b>: <code>${gold_price:.2f}</code>\n"
-        f"• <b>Target Harga Proyeksi</b>: <code>${analysis.get('forecast_price_target', 0.0):.2f}</code>\n"
-        f"• <b>Estimasi Durasi Waktu</b>: <code>{analysis.get('forecast_duration_hours', 0)} Jam</code>\n"
-        f"• <b>Arah Bias</b>: <code>{translated_bias}</code>\n"
-        f"• <b>Rezim Pasar</b>: <code>{translated_regime}</code>\n"
-        f"• <b>Ambang Batas Sinyal</b>: <code>{analysis.get('optimal_confidence_threshold') * 100:.0f}%</code>\n"
-        f"• <b>Maksimum Posisi Aktif</b>: <code>{analysis.get('optimal_max_op')}</code>\n"
-        f"• <b>Saran Metode Optimal</b>: <code>{optimal_method_str}</code>\n\n"
-        f"<b>💡 Analisis & Dasar Pemikiran:</b>\n<i>{reasoning_id}</i>"
+        f"LAPORAN INTEL AWAN XEDY\n"
+        f"Waktu: {local_now.strftime('%Y-%m-%d %H:%M:%S WIB')}\n\n"
+        f"Berita Utama Teratas (Diterjemahkan):\n" + "\n".join(tg_news_list) + "\n\n"
+        f"Rilis Data Kalender Ekonomi Terkini:\n" + releases_str + "\n\n"
+        f"Keputusan Strategis Qwen AI:\n"
+        f"• Harga Emas Saat Ini: ${gold_price:.2f}\n"
+        f"• Target Harga Proyeksi: ${analysis.get('forecast_price_target', 0.0):.2f}\n"
+        f"• Estimasi Durasi Waktu: {analysis.get('forecast_duration_hours', 0)} Jam\n"
+        f"• Arah Bias: {translated_bias}\n"
+        f"• Rezim Pasar: {translated_regime}\n"
+        f"• Ambang Batas Sinyal: {analysis.get('optimal_confidence_threshold') * 100:.0f}%\n"
+        f"• Maksimum Posisi Aktif: {analysis.get('optimal_max_op')}\n"
+        f"• Saran Metode Optimal: {optimal_method_str}\n\n"
+        f"Analisis & Dasar Pemikiran:\n{reasoning_id}"
     )
     
     if has_changed:
