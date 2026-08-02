@@ -29,6 +29,20 @@ def send_telegram_notification(token, chat_id, text):
     except Exception as e:
         print(f"Failed to send Telegram message: {e}")
 
+def translate_to_id(text):
+    if not text:
+        return ""
+    try:
+        url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=id&dt=t&q=" + urllib.parse.quote(text)
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=5.0) as response:
+            res_data = json.loads(response.read().decode('utf-8'))
+            translated = "".join([part[0] for part in res_data[0] if part[0]])
+            return translated
+    except Exception as e:
+        print(f"Translation failed: {e}")
+        return text
+
 def scrape_rss(url):
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -121,19 +135,27 @@ def main():
         
     print(f"Scraped {len(articles)} headlines successfully.")
     
-    # 2. Compile headlines
+    # 2. Compile and translate headlines
     news_text = ""
     tg_news_list = []
     for idx, art in enumerate(articles[:5]):
-        headline = art["title"]
+        headline_en = art["title"]
         pub_t = art["pubDate"]
-        news_text += f"- {headline} ({pub_t})\n"
-        tg_news_list.append(f"{idx+1}. <b>{headline}</b>\n   <i>Release: {pub_t} WIB</i>")
+        
+        # Translate headline to Indonesian
+        headline_id = translate_to_id(headline_en)
+        
+        news_text += f"- {headline_en} ({pub_t})\n"
+        tg_news_list.append(f"{idx+1}. <b>{headline_id}</b>\n   <i>Rilis: {pub_t} WIB</i>")
         
     # 3. Analyze with Qwen AI in the Cloud
     print("Calling Qwen AI for Macro Analysis...")
     analysis = get_qwen_analysis(api_key, news_text)
     print(f"Qwen Bias Result: {analysis.get('bias')}")
+    
+    # Translate Qwen's reasoning to Indonesian
+    reasoning_en = analysis.get('reasoning', '')
+    reasoning_id = translate_to_id(reasoning_en)
     
     # 4. Save results to JSON (timestamp in GMT+7 for local PC sync)
     output_dir = "data"
@@ -148,18 +170,34 @@ def main():
     
     with open(os.path.join(output_dir, "news_feed.json"), "w") as f:
         json.dump(news_feed_data, f, indent=2)
-        
-    # 5. Send Telegram Notification from Cloud (GMT+7)
+         
+    # Translate structural terms
+    bias_map = {
+        "BUY_ONLY": "KHUSUS_BELI (BUY_ONLY)",
+        "SELL_ONLY": "KHUSUS_JUAL (SELL_ONLY)",
+        "ANY": "BEBAS (BUY/SELL - ANY)",
+        "WAIT": "TUNGGU (WAIT/NC)"
+    }
+    regime_map = {
+        "NORMAL": "NORMAL (TREN STABIL)",
+        "HIGH_NEWS": "VOLATILITAS TINGGI (BERITA)",
+        "SIDEWAYS": "SIDEWAYS (KONSOLIDASI)"
+    }
+    
+    translated_bias = bias_map.get(analysis.get('bias', 'ANY'), analysis.get('bias', 'ANY'))
+    translated_regime = regime_map.get(analysis.get('regime', 'NORMAL'), analysis.get('regime', 'NORMAL'))
+         
+    # 5. Send Telegram Notification from Cloud in Indonesian (GMT+7)
     tg_msg = (
-        f"<b>📰 XEDY CLOUD INTEL REPORT</b>\n"
-        f"<i>Time: {local_now.strftime('%Y-%m-%d %H:%M:%S WIB')}</i>\n\n"
-        f"<b>🔍 Top Headlines:</b>\n" + "\n".join(tg_news_list) + "\n\n"
-        f"<b>🧠 Qwen AI Strategic Decision:</b>\n"
-        f"• <b>Bias Direction</b>: <code>{analysis.get('bias')}</code>\n"
-        f"• <b>Market Regime</b>: <code>{analysis.get('regime')}</code>\n"
-        f"• <b>Optimal Threshold</b>: <code>{analysis.get('optimal_confidence_threshold') * 100:.0f}%</code>\n"
-        f"• <b>Optimal Max OP</b>: <code>{analysis.get('optimal_max_op')}</code>\n\n"
-        f"<b>💡 Reasoning:</b>\n<i>{analysis.get('reasoning')}</i>"
+        f"<b>📰 LAPORAN INTEL AWAN XEDY</b>\n"
+        f"<i>Waktu: {local_now.strftime('%Y-%m-%d %H:%M:%S WIB')}</i>\n\n"
+        f"<b>🔍 Berita Utama Teratas (Diterjemahkan):</b>\n" + "\n".join(tg_news_list) + "\n\n"
+        f"<b>🧠 Keputusan Strategis Qwen AI:</b>\n"
+        f"• <b>Arah Bias</b>: <code>{translated_bias}</code>\n"
+        f"• <b>Rezim Pasar</b>: <code>{translated_regime}</code>\n"
+        f"• <b>Ambang Batas Sinyal</b>: <code>{analysis.get('optimal_confidence_threshold') * 100:.0f}%</code>\n"
+        f"• <b>Maksimum Posisi Aktif</b>: <code>{analysis.get('optimal_max_op')}</code>\n\n"
+        f"<b>💡 Analisis & Dasar Pemikiran:</b>\n<i>{reasoning_id}</i>"
     )
     
     send_telegram_notification(tg_token, tg_chat, tg_msg)
