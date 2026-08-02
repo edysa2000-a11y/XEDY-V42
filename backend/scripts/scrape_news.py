@@ -44,8 +44,20 @@ def translate_to_id(text):
             translated = "".join([part[0] for part in res_data[0] if part[0]])
             return translated
     except Exception as e:
-        print(f"Translation failed: {e}")
+        print(f"Translation error: {e}")
         return text
+
+def get_live_gold_price():
+    url = "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&range=1d"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode())
+            price = data['chart']['result'][0]['meta']['regularMarketPrice']
+            return float(price)
+    except Exception as e:
+        print(f"Failed to fetch gold price from Yahoo: {e}")
+        return 0.0
 
 def scrape_rss(url):
     try:
@@ -80,7 +92,7 @@ def scrape_rss(url):
         print(f"Error scraping {url}: {e}")
         return []
 
-def get_qwen_analysis(api_key, news_text):
+def get_qwen_analysis(api_key, news_text, gold_price):
     if not api_key:
         return {"bias": "ANY", "regime": "NORMAL", "optimal_confidence_threshold": 0.68, "optimal_max_op": 4, "reasoning": "No API Key"}
         
@@ -107,6 +119,28 @@ def get_qwen_analysis(api_key, news_text):
         except Exception as e:
             print(f"Failed to load keyword memory in scraper: {e}")
             
+    # Load forecast accuracy memory for reinforcement learning
+    accuracy_summary = ""
+    accuracy_path = "data/forecast_accuracy_stats.json"
+    if os.path.exists(accuracy_path):
+        try:
+            with open(accuracy_path, "r") as af:
+                acc_data = json.load(af)
+                accuracy_summary = (
+                    f"\n[CRITICAL GOAL: TARGET >90% ACCURACY]\n"
+                    f"Your current forecast accuracy statistics:\n"
+                    f"- Average Accuracy: {acc_data.get('avg_accuracy', 0.0)*100:.1f}%\n"
+                    f"- Total Predictions Analyzed: {acc_data.get('total_predictions', 0)}\n"
+                    f"- Successful Targets Hit: {acc_data.get('successful_hits', 0)}\n"
+                    f"Past predictions feedback list (learn from your pricing/duration mistakes):\n"
+                )
+                for item in acc_data.get("history", [])[-5:]:
+                    accuracy_summary += f"  • Start: ${item.get('start', 0.0):.2f}, Target: ${item.get('target', 0.0):.2f}, Actual: ${item.get('actual_close', 0.0):.2f}, Error: {item.get('error_pct', 0.0)*100:.1f}%, Status: {item.get('status', 'Unknown')}\n"
+        except Exception as e:
+            print(f"Failed to load forecast accuracy: {e}")
+
+    gold_price_str = f"\nThe current live market price of XAUUSD is: ${gold_price:.2f}" if gold_price > 0 else ""
+
     system_prompt = (
         "You are the Chief Strategist AI (Qwen AI) for the XEDY algorithmic trading platform.\n"
         "Analyze the news headlines, identify any recent US economic calendar data releases (like GDP, PCE, CPI, NFP) mentioned, and decide the macro trading bias.\n"
@@ -118,6 +152,8 @@ def get_qwen_analysis(api_key, news_text):
         "  \"optimal_max_op\": int (value between 2 and 6),\n"
         "  \"optimal_method\": \"Opsi X: [Method Name] (e.g. Opsi 5: Scalping 1:1, Opsi 2: Breakout Stop-Entry, Opsi 8: H1 Pyramid)\",\n"
         "  \"economic_releases\": [\"Release 1 with value and brief impact in INDONESIAN\", \"Release 2 in INDONESIAN\"],\n"
+        "  \"forecast_price_target\": float (Estimated target price for XAUUSD, e.g. 2425.50. Make it realistic based on news impact),\n"
+        "  \"forecast_duration_hours\": int (Estimated duration in hours to reach target price, e.g. 24),\n"
         "  \"reasoning\": \"Brief explanation\"\n"
         "}"
     )
@@ -125,7 +161,7 @@ def get_qwen_analysis(api_key, news_text):
         "model": "qwen3.7-flash",
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Here is the daily news summary:\n{news_text}\n{memory_summary}"}
+            {"role": "user", "content": f"Here is the daily news summary:\n{news_text}\n{gold_price_str}\n{memory_summary}\n{accuracy_summary}"}
         ],
         "temperature": 0.2,
         "response_format": {"type": "json_object"}
@@ -147,6 +183,10 @@ def main():
     tg_chat = os.getenv("TELEGRAM_ADMIN_ID", "")
     
     print("Starting Cloud News Scraper...")
+    
+    # Fetch live gold price at run time
+    gold_price = get_live_gold_price()
+    print(f"Current live XAUUSD price fetched: ${gold_price:.2f}")
     
     # 1. Scrape Google News Gold, DXY, geopolitical, and macroeconomic feed
     google_url = 'https://news.google.com/rss/search?q=(gold+OR+xauusd+OR+dxy+OR+\"US+dollar\"+OR+\"treasury+yields\")+(war+OR+geopolitics+OR+conflict+OR+fed+OR+inflation+OR+nfp+OR+gdp+OR+cpi)&hl=en-US&gl=US&ceid=US:en'
@@ -174,7 +214,7 @@ def main():
         
     # 3. Analyze with Qwen AI in the Cloud
     print("Calling Qwen AI for Macro Analysis...")
-    analysis = get_qwen_analysis(api_key, news_text)
+    analysis = get_qwen_analysis(api_key, news_text, gold_price)
     print(f"Qwen Bias Result: {analysis.get('bias')}")
     
     # Translate Qwen's reasoning to Indonesian
@@ -229,6 +269,9 @@ def main():
         "optimal_max_op": analysis.get("optimal_max_op"),
         "optimal_method": analysis.get("optimal_method"),
         "economic_releases": analysis.get("economic_releases", []),
+        "forecast_price_target": analysis.get("forecast_price_target", 0.0),
+        "forecast_duration_hours": analysis.get("forecast_duration_hours", 0),
+        "start_gold_price": gold_price,
         "reasoning": analysis.get("reasoning")
     }
     log_file_path = os.path.join(output_dir, "qwen_decisions_log.jsonl")
@@ -263,6 +306,9 @@ def main():
         f"<b>🔍 Berita Utama Teratas (Diterjemahkan):</b>\n" + "\n".join(tg_news_list) + "\n\n"
         f"<b>📅 Rilis Data Kalender Ekonomi Terkini:</b>\n" + releases_str + "\n\n"
         f"<b>🧠 Keputusan Strategis Qwen AI:</b>\n"
+        f"• <b>Harga Emas Saat Ini</b>: <code>${gold_price:.2f}</code>\n"
+        f"• <b>Target Harga Proyeksi</b>: <code>${analysis.get('forecast_price_target', 0.0):.2f}</code>\n"
+        f"• <b>Estimasi Durasi Waktu</b>: <code>{analysis.get('forecast_duration_hours', 0)} Jam</code>\n"
         f"• <b>Arah Bias</b>: <code>{translated_bias}</code>\n"
         f"• <b>Rezim Pasar</b>: <code>{translated_regime}</code>\n"
         f"• <b>Ambang Batas Sinyal</b>: <code>{analysis.get('optimal_confidence_threshold') * 100:.0f}%</code>\n"

@@ -147,6 +147,76 @@ def run_self_learning():
         except Exception as e:
             print(f"Failed to save keyword memory: {e}")
                 
+        # Evaluate Qwen AI price and duration forecasts
+        forecast_history = []
+        total_hits = 0
+        total_acc = 0.0
+        
+        for idx, row in df_decisions.iterrows():
+            target = row.get("forecast_price_target", 0.0)
+            duration = row.get("forecast_duration_hours", 0)
+            start = row.get("start_gold_price", 0.0)
+            timestamp = row["timestamp"]
+            bias = row.get("bias", "ANY")
+            
+            if target <= 0.0 or duration <= 0 or start <= 0.0:
+                continue
+                
+            # Find actual prices within the duration window
+            end_time = timestamp + pd.Timedelta(hours=duration)
+            future_rows = df_decisions[(df_decisions['timestamp'] >= timestamp) & (df_decisions['timestamp'] <= end_time)]
+            actual_prices = future_rows['start_gold_price'].dropna().astype(float).tolist()
+            
+            if not actual_prices:
+                continue
+                
+            # Determine if target was hit within the timeframe
+            is_hit = False
+            if bias == "BUY_ONLY" or (target > start):
+                max_reached = max(actual_prices)
+                if max_reached >= target:
+                    is_hit = True
+                    actual_close = target
+                else:
+                    actual_close = actual_prices[-1]
+            else:
+                min_reached = min(actual_prices)
+                if min_reached <= target:
+                    is_hit = True
+                    actual_close = target
+                else:
+                    actual_close = actual_prices[-1]
+                    
+            error_pct = abs(actual_close - target) / target if target > 0.0 else 0.0
+            accuracy = max(0.0, 1.0 - error_pct)
+            
+            status = "SUCCESS (Hit)" if is_hit else "EXPIRED"
+            if is_hit:
+                total_hits += 1
+            total_acc += accuracy
+            
+            forecast_history.append({
+                "timestamp": timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                "start": float(start),
+                "target": float(target),
+                "actual_close": float(actual_close),
+                "error_pct": float(error_pct),
+                "accuracy": float(accuracy),
+                "status": status
+            })
+            
+        if forecast_history:
+            avg_accuracy = total_acc / len(forecast_history)
+            forecast_stats = {
+                "avg_accuracy": float(avg_accuracy),
+                "total_predictions": len(forecast_history),
+                "successful_hits": int(total_hits),
+                "history": forecast_history
+            }
+            with open("data/forecast_accuracy_stats.json", "w") as af:
+                json.dump(forecast_stats, af, indent=2)
+            print("Forecast accuracy statistics compiled and saved to data/forecast_accuracy_stats.json")
+                
     # Save self-learning feedback
     with open(feedback_path, "w") as f:
         json.dump(feedback_results, f, indent=2)
