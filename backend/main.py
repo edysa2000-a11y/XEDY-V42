@@ -476,7 +476,6 @@ async def websocket_endpoint(websocket: WebSocket):
                         }))
                     elif payload.get("action") == "shutdown":
                         logger.warning("Shutdown command received from UI. Closing server...")
-                        import os
                         import signal
                         # Send ack before killing process
                         await websocket.send_text(json.dumps({"type": "server_shutdown_ack"}))
