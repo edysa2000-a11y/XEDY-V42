@@ -48,6 +48,21 @@ def translate_to_id(text):
         return text
 
 def get_live_gold_price():
+    # 1. Try to fetch from MT5 directly if running locally
+    try:
+        import MetaTrader5 as mt5
+        if mt5.initialize():
+            tick = mt5.symbol_info_tick("XAUUSD") or mt5.symbol_info_tick("GOLD")
+            if tick:
+                price = float(tick.bid)
+                print(f"Fetched live Spot Gold price from MT5: ${price:.2f}")
+                mt5.shutdown()
+                return price
+            mt5.shutdown()
+    except Exception as e:
+        print(f"MT5 spot price fetch not available: {e}")
+
+    # 2. Fallback to Yahoo Finance GC=F (Gold Futures)
     url = "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&range=1d"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     try:
