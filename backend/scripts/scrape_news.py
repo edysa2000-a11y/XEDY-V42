@@ -69,7 +69,8 @@ def get_qwen_analysis(api_key, news_text):
     url = "https://api.aivene.com/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
     }
     system_prompt = (
         "You are the Chief Strategist AI (Qwen AI) for the XEDY algorithmic trading platform.\n"
