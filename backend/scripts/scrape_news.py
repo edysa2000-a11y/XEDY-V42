@@ -95,6 +95,7 @@ def get_qwen_analysis(api_key, news_text):
         "  \"regime\": \"NORMAL\" | \"HIGH_NEWS\" | \"SIDEWAYS\",\n"
         "  \"optimal_confidence_threshold\": float (value between 0.60 and 0.85),\n"
         "  \"optimal_max_op\": int (value between 2 and 6),\n"
+        "  \"optimal_method\": \"Opsi X: [Method Name] (e.g. Opsi 5: Scalping 1:1, Opsi 2: Breakout Stop-Entry, Opsi 8: H1 Pyramid)\",\n"
         "  \"reasoning\": \"Brief explanation\"\n"
         "}"
     )
@@ -188,6 +189,7 @@ def main():
     translated_regime = regime_map.get(analysis.get('regime', 'NORMAL'), analysis.get('regime', 'NORMAL'))
          
     # 5. Send Telegram Notification from Cloud in Indonesian (GMT+7)
+    optimal_method_str = analysis.get('optimal_method', 'Tidak ditentukan')
     tg_msg = (
         f"<b>📰 LAPORAN INTEL AWAN XEDY</b>\n"
         f"<i>Waktu: {local_now.strftime('%Y-%m-%d %H:%M:%S WIB')}</i>\n\n"
@@ -196,7 +198,8 @@ def main():
         f"• <b>Arah Bias</b>: <code>{translated_bias}</code>\n"
         f"• <b>Rezim Pasar</b>: <code>{translated_regime}</code>\n"
         f"• <b>Ambang Batas Sinyal</b>: <code>{analysis.get('optimal_confidence_threshold') * 100:.0f}%</code>\n"
-        f"• <b>Maksimum Posisi Aktif</b>: <code>{analysis.get('optimal_max_op')}</code>\n\n"
+        f"• <b>Maksimum Posisi Aktif</b>: <code>{analysis.get('optimal_max_op')}</code>\n"
+        f"• <b>Saran Metode Optimal</b>: <code>{optimal_method_str}</code>\n\n"
         f"<b>💡 Analisis & Dasar Pemikiran:</b>\n<i>{reasoning_id}</i>"
     )
     
