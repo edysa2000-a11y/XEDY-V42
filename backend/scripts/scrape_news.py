@@ -202,41 +202,64 @@ def main():
         
     print(f"Scraped {len(articles)} headlines successfully.")
     
-    # Filter articles to last 24 hours (GMT+7)
+    # Filter and weight articles to last 48 hours (GMT+7)
     local_now = datetime.utcnow() + timedelta(hours=7)
+    forty_eight_hours_ago = local_now - timedelta(hours=48)
     twenty_four_hours_ago = local_now - timedelta(hours=24)
-    last_24h_articles = []
+    weighted_articles = []
     
     for art in articles:
         try:
             art_dt = datetime.strptime(art["pubDate"], "%Y-%m-%d %H:%M:%S")
-            if art_dt >= twenty_four_hours_ago:
-                last_24h_articles.append(art)
+            if art_dt >= forty_eight_hours_ago:
+                age_hours = int((local_now - art_dt).total_seconds() / 3600)
+                if art_dt >= twenty_four_hours_ago:
+                    weight = "100% (FRESH)"
+                    weight_label = "BARU/KUAT"
+                else:
+                    weight = "40% (WEAK / DECAYED)"
+                    weight_label = "LAMA/LEMAH"
+                
+                art["weight"] = weight
+                art["weight_label"] = weight_label
+                art["age_hours"] = age_hours
+                weighted_articles.append(art)
         except Exception:
             # Fallback if parse fails
-            last_24h_articles.append(art)
+            art["weight"] = "100% (FRESH)"
+            art["weight_label"] = "BARU/KUAT"
+            art["age_hours"] = 0
+            weighted_articles.append(art)
             
-    # Fallback to general list if no news in last 24h (e.g. weekends)
-    if not last_24h_articles:
-        print("No new articles in last 24 hours. Falling back to most recent headlines.")
-        last_24h_articles = articles[:12]
+    # Fallback to general list if no news in last 48h
+    if not weighted_articles:
+        print("No new articles in last 48 hours. Falling back to most recent headlines.")
+        weighted_articles = articles[:12]
+        for art in weighted_articles:
+            art["weight"] = "100% (FRESH)"
+            art["weight_label"] = "BARU/KUAT"
+            art["age_hours"] = 0
     else:
-        print(f"Filtered to {len(last_24h_articles)} headlines from the last 24 hours.")
-        last_24h_articles = last_24h_articles[:12]
+        # Sort by age (newest first)
+        weighted_articles = sorted(weighted_articles, key=lambda x: x.get("age_hours", 0))[:12]
+        print(f"Filtered to {len(weighted_articles)} headlines from the last 48 hours.")
         
     # 2. Compile and translate headlines
     news_text = ""
     tg_news_list = []
-    for idx, art in enumerate(last_24h_articles):
+    for idx, art in enumerate(weighted_articles):
         headline_en = art["title"]
         pub_t = art["pubDate"]
+        weight = art.get("weight", "100% (FRESH)")
+        age = art.get("age_hours", 0)
         
         # Translate headline to Indonesian
         headline_id = translate_to_id(headline_en)
         
         escaped_link = art['link'].replace("&", "&amp;")
-        news_text += f"- {headline_en} ({pub_t})\n"
-        tg_news_list.append(f"{idx+1}. <b><a href=\"{escaped_link}\">{headline_id}</a></b>\n   <i>Rilis: {pub_t} WIB</i>")
+        news_text += f"- {headline_en} ({pub_t}) [Age: {age}h, Weight: {weight}]\n"
+        w_badge = "🔴" if "WEAK" in weight else "🟢"
+        tg_news_list.append(f"{idx+1}. {w_badge} <b><a href=\"{escaped_link}\">{headline_id}</a></b>\n   <i>Rilis: {pub_t} WIB ({art.get('weight_label')})</i>")
         
     # 3. Analyze with Qwen AI in the Cloud
     print("Calling Qwen AI for Macro Analysis...")
@@ -279,7 +302,7 @@ def main():
     local_now = datetime.utcnow() + timedelta(hours=7)
     news_feed_data = {
         "generated_at": local_now.strftime("%Y-%m-%d %H:%M:%S WIB"),
-        "news": last_24h_articles,
+        "news": weighted_articles,
         "macro_analysis": analysis
     }
     
