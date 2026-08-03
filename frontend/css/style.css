@@ -211,14 +211,31 @@ body {
 .flow-step-card:hover {
     transform: scale(1.03);
 }
+.flow-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+}
 .col-flow-card {
-    width: 17%;
+    width: 17% !important;
+    flex: 0 0 17% !important;
+    max-width: 17% !important;
 }
 .col-flow-arrow {
-    width: 3%;
+    width: 3% !important;
+    flex: 0 0 3% !important;
+    max-width: 3% !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .col-flow-card-output {
-    width: 25%;
+    width: 20% !important;
+    flex: 0 0 20% !important;
+    max-width: 20% !important;
 }
 .bg-purple { background-color: #8e44ad !important; color: #fff; }
 .bg-blue { background-color: #2980b9 !important; color: #fff; }
