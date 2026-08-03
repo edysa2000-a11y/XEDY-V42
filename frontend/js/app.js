@@ -73,34 +73,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Plotly Chart (Dark Theme)
     const chartDiv = document.getElementById('market-chart');
-    const chartLayout = {
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)',
-        font: { color: '#8b949e' },
-        margin: { t: 10, b: 30, l: 40, r: 10 },
-        xaxis: { showgrid: false },
-        yaxis: { 
-            showgrid: true, 
-            gridcolor: '#30363d', 
-            tickformat: '.2f', 
-            exponentformat: 'none',
-            automargin: true
+    if (chartDiv) {
+        const chartLayout = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#8b949e' },
+            margin: { t: 10, b: 30, l: 40, r: 10 },
+            xaxis: { showgrid: false },
+            yaxis: { 
+                showgrid: true, 
+                gridcolor: '#30363d', 
+                tickformat: '.2f', 
+                exponentformat: 'none',
+                automargin: true
+            }
+        };
+        try {
+            if (typeof Plotly !== 'undefined') {
+                Plotly.newPlot(chartDiv, [{
+                    x: ['2026-07-28 09:00', '2026-07-28 10:00', '2026-07-28 11:00'],
+                    y: [2045, 2050, 2048],
+                    type: 'scatter',
+                    mode: 'lines',
+                    line: { color: '#58a6ff', width: 2 }
+                }], chartLayout);
+            } else {
+                console.error("Plotly is not loaded");
+            }
+        } catch (err) {
+            console.error("Error rendering Plotly chart:", err);
         }
-    };
-    try {
-        if (typeof Plotly !== 'undefined') {
-            Plotly.newPlot(chartDiv, [{
-                x: ['2026-07-28 09:00', '2026-07-28 10:00', '2026-07-28 11:00'],
-                y: [2045, 2050, 2048],
-                type: 'scatter',
-                mode: 'lines',
-                line: { color: '#58a6ff', width: 2 }
-            }], chartLayout);
-        } else {
-            console.error("Plotly is not loaded");
-        }
-    } catch (err) {
-        console.error("Error rendering Plotly chart:", err);
     }
 
     // 3b. TradingView Lightweight Chart (Disabled - Using MT5 Web Terminal iframe)
@@ -195,7 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 historyY.shift();
             }
             
-            Plotly.update(chartDiv, { x: [historyX], y: [historyY] });
+            if (chartDiv) {
+                Plotly.update(chartDiv, { x: [historyX], y: [historyY] });
+            }
         }
 
         if (latestSignal) {
