@@ -62,16 +62,28 @@ def get_live_gold_price():
     except Exception as e:
         print(f"MT5 spot price fetch not available: {e}")
 
-    # 2. Fallback to Yahoo Finance GC=F (Gold Futures)
-    url = "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&range=1d"
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    # 2. Fallback to Yahoo Finance PAXG-USD (tracks spot gold 1:1)
+    url_paxg = "https://query1.finance.yahoo.com/v8/finance/chart/PAXG-USD?interval=1m&range=1d"
+    req_paxg = urllib.request.Request(url_paxg, headers={"User-Agent": "Mozilla/5.0"})
     try:
-        with urllib.request.urlopen(req, timeout=10) as response:
+        with urllib.request.urlopen(req_paxg, timeout=10) as response:
+            data = json.loads(response.read().decode())
+            price = data['chart']['result'][0]['meta']['regularMarketPrice']
+            print(f"Fetched live Spot Gold price from Yahoo Finance (PAXG-USD): ${price:.2f}")
+            return float(price)
+    except Exception as e:
+        print(f"Failed to fetch gold price from Yahoo (PAXG-USD), trying GC=F: {e}")
+        
+    # 3. Last resort fallback to Yahoo Finance GC=F (Gold Futures)
+    url_gcf = "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&range=1d"
+    req_gcf = urllib.request.Request(url_gcf, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req_gcf, timeout=10) as response:
             data = json.loads(response.read().decode())
             price = data['chart']['result'][0]['meta']['regularMarketPrice']
             return float(price)
     except Exception as e:
-        print(f"Failed to fetch gold price from Yahoo: {e}")
+        print(f"Failed to fetch gold price from Yahoo (GC=F): {e}")
         return 0.0
 
 def scrape_rss(url):
