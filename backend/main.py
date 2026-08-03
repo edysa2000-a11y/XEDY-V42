@@ -513,6 +513,125 @@ async def inject_news(payload: dict):
         return {"status": "SUCCESS", "message": "News injected and Qwen3.7 Macro Strategist triggered."}
     return {"status": "ERROR", "message": "News Engine not initialized."}
 
+@app.get("/api/v1/forecast/10day")
+async def get_10day_forecast():
+    """
+    Generates a 10-day XAUUSD price projection based on Qwen AI forecast data.
+    Uses current forecast target, high/low band, bias, and momentum decay to model
+    a realistic multi-day price path with expanding uncertainty bands.
+    """
+    import json, os, math
+    from datetime import datetime, timedelta, timezone
+
+    news_feed_path = "data/news_feed.json"
+
+    # Default fallback values
+    current_price = 3350.0
+    forecast_target = 3380.0
+    forecast_high = 3400.0
+    forecast_low = 3330.0
+    bias = "WAIT"
+    confidence = 0.72
+
+    if os.path.exists(news_feed_path):
+        try:
+            with open(news_feed_path, "r", encoding="utf-8") as f:
+                feed = json.load(f)
+            macro = feed.get("macro_analysis", {})
+            forecast_target = macro.get("forecast_price_target", forecast_target)
+            forecast_high = macro.get("forecast_high_24h", forecast_high)
+            forecast_low = macro.get("forecast_low_24h", forecast_low)
+            bias = macro.get("bias", bias)
+            confidence = macro.get("optimal_confidence_threshold", confidence)
+        except Exception:
+            pass
+
+    # Try to get live price from latest qwen log entry
+    qwen_log_path = "data/qwen_decisions_log.jsonl"
+    if os.path.exists(qwen_log_path):
+        try:
+            last_line = None
+            with open(qwen_log_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        last_line = line
+            if last_line:
+                entry = json.loads(last_line)
+                if entry.get("current_price"):
+                    current_price = float(entry["current_price"])
+        except Exception:
+            pass
+
+    # Determine directional drift from bias
+    bias_up = bias in ("BUY_ONLY", "BUY", "BULLISH")
+    bias_down = bias in ("SELL_ONLY", "SELL", "BEARISH")
+
+    # Daily range from 24h high/low (scales up day by day)
+    daily_range_base = (forecast_high - forecast_low)
+    if daily_range_base <= 0:
+        daily_range_base = current_price * 0.008  # 0.8% default
+
+    # 24h target delta
+    delta_24h = forecast_target - current_price
+
+    days = []
+    today = datetime.now(timezone.utc)
+
+    for i in range(11):  # Day 0 = today, 1-10 = forecast days
+        date = today + timedelta(days=i)
+        day_label = date.strftime("%d %b") if i > 0 else "Today"
+
+        if i == 0:
+            # Today = current price
+            projected = current_price
+            high = current_price + daily_range_base * 0.5
+            low = current_price - daily_range_base * 0.5
+        else:
+            # Momentum decays: strongest on day 1, fades by day 5, then mean-reverts
+            decay = math.exp(-0.35 * (i - 1))
+            trend_delta = delta_24h * decay
+
+            # Add slight directional continuation beyond day 3
+            if i > 3:
+                extra = 0.0
+                if bias_up:
+                    extra = daily_range_base * 0.15 * (i - 3) * 0.1
+                elif bias_down:
+                    extra = -daily_range_base * 0.15 * (i - 3) * 0.1
+                trend_delta += extra
+
+            projected = current_price + trend_delta
+            # Band expands with uncertainty over time (sqrt of time)
+            band_expand = daily_range_base * math.sqrt(i) * 0.55
+            high = projected + band_expand
+            low = projected - band_expand
+
+        direction = "↑" if (i > 0 and projected > current_price) else ("↓" if (i > 0 and projected < current_price) else "●")
+        color = "bullish" if projected > current_price else ("bearish" if projected < current_price else "neutral")
+
+        days.append({
+            "day": i,
+            "label": day_label,
+            "close": round(projected, 2),
+            "high": round(high, 2),
+            "low": round(low, 2),
+            "direction": direction,
+            "color": color
+        })
+
+    return {
+        "current_price": round(current_price, 2),
+        "bias": bias,
+        "confidence": confidence,
+        "target_24h": round(forecast_target, 2),
+        "high_24h": round(forecast_high, 2),
+        "low_24h": round(forecast_low, 2),
+        "days": days,
+        "generated_at": today.strftime("%Y-%m-%d %H:%M UTC")
+    }
+
+
 @app.get("/api/v1/debug_settings")
 def debug_settings():
     re = app.state.risk_engine

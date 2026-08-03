@@ -2344,6 +2344,143 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(window.fetchMacroDashboard, 60000);
     setTimeout(window.fetchMacroDashboard, 1500);
 
+    // ============================================================
+    // 10-Day Price Forecast Chart Renderer
+    // ============================================================
+    window.renderForecast10Day = async function() {
+        try {
+            const res = await fetch('/api/v1/forecast/10day');
+            if (!res.ok) return;
+            const d = await res.json();
+            if (!d.days || d.days.length === 0) return;
+
+            const days = d.days; // 11 items: day0=today, 1-10=forecast
+            const CHART_W = 340;
+            const CHART_H = 80;
+            const PAD_L = 4;
+            const PAD_R = 40; // space for price labels
+            const PAD_T = 6;
+            const PAD_B = 12;
+
+            // Collect all price points for Y-axis scale
+            const allPrices = days.flatMap(dy => [dy.close, dy.high, dy.low]);
+            const priceMax = Math.max(...allPrices);
+            const priceMin = Math.min(...allPrices);
+            const priceRange = priceMax - priceMin || 1;
+
+            // Map price to SVG Y coordinate
+            const toY = p => PAD_T + (CHART_H - PAD_T - PAD_B) * (1 - (p - priceMin) / priceRange);
+
+            // Map day index to SVG X coordinate
+            const toX = i => PAD_L + ((CHART_W - PAD_L - PAD_R) / (days.length - 1)) * i;
+
+            // Build SVG path data
+            const closePoints = days.map((dy, i) => ({ x: toX(i), y: toY(dy.close) }));
+            const highPoints  = days.map((dy, i) => ({ x: toX(i), y: toY(dy.high) }));
+            const lowPoints   = days.map((dy, i) => ({ x: toX(i), y: toY(dy.low) }));
+
+            const linePath = closePoints.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ');
+
+            // Area under close line
+            const areaPath = linePath + ` L${closePoints[closePoints.length-1].x},${CHART_H - PAD_B} L${closePoints[0].x},${CHART_H - PAD_B} Z`;
+
+            // High/Low band (filled region between high and low paths)
+            const bandTop = highPoints.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ');
+            const bandBot = lowPoints.slice().reverse().map((p, i) => `L${p.x},${p.y}`).join(' ');
+            const bandPath = bandTop + ' ' + bandBot + ' Z';
+
+            // Apply to SVG elements
+            const svgEl = document.getElementById('exec-forecast-svg');
+            if (!svgEl) return;
+
+            const setAttr = (id, attr, val) => { const el = document.getElementById(id); if (el) el.setAttribute(attr, val); };
+            setAttr('exec-fc-line', 'd', linePath);
+            setAttr('exec-fc-area', 'd', areaPath);
+            setAttr('exec-fc-band', 'd', bandPath);
+
+            // Current price (today) dashed line
+            const nowY = toY(d.current_price);
+            setAttr('exec-fc-now-line', 'y1', nowY);
+            setAttr('exec-fc-now-line', 'y2', nowY);
+            setAttr('exec-fc-now-dot', 'cy', nowY);
+            setAttr('exec-fc-now-dot', 'cx', toX(0));
+
+            // Animate the main line with stroke-dasharray trick
+            const lineEl = document.getElementById('exec-fc-line');
+            if (lineEl) {
+                const len = lineEl.getTotalLength ? lineEl.getTotalLength() : 300;
+                lineEl.style.strokeDasharray = len;
+                lineEl.style.strokeDashoffset = len;
+                lineEl.style.transition = 'none';
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        lineEl.style.transition = 'stroke-dashoffset 1.4s ease';
+                        lineEl.style.strokeDashoffset = 0;
+                    });
+                });
+            }
+
+            // Dot markers on each day
+            const dotsEl = document.getElementById('exec-fc-dots');
+            if (dotsEl) {
+                dotsEl.innerHTML = closePoints.map((p, i) => {
+                    const dy = days[i];
+                    const col = i === 0 ? '#f1c40f' : (dy.color === 'bullish' ? '#3fb950' : dy.color === 'bearish' ? '#ff7b72' : '#aaa');
+                    const r = i === 0 ? 3 : 2;
+                    // Price label above dot (only show days 1,3,5,7,10)
+                    const showLabel = [1,3,5,7,10].includes(i);
+                    const labelEl = showLabel
+                        ? `<text x="${p.x}" y="${p.y - 4}" text-anchor="middle" font-size="5" fill="${col}" font-family="monospace">$${dy.close.toFixed(0)}</text>`
+                        : '';
+                    return `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${col}"/>${labelEl}`;
+                }).join('');
+            }
+
+            // Price axis labels
+            const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            setTxt('exec-fc-price-max', `$${priceMax.toFixed(0)}`);
+            setTxt('exec-fc-price-min', `$${priceMin.toFixed(0)}`);
+
+            // Position 'now' label vertically
+            const nowEl = document.getElementById('exec-fc-price-now');
+            if (nowEl) {
+                nowEl.innerText = `$${d.current_price.toFixed(0)}`;
+                const pct = 1 - (d.current_price - priceMin) / priceRange;
+                nowEl.style.top = `${Math.max(4, Math.min(80, pct * 96))}px`;
+            }
+
+            // Day labels at bottom
+            const labelsEl = document.getElementById('exec-fc-labels');
+            if (labelsEl) {
+                labelsEl.innerHTML = days.map(dy =>
+                    `<span style="text-align:center;flex:1;">${dy.label.split(' ')[0]}</span>`
+                ).join('');
+            }
+
+            // Mini day cards below chart
+            const tableEl = document.getElementById('exec-fc-table');
+            if (tableEl) {
+                tableEl.innerHTML = days.slice(1).map(dy => {
+                    const col = dy.color === 'bullish' ? '#3fb950' : dy.color === 'bearish' ? '#ff7b72' : '#aaa';
+                    const bg  = dy.color === 'bullish' ? 'rgba(63,185,80,0.08)' : dy.color === 'bearish' ? 'rgba(255,123,114,0.08)' : 'rgba(255,255,255,0.04)';
+                    return `<div style="min-width:52px;padding:4px 5px;border-radius:6px;border:1px solid ${col}22;background:${bg};text-align:center;flex-shrink:0;">
+                        <div style="font-size:0.55rem;color:#666;">${dy.label}</div>
+                        <div style="font-size:0.72rem;font-family:monospace;color:${col};font-weight:700;">${dy.direction}$${dy.close.toFixed(0)}</div>
+                        <div style="font-size:0.52rem;color:#3fb950;font-family:monospace;">H:${dy.high.toFixed(0)}</div>
+                        <div style="font-size:0.52rem;color:#ff7b72;font-family:monospace;">L:${dy.low.toFixed(0)}</div>
+                    </div>`;
+                }).join('');
+            }
+
+        } catch (e) {
+            console.warn('10-day forecast render error:', e);
+        }
+    };
+
+    // Load 10-day forecast on start and refresh every 5 minutes
+    setTimeout(window.renderForecast10Day, 2500);
+    setInterval(window.renderForecast10Day, 300000);
+
     window.loadAutoCleanState();
     setTimeout(initWebSocket, 500);
 });
