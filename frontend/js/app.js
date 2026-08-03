@@ -2664,3 +2664,145 @@ document.addEventListener('DOMContentLoaded', () => {
     window.loadAutoCleanState();
     setTimeout(initWebSocket, 500);
 });
+
+// =============================================================================
+// BACKTEST VALIDASI – JavaScript Engine
+// =============================================================================
+
+let _btData = null;
+let _btCurrentTf = '1d';
+let _btChart = null;
+
+window.loadBacktest = async function(refresh) {
+    refresh = refresh || false;
+    const elLoading = document.getElementById('backtest-loading');
+    const elContent = document.getElementById('backtest-content');
+    const elError   = document.getElementById('backtest-error');
+    const btnRefresh = document.getElementById('btn-backtest-refresh');
+
+    elLoading.classList.remove('d-none');
+    elContent.classList.add('d-none');
+    elError.classList.add('d-none');
+    if (btnRefresh) { btnRefresh.disabled = true; btnRefresh.innerHTML = refresh ? '⏳ Running...' : '⏳ Loading...'; }
+
+    try {
+        const url = '/api/v1/backtest?days=30&refresh=' + refresh;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + res.statusText);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        _btData = data;
+        _btCurrentTf = '1d';
+
+        const periodEl = document.getElementById('bt-period-label');
+        const cachedEl = document.getElementById('bt-cached-label');
+        if (periodEl) periodEl.textContent = '📅 ' + (data.backtest_period || '—');
+        if (cachedEl) cachedEl.textContent = data.cached ? '⚡ Cache' : '🔄 Fresh Run';
+
+        renderBtMetrics('1d');
+        renderBacktestChart(data.chart_data);
+        renderBacktestTable(data.detail_1d || [], '1 Hari (D1)');
+        switchBtTab('1d');
+        elContent.classList.remove('d-none');
+    } catch (err) {
+        elError.classList.remove('d-none');
+        elError.textContent = '❌ Gagal memuat backtest: ' + err.message;
+        console.error('Backtest error:', err);
+    } finally {
+        elLoading.classList.add('d-none');
+        if (btnRefresh) { btnRefresh.disabled = false; btnRefresh.innerHTML = '🔄 Run Full Backtest (MT5 + AI)'; }
+        const btnLoad = document.getElementById('btn-backtest-load');
+        if (btnLoad) btnLoad.disabled = false;
+    }
+};
+
+window.switchBtTab = function(tf) {
+    if (!_btData) return;
+    _btCurrentTf = tf;
+    ['1d','1w','2w'].forEach(function(t) {
+        const btn = document.getElementById('bt-tab-' + t);
+        if (!btn) return;
+        btn.className = t === tf ? 'btn btn-sm btn-warning fw-bold' : 'btn btn-sm btn-outline-secondary';
+    });
+    renderBtMetrics(tf);
+    const labelMap = {'1d':'1 Hari (D1)','1w':'1 Minggu (W1)','2w':'2 Minggu'};
+    renderBacktestTable(_btData['detail_' + tf] || [], labelMap[tf] || tf);
+};
+
+function renderBtMetrics(tf) {
+    if (!_btData || !_btData.results) return;
+    const m = _btData.results[tf] || {};
+    const mae     = document.getElementById('bt-mae-close');
+    const mape    = document.getElementById('bt-mape');
+    const hitrate = document.getElementById('bt-hitrate');
+    const dir     = document.getElementById('bt-direction');
+    if (mae)     mae.textContent     = m.mae_close      != null ? '$' + m.mae_close.toFixed(2)        : '—';
+    if (mape)    mape.textContent    = m.mape_close     != null ? m.mape_close.toFixed(2) + '%'       : '—';
+    if (hitrate) {
+        hitrate.textContent = m.hit_rate_1pct != null ? m.hit_rate_1pct + '%' : '—';
+        hitrate.className   = 'fw-bold fs-4 ' + (m.hit_rate_1pct >= 60 ? 'text-success' : m.hit_rate_1pct >= 40 ? 'text-warning' : 'text-danger');
+    }
+    if (dir) {
+        dir.textContent = m.direction_accuracy != null ? m.direction_accuracy + '%' : '—';
+        dir.className   = 'fw-bold fs-4 ' + (m.direction_accuracy >= 65 ? 'text-success' : m.direction_accuracy >= 50 ? 'text-warning' : 'text-danger');
+    }
+}
+
+function renderBacktestChart(chartData) {
+    const ctx = document.getElementById('bt-chart');
+    if (!ctx || !chartData) return;
+    if (_btChart) { _btChart.destroy(); _btChart = null; }
+    _btChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.dates || [],
+            datasets: [
+                { label: 'Aktual Close', data: chartData.actual_close || [], borderColor: '#00bc8c', backgroundColor: 'rgba(0,188,140,0.08)', borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false },
+                { label: 'Prediksi Close (1D)', data: chartData.predicted_close_1d || [], borderColor: '#f39c12', backgroundColor: 'rgba(243,156,18,0.08)', borderWidth: 2, borderDash: [5,3], pointRadius: 3, tension: 0.3, fill: false }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { labels: { color: '#ccc', font: { size: 11 } } },
+                tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': $' + c.parsed.y.toFixed(2); } } }
+            },
+            scales: {
+                x: { ticks: { color: '#888', font: { size: 10 }, maxTicksLimit: 10 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#888', font: { size: 10 }, callback: function(v) { return '$' + v.toFixed(0); } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    });
+}
+
+function renderBacktestTable(records, label) {
+    const tbody = document.getElementById('bt-table-body');
+    const title = document.getElementById('bt-table-title');
+    if (!tbody) return;
+    if (title) title.textContent = '📋 DETAIL BACKTEST – ' + label;
+    if (!records || records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-3">Tidak ada data</td></tr>';
+        return;
+    }
+    function fmt(v) { return v != null ? '$' + parseFloat(v).toFixed(2) : '—'; }
+    tbody.innerHTML = records.map(function(r) {
+        var sc = r.status === 'HIT' ? 'text-success fw-bold' : r.status === 'NEAR' ? 'text-warning fw-bold' : 'text-danger fw-bold';
+        var si = r.status === 'HIT' ? '✅ HIT' : r.status === 'NEAR' ? '⚠️ NEAR' : '❌ MISS';
+        var di = r.direction_correct ? '✅' : '❌';
+        var ec = r.error_close_pct <= 1.0 ? 'text-success' : r.error_close_pct <= 2.0 ? 'text-warning' : 'text-danger';
+        return '<tr>' +
+            '<td class="text-muted">' + r.date + '</td>' +
+            '<td>' + fmt(r.open) + '</td>' +
+            '<td class="text-warning">' + fmt(r.pred_high) + '</td>' +
+            '<td class="text-info">' + fmt(r.pred_low) + '</td>' +
+            '<td class="text-white fw-bold">' + fmt(r.pred_close) + '</td>' +
+            '<td class="text-warning">' + fmt(r.actual_high) + '</td>' +
+            '<td class="text-info">' + fmt(r.actual_low) + '</td>' +
+            '<td class="text-white">' + fmt(r.actual_close) + '</td>' +
+            '<td class="' + ec + '">' + (r.error_close_pct != null ? r.error_close_pct.toFixed(2) + '%' : '—') + '</td>' +
+            '<td>' + di + '</td>' +
+            '<td class="' + sc + '">' + si + '</td>' +
+            '</tr>';
+    }).join('');
+}

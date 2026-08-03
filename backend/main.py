@@ -496,6 +496,66 @@ async def trigger_forecast_bypass():
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+
+@app.get("/api/v1/backtest")
+async def get_backtest(days: int = 30, refresh: bool = False):
+    """
+    Run or load a cached Walk-Forward backtest validating HLC forecasts
+    against actual MT5 historical XAUUSD data.
+    
+    Query params:
+      - days    : Number of calendar days to backtest (default 30)
+      - refresh : Set true to re-run full backtest via AI (slow ~2-5 min)
+                  Set false (default) to load cached results instantly
+    """
+    import json
+    import os
+    import subprocess
+    import sys
+
+    cache_path = "data/backtest_cache.json"
+
+    # Serve cached result if not forcing refresh
+    if not refresh and os.path.exists(cache_path):
+        try:
+            with open(cache_path, "r", encoding="utf-8") as f:
+                cached = json.load(f)
+            cached["cached"] = True
+            return cached
+        except Exception as e:
+            pass  # Fall through to re-run if cache is corrupt
+
+    # Run backtest script as subprocess (heavy operation – MT5 + AI calls)
+    script_path = os.path.join(os.path.dirname(__file__), "scripts", "backtest_forecast.py")
+    if not os.path.exists(script_path):
+        return {"error": f"Backtest script not found at {script_path}"}
+
+    try:
+        process = subprocess.run(
+            [sys.executable, script_path],
+            capture_output=True,
+            text=True,
+            timeout=600,   # 10 min max for 30 days × AI calls
+            cwd=os.path.dirname(os.path.dirname(__file__))
+        )
+        if process.returncode != 0:
+            return {"error": f"Backtest script failed: {process.stderr[-500:]}"}
+
+        # Load freshly generated cache
+        if os.path.exists(cache_path):
+            with open(cache_path, "r", encoding="utf-8") as f:
+                result = json.load(f)
+            result["cached"] = False
+            return result
+        else:
+            return {"error": "Backtest ran but cache file was not created."}
+    except subprocess.TimeoutExpired:
+        return {"error": "Backtest timed out (> 10 minutes). Try reducing days parameter."}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+
 @app.get("/api/v1/qwen/quota")
 async def get_qwen_quota():
     """

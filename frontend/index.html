@@ -43,6 +43,7 @@
                 <li class="nav-item"><a class="nav-link" data-target="tab-macro" href="#">🌍 Macro Intelligence</a></li>
                 <li class="nav-item d-none"><a class="nav-link" data-target="tab-moneyflow" href="#">💸 Money Flow Transmission</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-forecast" href="#">🎯 Forecast</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-backtest" href="#">📊 Backtest Validasi</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-technical" href="#">📐 Technical</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-smartmoney" href="#">🏛️ Smart Money</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-ai" href="#">🧠 AI Decision Center</a></li>
@@ -1248,6 +1249,114 @@
                     </div>
                 </div>
             </div>
+
+            <!-- TAB: BACKTEST VALIDASI -->
+            <div id="tab-backtest" class="spa-tab d-none">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <div>
+                        <h5 class="mb-0 text-white">📊 Backtest Validasi Forecast HLC</h5>
+                        <small class="text-muted">Walk-Forward Paper Backtest • Sumber Data: MetaTrader 5 • XAUUSD</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary px-3" id="btn-backtest-load" onclick="loadBacktest(false)" style="font-size:0.75rem;">
+                            ⚡ Load Cache
+                        </button>
+                        <button class="btn btn-sm btn-warning fw-bold px-3" id="btn-backtest-refresh" onclick="loadBacktest(true)" style="font-size:0.75rem;">
+                            🔄 Run Full Backtest (MT5 + AI)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="backtest-loading" class="d-none text-center py-5">
+                    <div class="spinner-border text-warning mb-3" role="status" style="width:3rem;height:3rem;"></div>
+                    <p class="text-muted">Mengambil data MT5 & menjalankan retroactive AI forecast...<br><small>Proses ini membutuhkan 2–5 menit untuk 30 hari data.</small></p>
+                </div>
+
+                <!-- Error State -->
+                <div id="backtest-error" class="d-none alert alert-danger" role="alert"></div>
+
+                <!-- Content (hidden until data loaded) -->
+                <div id="backtest-content" class="d-none">
+                    <!-- Period Info -->
+                    <div class="mb-3">
+                        <span class="badge bg-secondary me-2" id="bt-period-label">—</span>
+                        <span class="badge bg-dark border border-secondary" id="bt-cached-label">—</span>
+                    </div>
+
+                    <!-- Timeframe Selector -->
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-sm btn-warning fw-bold" id="bt-tab-1d" onclick="switchBtTab('1d')">1 Hari (D1)</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="bt-tab-1w" onclick="switchBtTab('1w')">1 Minggu (W1)</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="bt-tab-2w" onclick="switchBtTab('2w')">2 Minggu</button>
+                    </div>
+
+                    <!-- Metric Summary Cards -->
+                    <div class="row g-3 mb-4" id="bt-metric-cards">
+                        <div class="col-6 col-md-3">
+                            <div class="bg-dark-panel p-3 rounded border border-secondary text-center">
+                                <div class="text-muted mb-1" style="font-size:0.7rem;letter-spacing:1px;">MAE CLOSE</div>
+                                <div class="text-warning fw-bold fs-4" id="bt-mae-close">—</div>
+                                <div class="text-muted" style="font-size:0.65rem;">rata-rata eror harga</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="bg-dark-panel p-3 rounded border border-secondary text-center">
+                                <div class="text-muted mb-1" style="font-size:0.7rem;letter-spacing:1px;">MAPE</div>
+                                <div class="text-info fw-bold fs-4" id="bt-mape">—</div>
+                                <div class="text-muted" style="font-size:0.65rem;">eror persentase rata-rata</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="bg-dark-panel p-3 rounded border border-secondary text-center">
+                                <div class="text-muted mb-1" style="font-size:0.7rem;letter-spacing:1px;">HIT RATE ±1%</div>
+                                <div class="text-success fw-bold fs-4" id="bt-hitrate">—</div>
+                                <div class="text-muted" style="font-size:0.65rem;">presisi dalam ±1%</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="bg-dark-panel p-3 rounded border border-secondary text-center">
+                                <div class="text-muted mb-1" style="font-size:0.7rem;letter-spacing:1px;">DIRECTION ACC.</div>
+                                <div class="text-primary fw-bold fs-4" id="bt-direction">—</div>
+                                <div class="text-muted" style="font-size:0.65rem;">akurasi arah naik/turun</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="bg-dark-panel p-3 rounded border border-secondary mb-4">
+                        <h6 class="text-white mb-3" style="font-size:0.8rem;letter-spacing:0.5px;">📈 CLOSE: AKTUAL vs PREDIKSI (D1)</h6>
+                        <canvas id="bt-chart" height="100"></canvas>
+                    </div>
+
+                    <!-- Detail Table -->
+                    <div class="bg-dark-panel p-3 rounded border border-secondary">
+                        <h6 class="text-white mb-3" style="font-size:0.8rem;letter-spacing:0.5px;" id="bt-table-title">📋 DETAIL BACKTEST</h6>
+                        <div class="table-responsive" style="max-height:420px;overflow-y:auto;">
+                            <table class="table table-dark table-sm table-hover" style="font-size:0.75rem;">
+                                <thead class="sticky-top" style="background:#1a1a2e;">
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Open</th>
+                                        <th>Pred High</th>
+                                        <th>Pred Low</th>
+                                        <th>Pred Close</th>
+                                        <th>Act High</th>
+                                        <th>Act Low</th>
+                                        <th>Act Close</th>
+                                        <th>Err %</th>
+                                        <th>Arah</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bt-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div><!-- /backtest-content -->
+            </div><!-- /tab-backtest -->
 
             <!-- TAB 3A: TECHNICAL -->
             <div id="tab-technical" class="spa-tab d-none">
