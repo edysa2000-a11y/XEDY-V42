@@ -2398,27 +2398,20 @@ document.addEventListener('DOMContentLoaded', () => {
             setAttr('exec-fc-area', 'd', areaPath);
             setAttr('exec-fc-band', 'd', bandPath);
 
+            // Reset any animation stroke dash arrays that hide the line
+            const lineEl = document.getElementById('exec-fc-line');
+            if (lineEl) {
+                lineEl.style.strokeDasharray = 'none';
+                lineEl.style.strokeDashoffset = 'none';
+                lineEl.style.transition = 'none';
+            }
+
             // Current price (today) dashed line
             const nowY = toY(d.current_price);
             setAttr('exec-fc-now-line', 'y1', nowY);
             setAttr('exec-fc-now-line', 'y2', nowY);
             setAttr('exec-fc-now-dot', 'cy', nowY);
             setAttr('exec-fc-now-dot', 'cx', toX(0));
-
-            // Animate the main line with stroke-dasharray trick
-            const lineEl = document.getElementById('exec-fc-line');
-            if (lineEl) {
-                const len = lineEl.getTotalLength ? lineEl.getTotalLength() : 300;
-                lineEl.style.strokeDasharray = len;
-                lineEl.style.strokeDashoffset = len;
-                lineEl.style.transition = 'none';
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        lineEl.style.transition = 'stroke-dashoffset 1.4s ease';
-                        lineEl.style.strokeDashoffset = 0;
-                    });
-                });
-            }
 
             // Dot markers on each day
             const dotsEl = document.getElementById('exec-fc-dots');
