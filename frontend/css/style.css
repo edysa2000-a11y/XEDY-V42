@@ -64,18 +64,14 @@ body {
 }
 
 .col-content {
-    width: 69%;
+    width: 85%;
     padding: 15px;
     overflow-y: auto;
     background-color: #010409;
 }
 
 .col-command {
-    width: 16%;
-    background-color: #0d1117;
-    border-left: 1px solid #30363d;
-    padding: 15px;
-    overflow-y: auto;
+    display: none;
 }
 
 /* Navigation Pills */
