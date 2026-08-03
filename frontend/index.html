@@ -41,6 +41,7 @@
                 <li class="nav-item"><a class="nav-link active" data-target="tab-executive" href="#">🏠 Executive Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-market" href="#">📈 Market Intelligence</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-macro" href="#">🌍 Macro Intelligence</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-moneyflow" href="#">💸 Money Flow Transmission</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-forecast" href="#">🎯 Forecast</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-technical" href="#">📐 Technical</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-smartmoney" href="#">🏛️ Smart Money</a></li>
@@ -201,6 +202,142 @@
                                 }
                                 </script>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: MONEY FLOW TRANSMISSION -->
+            <div id="tab-moneyflow" class="spa-tab d-none">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-white mb-0">💸 Money Flow Transmission & Macro Assets Correlation</h5>
+                    <span class="badge bg-primary px-3 py-2" style="font-size: 0.75rem; letter-spacing: 1px;">REAL-TIME CORRELATIONS</span>
+                </div>
+                
+                <!-- Neon Glow Info Card -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-3 rounded text-center border-top-glow" style="--glow-color: #ff7b72;">
+                            <div class="text-muted small uppercase">DXY Correlation (USD)</div>
+                            <h3 class="text-bearish my-2" id="mf-dxy-corr">-0.84</h3>
+                            <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.05);">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: 84%" aria-valuenow="84" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="text-muted small mt-2 d-block">Strong Negative Correlation</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-3 rounded text-center border-top-glow" style="--glow-color: #ff9a7b;">
+                            <div class="text-muted small uppercase">US10Y Yield Correlation</div>
+                            <h3 class="text-bearish my-2" id="mf-us10y-corr">-0.71</h3>
+                            <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.05);">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: 71%" aria-valuenow="71" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="text-muted small mt-2 d-block">Opportunity Cost Pressure</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-3 rounded text-center border-top-glow" style="--glow-color: #79c0ff;">
+                            <div class="text-muted small uppercase">SPX Correlation (Equity)</div>
+                            <h3 class="text-info-v42 my-2" id="mf-spx-corr">+0.32</h3>
+                            <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.05);">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: 32%" aria-valuenow="32" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="text-muted small mt-2 d-block">Mild Risk-On Flow</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-3 rounded text-center border-top-glow" style="--glow-color: #3fb950;">
+                            <div class="text-muted small uppercase">WTI Crude Oil (Inflation)</div>
+                            <h3 class="text-bullish my-2" id="mf-wti-corr">+0.65</h3>
+                            <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.05);">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="text-muted small mt-2 d-block">Strong Commodity Sync</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Correlation Matrices & Charts -->
+                <div class="row g-3">
+                    <!-- TradingView Multi-Asset Ticker Tape / Chart -->
+                    <div class="col-lg-8">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">📈 Macro Assets Live Performance (TradingView Feed)</h6>
+                            <div style="height: 380px;">
+                                <!-- TradingView Widget Begin -->
+                                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                                  <div id="tradingview_macro" style="height:100%;width:100%"></div>
+                                  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                                  <script type="text/javascript">
+                                  new TradingView.MediumWidget({
+                                    "symbols": [
+                                      ["US Dollar Index (DXY)", "USI:DXY|1D"],
+                                      ["US 10-Yr Yield", "TVC:US10Y|1D"],
+                                      ["S&P 500", "SP:SPX|1D"],
+                                      ["Crude Oil", "TVC:USOIL|1D"]
+                                    ],
+                                    "chartOnly": false,
+                                    "width": "100%",
+                                    "height": "100%",
+                                    "locale": "en",
+                                    "colorTheme": "dark",
+                                    "gridLineColor": "rgba(240, 243, 250, 0.06)",
+                                    "trendLineColor": "#2962FF",
+                                    "fontColor": "#787B86",
+                                    "underLineColor": "rgba(41, 98, 255, 0.12)",
+                                    "underLineBottomColor": "rgba(41, 98, 255, 0)",
+                                    "isTransparent": true,
+                                    "autosize": true,
+                                    "container_id": "tradingview_macro"
+                                  });
+                                  </script>
+                                </div>
+                                <!-- TradingView Widget End -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flow Index Calculation Table -->
+                    <div class="col-lg-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">🏛️ Net Institutional Money Flow Index (MFI)</h6>
+                            <div class="text-center my-4 py-2">
+                                <h1 class="text-bullish display-5 font-monospace" id="mf-net-mfi">+74.8%</h1>
+                                <span class="badge bg-success px-3 py-2 text-uppercase" id="mf-flow-bias">Strong Inflow to Gold</span>
+                            </div>
+                            
+                            <table class="table table-v42">
+                                <thead>
+                                    <tr>
+                                        <th>Asset Class</th>
+                                        <th>Trend Direction</th>
+                                        <th>Gold Impact</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>US Dollar (DXY)</td>
+                                        <td class="text-bearish text-end">Bearish (Dropping)</td>
+                                        <td class="text-bullish text-end">🟢 Bullish</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bonds (US10Y)</td>
+                                        <td class="text-bearish text-end">Falling Yields</td>
+                                        <td class="text-bullish text-end">🟢 Bullish</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Commodities (WTI)</td>
+                                        <td class="text-bullish text-end">Bullish (Rising)</td>
+                                        <td class="text-bullish text-end">🟢 Bullish</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Equities (SPX)</td>
+                                        <td class="text-muted text-end">Consolidating</td>
+                                        <td class="text-muted text-end">⚪ Neutral</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

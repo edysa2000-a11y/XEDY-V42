@@ -191,3 +191,9 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #8b949e;
 }
+
+/* Glowing Top Border Card Style */
+.border-top-glow {
+    border-top: 3px solid var(--glow-color) !important;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4), 0 0 10px rgba(var(--glow-color), 0.15) !important;
+}
