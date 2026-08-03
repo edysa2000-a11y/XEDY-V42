@@ -155,12 +155,38 @@ def scrape_rss(url):
         print(f"Error scraping {url}: {e}")
         return []
 
+EMBEDDING_CACHE_FILE = "data/embedding_cache.json"
+
+def load_embedding_cache():
+    if os.path.exists(EMBEDDING_CACHE_FILE):
+        try:
+            with open(EMBEDDING_CACHE_FILE, "r") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+def save_embedding_cache(cache_data):
+    try:
+        os.makedirs("data", exist_ok=True)
+        with open(EMBEDDING_CACHE_FILE, "w") as f:
+            json.dump(cache_data, f, indent=2)
+    except Exception as e:
+        print(f"Failed to save embedding cache: {e}")
+
 def get_qwen_embedding(api_key, text):
     """
-    Calls Aivene embeddings API using Qwen3 Embedding 8B model.
+    Calls Aivene embeddings API using Qwen3 Embedding 8B model with local cache.
     """
     if not api_key or not text:
         return []
+    
+    # Clean text to use as key
+    cache_key = text.strip()
+    cache = load_embedding_cache()
+    if cache_key in cache:
+        return cache[cache_key]
+
     url = "https://api.aivene.com/v1/embeddings"
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -176,7 +202,12 @@ def get_qwen_embedding(api_key, text):
         req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
         with urllib.request.urlopen(req, timeout=15.0) as r:
             res_json = json.loads(r.read().decode("utf-8"))
-            return res_json["data"][0]["embedding"]
+            vector = res_json["data"][0]["embedding"]
+            
+            # Save to cache
+            cache[cache_key] = vector
+            save_embedding_cache(cache)
+            return vector
     except Exception as e:
         print(f"Failed to generate Qwen3 embedding: {e}")
         return []
@@ -194,6 +225,18 @@ def cosine_similarity(v1, v2):
     if norm_v1 == 0 or norm_v2 == 0:
         return 0.0
     return float(dot_product / (norm_v1 * norm_v2))
+
+def clean_json_string(raw_str):
+    raw_str = raw_str.strip()
+    # Remove markdown code fences if present
+    if raw_str.startswith("```"):
+        lines = raw_str.splitlines()
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip().startswith("```"):
+            lines = lines[:-1]
+        raw_str = "\n".join(lines).strip()
+    return raw_str
 
 def get_qwen_analysis(api_key, news_text, prices):
     if not api_key:
@@ -313,7 +356,8 @@ def get_qwen_analysis(api_key, news_text, prices):
             with urllib.request.urlopen(req, timeout=60.0) as r:
                 res_json = json.loads(r.read().decode("utf-8"))
                 content = res_json['choices'][0]['message']['content'].strip()
-                return json.loads(content)
+                cleaned_content = clean_json_string(content)
+                return json.loads(cleaned_content)
         except Exception as e:
             print(f"Attempt {attempt} failed: {e}")
             if attempt < 3:
@@ -413,14 +457,14 @@ def main():
     # Fallback to general list if no news in last 48h
     if not weighted_articles:
         print("No new articles in last 48 hours. Falling back to most recent headlines.")
-        weighted_articles = articles[:12]
+        weighted_articles = articles[:8]
         for art in weighted_articles:
             art["weight"] = "100% (FRESH)"
             art["weight_label"] = "BARU/KUAT"
             art["age_hours"] = 0
     else:
         # Sort by similarity descending (most relevant first) to feed the best market drivers to Qwen
-        weighted_articles = sorted(weighted_articles, key=lambda x: x.get("similarity", 0.0), reverse=True)[:12]
+        weighted_articles = sorted(weighted_articles, key=lambda x: x.get("similarity", 0.0), reverse=True)[:8]
         print(f"Filtered and sorted to {len(weighted_articles)} semantically aligned headlines.")
         
     # 2. Compile and translate headlines

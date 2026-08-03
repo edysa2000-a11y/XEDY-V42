@@ -83,6 +83,18 @@ def scrape_rss(url):
         print(f"Error RSS: {e}")
         return []
 
+def clean_json_string(raw_str):
+    raw_str = raw_str.strip()
+    # Remove markdown code fences if present
+    if raw_str.startswith("```"):
+        lines = raw_str.splitlines()
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip().startswith("```"):
+            lines = lines[:-1]
+        raw_str = "\n".join(lines).strip()
+    return raw_str
+
 def get_claude_analysis(api_key, news_text, prices):
     url = "https://api.aivene.com/v1/chat/completions"
     headers = {
@@ -159,7 +171,8 @@ def get_claude_analysis(api_key, news_text, prices):
         with urllib.request.urlopen(req, timeout=45.0) as r:
             res_json = json.loads(r.read().decode("utf-8"))
             content = res_json['choices'][0]['message']['content'].strip()
-            return json.loads(content)
+            cleaned_content = clean_json_string(content)
+            return json.loads(cleaned_content)
     except Exception as e:
         print(f"Claude API failed: {e}")
         return {}
