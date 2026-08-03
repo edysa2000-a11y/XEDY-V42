@@ -303,7 +303,7 @@
                 <div class="row g-3 mb-3">
                     <!-- Chart 1: Real Yield & Gold Correlation -->
                     <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded h-100">
+                        <div class="card-3d p-3 h-100">
                             <h6 class="text-muted mb-2" style="font-size:0.7rem;">REAL YIELD & GOLD CORRELATION</h6>
                             <div class="d-flex justify-content-between text-muted small mb-2">
                                 <span style="color:#f1c40f;">● XAUUSD</span>
@@ -311,8 +311,24 @@
                             </div>
                             <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
                                 <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
-                                    <path d="M0,35 Q20,38 40,25 T80,15 T100,5" fill="none" stroke="#f1c40f" stroke-width="1.5" filter="drop-shadow(0px 0px 3px rgba(241,196,15,0.4))"></path>
-                                    <path d="M0,5 Q20,2 40,15 T80,25 T100,32" fill="none" stroke="#3498db" stroke-width="1.5" filter="drop-shadow(0px 0px 3px rgba(52,152,219,0.4))"></path>
+                                    <defs>
+                                        <linearGradient id="gold3d" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#ffd700" />
+                                            <stop offset="50%" stop-color="#ffb700" />
+                                            <stop offset="100%" stop-color="#ffa500" />
+                                        </linearGradient>
+                                        <linearGradient id="yield3d" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#3498db" />
+                                            <stop offset="50%" stop-color="#2980b9" />
+                                            <stop offset="100%" stop-color="#1f618d" />
+                                        </linearGradient>
+                                        <filter id="glow3d" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="1.2" result="blur" />
+                                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                        </filter>
+                                    </defs>
+                                    <path d="M0,35 Q20,38 40,25 T80,15 T100,5" fill="none" stroke="url(#gold3d)" stroke-width="2.5" filter="url(#glow3d)"></path>
+                                    <path d="M0,5 Q20,2 40,15 T80,25 T100,32" fill="none" stroke="url(#yield3d)" stroke-width="2.5" filter="url(#glow3d)"></path>
                                 </svg>
                             </div>
                             <div class="d-flex justify-content-between text-muted small mt-2">
@@ -324,7 +340,7 @@
 
                     <!-- Chart 2: Gold ETF Net Flow -->
                     <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded h-100">
+                        <div class="card-3d p-3 h-100">
                             <h6 class="text-muted mb-2" style="font-size:0.7rem;">GOLD ETF NET FLOW</h6>
                             <div class="d-flex justify-content-between text-muted small mb-2">
                                 <span style="color:#2ecc71;">■ Daily Net Flow</span>
@@ -332,17 +348,35 @@
                             </div>
                             <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
                                 <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
-                                    <rect x="5" y="25" width="4" height="15" fill="#2ecc71"></rect>
-                                    <rect x="15" y="28" width="4" height="12" fill="#2ecc71"></rect>
-                                    <rect x="25" y="32" width="4" height="8" fill="#e74c3c"></rect>
-                                    <rect x="35" y="20" width="4" height="20" fill="#2ecc71"></rect>
-                                    <rect x="45" y="15" width="4" height="25" fill="#2ecc71"></rect>
-                                    <rect x="55" y="22" width="4" height="18" fill="#2ecc71"></rect>
-                                    <rect x="65" y="10" width="4" height="30" fill="#2ecc71"></rect>
-                                    <rect x="75" y="5" width="4" height="35" fill="#2ecc71"></rect>
-                                    <rect x="85" y="18" width="4" height="22" fill="#2ecc71"></rect>
-                                    <rect x="95" y="8" width="4" height="32" fill="#2ecc71"></rect>
-                                    <path d="M7,30 L17,25 L27,27 L37,20 L47,15 L57,12 L67,8 L77,4 L87,6 L97,3" fill="none" stroke="#e67e22" stroke-width="1.5"></path>
+                                    <defs>
+                                        <linearGradient id="green3d" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#2ecc71" />
+                                            <stop offset="40%" stop-color="#a3e4d7" />
+                                            <stop offset="70%" stop-color="#27ae60" />
+                                            <stop offset="100%" stop-color="#1e8449" />
+                                        </linearGradient>
+                                        <linearGradient id="red3d" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#e74c3c" />
+                                            <stop offset="40%" stop-color="#f5b7b1" />
+                                            <stop offset="70%" stop-color="#c0392b" />
+                                            <stop offset="100%" stop-color="#922b21" />
+                                        </linearGradient>
+                                        <linearGradient id="cum3d" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#f39c12" />
+                                            <stop offset="100%" stop-color="#d35400" />
+                                        </linearGradient>
+                                    </defs>
+                                    <rect x="5" y="25" width="4" height="15" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="15" y="28" width="4" height="12" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="25" y="32" width="4" height="8" fill="url(#red3d)" rx="1.5"></rect>
+                                    <rect x="35" y="20" width="4" height="20" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="45" y="15" width="4" height="25" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="55" y="22" width="4" height="18" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="65" y="10" width="4" height="30" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="75" y="5" width="4" height="35" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="85" y="18" width="4" height="22" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="95" y="8" width="4" height="32" fill="url(#green3d)" rx="1.5"></rect>
+                                    <path d="M7,30 L17,25 L27,27 L37,20 L47,15 L57,12 L67,8 L77,4 L87,6 L97,3" fill="none" stroke="url(#cum3d)" stroke-width="2" filter="url(#glow3d)"></path>
                                 </svg>
                             </div>
                             <div class="d-flex justify-content-between text-muted small mt-2">
@@ -354,7 +388,7 @@
 
                     <!-- Chart 3: COMEX Net Position -->
                     <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded h-100">
+                        <div class="card-3d p-3 h-100">
                             <h6 class="text-muted mb-2" style="font-size:0.7rem;">COMEX NET POSITION (Managed Money)</h6>
                             <div class="d-flex justify-content-between text-muted small mb-2">
                                 <span style="color:#2ecc71;">● Net Long</span>
@@ -362,8 +396,20 @@
                             </div>
                             <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
                                 <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
-                                    <path d="M0,40 L10,32 L20,35 L30,28 L40,20 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2 L100,40 Z" fill="rgba(46, 204, 113, 0.15)" stroke="#2ecc71" stroke-width="1.5"></path>
-                                    <path d="M0,40 L10,38 L20,36 L30,37 L40,38 L50,39 L60,38 L70,39 L80,38 L90,39 L100,39 L100,40 Z" fill="rgba(231, 76, 60, 0.1)" stroke="#e74c3c" stroke-width="1"></path>
+                                    <defs>
+                                        <linearGradient id="areaGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="rgba(46, 204, 113, 0.4)" />
+                                            <stop offset="100%" stop-color="rgba(46, 204, 113, 0.0)" />
+                                        </linearGradient>
+                                        <linearGradient id="areaRed" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="rgba(231, 76, 60, 0.3)" />
+                                            <stop offset="100%" stop-color="rgba(231, 76, 60, 0.0)" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M0,40 L10,32 L20,35 L30,28 L40,20 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2 L100,40 Z" fill="url(#areaGreen)"></path>
+                                    <path d="M0,40 L10,32 L20,35 L30,28 L40,20 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2" fill="none" stroke="#2ecc71" stroke-width="2" filter="url(#glow3d)"></path>
+                                    <path d="M0,40 L10,38 L20,36 L30,37 L40,38 L50,39 L60,38 L70,39 L80,38 L90,39 L100,39 L100,40 Z" fill="url(#areaRed)"></path>
+                                    <path d="M0,40 L10,38 L20,36 L30,37 L40,38 L50,39 L60,38 L70,39 L80,38 L90,39 L100,39" fill="none" stroke="#e74c3c" stroke-width="1.5"></path>
                                 </svg>
                             </div>
                             <div class="d-flex justify-content-between text-muted small mt-2">
@@ -375,13 +421,13 @@
 
                     <!-- Chart 4: Intermarket Heatmap -->
                     <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded h-100 d-flex flex-column">
+                        <div class="card-3d p-3 h-100 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h6 class="text-muted mb-0" style="font-size:0.7rem;">INTERMARKET HEATMAP (Correlation)</h6>
                                 <span class="badge bg-secondary" style="font-size:0.6rem;">30D</span>
                             </div>
                             <div class="flex-grow-1 table-responsive" style="font-size: 0.65rem; line-height: 1.1;">
-                                <table class="table table-borderless text-center text-white mb-0" style="table-layout: fixed; width: 100%;">
+                                <table class="table table-borderless table-heatmap text-center text-white mb-0" style="table-layout: fixed; width: 100%;">
                                     <thead>
                                         <tr class="text-muted">
                                             <th>Symbol</th>
@@ -394,31 +440,31 @@
                                     <tbody>
                                         <tr>
                                             <td class="text-muted text-start fw-bold">XAUUSD</td>
-                                            <td style="background-color: rgba(46,204,113,0.3)">1.00</td>
-                                            <td style="background-color: rgba(231,76,60,0.25)" class="text-bearish">-0.72</td>
-                                            <td style="background-color: rgba(231,76,60,0.28)" class="text-bearish">-0.79</td>
-                                            <td style="background-color: rgba(231,76,60,0.15)">-0.45</td>
+                                            <td style="background-color: rgba(46,204,113,0.22)">1.00</td>
+                                            <td style="background-color: rgba(231,76,60,0.18)" class="text-bearish">-0.72</td>
+                                            <td style="background-color: rgba(231,76,60,0.22)" class="text-bearish">-0.79</td>
+                                            <td style="background-color: rgba(231,76,60,0.12)">-0.45</td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted text-start fw-bold">DXY</td>
-                                            <td style="background-color: rgba(231,76,60,0.25)" class="text-bearish">-0.72</td>
-                                            <td style="background-color: rgba(46,204,113,0.3)">1.00</td>
-                                            <td style="background-color: rgba(46,204,113,0.2)">0.69</td>
+                                            <td style="background-color: rgba(231,76,60,0.18)" class="text-bearish">-0.72</td>
+                                            <td style="background-color: rgba(46,204,113,0.22)">1.00</td>
+                                            <td style="background-color: rgba(46,204,113,0.15)">0.69</td>
                                             <td style="background-color: rgba(46,204,113,0.1)">0.41</td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted text-start fw-bold">US10Y</td>
-                                            <td style="background-color: rgba(231,76,60,0.28)" class="text-bearish">-0.79</td>
-                                            <td style="background-color: rgba(46,204,113,0.2)">0.69</td>
-                                            <td style="background-color: rgba(46,204,113,0.3)">1.00</td>
+                                            <td style="background-color: rgba(231,76,60,0.22)" class="text-bearish">-0.79</td>
+                                            <td style="background-color: rgba(46,204,113,0.15)">0.69</td>
+                                            <td style="background-color: rgba(46,204,113,0.22)">1.00</td>
                                             <td style="background-color: rgba(46,204,113,0.05)">0.36</td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted text-start fw-bold">OIL</td>
-                                            <td style="background-color: rgba(46,204,113,0.08)">0.28</td>
+                                            <td style="background-color: rgba(46,204,113,0.05)">0.28</td>
                                             <td style="background-color: rgba(231,76,60,0.05)">-0.17</td>
                                             <td style="background-color: rgba(231,76,60,0.08)">-0.24</td>
-                                            <td style="background-color: rgba(46,204,113,0.15)">0.53</td>
+                                            <td style="background-color: rgba(46,204,113,0.12)">0.53</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -817,7 +863,7 @@
                 <div class="row g-3 mt-1">
                     <!-- Chart 1: Real Yield & Gold Correlation -->
                     <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded h-100">
+                        <div class="card-3d p-3 h-100">
                             <h6 class="text-muted mb-2" style="font-size:0.7rem;">REAL YIELD & GOLD CORRELATION</h6>
                             <div class="d-flex justify-content-between text-muted small mb-2">
                                 <span style="color:#f1c40f;">● XAUUSD</span>
@@ -825,8 +871,8 @@
                             </div>
                             <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
                                 <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
-                                    <path d="M0,35 Q20,38 40,25 T80,15 T100,5" fill="none" stroke="#f1c40f" stroke-width="1.5" filter="drop-shadow(0px 0px 3px rgba(241,196,15,0.4))"></path>
-                                    <path d="M0,5 Q20,2 40,15 T80,25 T100,32" fill="none" stroke="#3498db" stroke-width="1.5" filter="drop-shadow(0px 0px 3px rgba(52,152,219,0.4))"></path>
+                                    <path d="M0,35 Q20,38 40,25 T80,15 T100,5" fill="none" stroke="url(#gold3d)" stroke-width="2.5" filter="url(#glow3d)"></path>
+                                    <path d="M0,5 Q20,2 40,15 T80,25 T100,32" fill="none" stroke="url(#yield3d)" stroke-width="2.5" filter="url(#glow3d)"></path>
                                 </svg>
                             </div>
                             <div class="d-flex justify-content-between text-muted small mt-2">
@@ -838,7 +884,7 @@
 
                     <!-- Chart 2: Gold ETF Net Flow -->
                     <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded h-100">
+                        <div class="card-3d p-3 h-100">
                             <h6 class="text-muted mb-2" style="font-size:0.7rem;">GOLD ETF NET FLOW</h6>
                             <div class="d-flex justify-content-between text-muted small mb-2">
                                 <span style="color:#2ecc71;">■ Daily Net Flow</span>
@@ -846,17 +892,17 @@
                             </div>
                             <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
                                 <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
-                                    <rect x="5" y="25" width="4" height="15" fill="#2ecc71"></rect>
-                                    <rect x="15" y="28" width="4" height="12" fill="#2ecc71"></rect>
-                                    <rect x="25" y="32" width="4" height="8" fill="#e74c3c"></rect>
-                                    <rect x="35" y="20" width="4" height="20" fill="#2ecc71"></rect>
-                                    <rect x="45" y="15" width="4" height="25" fill="#2ecc71"></rect>
-                                    <rect x="55" y="22" width="4" height="18" fill="#2ecc71"></rect>
-                                    <rect x="65" y="10" width="4" height="30" fill="#2ecc71"></rect>
-                                    <rect x="75" y="5" width="4" height="35" fill="#2ecc71"></rect>
-                                    <rect x="85" y="18" width="4" height="22" fill="#2ecc71"></rect>
-                                    <rect x="95" y="8" width="4" height="32" fill="#2ecc71"></rect>
-                                    <path d="M7,30 L17,25 L27,27 L37,20 L47,15 L57,12 L67,8 L77,4 L87,6 L97,3" fill="none" stroke="#e67e22" stroke-width="1.5"></path>
+                                    <rect x="5" y="25" width="4" height="15" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="15" y="28" width="4" height="12" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="25" y="32" width="4" height="8" fill="url(#red3d)" rx="1.5"></rect>
+                                    <rect x="35" y="20" width="4" height="20" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="45" y="15" width="4" height="25" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="55" y="22" width="4" height="18" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="65" y="10" width="4" height="30" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="75" y="5" width="4" height="35" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="85" y="18" width="4" height="22" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="95" y="8" width="4" height="32" fill="url(#green3d)" rx="1.5"></rect>
+                                    <path d="M7,30 L17,25 L27,27 L37,20 L47,15 L57,12 L67,8 L77,4 L87,6 L97,3" fill="none" stroke="url(#cum3d)" stroke-width="2" filter="url(#glow3d)"></path>
                                 </svg>
                             </div>
                             <div class="d-flex justify-content-between text-muted small mt-2">
@@ -868,7 +914,7 @@
 
                     <!-- Chart 3: COMEX Net Position -->
                     <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded h-100">
+                        <div class="card-3d p-3 h-100">
                             <h6 class="text-muted mb-2" style="font-size:0.7rem;">COMEX NET POSITION (Managed Money)</h6>
                             <div class="d-flex justify-content-between text-muted small mb-2">
                                 <span style="color:#2ecc71;">● Net Long</span>
@@ -876,8 +922,10 @@
                             </div>
                             <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
                                 <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
-                                    <path d="M0,40 L10,32 L20,35 L30,28 L40,20 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2 L100,40 Z" fill="rgba(46, 204, 113, 0.15)" stroke="#2ecc71" stroke-width="1.5"></path>
-                                    <path d="M0,40 L10,38 L20,36 L30,37 L40,38 L50,39 L60,38 L70,39 L80,38 L90,39 L100,39 L100,40 Z" fill="rgba(231, 76, 60, 0.1)" stroke="#e74c3c" stroke-width="1"></path>
+                                    <path d="M0,40 L10,32 L20,35 L30,28 L40,20 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2 L100,40 Z" fill="url(#areaGreen)"></path>
+                                    <path d="M0,40 L10,32 L20,35 L30,28 L40,20 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2" fill="none" stroke="#2ecc71" stroke-width="2" filter="url(#glow3d)"></path>
+                                    <path d="M0,40 L10,38 L20,36 L30,37 L40,38 L50,39 L60,38 L70,39 L80,38 L90,39 L100,39 L100,40 Z" fill="url(#areaRed)"></path>
+                                    <path d="M0,40 L10,38 L20,36 L30,37 L40,38 L50,39 L60,38 L70,39 L80,38 L90,39 L100,39" fill="none" stroke="#e74c3c" stroke-width="1.5"></path>
                                 </svg>
                             </div>
                             <div class="d-flex justify-content-between text-muted small mt-2">
@@ -889,13 +937,13 @@
 
                     <!-- Chart 4: Intermarket Heatmap -->
                     <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded h-100 d-flex flex-column">
+                        <div class="card-3d p-3 h-100 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h6 class="text-muted mb-0" style="font-size:0.7rem;">INTERMARKET HEATMAP (Correlation)</h6>
                                 <span class="badge bg-secondary" style="font-size:0.6rem;">30D</span>
                             </div>
                             <div class="flex-grow-1 table-responsive" style="font-size: 0.65rem; line-height: 1.1;">
-                                <table class="table table-borderless text-center text-white mb-0" style="table-layout: fixed; width: 100%;">
+                                <table class="table table-borderless table-heatmap text-center text-white mb-0" style="table-layout: fixed; width: 100%;">
                                     <thead>
                                         <tr class="text-muted">
                                             <th>Symbol</th>
@@ -908,31 +956,31 @@
                                     <tbody>
                                         <tr>
                                             <td class="text-muted text-start fw-bold">XAUUSD</td>
-                                            <td style="background-color: rgba(46,204,113,0.3)">1.00</td>
-                                            <td style="background-color: rgba(231,76,60,0.25)" class="text-bearish">-0.72</td>
-                                            <td style="background-color: rgba(231,76,60,0.28)" class="text-bearish">-0.79</td>
-                                            <td style="background-color: rgba(231,76,60,0.15)">-0.45</td>
+                                            <td style="background-color: rgba(46,204,113,0.22)">1.00</td>
+                                            <td style="background-color: rgba(231,76,60,0.18)" class="text-bearish">-0.72</td>
+                                            <td style="background-color: rgba(231,76,60,0.22)" class="text-bearish">-0.79</td>
+                                            <td style="background-color: rgba(231,76,60,0.12)">-0.45</td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted text-start fw-bold">DXY</td>
-                                            <td style="background-color: rgba(231,76,60,0.25)" class="text-bearish">-0.72</td>
-                                            <td style="background-color: rgba(46,204,113,0.3)">1.00</td>
-                                            <td style="background-color: rgba(46,204,113,0.2)">0.69</td>
+                                            <td style="background-color: rgba(231,76,60,0.18)" class="text-bearish">-0.72</td>
+                                            <td style="background-color: rgba(46,204,113,0.22)">1.00</td>
+                                            <td style="background-color: rgba(46,204,113,0.15)">0.69</td>
                                             <td style="background-color: rgba(46,204,113,0.1)">0.41</td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted text-start fw-bold">US10Y</td>
-                                            <td style="background-color: rgba(231,76,60,0.28)" class="text-bearish">-0.79</td>
-                                            <td style="background-color: rgba(46,204,113,0.2)">0.69</td>
-                                            <td style="background-color: rgba(46,204,113,0.3)">1.00</td>
+                                            <td style="background-color: rgba(231,76,60,0.22)" class="text-bearish">-0.79</td>
+                                            <td style="background-color: rgba(46,204,113,0.15)">0.69</td>
+                                            <td style="background-color: rgba(46,204,113,0.22)">1.00</td>
                                             <td style="background-color: rgba(46,204,113,0.05)">0.36</td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted text-start fw-bold">OIL</td>
-                                            <td style="background-color: rgba(46,204,113,0.08)">0.28</td>
+                                            <td style="background-color: rgba(46,204,113,0.05)">0.28</td>
                                             <td style="background-color: rgba(231,76,60,0.05)">-0.17</td>
                                             <td style="background-color: rgba(231,76,60,0.08)">-0.24</td>
-                                            <td style="background-color: rgba(46,204,113,0.15)">0.53</td>
+                                            <td style="background-color: rgba(46,204,113,0.12)">0.53</td>
                                         </tr>
                                     </tbody>
                                 </table>

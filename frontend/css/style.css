@@ -268,3 +268,41 @@ body {
 .border-start-glow {
     border-left: 4px solid var(--glow-color) !important;
 }
+
+/* 3D Glassmorphic Depth Cards */
+.card-3d {
+    background: linear-gradient(135deg, rgba(15, 19, 26, 0.9), rgba(8, 10, 14, 0.98)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.12) !important;
+    transform: translateY(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+.card-3d:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Heatmap Table Customization */
+.table-heatmap {
+    background: transparent !important;
+    border-collapse: separate !important;
+    border-spacing: 2px !important;
+}
+.table-heatmap th {
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: #8b949e !important;
+    font-weight: 600 !important;
+    border: none !important;
+    padding: 6px !important;
+    text-transform: uppercase;
+    font-size: 0.6rem;
+    letter-spacing: 0.5px;
+}
+.table-heatmap td {
+    padding: 6px !important;
+    font-weight: bold !important;
+    border: none !important;
+    border-radius: 3px;
+}
