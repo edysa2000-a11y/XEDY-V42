@@ -575,6 +575,18 @@ async def get_backtest(background_tasks: BackgroundTasks, days: int = 30, refres
         global BACKTEST_RUNNING
         BACKTEST_RUNNING = True
         try:
+            # 1. Run adaptive self-learning first to calibrate parameters
+            learn_script = os.path.join(os.path.dirname(__file__), "scripts", "adaptive_self_learning.py")
+            if os.path.exists(learn_script):
+                subprocess.run(
+                    [sys.executable, learn_script],
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
+                    cwd=os.path.dirname(os.path.dirname(__file__))
+                )
+                
+            # 2. Run backtest forecast validating engine
             script_path = os.path.join(os.path.dirname(__file__), "scripts", "backtest_forecast.py")
             if os.path.exists(script_path):
                 subprocess.run(
@@ -585,7 +597,7 @@ async def get_backtest(background_tasks: BackgroundTasks, days: int = 30, refres
                     cwd=os.path.dirname(os.path.dirname(__file__))
                 )
         except Exception as e:
-            print(f"[ERROR] Background backtest failed: {e}")
+            print(f"[ERROR] Background backtest/self-learning failed: {e}")
         finally:
             BACKTEST_RUNNING = False
 
