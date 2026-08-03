@@ -2151,21 +2151,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const active = data.active_forecast || {};
             const forecasts = active.forecasts || {};
 
-            // Helper to fill OHLC pane
+            // Helper to fill HLC pane
             function fillPane(prefix, obj, fallbackClose, fallbackHigh, fallbackLow, fallbackReason) {
-                const openEl = document.getElementById(`${prefix}-open`);
                 const highEl = document.getElementById(`${prefix}-high`);
                 const lowEl = document.getElementById(`${prefix}-low`);
                 const closeEl = document.getElementById(`${prefix}-close`);
                 const reasonEl = document.getElementById(`${prefix}-reasoning`);
 
-                const openVal = obj && obj.open ? '$' + obj.open.toFixed(2) : (active.start_gold_price ? '$' + active.start_gold_price.toFixed(2) : '$0.00');
                 const highVal = obj && obj.high ? '$' + obj.high.toFixed(2) : (fallbackHigh ? '$' + fallbackHigh.toFixed(2) : '$0.00');
                 const lowVal = obj && obj.low ? '$' + obj.low.toFixed(2) : (fallbackLow ? '$' + fallbackLow.toFixed(2) : '$0.00');
                 const closeVal = obj && obj.close ? '$' + obj.close.toFixed(2) : (fallbackClose ? '$' + fallbackClose.toFixed(2) : '$0.00');
                 const reasonVal = obj && obj.reasoning_id ? obj.reasoning_id : (fallbackReason || 'Tidak ada analisis pendorong berita baru untuk timeframe ini.');
 
-                if (openEl) openEl.innerText = openVal;
                 if (highEl) highEl.innerText = highVal;
                 if (lowEl) lowEl.innerText = lowVal;
                 if (closeEl) closeEl.innerText = closeVal;
