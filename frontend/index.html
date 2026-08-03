@@ -812,6 +812,134 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Bottom Row: 3 Charts + Heatmap -->
+                <div class="row g-3 mt-1">
+                    <!-- Chart 1: Real Yield & Gold Correlation -->
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-2" style="font-size:0.7rem;">REAL YIELD & GOLD CORRELATION</h6>
+                            <div class="d-flex justify-content-between text-muted small mb-2">
+                                <span style="color:#f1c40f;">● XAUUSD</span>
+                                <span style="color:#3498db;">● Real Yield (10Y)</span>
+                            </div>
+                            <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
+                                <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
+                                    <path d="M0,35 Q20,38 40,25 T80,15 T100,5" fill="none" stroke="#f1c40f" stroke-width="1.5" filter="drop-shadow(0px 0px 3px rgba(241,196,15,0.4))"></path>
+                                    <path d="M0,5 Q20,2 40,15 T80,25 T100,32" fill="none" stroke="#3498db" stroke-width="1.5" filter="drop-shadow(0px 0px 3px rgba(52,152,219,0.4))"></path>
+                                </svg>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small mt-2">
+                                <span>Korelasi (90D): <strong class="text-bearish">-0.78</strong></span>
+                                <span class="text-bearish">Strong Negative</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Gold ETF Net Flow -->
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-2" style="font-size:0.7rem;">GOLD ETF NET FLOW</h6>
+                            <div class="d-flex justify-content-between text-muted small mb-2">
+                                <span style="color:#2ecc71;">■ Daily Net Flow</span>
+                                <span style="color:#e67e22;">● Cumulative</span>
+                            </div>
+                            <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
+                                <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
+                                    <rect x="5" y="25" width="4" height="15" fill="#2ecc71"></rect>
+                                    <rect x="15" y="28" width="4" height="12" fill="#2ecc71"></rect>
+                                    <rect x="25" y="32" width="4" height="8" fill="#e74c3c"></rect>
+                                    <rect x="35" y="20" width="4" height="20" fill="#2ecc71"></rect>
+                                    <rect x="45" y="15" width="4" height="25" fill="#2ecc71"></rect>
+                                    <rect x="55" y="22" width="4" height="18" fill="#2ecc71"></rect>
+                                    <rect x="65" y="10" width="4" height="30" fill="#2ecc71"></rect>
+                                    <rect x="75" y="5" width="4" height="35" fill="#2ecc71"></rect>
+                                    <rect x="85" y="18" width="4" height="22" fill="#2ecc71"></rect>
+                                    <rect x="95" y="8" width="4" height="32" fill="#2ecc71"></rect>
+                                    <path d="M7,30 L17,25 L27,27 L37,20 L47,15 L57,12 L67,8 L77,4 L87,6 L97,3" fill="none" stroke="#e67e22" stroke-width="1.5"></path>
+                                </svg>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small mt-2">
+                                <span>1D Net Flow: <strong class="text-bullish">+2.85 Ton</strong></span>
+                                <span>Cumulative: <strong class="text-bullish">+186.40 Ton</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 3: COMEX Net Position -->
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-2" style="font-size:0.7rem;">COMEX NET POSITION (Managed Money)</h6>
+                            <div class="d-flex justify-content-between text-muted small mb-2">
+                                <span style="color:#2ecc71;">● Net Long</span>
+                                <span style="color:#e74c3c;">● Net Short</span>
+                            </div>
+                            <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
+                                <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
+                                    <path d="M0,40 L10,32 L20,35 L30,28 L40,20 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2 L100,40 Z" fill="rgba(46, 204, 113, 0.15)" stroke="#2ecc71" stroke-width="1.5"></path>
+                                    <path d="M0,40 L10,38 L20,36 L30,37 L40,38 L50,39 L60,38 L70,39 L80,38 L90,39 L100,39 L100,40 Z" fill="rgba(231, 76, 60, 0.1)" stroke="#e74c3c" stroke-width="1"></path>
+                                </svg>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small mt-2">
+                                <span>Net Long: <strong class="text-bullish">186,742</strong></span>
+                                <span>Perubahan: <strong class="text-bullish">▲ 7,892 (+4.41%)</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 4: Intermarket Heatmap -->
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-3 rounded h-100 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="text-muted mb-0" style="font-size:0.7rem;">INTERMARKET HEATMAP (Correlation)</h6>
+                                <span class="badge bg-secondary" style="font-size:0.6rem;">30D</span>
+                            </div>
+                            <div class="flex-grow-1 table-responsive" style="font-size: 0.65rem; line-height: 1.1;">
+                                <table class="table table-borderless text-center text-white mb-0" style="table-layout: fixed; width: 100%;">
+                                    <thead>
+                                        <tr class="text-muted">
+                                            <th>Symbol</th>
+                                            <th>GOLD</th>
+                                            <th>DXY</th>
+                                            <th>US10Y</th>
+                                            <th>SPX500</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-muted text-start fw-bold">XAUUSD</td>
+                                            <td style="background-color: rgba(46,204,113,0.3)">1.00</td>
+                                            <td style="background-color: rgba(231,76,60,0.25)" class="text-bearish">-0.72</td>
+                                            <td style="background-color: rgba(231,76,60,0.28)" class="text-bearish">-0.79</td>
+                                            <td style="background-color: rgba(231,76,60,0.15)">-0.45</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted text-start fw-bold">DXY</td>
+                                            <td style="background-color: rgba(231,76,60,0.25)" class="text-bearish">-0.72</td>
+                                            <td style="background-color: rgba(46,204,113,0.3)">1.00</td>
+                                            <td style="background-color: rgba(46,204,113,0.2)">0.69</td>
+                                            <td style="background-color: rgba(46,204,113,0.1)">0.41</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted text-start fw-bold">US10Y</td>
+                                            <td style="background-color: rgba(231,76,60,0.28)" class="text-bearish">-0.79</td>
+                                            <td style="background-color: rgba(46,204,113,0.2)">0.69</td>
+                                            <td style="background-color: rgba(46,204,113,0.3)">1.00</td>
+                                            <td style="background-color: rgba(46,204,113,0.05)">0.36</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted text-start fw-bold">OIL</td>
+                                            <td style="background-color: rgba(46,204,113,0.08)">0.28</td>
+                                            <td style="background-color: rgba(231,76,60,0.05)">-0.17</td>
+                                            <td style="background-color: rgba(231,76,60,0.08)">-0.24</td>
+                                            <td style="background-color: rgba(46,204,113,0.15)">0.53</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- TAB 3: FORECAST ACCURACY & PRICE TARGETS -->
