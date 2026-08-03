@@ -209,135 +209,184 @@
 
             <!-- TAB: MONEY FLOW TRANSMISSION -->
             <div id="tab-moneyflow" class="spa-tab d-none">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="text-white mb-0">💸 Money Flow Transmission & Macro Assets Correlation</h5>
-                    <span class="badge bg-primary px-3 py-2" style="font-size: 0.75rem; letter-spacing: 1px;">REAL-TIME CORRELATIONS</span>
-                </div>
-                
-                <!-- Neon Glow Info Card -->
-                <div class="row g-3 mb-3">
-                    <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded text-center border-top-glow" style="--glow-color: #ff7b72;">
-                            <div class="text-muted small uppercase">DXY Correlation (USD)</div>
-                            <h3 class="text-bearish my-2" id="mf-dxy-corr">-0.84</h3>
-                            <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.05);">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: 84%" aria-valuenow="84" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <span class="text-muted small mt-2 d-block">Strong Negative Correlation</span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded text-center border-top-glow" style="--glow-color: #ff9a7b;">
-                            <div class="text-muted small uppercase">US10Y Yield Correlation</div>
-                            <h3 class="text-bearish my-2" id="mf-us10y-corr">-0.71</h3>
-                            <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.05);">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: 71%" aria-valuenow="71" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <span class="text-muted small mt-2 d-block">Opportunity Cost Pressure</span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded text-center border-top-glow" style="--glow-color: #79c0ff;">
-                            <div class="text-muted small uppercase">SPX Correlation (Equity)</div>
-                            <h3 class="text-info-v42 my-2" id="mf-spx-corr">+0.32</h3>
-                            <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.05);">
-                                <div class="progress-bar bg-info" role="progressbar" style="width: 32%" aria-valuenow="32" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <span class="text-muted small mt-2 d-block">Mild Risk-On Flow</span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="bg-dark-panel p-3 rounded text-center border-top-glow" style="--glow-color: #3fb950;">
-                            <div class="text-muted small uppercase">WTI Crude Oil (Inflation)</div>
-                            <h3 class="text-bullish my-2" id="mf-wti-corr">+0.65</h3>
-                            <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.05);">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <span class="text-muted small mt-2 d-block">Strong Commodity Sync</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Correlation Matrices & Charts -->
                 <div class="row g-3">
-                    <!-- TradingView Multi-Asset Ticker Tape / Chart -->
-                    <div class="col-lg-8">
+                    <!-- Column 1: Money Flow Transmission Chain (Left) -->
+                    <div class="col-md-6">
                         <div class="bg-dark-panel p-3 rounded h-100">
-                            <h6 class="text-muted mb-3">📈 Macro Assets Live Performance (TradingView Feed)</h6>
-                            <div style="height: 380px;">
-                                <!-- TradingView Widget Begin -->
+                            <h6 class="text-muted mb-3">🔗 MONEY FLOW TRANSMISSION CHAIN</h6>
+                            
+                            <!-- Flow Grid -->
+                            <div class="flow-container p-2" style="font-family: 'Inter', sans-serif;">
+                                <!-- Row 1: Steps 1 to 5 -->
+                                <div class="row g-2 align-items-center justify-content-between mb-4">
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #8e44ad; box-shadow: 0 0 10px rgba(142, 68, 173, 0.25);">
+                                            <div class="badge bg-purple mb-1">1. EVENT</div>
+                                            <div class="time-label text-muted">0-30 min</div>
+                                            <div class="content-text text-white">CPI / FOMC<br>Geopolitik / NFP</div>
+                                            <div class="status-label text-critical">Impact High</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #2980b9; box-shadow: 0 0 10px rgba(41, 128, 185, 0.25);">
+                                            <div class="badge bg-blue mb-1">2. RATE EXPECTATION</div>
+                                            <div class="time-label text-muted">5-60 min</div>
+                                            <div class="content-text text-white">Fed Funds Futures<br>SOFR Futures<br>Rate Cut Prob ↑</div>
+                                            <div class="status-label text-bullish">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #16a085; box-shadow: 0 0 10px rgba(22, 160, 133, 0.25);">
+                                            <div class="badge bg-teal mb-1">3. BOND YIELD</div>
+                                            <div class="time-label text-muted">15-120 min</div>
+                                            <div class="content-text text-white">US 2Y Yield ↓<br>US 10Y Yield ↓<br>US 30Y Yield ↓</div>
+                                            <div class="status-label text-bullish">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #27ae60; box-shadow: 0 0 10px rgba(39, 174, 96, 0.25);">
+                                            <div class="badge bg-green mb-1">4. USD (DXY)</div>
+                                            <div class="time-label text-muted">30-180 min</div>
+                                            <div class="content-text text-white">DXY Melemah<br>USD Selling<br>Capital Outflow</div>
+                                            <div class="status-label text-bullish">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #d35400; box-shadow: 0 0 10px rgba(211, 84, 0, 0.25);">
+                                            <div class="badge bg-orange mb-1">5. ASSET ALLOCATION</div>
+                                            <div class="time-label text-muted">1-8 jam</div>
+                                            <div class="content-text text-white">Risk Off<br>Rotasi ke<br>Gold Assets</div>
+                                            <div class="status-label text-bullish">Bullish</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Downward Connection to Step 6 -->
+                                <div class="d-flex justify-content-end pe-5 mb-3">
+                                    <div style="border-right: 2px dashed #30363d; height: 30px; width: 1px; margin-right: 38px;"></div>
+                                </div>
+
+                                <!-- Row 2: Steps 6 to 8 + Output -->
+                                <div class="row g-2 align-items-center justify-content-between">
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #d35400; box-shadow: 0 0 10px rgba(211, 84, 0, 0.25);">
+                                            <div class="badge bg-orange mb-1">6. ETF FLOW</div>
+                                            <div class="time-label text-muted">4-24 jam</div>
+                                            <div class="content-text text-white">GLD / IAU<br>Net Inflow ↑<br>Demand Naik</div>
+                                            <div class="status-label text-bullish">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #c0392b; box-shadow: 0 0 10px rgba(192, 57, 43, 0.25);">
+                                            <div class="badge bg-red mb-1">7. COMEX POSITION</div>
+                                            <div class="time-label text-muted">1-5 hari</div>
+                                            <div class="content-text text-white">Net Long ↑<br>Managed Money<br>Accumulation</div>
+                                            <div class="status-label text-bullish">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #7f8c8d; box-shadow: 0 0 10px rgba(127, 140, 141, 0.25);">
+                                            <div class="badge bg-secondary mb-1">8. PHYSICAL MARKET</div>
+                                            <div class="time-label text-muted">2-10 hari</div>
+                                            <div class="content-text text-white">Central Bank Buy<br>India & China Demand<br>Supply Ketat</div>
+                                            <div class="status-label text-bullish">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card-output">
+                                        <div class="flow-output-card text-center p-3 rounded" style="background: linear-gradient(135deg, #11151a, #0d1117); border: 2px solid #ff9a7b; box-shadow: 0 0 15px rgba(255, 154, 123, 0.25);">
+                                            <div class="text-warning-v42 fw-bold small uppercase">XAUUSD PRICE</div>
+                                            <h4 class="text-warning-v42 font-monospace my-1" style="text-shadow: 0 0 8px rgba(255, 154, 123, 0.4);">TREND UP</h4>
+                                            <div class="small text-muted">👑 Gold Standard</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Timeline -->
+                                <div class="mt-4 pt-3 border-top border-secondary">
+                                    <div class="d-flex justify-content-between text-muted small font-monospace">
+                                        <span>⏱️ Total Transmission Time</span>
+                                        <span>2 Jam</span>
+                                        <span>1 Hari</span>
+                                        <span>1 Minggu+</span>
+                                        <span class="text-warning-v42">➡️ Trend Terbentuk</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: XAUUSD Chart & AI Outlook (Right) -->
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-3 rounded h-100 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-muted mb-0">📈 XAUUSD CHART & AI OUTLOOK</h6>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary active">1H</button>
+                                    <button type="button" class="btn btn-outline-secondary">4H</button>
+                                    <button type="button" class="btn btn-outline-secondary">1D</button>
+                                    <button type="button" class="btn btn-outline-secondary">1W</button>
+                                </div>
+                            </div>
+                            
+                            <!-- TradingView Embed Chart (Exact 1:1 spot gold ticker) -->
+                            <div class="flex-grow-1 mb-3" style="min-height: 320px;">
                                 <div class="tradingview-widget-container" style="height:100%;width:100%">
-                                  <div id="tradingview_macro" style="height:100%;width:100%"></div>
+                                  <div id="tradingview_xau" style="height:100%;width:100%"></div>
                                   <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
                                   <script type="text/javascript">
-                                  new TradingView.MediumWidget({
-                                    "symbols": [
-                                      ["US Dollar Index (DXY)", "USI:DXY|1D"],
-                                      ["US 10-Yr Yield", "TVC:US10Y|1D"],
-                                      ["S&P 500", "SP:SPX|1D"],
-                                      ["Crude Oil", "TVC:USOIL|1D"]
-                                    ],
-                                    "chartOnly": false,
+                                  new TradingView.widget({
                                     "width": "100%",
                                     "height": "100%",
+                                    "symbol": "OANDA:XAUUSD",
+                                    "interval": "60",
+                                    "timezone": "Etc/UTC",
+                                    "theme": "dark",
+                                    "style": "1",
                                     "locale": "en",
-                                    "colorTheme": "dark",
-                                    "gridLineColor": "rgba(240, 243, 250, 0.06)",
-                                    "trendLineColor": "#2962FF",
-                                    "fontColor": "#787B86",
-                                    "underLineColor": "rgba(41, 98, 255, 0.12)",
-                                    "underLineBottomColor": "rgba(41, 98, 255, 0)",
-                                    "isTransparent": true,
-                                    "autosize": true,
-                                    "container_id": "tradingview_macro"
+                                    "toolbar_bg": "#f1f3f6",
+                                    "enable_publishing": false,
+                                    "hide_side_toolbar": false,
+                                    "allow_symbol_change": true,
+                                    "container_id": "tradingview_xau"
                                   });
                                   </script>
                                 </div>
-                                <!-- TradingView Widget End -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Flow Index Calculation Table -->
-                    <div class="col-lg-4">
-                        <div class="bg-dark-panel p-3 rounded h-100">
-                            <h6 class="text-muted mb-3">🏛️ Net Institutional Money Flow Index (MFI)</h6>
-                            <div class="text-center my-4 py-2">
-                                <h1 class="text-bullish display-5 font-monospace" id="mf-net-mfi">+74.8%</h1>
-                                <span class="badge bg-success px-3 py-2 text-uppercase" id="mf-flow-bias">Strong Inflow to Gold</span>
                             </div>
                             
-                            <table class="table table-v42">
-                                <thead>
-                                    <tr>
-                                        <th>Asset Class</th>
-                                        <th>Trend Direction</th>
-                                        <th>Gold Impact</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>US Dollar (DXY)</td>
-                                        <td class="text-bearish text-end">Bearish (Dropping)</td>
-                                        <td class="text-bullish text-end">🟢 Bullish</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Bonds (US10Y)</td>
-                                        <td class="text-bearish text-end">Falling Yields</td>
-                                        <td class="text-bullish text-end">🟢 Bullish</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Commodities (WTI)</td>
-                                        <td class="text-bullish text-end">Bullish (Rising)</td>
-                                        <td class="text-bullish text-end">🟢 Bullish</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Equities (SPX)</td>
-                                        <td class="text-muted text-end">Consolidating</td>
-                                        <td class="text-muted text-end">⚪ Neutral</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <!-- AI Outlook Panel -->
+                            <div class="bg-black-panel p-3 rounded border-start-glow" style="--glow-color: #3fb950;">
+                                <h6 class="text-muted mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">AI OUTLOOK (Next 24-72 Hours)</h6>
+                                <div class="row align-items-center">
+                                    <div class="col-md-6 border-end border-secondary">
+                                        <h2 class="text-bullish fw-bold mb-0">BULLISH</h2>
+                                        <div class="text-muted small">Probabilitas <span class="text-white fw-bold">78%</span></div>
+                                    </div>
+                                    <div class="col-md-6 ps-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-muted small">Target 1:</span>
+                                            <span class="text-white font-monospace fw-bold">$2,365.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-muted small">Target 2:</span>
+                                            <span class="text-white font-monospace fw-bold">$2,385.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted small">Invalidation:</span>
+                                            <span class="text-critical font-monospace fw-bold">$2,325.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-muted small" style="line-height: 1.5;">
+                                    AI memprediksi peluang kenaikan XAUUSD dalam 24-72 jam berdasarkan analisis aliran dana institusi (Money Flow) dan kondisi makroekonomi saat ini.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
