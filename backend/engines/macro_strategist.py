@@ -402,8 +402,8 @@ class MacroStrategistEngine(BaseEngine):
                         })
             
             if trades_metrics:
-                # Calculate time-decay weighted averages of the last 5 trades
-                recent_metrics = trades_metrics[-5:]
+                # Calculate time-decay weighted averages of the last 3 trades (optimized to save Qwen token usage)
+                recent_metrics = trades_metrics[-3:]
                 total_weight = sum(t["weight"] for t in recent_metrics)
                 
                 if total_weight > 0:
