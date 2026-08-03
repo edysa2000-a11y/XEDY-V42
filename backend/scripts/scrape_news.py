@@ -313,8 +313,8 @@ def main():
     gold_price = prices.get("XAUUSD", 0.0)
     print(f"Current live Spot Gold price: ${gold_price:.2f} | Oil: ${prices.get('USOIL', 0.0):.2f} | DXY: {prices.get('DXY', 0.0):.2f}")
     
-    # 1. Scrape Google News Gold, DXY, geopolitical, and macroeconomic feed
-    google_url = 'https://news.google.com/rss/search?q=(gold+OR+xauusd+OR+dxy+OR+\"US+dollar\"+OR+\"treasury+yields\")+(war+OR+geopolitics+OR+conflict+OR+fed+OR+inflation+OR+nfp+OR+gdp+OR+cpi)&hl=en-US&gl=US&ceid=US:en'
+    # 1. Scrape Google News Gold, DXY, geopolitical, macroeconomic, and US Presidential Speech feed
+    google_url = 'https://news.google.com/rss/search?q=(gold+OR+xauusd+OR+dxy+OR+\"US+dollar\"+OR+\"treasury+yields\"+OR+trump+OR+\"president+speech\"+OR+\"trump+comments\")+(war+OR+geopolitics+OR+conflict+OR+fed+OR+inflation+OR+nfp+OR+gdp+OR+cpi+OR+tariff)&hl=en-US&gl=US&ceid=US:en'
     articles = scrape_rss(google_url)
     
     if not articles:
@@ -324,7 +324,7 @@ def main():
     print(f"Scraped {len(articles)} headlines successfully.")
     
     # Fetch target semantic vector once for cross-market alignment reference
-    target_macro_query = "gold price xauusd dollar index dxy treasury yields federal reserve cpi nfp rate decision geopolitics"
+    target_macro_query = "gold price xauusd dollar index dxy treasury yields federal reserve cpi nfp rate decision geopolitics US president comments"
     target_vector = get_qwen_embedding(api_key, target_macro_query)
     if target_vector:
         print(f"Generated target Qwen3 embedding vector for macro alignment: size {len(target_vector)}")
@@ -341,20 +341,33 @@ def main():
             if art_dt >= forty_eight_hours_ago:
                 age_hours = int((local_now - art_dt).total_seconds() / 3600)
                 
+                title_upper = art["title"].upper()
+                is_presidential = "TRUMP" in title_upper or "PRESIDENT" in title_upper
+                
                 # Fetch headline vector and check semantic alignment
                 sim_score = 0.50 # default fallback
                 if target_vector:
                     art_vector = get_qwen_embedding(api_key, art["title"])
                     if art_vector:
                         sim_score = cosine_similarity(target_vector, art_vector)
+                        
+                        # Boost presidential speech relevance semantically
+                        if is_presidential:
+                            sim_score = min(1.0, sim_score + 0.15)
+                        
                         print(f"Headline: '{art['title'][:45]}...' | Semantic Similarity: {sim_score:.4f}")
                 
-                # Ignore articles below 0.35 similarity (noise filter)
-                if target_vector and sim_score < 0.35:
+                # Ignore articles below 0.35 similarity (noise filter), unless it's presidential comments
+                if target_vector and sim_score < 0.35 and not is_presidential:
                     print(f"Skipping unrelated headline (noise): '{art['title'][:40]}...' (Similarity: {sim_score:.4f})")
                     continue
 
-                if art_dt >= twenty_four_hours_ago:
+                # Set custom high priority weights for presidential speeches containing critical market topics
+                critical_topics = ["WAR", "GEOPOLITICS", "CONFLICT", "TARIFF", "GOLD", "XAUUSD", "CHINA", "TRADE"]
+                if is_presidential and any(topic in title_upper for topic in critical_topics):
+                    weight = "150% (CRITICAL / HIGH PRIORITY)"
+                    weight_label = "PIDATO PRESIDEN / GEOPOLITIK"
+                elif art_dt >= twenty_four_hours_ago:
                     weight = "100% (FRESH)"
                     weight_label = "BARU/KUAT"
                 else:
