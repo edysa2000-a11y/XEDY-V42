@@ -155,6 +155,46 @@ def scrape_rss(url):
         print(f"Error scraping {url}: {e}")
         return []
 
+def get_qwen_embedding(api_key, text):
+    """
+    Calls Aivene embeddings API using Qwen3 Embedding 8B model.
+    """
+    if not api_key or not text:
+        return []
+    url = "https://api.aivene.com/v1/embeddings"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0"
+    }
+    payload = {
+        "model": "qwen3-embedding-8b",
+        "input": text
+    }
+    try:
+        data_bytes = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=15.0) as r:
+            res_json = json.loads(r.read().decode("utf-8"))
+            return res_json["data"][0]["embedding"]
+    except Exception as e:
+        print(f"Failed to generate Qwen3 embedding: {e}")
+        return []
+
+def cosine_similarity(v1, v2):
+    """
+    Helper to calculate cosine similarity between two vectors.
+    """
+    if not v1 or not v2 or len(v1) != len(v2):
+        return 0.0
+    import numpy as np
+    dot_product = np.dot(v1, v2)
+    norm_v1 = np.linalg.norm(v1)
+    norm_v2 = np.linalg.norm(v2)
+    if norm_v1 == 0 or norm_v2 == 0:
+        return 0.0
+    return float(dot_product / (norm_v1 * norm_v2))
+
 def get_qwen_analysis(api_key, news_text, prices):
     if not api_key:
         return {"bias": "ANY", "regime": "NORMAL", "optimal_confidence_threshold": 0.68, "optimal_max_op": 4, "reasoning": "No API Key"}
@@ -283,7 +323,13 @@ def main():
         
     print(f"Scraped {len(articles)} headlines successfully.")
     
-    # Filter and weight articles to last 48 hours (GMT+7)
+    # Fetch target semantic vector once for cross-market alignment reference
+    target_macro_query = "gold price xauusd dollar index dxy treasury yields federal reserve cpi nfp rate decision geopolitics"
+    target_vector = get_qwen_embedding(api_key, target_macro_query)
+    if target_vector:
+        print(f"Generated target Qwen3 embedding vector for macro alignment: size {len(target_vector)}")
+    
+    # Filter and weight articles to last 48 hours (GMT+7) with semantic relevance boost
     local_now = datetime.utcnow() + timedelta(hours=7)
     forty_eight_hours_ago = local_now - timedelta(hours=48)
     twenty_four_hours_ago = local_now - timedelta(hours=24)
@@ -294,6 +340,20 @@ def main():
             art_dt = datetime.strptime(art["pubDate"], "%Y-%m-%d %H:%M:%S")
             if art_dt >= forty_eight_hours_ago:
                 age_hours = int((local_now - art_dt).total_seconds() / 3600)
+                
+                # Fetch headline vector and check semantic alignment
+                sim_score = 0.50 # default fallback
+                if target_vector:
+                    art_vector = get_qwen_embedding(api_key, art["title"])
+                    if art_vector:
+                        sim_score = cosine_similarity(target_vector, art_vector)
+                        print(f"Headline: '{art['title'][:45]}...' | Semantic Similarity: {sim_score:.4f}")
+                
+                # Ignore articles below 0.35 similarity (noise filter)
+                if target_vector and sim_score < 0.35:
+                    print(f"Skipping unrelated headline (noise): '{art['title'][:40]}...' (Similarity: {sim_score:.4f})")
+                    continue
+
                 if art_dt >= twenty_four_hours_ago:
                     weight = "100% (FRESH)"
                     weight_label = "BARU/KUAT"
@@ -304,12 +364,14 @@ def main():
                 art["weight"] = weight
                 art["weight_label"] = weight_label
                 art["age_hours"] = age_hours
+                art["similarity"] = sim_score
                 weighted_articles.append(art)
-        except Exception:
+        except Exception as e:
             # Fallback if parse fails
             art["weight"] = "100% (FRESH)"
             art["weight_label"] = "BARU/KUAT"
             art["age_hours"] = 0
+            art["similarity"] = 0.5
             weighted_articles.append(art)
             
     # Fallback to general list if no news in last 48h
@@ -321,9 +383,9 @@ def main():
             art["weight_label"] = "BARU/KUAT"
             art["age_hours"] = 0
     else:
-        # Sort by age (newest first)
-        weighted_articles = sorted(weighted_articles, key=lambda x: x.get("age_hours", 0))[:12]
-        print(f"Filtered to {len(weighted_articles)} headlines from the last 48 hours.")
+        # Sort by similarity descending (most relevant first) to feed the best market drivers to Qwen
+        weighted_articles = sorted(weighted_articles, key=lambda x: x.get("similarity", 0.0), reverse=True)[:12]
+        print(f"Filtered and sorted to {len(weighted_articles)} semantically aligned headlines.")
         
     # 2. Compile and translate headlines
     news_text = ""
