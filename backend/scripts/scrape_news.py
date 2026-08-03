@@ -48,7 +48,7 @@ def translate_to_id(text):
         return text
 
 def get_live_gold_price():
-    # 1. Try to fetch from MT5 directly if running locally
+    # 1. Prioritas 1: Ambil langsung dari MT5 (Lokal PC)
     try:
         import MetaTrader5 as mt5
         if mt5.initialize():
@@ -62,7 +62,32 @@ def get_live_gold_price():
     except Exception as e:
         print(f"MT5 spot price fetch not available: {e}")
 
-    # 2. Fallback to Yahoo Finance PAXG-USD (tracks spot gold 1:1)
+    # 2. Prioritas 2: Ambil dari TradingView CFD Scan (FX_IDC:XAUUSD)
+    try:
+        url_tv = "https://scanner.tradingview.com/cfd/scan"
+        payload_tv = {
+            "symbols": {
+                "tickers": ["FX_IDC:XAUUSD"],
+                "query": { "types": [] }
+            },
+            "columns": ["close"]
+        }
+        req_tv = urllib.request.Request(
+            url_tv, 
+            data=json.dumps(payload_tv).encode("utf-8"), 
+            headers={"User-Agent": "Mozilla/5.0", "Content-Type": "application/json"},
+            method="POST"
+        )
+        with urllib.request.urlopen(req_tv, timeout=10) as response:
+            data = json.loads(response.read().decode("utf-8"))
+            if data.get("data") and len(data["data"]) > 0:
+                price = float(data["data"][0]["d"][0])
+                print(f"Fetched live Spot Gold price from TradingView (FX_IDC:XAUUSD): ${price:.2f}")
+                return price
+    except Exception as e:
+        print(f"Failed to fetch gold price from TradingView: {e}")
+
+    # 3. Prioritas 3: Fallback ke Yahoo Finance PAXG-USD (tracks spot gold 1:1)
     url_paxg = "https://query1.finance.yahoo.com/v8/finance/chart/PAXG-USD?interval=1m&range=1d"
     req_paxg = urllib.request.Request(url_paxg, headers={"User-Agent": "Mozilla/5.0"})
     try:
@@ -74,7 +99,7 @@ def get_live_gold_price():
     except Exception as e:
         print(f"Failed to fetch gold price from Yahoo (PAXG-USD), trying GC=F: {e}")
         
-    # 3. Last resort fallback to Yahoo Finance GC=F (Gold Futures)
+    # 4. Prioritas 4: Fallback terakhir ke Yahoo Finance GC=F (Gold Futures)
     url_gcf = "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&range=1d"
     req_gcf = urllib.request.Request(url_gcf, headers={"User-Agent": "Mozilla/5.0"})
     try:
