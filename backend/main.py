@@ -243,7 +243,156 @@ async def health_check():
         "mt5": "DISCONNECTED",
         "ai": "STANDBY"
     }
+
+@app.get("/api/v1/macro/dashboard")
+async def get_macro_dashboard():
+    """
+    Returns real dynamic data for Executive Dashboard panels:
+    - upcoming_events: from macro_analysis.economic_releases in news_feed.json
+    - latest_news: from news feed headlines
+    - smart_alerts: generated from macro bias + regime
+    """
+    import json, os
+    from datetime import datetime, timezone
+
+    news_feed_path = "data/news_feed.json"
+    result = {
+        "upcoming_events": [],
+        "latest_news": [],
+        "smart_alerts": [],
+        "generated_at": ""
+    }
+
+    if not os.path.exists(news_feed_path):
+        return result
+
+    try:
+        with open(news_feed_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        return {"error": str(e)}
+
+    result["generated_at"] = data.get("generated_at", "")
+
+    # --- Latest News from news feed ---
+    news_items = data.get("news", [])
+    for item in news_items[:6]:
+        title = item.get("title", "")
+        pub = item.get("pubDate", "")
+        weight_label = item.get("weight_label", "")
+        # Format time: "2026-08-03 07:56:50" -> "03 Ags 07:56"
+        try:
+            dt = datetime.strptime(pub, "%Y-%m-%d %H:%M:%S")
+            pub_fmt = dt.strftime("%d %b %H:%M")
+        except Exception:
+            pub_fmt = pub[:16] if len(pub) >= 16 else pub
+
+        # Determine tag from title keywords
+        title_low = title.lower()
+        if "fed" in title_low or "powell" in title_low or "fomc" in title_low:
+            tag, tag_class = "Fed", "bg-purple"
+        elif "central bank" in title_low or "gold purchase" in title_low or "reserve" in title_low:
+            tag, tag_class = "Central Bank", "bg-warning text-dark"
+        elif "yield" in title_low or "bond" in title_low or "treasury" in title_low:
+            tag, tag_class = "Bond Market", "bg-info"
+        elif "geopolit" in title_low or "tension" in title_low or "war" in title_low or "conflict" in title_low:
+            tag, tag_class = "Geopolitics", "bg-danger"
+        elif "cpi" in title_low or "inflation" in title_low or "pce" in title_low:
+            tag, tag_class = "Inflation", "bg-orange"
+        elif "nfp" in title_low or "payroll" in title_low or "employment" in title_low:
+            tag, tag_class = "NFP", "bg-teal"
+        elif "gold" in title_low or "xau" in title_low:
+            tag, tag_class = "Gold", "bg-warning text-dark"
+        elif "ism" in title_low or "pmi" in title_low or "manufacturing" in title_low:
+            tag, tag_class = "PMI/ISM", "bg-blue"
+        elif "dollar" in title_low or "dxy" in title_low or "usd" in title_low:
+            tag, tag_class = "USD/DXY", "bg-success"
+        else:
+            tag, tag_class = "Macro", "bg-secondary"
+
+        result["latest_news"].append({
+            "time": pub_fmt,
+            "headline": title[:85] + ("..." if len(title) > 85 else ""),
+            "tag": tag,
+            "tag_class": tag_class
+        })
+
+    # --- Upcoming Events from economic_releases ---
+    macro = data.get("macro_analysis", {})
+    releases = macro.get("economic_releases", [])
+    known_events = [
+        {"name": "NFP", "full": "US Non-Farm Payrolls", "impact": "High"},
+        {"name": "ISM", "full": "ISM Manufacturing PMI", "impact": "High"},
+        {"name": "CPI", "full": "US CPI (YoY)", "impact": "High"},
+        {"name": "PCE", "full": "US Core PCE Price Index", "impact": "High"},
+        {"name": "FOMC", "full": "FOMC Meeting Minutes", "impact": "High"},
+        {"name": "GDP", "full": "US GDP (QoQ)", "impact": "Medium"},
+        {"name": "PPI", "full": "US PPI (YoY)", "impact": "Medium"},
+        {"name": "AUD", "full": "AUD/USD Key Event", "impact": "Medium"},
+    ]
+    added = set()
+    for rel in releases:
+        rel_low = rel.lower()
+        for ev in known_events:
+            if ev["name"].lower() in rel_low and ev["name"] not in added:
+                # Extract value if present
+                import re
+                val_match = re.search(r'[\+\-]?\d+[\.,]?\d*[KkMmBb%]?', rel)
+                val = val_match.group(0) if val_match else "--"
+                result["upcoming_events"].append({
+                    "name": ev["full"],
+                    "impact": ev["impact"],
+                    "actual": val,
+                    "prev": "--",
+                    "time": result["generated_at"][:10] if result["generated_at"] else "--"
+                })
+                added.add(ev["name"])
+
+    if not result["upcoming_events"]:
+        result["upcoming_events"].append({
+            "name": "No upcoming high-impact events",
+            "impact": "Low",
+            "actual": "--",
+            "prev": "--",
+            "time": "--"
+        })
+
+    # --- Smart Alerts from macro bias ---
+    bias = macro.get("bias", "ANY")
+    regime = macro.get("regime", "NORMAL")
+    threshold = macro.get("optimal_confidence_threshold", 0.72)
+    max_op = macro.get("optimal_max_op", 3)
+    now_str = datetime.now(timezone.utc).strftime("%H:%M")
+
+    if bias == "BUY_ONLY":
+        result["smart_alerts"].append({"time": now_str, "msg": f"Qwen AI Macro Bias: BULLISH — Buy signals prioritized", "signal": "Bullish", "cls": "bg-success"})
+    elif bias == "SELL_ONLY":
+        result["smart_alerts"].append({"time": now_str, "msg": f"Qwen AI Macro Bias: BEARISH — Sell signals prioritized", "signal": "Bearish", "cls": "bg-danger"})
+    elif bias == "WAIT":
+        result["smart_alerts"].append({"time": now_str, "msg": f"Qwen AI Macro Bias: WAIT — High uncertainty, no new positions", "signal": "Neutral", "cls": "bg-warning text-dark"})
+    else:
+        result["smart_alerts"].append({"time": now_str, "msg": f"Qwen AI Macro Bias: ANY — Both directions active", "signal": "Neutral", "cls": "bg-secondary"})
+
+    if regime == "HIGH_NEWS":
+        result["smart_alerts"].append({"time": now_str, "msg": "Regime: HIGH NEWS — Elevated volatility, widen SL", "signal": "Alert", "cls": "bg-danger"})
+    elif regime == "SIDEWAYS":
+        result["smart_alerts"].append({"time": now_str, "msg": "Regime: SIDEWAYS — Range-bound market, scalp mode", "signal": "Caution", "cls": "bg-warning text-dark"})
+    else:
+        result["smart_alerts"].append({"time": now_str, "msg": "Regime: NORMAL — Standard execution mode active", "signal": "Normal", "cls": "bg-info"})
+
+    result["smart_alerts"].append({"time": now_str, "msg": f"Confidence Threshold: {int(threshold*100)}% | Max Positions: {max_op}", "signal": "Config", "cls": "bg-purple"})
+
+    # Add news-derived alerts
+    for item in news_items[:2]:
+        title = item.get("title", "")
+        title_low = title.lower()
+        if any(k in title_low for k in ["gold", "xau", "bullion"]):
+            result["smart_alerts"].append({"time": now_str, "msg": title[:70] + ("..." if len(title) > 70 else ""), "signal": "Bullish", "cls": "bg-success"})
+
+    return result
+
 @app.get("/api/v1/forecast/stats")
+
 async def get_forecast_stats():
     import json
     import os

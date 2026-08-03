@@ -2279,6 +2279,71 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(window.fetchQwenQuota, 60000);
     setTimeout(window.fetchQwenQuota, 2000);
 
+    // ============================================================
+    // Executive Dashboard: Dynamic Panels
+    // ============================================================
+    window.fetchMacroDashboard = async function() {
+        try {
+            const res = await fetch('/api/v1/macro/dashboard');
+            if (!res.ok) return;
+            const d = await res.json();
+            if (d.error) return;
+
+            // ── Upcoming Events ──────────────────────────────────
+            const eventsTbody = document.getElementById('events-tbody');
+            if (eventsTbody && d.upcoming_events) {
+                if (d.upcoming_events.length === 0) {
+                    eventsTbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center">No high-impact events found</td></tr>';
+                } else {
+                    eventsTbody.innerHTML = d.upcoming_events.map(ev => {
+                        const impactCls = ev.impact === 'High' ? 'bg-danger' : ev.impact === 'Medium' ? 'bg-warning text-dark' : 'bg-secondary';
+                        return `<tr>
+                            <td class="font-monospace" style="font-size:0.68rem;white-space:nowrap;">${ev.time}</td>
+                            <td>${ev.name}</td>
+                            <td><span class="badge ${impactCls}" style="font-size:0.6rem;">${ev.impact}</span></td>
+                            <td class="text-white font-monospace">${ev.actual}</td>
+                            <td class="text-muted font-monospace">${ev.prev}</td>
+                        </tr>`;
+                    }).join('');
+                }
+            }
+
+            // ── Latest Macro News ────────────────────────────────
+            const newsTbody = document.getElementById('macro-news-tbody');
+            if (newsTbody && d.latest_news) {
+                if (d.latest_news.length === 0) {
+                    newsTbody.innerHTML = '<tr><td colspan="3" class="text-muted text-center">No news available</td></tr>';
+                } else {
+                    newsTbody.innerHTML = d.latest_news.map(n => `<tr>
+                        <td class="font-monospace text-muted" style="font-size:0.65rem;white-space:nowrap;">${n.time}</td>
+                        <td style="line-height:1.3;">${n.headline}</td>
+                        <td><span class="badge ${n.tag_class}" style="font-size:0.6rem;white-space:nowrap;">${n.tag}</span></td>
+                    </tr>`).join('');
+                }
+            }
+
+            // ── Smart Alerts ─────────────────────────────────────
+            const alertsTbody = document.getElementById('smart-alerts-tbody');
+            if (alertsTbody && d.smart_alerts) {
+                if (d.smart_alerts.length === 0) {
+                    alertsTbody.innerHTML = '<tr><td colspan="3" class="text-muted text-center">No alerts</td></tr>';
+                } else {
+                    alertsTbody.innerHTML = d.smart_alerts.map(a => `<tr>
+                        <td class="font-monospace text-muted" style="font-size:0.68rem;white-space:nowrap;">${a.time}</td>
+                        <td style="line-height:1.3;">${a.msg}</td>
+                        <td class="text-end"><span class="badge ${a.cls}" style="font-size:0.6rem;">${a.signal}</span></td>
+                    </tr>`).join('');
+                }
+            }
+        } catch (e) {
+            console.warn('Macro dashboard fetch error:', e);
+        }
+    };
+
+    // Auto-refresh every 60s, initial load after 1.5s
+    setInterval(window.fetchMacroDashboard, 60000);
+    setTimeout(window.fetchMacroDashboard, 1500);
+
     window.loadAutoCleanState();
     setTimeout(initWebSocket, 500);
 });
