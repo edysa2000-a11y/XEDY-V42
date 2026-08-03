@@ -79,9 +79,9 @@ class MacroStrategistEngine(BaseEngine):
                         is_news_spike = body_size > 1.5 * atr
                         time_elapsed = time.time() - last_decision_time
                         
-                        # Trigger if 4 hours elapsed (14400s) OR if we have a news spike
-                        if time_elapsed >= 14400 or is_news_spike or last_decision_time == 0:
-                            reason = "4-Hour Scheduled Update" if time_elapsed >= 14400 else "Volatility News Spike Trigger"
+                        # Trigger if 2 hours elapsed (7200s) OR if we have a news spike
+                        if time_elapsed >= 7200 or is_news_spike or last_decision_time == 0:
+                            reason = "2-Hour Scheduled Update" if time_elapsed >= 7200 else "Volatility News Spike Trigger"
                             self.logger.info(f"Hybrid Qwen Trigger: {reason} detected (Body: {body_size:.2f} vs ATR threshold: {1.5*atr:.2f}). Updating macro strategist bias...")
                             await self.update_macro_decision()
                             last_decision_time = time.time()
