@@ -233,8 +233,21 @@ def build_detail(all_rates, start_idx, timeframe_label):
     detail = []
     total = len(all_rates) - start_idx
     
-    # Define correction factors per timeframe to achieve MAE < $10
+    # Define default correction factors per timeframe to achieve MAE < $10
     corr_map = {"1d": 0.82, "1w": 0.85, "2w": 0.90}
+    
+    # Load calibrated parameters from adaptive self-learning if available
+    param_path = "data/adaptive_forecast_params.json"
+    if os.path.exists(param_path):
+        try:
+            with open(param_path, "r", encoding="utf-8") as pf:
+                calibrated = json.load(pf)
+                for tf in ["1d", "1w", "2w"]:
+                    if tf in calibrated and "corr_factor" in calibrated[tf]:
+                        corr_map[tf] = calibrated[tf]["corr_factor"]
+        except Exception as e:
+            print(f"[WARN] Failed to load calibrated correction factors: {e}")
+            
     corr_factor = corr_map.get(timeframe_label, 0.85)
     
     for idx in range(start_idx, len(all_rates)):

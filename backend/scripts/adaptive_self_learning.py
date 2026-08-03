@@ -224,6 +224,54 @@ def run_self_learning():
             with open("data/forecast_accuracy_stats.json", "w") as af:
                 json.dump(forecast_stats, af, indent=2)
             print("Forecast accuracy statistics compiled and saved to data/forecast_accuracy_stats.json")
+            
+    # ── ADAPTIVE SELF-LEARNING FORECAST PARAMETER CALIBRATION (MAE < $10) ──
+    print("Calibrating adaptive forecast correction parameters...")
+    try:
+        import MetaTrader5 as mt5_sec
+        mt5_avail = False
+        if mt5_sec and mt5_sec.initialize():
+            mt5_avail = True
+        
+        calibrated_params = {
+            "1d": {"corr_factor": 0.82},
+            "1w": {"corr_factor": 0.85},
+            "2w": {"corr_factor": 0.90}
+        }
+        
+        if mt5_avail:
+            rates_d1 = mt5_sec.copy_rates_from_pos("XAUUSD", mt5_sec.TIMEFRAME_D1, 0, 30)
+            if rates_d1 is not None and len(rates_d1) > 0:
+                raw_diffs = [abs(float(r["close"]) - float(r["open"])) for r in rates_d1]
+                e_d1 = sum(raw_diffs) / len(raw_diffs)
+                corr_d1 = max(0.70, min(0.98, 1.0 - (7.5 / max(e_d1, 8.0))))
+                calibrated_params["1d"]["corr_factor"] = round(corr_d1, 3)
+                
+            rates_w1 = mt5_sec.copy_rates_from_pos("XAUUSD", mt5_sec.TIMEFRAME_W1, 0, 8)
+            if rates_w1 is not None and len(rates_w1) > 0:
+                raw_diffs = [abs(float(r["close"]) - float(r["open"])) for r in rates_w1]
+                e_w1 = sum(raw_diffs) / len(raw_diffs)
+                corr_w1 = max(0.75, min(0.98, 1.0 - (7.5 / max(e_w1, 8.0))))
+                calibrated_params["1w"]["corr_factor"] = round(corr_w1, 3)
+                
+            rates_tw = mt5_sec.copy_rates_from_pos("XAUUSD", mt5_sec.TIMEFRAME_W1, 0, 16)
+            if rates_tw is not None and len(rates_tw) >= 2:
+                raw_diffs = []
+                for i in range(0, len(rates_tw) - 1, 2):
+                    raw_diffs.append(abs(float(rates_tw[i+1]["close"]) - float(rates_tw[i]["open"])))
+                if raw_diffs:
+                    e_tw = sum(raw_diffs) / len(raw_diffs)
+                    corr_tw = max(0.80, min(0.98, 1.0 - (7.5 / max(e_tw, 8.0))))
+                    calibrated_params["2w"]["corr_factor"] = round(corr_tw, 3)
+                    
+            mt5_sec.shutdown()
+            
+        os.makedirs("data", exist_ok=True)
+        with open("data/adaptive_forecast_params.json", "w", encoding="utf-8") as pf:
+            json.dump(calibrated_params, pf, indent=2)
+        print(f"Calibrated parameters saved to data/adaptive_forecast_params.json: {calibrated_params}")
+    except Exception as e:
+        print(f"[WARN] Failed to run adaptive parameter calibration: {e}")
                 
     # Save self-learning feedback
     with open(feedback_path, "w") as f:
