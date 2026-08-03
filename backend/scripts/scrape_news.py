@@ -269,6 +269,29 @@ def get_qwen_analysis(api_key, news_text, prices):
         "  \"forecast_low_24h\": float (Estimated 24-hour LOW price for XAUUSD),\n"
         "  \"forecast_close_24h\": float (Estimated 24-hour CLOSE price for XAUUSD),\n"
         "  \"forecast_reasoning_id\": \"Detailed explanation in INDONESIAN explaining the analysis and causes of these forecast price targets so it is easy to understand\",\n"
+        "  \"forecasts\": {\n"
+        "    \"1d\": {\n"
+        "      \"open\": float (Current Gold price, e.g. 4058.50),\n"
+        "      \"high\": float (Expected 1-day highest price),\n"
+        "      \"low\": float (Expected 1-day lowest price),\n"
+        "      \"close\": float (Expected 1-day closing price),\n"
+        "      \"reasoning_id\": \"Detailed explanation in INDONESIAN for 1-day perspective\"\n"
+        "    },\n"
+        "    \"1w\": {\n"
+        "      \"open\": float (Current Gold price),\n"
+        "      \"high\": float (Expected 1-week highest price),\n"
+        "      \"low\": float (Expected 1-week lowest price),\n"
+        "      \"close\": float (Expected 1-week closing price),\n"
+        "      \"reasoning_id\": \"Detailed explanation in INDONESIAN for 1-week perspective\"\n"
+        "    },\n"
+        "    \"2w\": {\n"
+        "      \"open\": float (Current Gold price),\n"
+        "      \"high\": float (Expected 2-week highest price),\n"
+        "      \"low\": float (Expected 2-week lowest price),\n"
+        "      \"close\": float (Expected 2-week closing price),\n"
+        "      \"reasoning_id\": \"Detailed explanation in INDONESIAN for 2-week perspective\"\n"
+        "    }\n"
+        "  },\n"
         "  \"reasoning\": \"Brief explanation in English\"\n"
         "}"
     )
@@ -479,6 +502,7 @@ def main():
         "forecast_low_24h": analysis.get("forecast_low_24h", 0.0),
         "forecast_close_24h": analysis.get("forecast_close_24h", 0.0),
         "forecast_reasoning_id": analysis.get("forecast_reasoning_id", ""),
+        "forecasts": analysis.get("forecasts", {}),
         "start_gold_price": gold_price,
         "reasoning": analysis.get("reasoning")
     }

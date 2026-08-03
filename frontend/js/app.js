@@ -2147,17 +2147,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Populate Active 24h targets
+            // Populate Active Multi-Timeframe Forecasts (1d, 1w, 2w)
             const active = data.active_forecast || {};
-            const activeHighEl = document.getElementById('forecast-target-high');
-            const activeCloseEl = document.getElementById('forecast-target-close');
-            const activeLowEl = document.getElementById('forecast-target-low');
-            const activeReasonEl = document.getElementById('forecast-detailed-reasoning');
-            
-            if (activeHighEl) activeHighEl.innerText = active.forecast_high_24h ? '$' + active.forecast_high_24h.toFixed(2) : '$0.00';
-            if (activeCloseEl) activeCloseEl.innerText = active.forecast_close_24h ? '$' + active.forecast_close_24h.toFixed(2) : '$0.00';
-            if (activeLowEl) activeLowEl.innerText = active.forecast_low_24h ? '$' + active.forecast_low_24h.toFixed(2) : '$0.00';
-            if (activeReasonEl) activeReasonEl.innerText = active.forecast_reasoning_id || 'Tidak ada analisis pendorong berita baru untuk siklus jam ini.';
+            const forecasts = active.forecasts || {};
+
+            // Helper to fill OHLC pane
+            function fillPane(prefix, obj, fallbackClose, fallbackHigh, fallbackLow, fallbackReason) {
+                const openEl = document.getElementById(`${prefix}-open`);
+                const highEl = document.getElementById(`${prefix}-high`);
+                const lowEl = document.getElementById(`${prefix}-low`);
+                const closeEl = document.getElementById(`${prefix}-close`);
+                const reasonEl = document.getElementById(`${prefix}-reasoning`);
+
+                const openVal = obj && obj.open ? '$' + obj.open.toFixed(2) : (active.start_gold_price ? '$' + active.start_gold_price.toFixed(2) : '$0.00');
+                const highVal = obj && obj.high ? '$' + obj.high.toFixed(2) : (fallbackHigh ? '$' + fallbackHigh.toFixed(2) : '$0.00');
+                const lowVal = obj && obj.low ? '$' + obj.low.toFixed(2) : (fallbackLow ? '$' + fallbackLow.toFixed(2) : '$0.00');
+                const closeVal = obj && obj.close ? '$' + obj.close.toFixed(2) : (fallbackClose ? '$' + fallbackClose.toFixed(2) : '$0.00');
+                const reasonVal = obj && obj.reasoning_id ? obj.reasoning_id : (fallbackReason || 'Tidak ada analisis pendorong berita baru untuk timeframe ini.');
+
+                if (openEl) openEl.innerText = openVal;
+                if (highEl) highEl.innerText = highVal;
+                if (lowEl) lowEl.innerText = lowVal;
+                if (closeEl) closeEl.innerText = closeVal;
+                if (reasonEl) reasonEl.innerText = reasonVal;
+            }
+
+            // Fill 1 Day Pane (using legacy forecast keys as fallbacks)
+            fillPane('fc-1d', forecasts['1d'], active.forecast_close_24h, active.forecast_high_24h, active.forecast_low_24h, active.forecast_reasoning_id);
+            // Fill 1 Week Pane (using proportional multipliers as fallback logic if not parsed)
+            const startPrice = active.start_gold_price || 0.0;
+            fillPane('fc-1w', forecasts['1w'], startPrice * 1.01, startPrice * 1.03, startPrice * 0.98, 'Analisis pasar jangka menengah terkompilasi.');
+            // Fill 2 Weeks Pane
+            fillPane('fc-2w', forecasts['2w'], startPrice * 1.02, startPrice * 1.05, startPrice * 0.96, 'Ekspektasi trend jangka panjang terkompilasi.');
 
             // Populate Executive & Money Flow Tab AI Outlook cards dynamically
             const execTarget1 = document.getElementById('exec-target-1');

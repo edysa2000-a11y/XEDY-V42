@@ -1131,30 +1131,111 @@
             <div id="tab-forecast" class="spa-tab d-none">
                 <h5 class="mb-3 text-white">XAUUSD Forecast & Accuracy Analysis</h5>
                 
-                <!-- Active 24h Targets and Indonesian analysis block -->
+                <!-- Multi-timeframe Forecasts (1d, 1w, 2w) with OHLC -->
                 <div class="row g-3 mb-3">
                     <div class="col-lg-12">
-                        <div class="bg-dark-panel p-3 rounded" style="border-left: 4px solid #00bc8c;">
-                            <h6 class="text-muted mb-2">🎯 PROYEKSI HARGA EMAS 24 JAM KE DEPAN (QWEN AI)</h6>
-                            <div class="row text-center my-3">
-                                <div class="col-md-4">
-                                    <div class="text-muted small">ESTIMASI HIGH (TERTINGGI)</div>
-                                    <h3 class="text-bullish mt-1" id="forecast-target-high">$0.00</h3>
-                                </div>
-                                <div class="col-md-4" style="border-left: 1px solid #2d2d2d; border-right: 1px solid #2d2d2d;">
-                                    <div class="text-muted small">ESTIMASI CLOSE (PENUTUPAN)</div>
-                                    <h3 class="text-warning-v42 mt-1" id="forecast-target-close">$0.00</h3>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="text-muted small">ESTIMASI LOW (TERENDAH)</div>
-                                    <h3 class="text-critical mt-1" id="forecast-target-low">$0.00</h3>
-                                </div>
+                        <div class="bg-dark-panel p-4 rounded border border-secondary" style="border-left: 4px solid #00bc8c !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                <h6 class="text-white mb-0" style="font-weight: bold; letter-spacing: 0.5px;">🎯 PROYEKSI MULTI-TIMEFRAME & HARGA OHLC (QWEN AI)</h6>
+                                <ul class="nav nav-pills bg-dark p-1 rounded border border-secondary" id="forecast-tf-pills" role="tablist" style="font-size: 0.75rem;">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active py-1 px-3 text-white fw-bold border-0" id="pill-1d-tab" data-bs-toggle="pill" data-bs-target="#pane-1d" type="button" role="tab" aria-controls="pane-1d" aria-selected="true" style="border-radius: 4px;">1 HARI (24H)</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link py-1 px-3 text-white fw-bold border-0" id="pill-1w-tab" data-bs-toggle="pill" data-bs-target="#pane-1w" type="button" role="tab" aria-controls="pane-1w" aria-selected="false" style="border-radius: 4px;">1 MINGGU (7D)</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link py-1 px-3 text-white fw-bold border-0" id="pill-2w-tab" data-bs-toggle="pill" data-bs-target="#pane-2w" type="button" role="tab" aria-controls="pane-2w" aria-selected="false" style="border-radius: 4px;">2 MINGGU (14D)</button>
+                                    </li>
+                                </ul>
                             </div>
-                            <hr style="border-color: #2d2d2d;">
-                            <div class="mt-2">
-                                <span class="badge bg-primary text-dark me-2">ANALISIS & PENYEBAB</span>
-                                <div class="mt-2 text-white small" id="forecast-detailed-reasoning" style="line-height: 1.6; font-size: 0.85rem;">
-                                    Menganalisis rilis data ekonomi terbaru untuk merumuskan estimasi target harga...
+
+                            <div class="tab-content" id="forecast-tf-tabContent">
+                                <!-- 1 Day Pane -->
+                                <div class="tab-pane fade show active" id="pane-1d" role="tabpanel" aria-labelledby="pill-1d-tab">
+                                    <div class="row g-2 text-center my-3">
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-muted small fw-bold">OPEN</div>
+                                            <h4 class="text-white mt-1" id="fc-1d-open">$0.00</h4>
+                                        </div>
+                                        <div class="col-6 col-md-3" style="border-left: 1px solid #2d2d2d;">
+                                            <div class="text-muted small fw-bold">HIGH</div>
+                                            <h4 class="text-bullish mt-1" id="fc-1d-high">$0.00</h4>
+                                        </div>
+                                        <div class="col-6 col-md-3" style="border-left: 1px solid #2d2d2d;">
+                                            <div class="text-muted small fw-bold">LOW</div>
+                                            <h4 class="text-critical mt-1" id="fc-1d-low">$0.00</h4>
+                                        </div>
+                                        <div class="col-6 col-md-3" style="border-left: 1px solid #2d2d2d;">
+                                            <div class="text-muted small fw-bold">CLOSE</div>
+                                            <h4 class="text-warning-v42 mt-1" id="fc-1d-close">$0.00</h4>
+                                        </div>
+                                    </div>
+                                    <hr style="border-color: #2d2d2d; margin: 12px 0;">
+                                    <div class="mt-2">
+                                        <span class="badge bg-primary text-dark fw-bold me-2">ANALISIS 1 HARI</span>
+                                        <div class="mt-2 text-white small" id="fc-1d-reasoning" style="line-height: 1.6; font-size: 0.85rem;">
+                                            Menganalisis sentimen pasar jangka pendek...
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 1 Week Pane -->
+                                <div class="tab-pane fade" id="pane-1w" role="tabpanel" aria-labelledby="pill-1w-tab">
+                                    <div class="row g-2 text-center my-3">
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-muted small fw-bold">OPEN</div>
+                                            <h4 class="text-white mt-1" id="fc-1w-open">$0.00</h4>
+                                        </div>
+                                        <div class="col-6 col-md-3" style="border-left: 1px solid #2d2d2d;">
+                                            <div class="text-muted small fw-bold">HIGH</div>
+                                            <h4 class="text-bullish mt-1" id="fc-1w-high">$0.00</h4>
+                                        </div>
+                                        <div class="col-6 col-md-3" style="border-left: 1px solid #2d2d2d;">
+                                            <div class="text-muted small fw-bold">LOW</div>
+                                            <h4 class="text-critical mt-1" id="fc-1w-low">$0.00</h4>
+                                        </div>
+                                        <div class="col-6 col-md-3" style="border-left: 1px solid #2d2d2d;">
+                                            <div class="text-muted small fw-bold">CLOSE</div>
+                                            <h4 class="text-warning-v42 mt-1" id="fc-1w-close">$0.00</h4>
+                                        </div>
+                                    </div>
+                                    <hr style="border-color: #2d2d2d; margin: 12px 0;">
+                                    <div class="mt-2">
+                                        <span class="badge bg-info text-dark fw-bold me-2">ANALISIS 1 MINGGU</span>
+                                        <div class="mt-2 text-white small" id="fc-1w-reasoning" style="line-height: 1.6; font-size: 0.85rem;">
+                                            Menganalisis sentimen pasar jangka menengah...
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2 Weeks Pane -->
+                                <div class="tab-pane fade" id="pane-2w" role="tabpanel" aria-labelledby="pill-2w-tab">
+                                    <div class="row g-2 text-center my-3">
+                                        <div class="col-6 col-md-3">
+                                            <div class="text-muted small fw-bold">OPEN</div>
+                                            <h4 class="text-white mt-1" id="fc-2w-open">$0.00</h4>
+                                        </div>
+                                        <div class="col-6 col-md-3" style="border-left: 1px solid #2d2d2d;">
+                                            <div class="text-muted small fw-bold">HIGH</div>
+                                            <h4 class="text-bullish mt-1" id="fc-2w-high">$0.00</h4>
+                                        </div>
+                                        <div class="col-6 col-md-3" style="border-left: 1px solid #2d2d2d;">
+                                            <div class="text-muted small fw-bold">LOW</div>
+                                            <h4 class="text-critical mt-1" id="fc-2w-low">$0.00</h4>
+                                        </div>
+                                        <div class="col-6 col-md-3" style="border-left: 1px solid #2d2d2d;">
+                                            <div class="text-muted small fw-bold">CLOSE</div>
+                                            <h4 class="text-warning-v42 mt-1" id="fc-2w-close">$0.00</h4>
+                                        </div>
+                                    </div>
+                                    <hr style="border-color: #2d2d2d; margin: 12px 0;">
+                                    <div class="mt-2">
+                                        <span class="badge bg-warning text-dark fw-bold me-2">ANALISIS 2 MINGGU</span>
+                                        <div class="mt-2 text-white small" id="fc-2w-reasoning" style="line-height: 1.6; font-size: 0.85rem;">
+                                            Menganalisis ekspektasi trend jangka panjang...
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
