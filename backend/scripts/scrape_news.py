@@ -47,27 +47,15 @@ def translate_to_id(text):
         print(f"Translation error: {e}")
         return text
 
-def get_live_gold_price():
-    # 1. Prioritas 1: Ambil langsung dari MT5 (Lokal PC)
-    try:
-        import MetaTrader5 as mt5
-        if mt5.initialize():
-            tick = mt5.symbol_info_tick("XAUUSD") or mt5.symbol_info_tick("GOLD")
-            if tick:
-                price = float(tick.bid)
-                print(f"Fetched live Spot Gold price from MT5: ${price:.2f}")
-                mt5.shutdown()
-                return price
-            mt5.shutdown()
-    except Exception as e:
-        print(f"MT5 spot price fetch not available: {e}")
-
-    # 2. Prioritas 2: Ambil dari TradingView CFD Scan (FX_IDC:XAUUSD)
+def get_live_multi_asset_prices():
+    prices = {"XAUUSD": 0.0, "USOIL": 0.0, "DXY": 0.0, "US10Y": 0.0}
+    
+    # 1. Prioritas 1: Ambil dari TradingView CFD Scan untuk semua aset (Batch Request)
     try:
         url_tv = "https://scanner.tradingview.com/cfd/scan"
         payload_tv = {
             "symbols": {
-                "tickers": ["FX_IDC:XAUUSD"],
+                "tickers": ["FX_IDC:XAUUSD", "TVC:USOIL", "TVC:DXY", "TVC:US10Y"],
                 "query": { "types": [] }
             },
             "columns": ["close"]
@@ -80,36 +68,59 @@ def get_live_gold_price():
         )
         with urllib.request.urlopen(req_tv, timeout=10) as response:
             data = json.loads(response.read().decode("utf-8"))
-            if data.get("data") and len(data["data"]) > 0:
-                price = float(data["data"][0]["d"][0])
-                print(f"Fetched live Spot Gold price from TradingView (FX_IDC:XAUUSD): ${price:.2f}")
-                return price
+            if data.get("data"):
+                for item in data["data"]:
+                    ticker = item["s"]
+                    close_price = float(item["d"][0])
+                    if "XAUUSD" in ticker: prices["XAUUSD"] = close_price
+                    elif "USOIL" in ticker: prices["USOIL"] = close_price
+                    elif "DXY" in ticker: prices["DXY"] = close_price
+                    elif "US10Y" in ticker: prices["US10Y"] = close_price
+                print(f"Fetched live multi-asset prices from TradingView: {prices}")
+                if prices["XAUUSD"] > 0:
+                    return prices
     except Exception as e:
-        print(f"Failed to fetch gold price from TradingView: {e}")
+        print(f"Failed to fetch batch prices from TradingView: {e}")
 
-    # 3. Prioritas 3: Fallback ke Yahoo Finance PAXG-USD (tracks spot gold 1:1)
-    url_paxg = "https://query1.finance.yahoo.com/v8/finance/chart/PAXG-USD?interval=1m&range=1d"
-    req_paxg = urllib.request.Request(url_paxg, headers={"User-Agent": "Mozilla/5.0"})
+    # 2. Fallback: Ambil secara terpisah menggunakan Yahoo Finance
     try:
-        with urllib.request.urlopen(req_paxg, timeout=10) as response:
-            data = json.loads(response.read().decode())
-            price = data['chart']['result'][0]['meta']['regularMarketPrice']
-            print(f"Fetched live Spot Gold price from Yahoo Finance (PAXG-USD): ${price:.2f}")
-            return float(price)
-    except Exception as e:
-        print(f"Failed to fetch gold price from Yahoo (PAXG-USD), trying GC=F: {e}")
+        # Fallback XAUUSD via PAXG-USD
+        if prices["XAUUSD"] == 0.0:
+            url = "https://query1.finance.yahoo.com/v8/finance/chart/PAXG-USD?interval=1m&range=1d"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                data = json.loads(r.read().decode())
+                prices["XAUUSD"] = float(data['chart']['result'][0]['meta']['regularMarketPrice'])
         
-    # 4. Prioritas 4: Fallback terakhir ke Yahoo Finance GC=F (Gold Futures)
-    url_gcf = "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&range=1d"
-    req_gcf = urllib.request.Request(url_gcf, headers={"User-Agent": "Mozilla/5.0"})
-    try:
-        with urllib.request.urlopen(req_gcf, timeout=10) as response:
-            data = json.loads(response.read().decode())
-            price = data['chart']['result'][0]['meta']['regularMarketPrice']
-            return float(price)
+        # Fallback USOIL via CL=F
+        if prices["USOIL"] == 0.0:
+            url = "https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1m&range=1d"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                data = json.loads(r.read().decode())
+                prices["USOIL"] = float(data['chart']['result'][0]['meta']['regularMarketPrice'])
+
+        # Fallback DXY via DX-Y.NYB
+        if prices["DXY"] == 0.0:
+            url = "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1m&range=1d"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                data = json.loads(r.read().decode())
+                prices["DXY"] = float(data['chart']['result'][0]['meta']['regularMarketPrice'])
+
+        # Fallback US10Y via ^TNX
+        if prices["US10Y"] == 0.0:
+            url = "https://query1.finance.yahoo.com/v8/finance/chart/^TNX?interval=1m&range=1d"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                data = json.loads(r.read().decode())
+                prices["US10Y"] = float(data['chart']['result'][0]['meta']['regularMarketPrice'])
+                
+        print(f"Fetched live multi-asset prices using Yahoo fallbacks: {prices}")
     except Exception as e:
-        print(f"Failed to fetch gold price from Yahoo (GC=F): {e}")
-        return 0.0
+        print(f"Failed to fetch Yahoo fallback prices: {e}")
+
+    return prices
 
 def scrape_rss(url):
     try:
@@ -144,7 +155,7 @@ def scrape_rss(url):
         print(f"Error scraping {url}: {e}")
         return []
 
-def get_qwen_analysis(api_key, news_text, gold_price):
+def get_qwen_analysis(api_key, news_text, prices):
     if not api_key:
         return {"bias": "ANY", "regime": "NORMAL", "optimal_confidence_threshold": 0.68, "optimal_max_op": 4, "reasoning": "No API Key"}
         
@@ -191,11 +202,19 @@ def get_qwen_analysis(api_key, news_text, gold_price):
         except Exception as e:
             print(f"Failed to load forecast accuracy: {e}")
 
-    gold_price_str = f"\nThe current live market price of XAUUSD is: ${gold_price:.2f}" if gold_price > 0 else ""
+    # Build multi-asset live pricing string
+    gold_price = prices.get("XAUUSD", 0.0)
+    prices_str = (
+        f"\nHere are the current live market prices for key correlated macro assets:\n"
+        f"- Spot Gold (XAUUSD): ${gold_price:.2f}\n"
+        f"- Crude Oil WTI (USOIL): ${prices.get('USOIL', 0.0):.2f}\n"
+        f"- US Dollar Index (DXY): {prices.get('DXY', 0.0):.2f}\n"
+        f"- US 10Y Treasury Yield: {prices.get('US10Y', 0.0):.2f}%\n"
+    )
 
     system_prompt = (
         "You are the Chief Strategist AI (Qwen AI) for the XEDY algorithmic trading platform.\n"
-        "Analyze the news headlines, identify any recent US economic calendar data releases (like GDP, PCE, CPI, NFP) mentioned, and decide the macro trading bias.\n"
+        "Analyze the news headlines, identify any recent US economic calendar data releases (like GDP, PCE, CPI, NFP) mentioned, study the cross-market prices (Gold vs DXY, Yields, and Oil), and decide the macro trading bias.\n"
         "You MUST respond ONLY with a valid JSON object matching this structure, without markdown code fences:\n"
         "{\n"
         "  \"bias\": \"BUY_ONLY\" | \"SELL_ONLY\" | \"ANY\" | \"WAIT\",\n"
@@ -217,7 +236,7 @@ def get_qwen_analysis(api_key, news_text, gold_price):
         "model": "qwen3.7-flash",
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Here is the daily news summary:\n{news_text}\n{gold_price_str}\n{memory_summary}\n{accuracy_summary}"}
+            {"role": "user", "content": f"Here is the daily news summary:\n{news_text}\n{prices_str}\n{memory_summary}\n{accuracy_summary}"}
         ],
         "temperature": 0.2,
         "response_format": {"type": "json_object"}
@@ -249,9 +268,10 @@ def main():
     
     print("Starting Cloud News Scraper...")
     
-    # Fetch live gold price at run time
-    gold_price = get_live_gold_price()
-    print(f"Current live XAUUSD price fetched: ${gold_price:.2f}")
+    # Fetch live multi-asset prices at run time
+    prices = get_live_multi_asset_prices()
+    gold_price = prices.get("XAUUSD", 0.0)
+    print(f"Current live Spot Gold price: ${gold_price:.2f} | Oil: ${prices.get('USOIL', 0.0):.2f} | DXY: {prices.get('DXY', 0.0):.2f}")
     
     # 1. Scrape Google News Gold, DXY, geopolitical, and macroeconomic feed
     google_url = 'https://news.google.com/rss/search?q=(gold+OR+xauusd+OR+dxy+OR+\"US+dollar\"+OR+\"treasury+yields\")+(war+OR+geopolitics+OR+conflict+OR+fed+OR+inflation+OR+nfp+OR+gdp+OR+cpi)&hl=en-US&gl=US&ceid=US:en'
@@ -323,7 +343,7 @@ def main():
         
     # 3. Analyze with Qwen AI in the Cloud
     print("Calling Qwen AI for Macro Analysis...")
-    analysis = get_qwen_analysis(api_key, news_text, gold_price)
+    analysis = get_qwen_analysis(api_key, news_text, prices)
     print(f"Qwen Bias Result: {analysis.get('bias')}")
     
     # Translate Qwen's reasoning to Indonesian
