@@ -1131,48 +1131,61 @@
             <div id="tab-forecast" class="spa-tab d-none">
                 <h5 class="mb-3 text-white">XAUUSD Forecast & Accuracy Analysis</h5>
                 
-                <!-- Multi-timeframe Forecasts (1d, 1w, 2w) with HLC -->
+                <!-- Multi-timeframe Forecasts (1d, 1w, 2w) with HLC in Single Row -->
                 <div class="row g-3 mb-3">
                     <div class="col-lg-12">
                         <div class="bg-dark-panel p-4 rounded border border-secondary" style="border-left: 4px solid #00bc8c !important;">
                             <h6 class="text-white mb-4 fw-bold" style="letter-spacing: 0.5px;">🎯 PROYEKSI HARGA HLC MULTI-TIMEFRAME (QWEN AI)</h6>
-                            
-                            <!-- 1 Hari -->
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                                    <span class="badge bg-primary text-dark fw-bold px-3 py-1">1 HARI (24 JAM)</span>
-                                    <span class="text-muted small text-end" id="fc-1d-reasoning" style="font-size: 0.8rem; line-height: 1.4; max-width: 75%;">Memuat analisis...</span>
+                            <div class="row g-3">
+                                <!-- 1 Hari -->
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="p-3 bg-black rounded border border-secondary h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <span class="badge bg-primary text-dark fw-bold px-3 py-1 mb-3">1 HARI (24 JAM)</span>
+                                            <div class="row text-center my-2">
+                                                <div class="col-4"><div class="text-muted small" style="font-size: 0.65rem;">HIGH</div><h5 class="text-bullish mb-0 fw-bold" id="fc-1d-high" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">LOW</div><h5 class="text-critical mb-0 fw-bold" id="fc-1d-low" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">CLOSE</div><h5 class="text-warning-v42 mb-0 fw-bold" id="fc-1d-close" style="font-size: 1.1rem;">$0.00</h5></div>
+                                            </div>
+                                        </div>
+                                        <div class="text-muted small mt-3" id="fc-1d-reasoning" style="font-size: 0.75rem; line-height: 1.4; border-top: 1px solid #2d2d2d; padding-top: 8px;">
+                                            Memuat analisis...
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="row text-center bg-black p-2 rounded border border-secondary">
-                                    <div class="col-4"><div class="text-muted small" style="font-size: 0.7rem;">HIGH</div><h4 class="text-bullish mb-0 fw-bold" id="fc-1d-high" style="font-size: 1.25rem;">$0.00</h4></div>
-                                    <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.7rem;">LOW</div><h4 class="text-critical mb-0 fw-bold" id="fc-1d-low" style="font-size: 1.25rem;">$0.00</h4></div>
-                                    <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.7rem;">CLOSE</div><h4 class="text-warning-v42 mb-0 fw-bold" id="fc-1d-close" style="font-size: 1.25rem;">$0.00</h4></div>
-                                </div>
-                            </div>
 
-                            <!-- 1 Minggu -->
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                                    <span class="badge bg-info text-dark fw-bold px-3 py-1">1 MINGGU (7 HARI)</span>
-                                    <span class="text-muted small text-end" id="fc-1w-reasoning" style="font-size: 0.8rem; line-height: 1.4; max-width: 75%;">Memuat analisis...</span>
+                                <!-- 1 Minggu -->
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="p-3 bg-black rounded border border-secondary h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <span class="badge bg-info text-dark fw-bold px-3 py-1 mb-3">1 MINGGU (7 HARI)</span>
+                                            <div class="row text-center my-2">
+                                                <div class="col-4"><div class="text-muted small" style="font-size: 0.65rem;">HIGH</div><h5 class="text-bullish mb-0 fw-bold" id="fc-1w-high" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">LOW</div><h5 class="text-critical mb-0 fw-bold" id="fc-1w-low" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">CLOSE</div><h5 class="text-warning-v42 mb-0 fw-bold" id="fc-1w-close" style="font-size: 1.1rem;">$0.00</h5></div>
+                                            </div>
+                                        </div>
+                                        <div class="text-muted small mt-3" id="fc-1w-reasoning" style="font-size: 0.75rem; line-height: 1.4; border-top: 1px solid #2d2d2d; padding-top: 8px;">
+                                            Memuat analisis...
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="row text-center bg-black p-2 rounded border border-secondary">
-                                    <div class="col-4"><div class="text-muted small" style="font-size: 0.7rem;">HIGH</div><h4 class="text-bullish mb-0 fw-bold" id="fc-1w-high" style="font-size: 1.25rem;">$0.00</h4></div>
-                                    <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.7rem;">LOW</div><h4 class="text-critical mb-0 fw-bold" id="fc-1w-low" style="font-size: 1.25rem;">$0.00</h4></div>
-                                    <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.7rem;">CLOSE</div><h4 class="text-warning-v42 mb-0 fw-bold" id="fc-1w-close" style="font-size: 1.25rem;">$0.00</h4></div>
-                                </div>
-                            </div>
 
-                            <!-- 2 Minggu -->
-                            <div class="mb-0">
-                                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                                    <span class="badge bg-warning text-dark fw-bold px-3 py-1">2 MINGGU (14 HARI)</span>
-                                    <span class="text-muted small text-end" id="fc-2w-reasoning" style="font-size: 0.8rem; line-height: 1.4; max-width: 75%;">Memuat analisis...</span>
-                                </div>
-                                <div class="row text-center bg-black p-2 rounded border border-secondary">
-                                    <div class="col-4"><div class="text-muted small" style="font-size: 0.7rem;">HIGH</div><h4 class="text-bullish mb-0 fw-bold" id="fc-2w-high" style="font-size: 1.25rem;">$0.00</h4></div>
-                                    <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.7rem;">LOW</div><h4 class="text-critical mb-0 fw-bold" id="fc-2w-low" style="font-size: 1.25rem;">$0.00</h4></div>
-                                    <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.7rem;">CLOSE</div><h4 class="text-warning-v42 mb-0 fw-bold" id="fc-2w-close" style="font-size: 1.25rem;">$0.00</h4></div>
+                                <!-- 2 Minggu -->
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="p-3 bg-black rounded border border-secondary h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <span class="badge bg-warning text-dark fw-bold px-3 py-1 mb-3">2 MINGGU (14 HARI)</span>
+                                            <div class="row text-center my-2">
+                                                <div class="col-4"><div class="text-muted small" style="font-size: 0.65rem;">HIGH</div><h5 class="text-bullish mb-0 fw-bold" id="fc-2w-high" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">LOW</div><h5 class="text-critical mb-0 fw-bold" id="fc-2w-low" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">CLOSE</div><h5 class="text-warning-v42 mb-0 fw-bold" id="fc-2w-close" style="font-size: 1.1rem;">$0.00</h5></div>
+                                            </div>
+                                        </div>
+                                        <div class="text-muted small mt-3" id="fc-2w-reasoning" style="font-size: 0.75rem; line-height: 1.4; border-top: 1px solid #2d2d2d; padding-top: 8px;">
+                                            Memuat analisis...
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
