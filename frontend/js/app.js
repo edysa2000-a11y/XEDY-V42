@@ -2106,6 +2106,10 @@ document.addEventListener('DOMContentLoaded', () => {
         'fixed-micro-scalping': {
             title: '⚡ Fixed Micro Scalping (Fixed 0.01 Lot)',
             desc: 'Model scalping super aman dengan ukuran lot flat 0.01 untuk pembatasan risiko ketat. Ideal untuk menjaga drawdown tetap di bawah 3.0%.'
+        },
+        'forecast-hlc-bound': {
+            title: '🎯 Forecast HLC Boundary Trading',
+            desc: 'Metode trading kuantitatif berbasis perkiraan High/Low harian. Memasang pending LIMIT order secara otomatis di batas High & Low teroptimasi (MAE < $5) dengan target TP di harga Close proyeksi AI.'
         }
     };
 

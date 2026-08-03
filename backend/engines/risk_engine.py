@@ -34,6 +34,7 @@ class RiskEngine(BaseEngine):
         self._intra_candle_task = asyncio.create_task(self._intra_candle_scalper_loop())
         self._open_shift_close_task = asyncio.create_task(self._open_shift_close_loop())
         self._adaptive_task = asyncio.create_task(self._adaptive_portfolio_loop())
+        self._forecast_hlc_task = asyncio.create_task(self._forecast_hlc_bound_loop())
 
     async def stop(self):
         if self._trailing_task:
@@ -44,6 +45,8 @@ class RiskEngine(BaseEngine):
             self._open_shift_close_task.cancel()
         if hasattr(self, "_adaptive_task") and self._adaptive_task:
             self._adaptive_task.cancel()
+        if hasattr(self, "_forecast_hlc_task") and self._forecast_hlc_task:
+            self._forecast_hlc_task.cancel()
         self.logger.info("Risk engine offline.")
 
     async def validate_trade(self, signal: str, price: float, confidence: float = 0.5):
@@ -916,3 +919,88 @@ class RiskEngine(BaseEngine):
                 self.logger.error(f"Error in _adaptive_portfolio_loop: {e}", exc_info=True)
                 
             await asyncio.sleep(86400)
+
+    async def _forecast_hlc_bound_loop(self):
+        """
+        Background loop for the Forecast HLC Boundary trading method.
+        Runs every 30 seconds to place pending BUY/SELL LIMIT orders at optimized forecast bounds.
+        """
+        import asyncio
+        import MetaTrader5 as mt5
+        import os
+        import json
+        
+        while True:
+            try:
+                active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
+                if active_method == "forecast-hlc-bound" and self.autotrade_enabled:
+                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    
+                    # 1. Fetch latest optimized forecasts
+                    cache_path = "data/backtest_cache.json"
+                    pred_high = None
+                    pred_low = None
+                    pred_close = None
+                    
+                    if os.path.exists(cache_path):
+                        try:
+                            with open(cache_path, "r", encoding="utf-8") as f:
+                                bt_cache = json.load(f)
+                                d1_list = bt_cache.get("detail_1d", [])
+                                if d1_list:
+                                    latest = d1_list[-1]
+                                    pred_high = float(latest.get("pred_high"))
+                                    pred_low = float(latest.get("pred_low"))
+                                    pred_close = float(latest.get("pred_close"))
+                        except Exception as e:
+                            self.logger.error(f"Failed to load forecast cache in loop: {e}")
+                            
+                    # 2. If forecast is not loaded, fallback to default ATR bounds
+                    if pred_high is None or pred_low is None or pred_close is None:
+                        tick = mt5.symbol_info_tick(symbol)
+                        if tick:
+                            pred_close = tick.bid
+                            pred_high = tick.bid + 15.0
+                            pred_low = tick.bid - 15.0
+                            
+                    if mt5.initialize() and pred_high and pred_low and pred_close:
+                        # 3. Check current positions and pending orders
+                        positions = mt5.positions_get(symbol=symbol)
+                        orders = mt5.orders_get(symbol=symbol)
+                        
+                        has_positions = positions is not None and len(positions) > 0
+                        has_orders = orders is not None and len(orders) > 0
+                        
+                        # Only place new pending limit orders if we have no active trades or pending limits
+                        if not has_positions and not has_orders:
+                            buy_entry = pred_low
+                            buy_tp = pred_close
+                            buy_sl = pred_low - 12.0
+                            
+                            sell_entry = pred_high
+                            sell_tp = pred_close
+                            sell_sl = pred_high + 12.0
+                            
+                            # Determine lot size
+                            lot_size = float(os.environ.get("LOT_SIZE", "0.10"))
+                            
+                            if self.execution_engine:
+                                await self.execution_engine.execute_pending_limit_order(symbol, "BUY", buy_entry, buy_sl, buy_tp, lot_size)
+                                await self.execution_engine.execute_pending_limit_order(symbol, "SELL", sell_entry, sell_sl, sell_tp, lot_size)
+                                self.logger.info(f"Forecast HLC Bound: Placed pending BUY Limit at {buy_entry:.2f} and SELL Limit at {pred_high:.2f}")
+                                
+                        elif has_positions:
+                            # Cancel pending limit orders when position is active to avoid double-exposure
+                            if has_orders:
+                                for o in orders:
+                                    cancel_req = {
+                                        "action": mt5.TRADE_ACTION_REMOVE,
+                                        "order": o.ticket
+                                    }
+                                    mt5.order_send(cancel_req)
+                                    self.logger.info(f"Forecast HLC Bound: Cancelled pending limit order #{o.ticket} because position is active.")
+                                    
+            except Exception as e:
+                self.logger.error(f"Error in _forecast_hlc_bound_loop: {e}")
+                
+            await asyncio.sleep(30)

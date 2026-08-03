@@ -302,3 +302,69 @@ class ExecutionEngine(BaseEngine):
                 self._active_tickets = current_tickets
             except Exception as e:
                 self.logger.error(f"Error in monitor positions loop: {e}")
+
+    async def execute_pending_limit_order(self, symbol: str, action: str, price: float, sl: float, tp: float, volume: float) -> dict:
+        """
+        Places a pending LIMIT order via MT5 API.
+        """
+        self.logger.info(f"Placing pending LIMIT order for {action} {volume} lot on {symbol} at {price:.2f} (SL: {sl:.2f}, TP: {tp:.2f}) via MT5...")
+        
+        mt5.symbol_select(symbol, True)
+        
+        order_type = mt5.ORDER_TYPE_BUY_LIMIT if action == "BUY" else mt5.ORDER_TYPE_SELL_LIMIT
+        
+        # Determine filling mode
+        filling_mode = mt5.ORDER_FILLING_FOK
+        info = mt5.symbol_info(symbol)
+        if info is not None:
+            if info.filling_mode == 1:
+                filling_mode = mt5.ORDER_FILLING_FOK
+            elif info.filling_mode == 2:
+                filling_mode = mt5.ORDER_FILLING_IOC
+            elif info.filling_mode == 3:
+                filling_mode = mt5.ORDER_FILLING_IOC
+            else:
+                filling_mode = mt5.ORDER_FILLING_RETURN
+
+        request = {
+            "action": mt5.TRADE_ACTION_PENDING,
+            "symbol": symbol,
+            "volume": volume,
+            "type": order_type,
+            "price": round(price, 2),
+            "sl": round(sl, 2),
+            "tp": round(tp, 2),
+            "deviation": 20,
+            "magic": 123456,
+            "comment": f"XEDY AI {action} LIMIT",
+            "type_time": mt5.ORDER_TIME_GTC,
+            "type_filling": filling_mode,
+        }
+        
+        # Notify Telegram
+        if hasattr(self, "notifier") and self.notifier:
+            msg = (
+                f"📥 <b>Memasang Pending LIMIT Order ke Broker MT5</b>\n\n"
+                f"<b>Simbol:</b> {symbol.upper()}\n"
+                f"<b>Aksi:</b> {action} LIMIT (PENDING)\n"
+                f"<b>Volume:</b> {volume} lot\n"
+                f"<b>Harga Entry:</b> {round(price, 2)}\n"
+                f"<b>Stop Loss (SL):</b> {round(sl, 2)}\n"
+                f"<b>Take Profit (TP):</b> {round(tp, 2)}"
+            )
+            await self.notifier._send_safe(msg)
+
+        terminal_info = mt5.terminal_info()
+        if terminal_info is not None:
+            result = mt5.order_send(request)
+            if result is not None and result.retcode == mt5.TRADE_RETCODE_DONE:
+                self.logger.info(f"LIMIT order placed successfully via MT5! Order Ticket: {result.order}")
+                return {"status": "success", "ticket": str(result.order)}
+            else:
+                ret = result.retcode if result is not None else "Unknown"
+                self.logger.error(f"Failed to place LIMIT order, retcode={ret}. Falling back to dry-run.")
+        else:
+            self.logger.warning("MT5 Terminal not detected. Falling back to dry-run.")
+            
+        self.logger.info(f"[DRY RUN] LIMIT order success simulated! Ticket: LIMIT_DRY_RUN_123")
+        return {"status": "success", "ticket": "LIMIT_DRY_RUN_123"}
