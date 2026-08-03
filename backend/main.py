@@ -497,62 +497,68 @@ async def trigger_forecast_bypass():
         return {"status": "error", "message": str(e)}
 
 
+from fastapi import BackgroundTasks
+
+# Buat status in-progress flag global untuk melacak status background running
+BACKTEST_RUNNING = False
+
 @app.get("/api/v1/backtest")
-async def get_backtest(days: int = 30, refresh: bool = False):
+async def get_backtest(background_tasks: BackgroundTasks, days: int = 30, refresh: bool = False):
     """
     Run or load a cached Walk-Forward backtest validating HLC forecasts
     against actual MT5 historical XAUUSD data.
     
-    Query params:
-      - days    : Number of calendar days to backtest (default 30)
-      - refresh : Set true to re-run full backtest via AI (slow ~2-5 min)
-                  Set false (default) to load cached results instantly
+    Menggunakan FastAPI BackgroundTasks untuk refresh=true agar menghindari HTTP Timeout.
     """
     import json
     import os
     import subprocess
     import sys
+    global BACKTEST_RUNNING
 
     cache_path = "data/backtest_cache.json"
 
-    # Serve cached result if not forcing refresh
-    if not refresh and os.path.exists(cache_path):
+    # Jika sedang berjalan di background, beri tahu frontend
+    if BACKTEST_RUNNING:
+        return {"status": "running", "message": "Backtest is currently running in background. Please wait."}
+
+    # Fungsi pembantu untuk dieksekusi di background
+    def run_backtest_subprocess():
+        global BACKTEST_RUNNING
+        BACKTEST_RUNNING = True
+        try:
+            script_path = os.path.join(os.path.dirname(__file__), "scripts", "backtest_forecast.py")
+            if os.path.exists(script_path):
+                subprocess.run(
+                    [sys.executable, script_path],
+                    capture_output=True,
+                    text=True,
+                    timeout=600,
+                    cwd=os.path.dirname(os.path.dirname(__file__))
+                )
+        except Exception as e:
+            print(f"[ERROR] Background backtest failed: {e}")
+        finally:
+            BACKTEST_RUNNING = False
+
+    # Jika user meminta refresh
+    if refresh:
+        background_tasks.add_task(run_backtest_subprocess)
+        return {"status": "started", "message": "Backtest started in background. Check back in 2-3 minutes."}
+
+    # Load cache (default behavior jika refresh=False)
+    if os.path.exists(cache_path):
         try:
             with open(cache_path, "r", encoding="utf-8") as f:
                 cached = json.load(f)
             cached["cached"] = True
+            cached["status"] = "success"
             return cached
         except Exception as e:
-            pass  # Fall through to re-run if cache is corrupt
+            return {"error": f"Failed to read cache: {str(e)}"}
 
-    # Run backtest script as subprocess (heavy operation – MT5 + AI calls)
-    script_path = os.path.join(os.path.dirname(__file__), "scripts", "backtest_forecast.py")
-    if not os.path.exists(script_path):
-        return {"error": f"Backtest script not found at {script_path}"}
+    return {"error": "No cached backtest results found. Please run a full backtest first."}
 
-    try:
-        process = subprocess.run(
-            [sys.executable, script_path],
-            capture_output=True,
-            text=True,
-            timeout=600,   # 10 min max for 30 days × AI calls
-            cwd=os.path.dirname(os.path.dirname(__file__))
-        )
-        if process.returncode != 0:
-            return {"error": f"Backtest script failed: {process.stderr[-500:]}"}
-
-        # Load freshly generated cache
-        if os.path.exists(cache_path):
-            with open(cache_path, "r", encoding="utf-8") as f:
-                result = json.load(f)
-            result["cached"] = False
-            return result
-        else:
-            return {"error": "Backtest ran but cache file was not created."}
-    except subprocess.TimeoutExpired:
-        return {"error": "Backtest timed out (> 10 minutes). Try reducing days parameter."}
-    except Exception as e:
-        return {"error": str(e)}
 
 
 

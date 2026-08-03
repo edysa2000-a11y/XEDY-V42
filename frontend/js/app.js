@@ -2679,18 +2679,37 @@ window.loadBacktest = async function(refresh) {
     const elContent = document.getElementById('backtest-content');
     const elError   = document.getElementById('backtest-error');
     const btnRefresh = document.getElementById('btn-backtest-refresh');
+    const btnLoad = document.getElementById('btn-backtest-load');
 
     elLoading.classList.remove('d-none');
     elContent.classList.add('d-none');
     elError.classList.add('d-none');
-    if (btnRefresh) { btnRefresh.disabled = true; btnRefresh.innerHTML = refresh ? '⏳ Running...' : '⏳ Loading...'; }
+    if (btnRefresh) { btnRefresh.disabled = true; btnRefresh.innerHTML = '⏳ Menghubungi Server...'; }
+    if (btnLoad) btnLoad.disabled = true;
 
     try {
         const url = '/api/v1/backtest?days=30&refresh=' + refresh;
         const res = await fetch(url);
         if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + res.statusText);
         const data = await res.json();
+        
         if (data.error) throw new Error(data.error);
+
+        // Kasus 1: Backtest baru saja dijalankan di background
+        if (data.status === 'started' || data.status === 'running') {
+            elError.classList.remove('d-none');
+            elError.className = 'alert alert-info';
+            elError.innerHTML = '🔄 <strong>Backtest Sedang Diproses di Background:</strong> Server MT5 & Qwen AI sedang mengalkulasi data. Silakan tunggu sekitar 2 menit, lalu tekan <strong>⚡ Load Cache</strong> untuk melihat visualisasinya.';
+            
+            // Set polling otomatis untuk reload data setelah 15 detik
+            setTimeout(function() {
+                window.loadBacktest(false);
+            }, 15000);
+            return;
+        }
+
+        // Kasus 2: Berhasil load cache data
+        elError.className = 'd-none alert alert-danger'; // reset class default
         _btData = data;
         _btCurrentTf = '1d';
 
@@ -2706,15 +2725,16 @@ window.loadBacktest = async function(refresh) {
         elContent.classList.remove('d-none');
     } catch (err) {
         elError.classList.remove('d-none');
+        elError.className = 'alert alert-danger';
         elError.textContent = '❌ Gagal memuat backtest: ' + err.message;
         console.error('Backtest error:', err);
     } finally {
         elLoading.classList.add('d-none');
         if (btnRefresh) { btnRefresh.disabled = false; btnRefresh.innerHTML = '🔄 Run Full Backtest (MT5 + AI)'; }
-        const btnLoad = document.getElementById('btn-backtest-load');
         if (btnLoad) btnLoad.disabled = false;
     }
 };
+
 
 window.switchBtTab = function(tf) {
     if (!_btData) return;
