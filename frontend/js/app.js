@@ -2091,6 +2091,10 @@ document.addEventListener('DOMContentLoaded', () => {
             title: '🤖 Qwen 3.7 Flash Dynamic (Teroptimasi)',
             desc: 'Model trading kuantitatif tingkat institusional. Menghitung dynamic stop-loss, take-profit, dan break-even trigger per sesi waktu (Asia, Eropa, US) menggunakan umpan balik MAE/MFE secara real-time.'
         },
+        'qwen3-embedding-8b': {
+            title: '📊 Qwen3 Embedding 8B (Vector News Alignment)',
+            desc: 'Menghubungkan data sentimen berita dan fundamental global langsung ke dalam database vektor. Menggunakan pencarian semantik (Semantic Search) untuk menyesuaikan bias trading XAUUSD secara real-time.'
+        },
         'xgboost-standalone-9d': {
             title: '📊 XGBoost Standalone (9-D Baseline)',
             desc: 'Inference model pembelajaran mesin murni menggunakan 9 indikator teknikal konvensional tanpa penyesuaian jam sesi dinamis.'
