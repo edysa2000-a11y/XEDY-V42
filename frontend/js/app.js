@@ -2109,6 +2109,48 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeCloseEl) activeCloseEl.innerText = active.forecast_close_24h ? '$' + active.forecast_close_24h.toFixed(2) : '$0.00';
             if (activeLowEl) activeLowEl.innerText = active.forecast_low_24h ? '$' + active.forecast_low_24h.toFixed(2) : '$0.00';
             if (activeReasonEl) activeReasonEl.innerText = active.forecast_reasoning_id || 'Tidak ada analisis pendorong berita baru untuk siklus jam ini.';
+
+            // Populate Executive & Money Flow Tab AI Outlook cards dynamically
+            const execTarget1 = document.getElementById('exec-target-1');
+            const execTarget2 = document.getElementById('exec-target-2');
+            const execInvalidation = document.getElementById('exec-invalidation');
+            const execBias = document.getElementById('exec-ai-bias');
+            const execProb = document.getElementById('exec-ai-prob');
+            const execReasoning = document.getElementById('exec-ai-reasoning');
+
+            const mfTarget1 = document.getElementById('mf-target-1');
+            const mfTarget2 = document.getElementById('mf-target-2');
+            const mfInvalidation = document.getElementById('mf-invalidation');
+            const mfBias = document.getElementById('mf-ai-bias');
+            const mfProb = document.getElementById('mf-ai-prob');
+            const mfReasoning = document.getElementById('mf-ai-reasoning');
+
+            const targetVal = active.forecast_price_target ? '$' + active.forecast_price_target.toFixed(2) : '$0.00';
+            const highVal = active.forecast_high_24h ? '$' + active.forecast_high_24h.toFixed(2) : '$0.00';
+            const lowVal = active.forecast_low_24h ? '$' + active.forecast_low_24h.toFixed(2) : '$0.00';
+            const biasVal = active.bias || 'WAIT';
+            const probVal = active.optimal_confidence_threshold ? 'Probabilitas <span class="text-white fw-bold">' + Math.round(active.optimal_confidence_threshold * 100) + '%</span>' : 'Probabilitas <span class="text-white fw-bold">--%</span>';
+            const reasoningVal = active.forecast_reasoning_id || 'Tidak ada analisis pendorong berita baru untuk siklus jam ini.';
+
+            if (execTarget1) execTarget1.innerText = targetVal;
+            if (execTarget2) execTarget2.innerText = highVal;
+            if (execInvalidation) execInvalidation.innerText = lowVal;
+            if (execBias) {
+                execBias.innerText = biasVal;
+                execBias.className = biasVal === 'BUY_ONLY' || biasVal === 'BUY' || biasVal === 'BULLISH' ? 'text-bullish fw-bold mb-0' : (biasVal === 'SELL_ONLY' || biasVal === 'SELL' || biasVal === 'BEARISH' ? 'text-critical fw-bold mb-0' : 'text-white fw-bold mb-0');
+            }
+            if (execProb) execProb.innerHTML = probVal;
+            if (execReasoning) execReasoning.innerText = reasoningVal;
+
+            if (mfTarget1) mfTarget1.innerText = targetVal;
+            if (mfTarget2) mfTarget2.innerText = highVal;
+            if (mfInvalidation) mfInvalidation.innerText = lowVal;
+            if (mfBias) {
+                mfBias.innerText = biasVal;
+                mfBias.className = biasVal === 'BUY_ONLY' || biasVal === 'BUY' || biasVal === 'BULLISH' ? 'text-bullish fw-bold mb-0' : (biasVal === 'SELL_ONLY' || biasVal === 'SELL' || biasVal === 'BEARISH' ? 'text-critical fw-bold mb-0' : 'text-white fw-bold mb-0');
+            }
+            if (mfProb) mfProb.innerHTML = probVal;
+            if (mfReasoning) mfReasoning.innerText = reasoningVal;
             
             // Populate KPIs
             const avgAccEl = document.getElementById('forecast-avg-accuracy');
