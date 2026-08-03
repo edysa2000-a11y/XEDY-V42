@@ -477,6 +477,25 @@ async def get_forecast_stats():
     hist_data["active_forecast"] = active_forecast
     return hist_data
 
+@app.post("/api/v1/forecast/trigger")
+async def trigger_forecast_bypass():
+    import subprocess
+    import sys
+    import os
+    try:
+        script_path = os.path.join(os.path.dirname(__file__), "scripts", "claude_forecast.py")
+        if not os.path.exists(script_path):
+            return {"status": "error", "message": f"Forecast script not found at {script_path}"}
+            
+        # Execute the Claude forecast engine immediately
+        process = subprocess.run([sys.executable, script_path], capture_output=True, text=True, timeout=60)
+        if process.returncode == 0:
+            return {"status": "success", "message": "Claude daily forecast updated successfully!"}
+        else:
+            return {"status": "error", "message": f"Script error: {process.stderr}"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.get("/api/v1/qwen/quota")
 async def get_qwen_quota():
     """

@@ -1129,7 +1129,12 @@
 
 
             <div id="tab-forecast" class="spa-tab d-none">
-                <h5 class="mb-3 text-white">XAUUSD Forecast & Accuracy Analysis</h5>
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h5 class="mb-0 text-white">XAUUSD Forecast & Accuracy Analysis</h5>
+                    <button class="btn btn-sm btn-warning fw-bold px-3" id="btn-force-forecast" onclick="triggerManualForecast()" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                        ⚡ FORCE RUN FORECAST (BYPASS CLAUDE)
+                    </button>
+                </div>
                 
                 <!-- Multi-timeframe Forecasts (1d, 1w, 2w) with HLC in Single Row -->
                 <div class="row g-3 mb-3">

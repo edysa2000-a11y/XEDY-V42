@@ -2626,6 +2626,37 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(window.updatePipelineStatus, 1000);
     setInterval(window.updatePipelineStatus, 15000);
 
+    window.triggerManualForecast = async function() {
+        const btn = document.getElementById('btn-force-forecast');
+        if (!btn) return;
+        
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '🔄 RUNNING CLAUDE AI FORECAST...';
+        btn.classList.replace('btn-warning', 'btn-secondary');
+        
+        try {
+            const response = await fetch('/api/v1/forecast/trigger', { method: 'POST' });
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                alert('Claude AI Forecast updated successfully!');
+                if (window.fetchForecastStats) {
+                    await window.fetchForecastStats();
+                }
+            } else {
+                alert('Forecast failed: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Trigger forecast failed:', error);
+            alert('Failed to connect to backend server.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            btn.classList.replace('btn-secondary', 'btn-warning');
+        }
+    };
+
     window.loadAutoCleanState();
     setTimeout(initWebSocket, 500);
 });
