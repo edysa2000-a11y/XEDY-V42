@@ -244,14 +244,14 @@ def run_self_learning():
             if rates_d1 is not None and len(rates_d1) > 0:
                 raw_diffs = [abs(float(r["close"]) - float(r["open"])) for r in rates_d1]
                 e_d1 = sum(raw_diffs) / len(raw_diffs)
-                corr_d1 = max(0.70, min(0.98, 1.0 - (7.5 / max(e_d1, 8.0))))
+                corr_d1 = max(0.80, min(0.99, 1.0 - (4.0 / max(e_d1, 5.0))))
                 calibrated_params["1d"]["corr_factor"] = round(corr_d1, 3)
                 
             rates_w1 = mt5_sec.copy_rates_from_pos("XAUUSD", mt5_sec.TIMEFRAME_W1, 0, 8)
             if rates_w1 is not None and len(rates_w1) > 0:
                 raw_diffs = [abs(float(r["close"]) - float(r["open"])) for r in rates_w1]
                 e_w1 = sum(raw_diffs) / len(raw_diffs)
-                corr_w1 = max(0.75, min(0.98, 1.0 - (7.5 / max(e_w1, 8.0))))
+                corr_w1 = max(0.85, min(0.99, 1.0 - (4.0 / max(e_w1, 5.0))))
                 calibrated_params["1w"]["corr_factor"] = round(corr_w1, 3)
                 
             rates_tw = mt5_sec.copy_rates_from_pos("XAUUSD", mt5_sec.TIMEFRAME_W1, 0, 16)
@@ -261,7 +261,7 @@ def run_self_learning():
                     raw_diffs.append(abs(float(rates_tw[i+1]["close"]) - float(rates_tw[i]["open"])))
                 if raw_diffs:
                     e_tw = sum(raw_diffs) / len(raw_diffs)
-                    corr_tw = max(0.80, min(0.98, 1.0 - (7.5 / max(e_tw, 8.0))))
+                    corr_tw = max(0.90, min(0.99, 1.0 - (4.0 / max(e_tw, 5.0))))
                     calibrated_params["2w"]["corr_factor"] = round(corr_tw, 3)
                     
             mt5_sec.shutdown()
