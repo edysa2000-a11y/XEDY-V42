@@ -163,17 +163,17 @@ class HybridNewsEngine:
 
     async def _fetch_from_github_cloud(self):
         pat = os.getenv("GITHUB_PAT", "")
-        if not pat:
-            return False
-            
+        
         url = "https://raw.githubusercontent.com/edysa2000-a11y/XEDY-V42/data-feed/data/news_feed.json"
         try:
             import urllib.request
             import json
-            req = urllib.request.Request(url, headers={
-                "Authorization": f"token {pat}",
-                "User-Agent": "XEDY/v42"
-            })
+            
+            headers = {"User-Agent": "XEDY/v42"}
+            if pat:
+                headers["Authorization"] = f"token {pat}"
+                
+            req = urllib.request.Request(url, headers=headers)
             def _fetch():
                 with urllib.request.urlopen(req, timeout=10.0) as r:
                     return json.loads(r.read().decode('utf-8'))
