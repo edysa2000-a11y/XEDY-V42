@@ -239,6 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("WebSocket Connected");
             wsStatus.className = 'text-bullish';
             wsStatus.innerText = 'OK';
+            // Sync local storage parameters back to server immediately to keep settings persistent across refreshes
+            setTimeout(() => {
+                if (window.sendTradingSettings) window.sendTradingSettings();
+            }, 250);
         };
         
         let lastPingTime = 0;
