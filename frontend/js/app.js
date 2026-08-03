@@ -1438,6 +1438,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    window.saveTradingSettingsLocally = function() {
+        const input = document.getElementById('trading-lot-input');
+        const lotSize = input ? parseFloat(input.value) : 0.10;
+        const confInput = document.getElementById('confidence-threshold-input');
+        const confidenceThreshold = confInput ? parseInt(confInput.value) : 65;
+        const maxOpInput = document.getElementById('max-op-input');
+        const maxPositions = maxOpInput ? parseInt(maxOpInput.value) : 3;
+        const autoLotCheckbox = document.getElementById('auto-lot-checkbox');
+        const autoLot = autoLotCheckbox ? autoLotCheckbox.checked : false;
+        const riskInput = document.getElementById('risk-percent-input');
+        const riskPercent = riskInput ? parseFloat(riskInput.value) : 1.0;
+
+        // Persist parameters to LocalStorage
+        localStorage.setItem('trading_lot', lotSize);
+        localStorage.setItem('confidence_threshold', confidenceThreshold);
+        localStorage.setItem('max_positions', maxPositions);
+        localStorage.setItem('auto_lot_enabled', autoLot);
+        localStorage.setItem('risk_percent', riskPercent);
+        localStorage.setItem('hedging_enabled', hedgingEnabled);
+        localStorage.setItem('autotrade_enabled', autotradeEnabled);
+
+        // Sync back to backend via websocket
+        window.sendTradingSettings();
+
+        // Animate Save Button
+        const saveBtn = document.getElementById('save-trading-settings-btn');
+        if (saveBtn) {
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '✔ SAVED!';
+            saveBtn.style.backgroundColor = '#2ea043';
+            saveBtn.style.borderColor = '#2ea043';
+            saveBtn.style.boxShadow = '0 0 8px rgba(46, 160, 67, 0.6)';
+            setTimeout(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.style.backgroundColor = '#2f80ed';
+                saveBtn.style.borderColor = '#2f80ed';
+                saveBtn.style.boxShadow = '0 0 6px rgba(47,128,237,0.4)';
+            }, 2000);
+        }
+    };
+
     window.toggleAutoLot = function() {
         window.sendTradingSettings();
     };
