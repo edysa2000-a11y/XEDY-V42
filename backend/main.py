@@ -518,9 +518,12 @@ async def get_backtest(background_tasks: BackgroundTasks, days: int = 30, refres
 
     cache_path = "data/backtest_cache.json"
 
-    # Jika sedang berjalan di background, beri tahu frontend
-    if BACKTEST_RUNNING:
-        return {"status": "running", "message": "Backtest is currently running in background. Please wait."}
+    # Jika user meminta refresh
+    if refresh:
+        if BACKTEST_RUNNING:
+            return {"status": "running", "message": "Backtest is already running in background. Please wait."}
+        background_tasks.add_task(run_backtest_subprocess)
+        return {"status": "started", "message": "Backtest started in background. Check back in 2-3 minutes."}
 
     # Fungsi pembantu untuk dieksekusi di background
     def run_backtest_subprocess():
@@ -541,10 +544,7 @@ async def get_backtest(background_tasks: BackgroundTasks, days: int = 30, refres
         finally:
             BACKTEST_RUNNING = False
 
-    # Jika user meminta refresh
-    if refresh:
-        background_tasks.add_task(run_backtest_subprocess)
-        return {"status": "started", "message": "Backtest started in background. Check back in 2-3 minutes."}
+
 
     # Load cache (default behavior jika refresh=False)
     if os.path.exists(cache_path):
