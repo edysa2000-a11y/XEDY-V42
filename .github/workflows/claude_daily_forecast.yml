@@ -1,0 +1,57 @@
+name: XEDY Claude Daily Forecast
+
+on:
+  schedule:
+    - cron: '0 17 * * *' # Run every day at 17:00 UTC (which is exactly 00:00 WIB GMT+7)
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+concurrency:
+  group: xedy-claude-forecast
+  cancel-in-progress: true
+
+jobs:
+  run-daily-forecast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install --prefer-binary python-dotenv pandas numpy
+
+      - name: Restore State from data-feed branch
+        run: |
+          git fetch --depth=1 origin data-feed || echo "No previous data-feed branch found."
+          git checkout origin/data-feed -- data/ || echo "No previous data directory found."
+
+      - name: Run Claude AI Forecast Scraper
+        env:
+          AIVENE_API_KEY: ${{ secrets.AIVENE_API_KEY }}
+        run: |
+          python backend/scripts/claude_forecast.py
+
+      - name: Deploy data updates to data-feed branch
+        run: |
+          git config --global user.name "XEDY Claude Forecaster"
+          git config --global user.email "claude-forecaster@xedy.trading"
+          
+          mkdir -p temp_data/data
+          cp data/news_feed.json temp_data/data/ || true
+          
+          git checkout -B data-feed
+          rm -rf backend frontend docs models tests .github
+          mv temp_data/data .
+          rm -rf temp_data
+          
+          git add data/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Deploy daily Claude HLC forecast updates" && git push -f origin data-feed)
