@@ -2637,19 +2637,23 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             const response = await fetch('/api/v1/forecast/trigger', { method: 'POST' });
-            const result = await response.json();
+            if (!response.ok) {
+                const textErr = await response.text();
+                throw new Error(`Server returned HTTP ${response.status}: ${textErr}`);
+            }
             
-            if (result.status === 'success') {
+            const result = await response.json();
+            if (result && result.status === 'success') {
                 alert('Claude AI Forecast updated successfully!');
                 if (window.fetchForecastStats) {
                     await window.fetchForecastStats();
                 }
             } else {
-                alert('Forecast failed: ' + result.message);
+                alert('Forecast failed: ' + (result ? result.message : 'Unknown backend response format'));
             }
         } catch (error) {
             console.error('Trigger forecast failed:', error);
-            alert('Failed to connect to backend server.');
+            alert('Failed to connect or process forecast: ' + error.message);
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalText;

@@ -5,6 +5,10 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 import email.utils
+from dotenv import load_dotenv
+
+# Load local system environment configuration
+load_dotenv()
 
 def get_live_multi_asset_prices():
     prices = {"XAUUSD": 0.0, "USOIL": 0.0, "DXY": 0.0, "US10Y": 0.0}
