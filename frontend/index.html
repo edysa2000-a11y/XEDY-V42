@@ -126,13 +126,13 @@
                             <!-- Flow Grid -->
                             <div class="flow-container p-2" style="font-family: 'Inter', sans-serif;">
                                 <!-- Row 1: Steps 1 to 5 -->
-                                <div class="flow-row mb-4">
+                                <div class="flow-row mb-2">
                                     <div class="col-flow-card">
-                                        <div class="flow-step-card" style="border-color: #8e44ad; box-shadow: 0 0 10px rgba(142, 68, 173, 0.25);">
+                                        <div class="flow-step-card" style="border-color: #9b59b6; box-shadow: 0 0 10px rgba(155, 89, 182, 0.25);">
                                             <div class="badge bg-purple mb-1">1. EVENT</div>
                                             <div class="time-label text-muted">0-30 min</div>
-                                            <div class="content-text text-white">CPI / FOMC<br>Geopolitik / NFP</div>
-                                            <div class="status-label text-critical">Impact High</div>
+                                            <div class="content-text text-white">CPI <i class="bi bi-arrow-down" style="color: #ff7b72;"></i><br>FOMC<br>Geopolitik<br>NFP</div>
+                                            <div class="status-label" style="color: #ff7b72;">Impact High</div>
                                         </div>
                                     </div>
                                     <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
@@ -140,7 +140,7 @@
                                         <div class="flow-step-card" style="border-color: #2980b9; box-shadow: 0 0 10px rgba(41, 128, 185, 0.25);">
                                             <div class="badge bg-blue mb-1">2. RATE EXPECTATION</div>
                                             <div class="time-label text-muted">5-60 min</div>
-                                            <div class="content-text text-white">Fed Funds Futures<br>SOFR Futures<br>Rate Cut Prob ↑</div>
+                                            <div class="content-text text-white">Fed Funds Futures<br>SOFR Futures<br>Rate Cut Prob <i class="bi bi-arrow-up text-bullish"></i></div>
                                             <div class="status-label text-bullish">Bullish</div>
                                         </div>
                                     </div>
@@ -149,7 +149,7 @@
                                         <div class="flow-step-card" style="border-color: #16a085; box-shadow: 0 0 10px rgba(22, 160, 133, 0.25);">
                                             <div class="badge bg-teal mb-1">3. BOND YIELD</div>
                                             <div class="time-label text-muted">15-120 min</div>
-                                            <div class="content-text text-white">US 2Y Yield ↓<br>US 10Y Yield ↓<br>US 30Y Yield ↓</div>
+                                            <div class="content-text text-white">US 2Y Yield <i class="bi bi-arrow-down text-bullish"></i><br>US 10Y Yield <i class="bi bi-arrow-down text-bullish"></i><br>US 30Y Yield <i class="bi bi-arrow-down text-bullish"></i></div>
                                             <div class="status-label text-bullish">Bullish</div>
                                         </div>
                                     </div>
@@ -164,18 +164,18 @@
                                     </div>
                                     <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
                                     <div class="col-flow-card">
-                                        <div class="flow-step-card" style="border-color: #d35400; box-shadow: 0 0 10px rgba(211, 84, 0, 0.25);">
-                                            <div class="badge bg-orange mb-1">5. ASSET ALLOCATION</div>
+                                        <div class="flow-step-card" style="border-color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.25);">
+                                            <div class="badge mb-1" style="background-color: #f1c40f; color: #000;">5. ASSET ALLOCATION</div>
                                             <div class="time-label text-muted">1-8 jam</div>
                                             <div class="content-text text-white">Risk Off<br>Rotasi ke<br>Gold Assets</div>
-                                            <div class="status-label text-bullish">Bullish</div>
+                                            <div class="status-label" style="color: #f1c40f;">Bullish</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Downward Connection to Step 6 -->
-                                <div class="d-flex justify-content-end pe-5 mb-3">
-                                    <div style="border-right: 2px dashed #30363d; height: 30px; width: 1px; margin-right: 38px;"></div>
+                                <!-- Downward Connection to Step 6 (directly under Step 1) -->
+                                <div class="d-flex justify-content-start mb-2" style="padding-left: 35px;">
+                                    <div style="color: #f1c40f; font-size: 1.5rem; font-weight: bold; line-height: 1; margin-left: 20px;">↓</div>
                                 </div>
 
                                 <!-- Row 2: Steps 6 to 8 + Output -->
@@ -184,46 +184,51 @@
                                         <div class="flow-step-card" style="border-color: #d35400; box-shadow: 0 0 10px rgba(211, 84, 0, 0.25);">
                                             <div class="badge bg-orange mb-1">6. ETF FLOW</div>
                                             <div class="time-label text-muted">4-24 jam</div>
-                                            <div class="content-text text-white">GLD / IAU<br>Net Inflow ↑<br>Demand Naik</div>
-                                            <div class="status-label text-bullish">Bullish</div>
+                                            <div class="content-text text-white">GLD / IAU<br>Net Inflow <i class="bi bi-arrow-up text-bullish"></i><br>Demand Naik</div>
+                                            <div class="status-label" style="color: #d35400;">Bullish</div>
                                         </div>
                                     </div>
                                     <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
                                     <div class="col-flow-card">
-                                        <div class="flow-step-card" style="border-color: #c0392b; box-shadow: 0 0 10px rgba(192, 57, 43, 0.25);">
-                                            <div class="badge bg-red mb-1">7. COMEX POSITION</div>
+                                        <div class="flow-step-card" style="border-color: #e67e22; box-shadow: 0 0 10px rgba(230, 126, 34, 0.25);">
+                                            <div class="badge mb-1" style="background-color: #e67e22; color: #fff;">7. COMEX POSITION</div>
                                             <div class="time-label text-muted">1-5 hari</div>
-                                            <div class="content-text text-white">Net Long ↑<br>Managed Money<br>Accumulation</div>
-                                            <div class="status-label text-bullish">Bullish</div>
+                                            <div class="content-text text-white">Net Long <i class="bi bi-arrow-up text-bullish"></i><br>Managed Money<br>Accumulation</div>
+                                            <div class="status-label" style="color: #e67e22;">Bullish</div>
                                         </div>
                                     </div>
                                     <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
                                     <div class="col-flow-card">
-                                        <div class="flow-step-card" style="border-color: #7f8c8d; box-shadow: 0 0 10px rgba(127, 140, 141, 0.25);">
-                                            <div class="badge bg-secondary mb-1">8. PHYSICAL MARKET</div>
+                                        <div class="flow-step-card" style="border-color: #ff4a80; box-shadow: 0 0 10px rgba(255, 74, 128, 0.25);">
+                                            <div class="badge mb-1" style="background-color: #ff4a80; color: #fff;">8. PHYSICAL MARKET</div>
                                             <div class="time-label text-muted">2-10 hari</div>
                                             <div class="content-text text-white">Central Bank Buy<br>India & China Demand<br>Supply Ketat</div>
-                                            <div class="status-label text-bullish">Bullish</div>
+                                            <div class="status-label" style="color: #ff4a80;">Bullish</div>
                                         </div>
                                     </div>
                                     <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
                                     <div class="col-flow-card-output">
-                                        <div class="flow-output-card text-center p-3 rounded" style="background: linear-gradient(135deg, #11151a, #0d1117); border: 2px solid #ff9a7b; box-shadow: 0 0 15px rgba(255, 154, 123, 0.25);">
-                                            <div class="text-warning-v42 fw-bold small uppercase">XAUUSD PRICE</div>
-                                            <h4 class="text-warning-v42 font-monospace my-1" style="text-shadow: 0 0 8px rgba(255, 154, 123, 0.4);">TREND UP</h4>
-                                            <div class="small text-muted">👑 Gold Standard</div>
+                                        <div class="flow-output-card text-center p-2 rounded" style="background: linear-gradient(135deg, #11151a, #0d1117); border: 2px solid #ff9a7b; box-shadow: 0 0 15px rgba(255, 154, 123, 0.25);">
+                                            <div class="text-warning-v42 fw-bold small uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">XAUUSD PRICE</div>
+                                            <h6 class="text-warning-v42 font-monospace my-1" style="font-size: 0.8rem; font-weight: bold; text-shadow: 0 0 8px rgba(255, 154, 123, 0.4);">TREND UP</h6>
+                                            <div class="my-1">
+                                                <img src="frontend/img/gold_bars_3d.jpg" alt="Gold Standard" style="height: 52px; width: 52px; object-fit: contain; filter: drop-shadow(0 0 5px rgba(255,154,123,0.35)); border-radius: 4px;">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Timeline -->
-                                <div class="mt-4 pt-3 border-top border-secondary">
-                                    <div class="d-flex justify-content-between text-muted small font-monospace">
-                                        <span>⏱️ Total Transmission Time</span>
-                                        <span>2 Jam</span>
-                                        <span>1 Hari</span>
-                                        <span>1 Minggu+</span>
-                                        <span class="text-warning-v42">➡️ Trend Terbentuk</span>
+                                <div class="mt-3 pt-2 border-top border-secondary">
+                                    <div class="text-muted small mb-1">Total Transmission Time</div>
+                                    <div class="d-flex align-items-center justify-content-between text-white small font-monospace">
+                                        <span class="text-warning-v42 fw-bold">2 Jam</span>
+                                        <span class="flex-grow-1 mx-2" style="border-bottom: 2px solid #e67e22; position: relative;"></span>
+                                        <span class="text-warning-v42 fw-bold">1 Hari</span>
+                                        <span class="flex-grow-1 mx-2" style="border-bottom: 2px solid #e67e22; position: relative;"></span>
+                                        <span class="text-warning-v42 fw-bold">1 Minggu+</span>
+                                        <span class="text-warning-v42 mx-1">➡️</span>
+                                        <span class="text-warning-v42 fw-bold">Trend Terbentuk</span>
                                     </div>
                                 </div>
                             </div>
@@ -686,13 +691,13 @@
                             <!-- Flow Grid -->
                             <div class="flow-container p-2" style="font-family: 'Inter', sans-serif;">
                                 <!-- Row 1: Steps 1 to 5 -->
-                                <div class="flow-row mb-4">
+                                <div class="flow-row mb-2">
                                     <div class="col-flow-card">
-                                        <div class="flow-step-card" style="border-color: #8e44ad; box-shadow: 0 0 10px rgba(142, 68, 173, 0.25);">
+                                        <div class="flow-step-card" style="border-color: #9b59b6; box-shadow: 0 0 10px rgba(155, 89, 182, 0.25);">
                                             <div class="badge bg-purple mb-1">1. EVENT</div>
                                             <div class="time-label text-muted">0-30 min</div>
-                                            <div class="content-text text-white">CPI / FOMC<br>Geopolitik / NFP</div>
-                                            <div class="status-label text-critical">Impact High</div>
+                                            <div class="content-text text-white">CPI <i class="bi bi-arrow-down" style="color: #ff7b72;"></i><br>FOMC<br>Geopolitik<br>NFP</div>
+                                            <div class="status-label" style="color: #ff7b72;">Impact High</div>
                                         </div>
                                     </div>
                                     <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
@@ -700,7 +705,7 @@
                                         <div class="flow-step-card" style="border-color: #2980b9; box-shadow: 0 0 10px rgba(41, 128, 185, 0.25);">
                                             <div class="badge bg-blue mb-1">2. RATE EXPECTATION</div>
                                             <div class="time-label text-muted">5-60 min</div>
-                                            <div class="content-text text-white">Fed Funds Futures<br>SOFR Futures<br>Rate Cut Prob ↑</div>
+                                            <div class="content-text text-white">Fed Funds Futures<br>SOFR Futures<br>Rate Cut Prob <i class="bi bi-arrow-up text-bullish"></i></div>
                                             <div class="status-label text-bullish">Bullish</div>
                                         </div>
                                     </div>
@@ -709,7 +714,7 @@
                                         <div class="flow-step-card" style="border-color: #16a085; box-shadow: 0 0 10px rgba(22, 160, 133, 0.25);">
                                             <div class="badge bg-teal mb-1">3. BOND YIELD</div>
                                             <div class="time-label text-muted">15-120 min</div>
-                                            <div class="content-text text-white">US 2Y Yield ↓<br>US 10Y Yield ↓<br>US 30Y Yield ↓</div>
+                                            <div class="content-text text-white">US 2Y Yield <i class="bi bi-arrow-down text-bullish"></i><br>US 10Y Yield <i class="bi bi-arrow-down text-bullish"></i><br>US 30Y Yield <i class="bi bi-arrow-down text-bullish"></i></div>
                                             <div class="status-label text-bullish">Bullish</div>
                                         </div>
                                     </div>
@@ -724,18 +729,18 @@
                                     </div>
                                     <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
                                     <div class="col-flow-card">
-                                        <div class="flow-step-card" style="border-color: #d35400; box-shadow: 0 0 10px rgba(211, 84, 0, 0.25);">
-                                            <div class="badge bg-orange mb-1">5. ASSET ALLOCATION</div>
+                                        <div class="flow-step-card" style="border-color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.25);">
+                                            <div class="badge mb-1" style="background-color: #f1c40f; color: #000;">5. ASSET ALLOCATION</div>
                                             <div class="time-label text-muted">1-8 jam</div>
                                             <div class="content-text text-white">Risk Off<br>Rotasi ke<br>Gold Assets</div>
-                                            <div class="status-label text-bullish">Bullish</div>
+                                            <div class="status-label" style="color: #f1c40f;">Bullish</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Downward Connection to Step 6 -->
-                                <div class="d-flex justify-content-end pe-5 mb-3">
-                                    <div style="border-right: 2px dashed #30363d; height: 30px; width: 1px; margin-right: 38px;"></div>
+                                <!-- Downward Connection to Step 6 (directly under Step 1) -->
+                                <div class="d-flex justify-content-start mb-2" style="padding-left: 35px;">
+                                    <div style="color: #f1c40f; font-size: 1.5rem; font-weight: bold; line-height: 1; margin-left: 20px;">↓</div>
                                 </div>
 
                                 <!-- Row 2: Steps 6 to 8 + Output -->
@@ -744,46 +749,51 @@
                                         <div class="flow-step-card" style="border-color: #d35400; box-shadow: 0 0 10px rgba(211, 84, 0, 0.25);">
                                             <div class="badge bg-orange mb-1">6. ETF FLOW</div>
                                             <div class="time-label text-muted">4-24 jam</div>
-                                            <div class="content-text text-white">GLD / IAU<br>Net Inflow ↑<br>Demand Naik</div>
-                                            <div class="status-label text-bullish">Bullish</div>
+                                            <div class="content-text text-white">GLD / IAU<br>Net Inflow <i class="bi bi-arrow-up text-bullish"></i><br>Demand Naik</div>
+                                            <div class="status-label" style="color: #d35400;">Bullish</div>
                                         </div>
                                     </div>
                                     <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
                                     <div class="col-flow-card">
-                                        <div class="flow-step-card" style="border-color: #c0392b; box-shadow: 0 0 10px rgba(192, 57, 43, 0.25);">
-                                            <div class="badge bg-red mb-1">7. COMEX POSITION</div>
+                                        <div class="flow-step-card" style="border-color: #e67e22; box-shadow: 0 0 10px rgba(230, 126, 34, 0.25);">
+                                            <div class="badge mb-1" style="background-color: #e67e22; color: #fff;">7. COMEX POSITION</div>
                                             <div class="time-label text-muted">1-5 hari</div>
-                                            <div class="content-text text-white">Net Long ↑<br>Managed Money<br>Accumulation</div>
-                                            <div class="status-label text-bullish">Bullish</div>
+                                            <div class="content-text text-white">Net Long <i class="bi bi-arrow-up text-bullish"></i><br>Managed Money<br>Accumulation</div>
+                                            <div class="status-label" style="color: #e67e22;">Bullish</div>
                                         </div>
                                     </div>
                                     <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
                                     <div class="col-flow-card">
-                                        <div class="flow-step-card" style="border-color: #7f8c8d; box-shadow: 0 0 10px rgba(127, 140, 141, 0.25);">
-                                            <div class="badge bg-secondary mb-1">8. PHYSICAL MARKET</div>
+                                        <div class="flow-step-card" style="border-color: #ff4a80; box-shadow: 0 0 10px rgba(255, 74, 128, 0.25);">
+                                            <div class="badge mb-1" style="background-color: #ff4a80; color: #fff;">8. PHYSICAL MARKET</div>
                                             <div class="time-label text-muted">2-10 hari</div>
                                             <div class="content-text text-white">Central Bank Buy<br>India & China Demand<br>Supply Ketat</div>
-                                            <div class="status-label text-bullish">Bullish</div>
+                                            <div class="status-label" style="color: #ff4a80;">Bullish</div>
                                         </div>
                                     </div>
                                     <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
                                     <div class="col-flow-card-output">
-                                        <div class="flow-output-card text-center p-3 rounded" style="background: linear-gradient(135deg, #11151a, #0d1117); border: 2px solid #ff9a7b; box-shadow: 0 0 15px rgba(255, 154, 123, 0.25);">
-                                            <div class="text-warning-v42 fw-bold small uppercase">XAUUSD PRICE</div>
-                                            <h4 class="text-warning-v42 font-monospace my-1" style="text-shadow: 0 0 8px rgba(255, 154, 123, 0.4);">TREND UP</h4>
-                                            <div class="small text-muted">👑 Gold Standard</div>
+                                        <div class="flow-output-card text-center p-2 rounded" style="background: linear-gradient(135deg, #11151a, #0d1117); border: 2px solid #ff9a7b; box-shadow: 0 0 15px rgba(255, 154, 123, 0.25);">
+                                            <div class="text-warning-v42 fw-bold small uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">XAUUSD PRICE</div>
+                                            <h6 class="text-warning-v42 font-monospace my-1" style="font-size: 0.8rem; font-weight: bold; text-shadow: 0 0 8px rgba(255, 154, 123, 0.4);">TREND UP</h6>
+                                            <div class="my-1">
+                                                <img src="frontend/img/gold_bars_3d.jpg" alt="Gold Standard" style="height: 52px; width: 52px; object-fit: contain; filter: drop-shadow(0 0 5px rgba(255,154,123,0.35)); border-radius: 4px;">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Timeline -->
-                                <div class="mt-4 pt-3 border-top border-secondary">
-                                    <div class="d-flex justify-content-between text-muted small font-monospace">
-                                        <span>⏱️ Total Transmission Time</span>
-                                        <span>2 Jam</span>
-                                        <span>1 Hari</span>
-                                        <span>1 Minggu+</span>
-                                        <span class="text-warning-v42">➡️ Trend Terbentuk</span>
+                                <div class="mt-3 pt-2 border-top border-secondary">
+                                    <div class="text-muted small mb-1">Total Transmission Time</div>
+                                    <div class="d-flex align-items-center justify-content-between text-white small font-monospace">
+                                        <span class="text-warning-v42 fw-bold">2 Jam</span>
+                                        <span class="flex-grow-1 mx-2" style="border-bottom: 2px solid #e67e22; position: relative;"></span>
+                                        <span class="text-warning-v42 fw-bold">1 Hari</span>
+                                        <span class="flex-grow-1 mx-2" style="border-bottom: 2px solid #e67e22; position: relative;"></span>
+                                        <span class="text-warning-v42 fw-bold">1 Minggu+</span>
+                                        <span class="text-warning-v42 mx-1">➡️</span>
+                                        <span class="text-warning-v42 fw-bold">Trend Terbentuk</span>
                                     </div>
                                 </div>
                             </div>
