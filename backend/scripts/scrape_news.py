@@ -324,7 +324,7 @@ def main():
     print(f"Scraped {len(articles)} headlines successfully.")
     
     # Fetch target semantic vector once for cross-market alignment reference
-    target_macro_query = "gold price xauusd dollar index dxy treasury yields federal reserve cpi nfp rate decision geopolitics US president comments"
+    target_macro_query = "gold price xauusd dollar index dxy treasury yields federal reserve cpi nfp rate decision geopolitics US president Donald Trump speech tariff comments war"
     target_vector = get_qwen_embedding(api_key, target_macro_query)
     if target_vector:
         print(f"Generated target Qwen3 embedding vector for macro alignment: size {len(target_vector)}")
