@@ -2199,6 +2199,86 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial fetch
     setTimeout(window.fetchForecastStats, 1000);
     
+    // ============================================================
+    // Qwen AI Quota Monitor
+    // ============================================================
+    window.fetchQwenQuota = async function() {
+        try {
+            const response = await fetch('/api/v1/qwen/quota');
+            if (!response.ok) return;
+            const d = await response.json();
+            if (d.error) return;
+
+            const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            const setHtml = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
+
+            set('qwen-model-label', d.model || 'Qwen 3.7 Flash · Aivene API');
+            set('qwen-total-calls', d.total_calls ?? '--');
+            set('qwen-today-calls', d.today_calls ?? '--');
+            set('qwen-daily-limit', d.daily_limit ?? 10);
+            set('qwen-monthly-limit', d.monthly_limit ?? 100);
+            set('qwen-tokens-today', d.est_tokens_today != null ? d.est_tokens_today.toLocaleString() : '--');
+            set('qwen-tokens-total', d.est_tokens_total != null ? d.est_tokens_total.toLocaleString() : '--');
+            set('qwen-last-ts', d.last_call_ts || 'Never');
+            set('qwen-last-reasoning', d.last_reasoning || 'No analysis yet.');
+
+            // Last bias with color
+            const biasEl = document.getElementById('qwen-last-bias');
+            if (biasEl) {
+                biasEl.innerText = d.last_bias || 'N/A';
+                const b = (d.last_bias || '').toUpperCase();
+                biasEl.style.color = b.includes('BUY') ? '#2ecc71' : b.includes('SELL') ? '#ff7b72' : b === 'WAIT' ? '#f1c40f' : '#aaa';
+            }
+
+            // Last regime
+            const regimeEl = document.getElementById('qwen-last-regime');
+            if (regimeEl) {
+                regimeEl.innerText = d.last_regime || 'N/A';
+                const r = (d.last_regime || '').toUpperCase();
+                regimeEl.style.color = r === 'HIGH_NEWS' ? '#ff7b72' : r === 'SIDEWAYS' ? '#f1c40f' : '#ff9a7b';
+            }
+
+            // Daily progress bar
+            const dailyPct = d.daily_limit > 0 ? Math.min(100, Math.round((d.today_calls / d.daily_limit) * 100)) : 0;
+            set('qwen-daily-pct', dailyPct + '%');
+            const dailyBar = document.getElementById('qwen-daily-bar');
+            if (dailyBar) {
+                dailyBar.style.width = dailyPct + '%';
+                dailyBar.style.background = dailyPct >= 90 ? 'linear-gradient(90deg, #ff7b72, #c0392b)' : dailyPct >= 70 ? 'linear-gradient(90deg, #f1c40f, #e67e22)' : 'linear-gradient(90deg, #2ecc71, #27ae60)';
+            }
+
+            // Monthly progress bar
+            const monthlyPct = d.monthly_limit > 0 ? Math.min(100, Math.round((d.total_calls / d.monthly_limit) * 100)) : 0;
+            set('qwen-monthly-pct', monthlyPct + '%');
+            const monthlyBar = document.getElementById('qwen-monthly-bar');
+            if (monthlyBar) {
+                monthlyBar.style.width = monthlyPct + '%';
+                monthlyBar.style.background = monthlyPct >= 90 ? 'linear-gradient(90deg, #ff7b72, #c0392b)' : monthlyPct >= 70 ? 'linear-gradient(90deg, #f1c40f, #e67e22)' : 'linear-gradient(90deg, #7b2ff7, #9b59f5)';
+            }
+
+            // Status badge
+            const badge = document.getElementById('qwen-status-badge');
+            if (badge) {
+                if (d.today_calls === 0) {
+                    badge.innerText = '⏳ STANDBY';
+                    badge.style.background = 'linear-gradient(90deg, #555, #888)';
+                } else if (dailyPct >= 90) {
+                    badge.innerText = '⚠ NEAR LIMIT';
+                    badge.style.background = 'linear-gradient(90deg, #ff7b72, #c0392b)';
+                } else {
+                    badge.innerText = '⚡ ACTIVE';
+                    badge.style.background = 'linear-gradient(90deg, #7b2ff7, #9b59f5)';
+                }
+            }
+        } catch (e) {
+            console.warn('Qwen quota fetch error:', e);
+        }
+    };
+
+    // Auto-refresh quota every 60s, initial load after 2s
+    setInterval(window.fetchQwenQuota, 60000);
+    setTimeout(window.fetchQwenQuota, 2000);
+
     window.loadAutoCleanState();
     setTimeout(initWebSocket, 500);
 });

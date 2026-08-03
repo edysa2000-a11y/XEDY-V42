@@ -272,6 +272,67 @@ async def get_forecast_stats():
     hist_data["active_forecast"] = active_forecast
     return hist_data
 
+@app.get("/api/v1/qwen/quota")
+async def get_qwen_quota():
+    """
+    Returns usage statistics for Qwen AI calls based on qwen_decisions_log.jsonl.
+    Estimates token usage from call count and average prompt size.
+    """
+    import json, os
+    from datetime import datetime, timezone
+
+    log_path = "data/qwen_decisions_log.jsonl"
+    total_calls = 0
+    today_calls = 0
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    last_call_ts = None
+    last_bias = "N/A"
+    last_regime = "N/A"
+    last_reasoning = ""
+
+    if os.path.exists(log_path):
+        try:
+            with open(log_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        entry = json.loads(line)
+                        total_calls += 1
+                        ts = entry.get("timestamp", "")
+                        if ts and ts.startswith(today_str):
+                            today_calls += 1
+                        if ts and (last_call_ts is None or ts > last_call_ts):
+                            last_call_ts = ts
+                            last_bias = entry.get("bias", "N/A")
+                            last_regime = entry.get("regime", "N/A")
+                            last_reasoning = entry.get("reasoning", "")
+                    except Exception:
+                        pass
+        except Exception as e:
+            return {"error": str(e)}
+
+    # Estimate tokens: avg ~800 tokens per call (prompt + response)
+    est_tokens_total = total_calls * 800
+    est_tokens_today = today_calls * 800
+    monthly_limit = 100  # calls per month (can be adjusted)
+    daily_limit = 10      # calls per day recommendation
+
+    return {
+        "model": "Qwen 3.7 Flash (Aivene)",
+        "total_calls": total_calls,
+        "today_calls": today_calls,
+        "monthly_limit": monthly_limit,
+        "daily_limit": daily_limit,
+        "est_tokens_total": est_tokens_total,
+        "est_tokens_today": est_tokens_today,
+        "last_call_ts": last_call_ts or "Never",
+        "last_bias": last_bias,
+        "last_regime": last_regime,
+        "last_reasoning": last_reasoning[:200] if last_reasoning else "No analysis yet."
+    }
+
 @app.post("/api/v1/news/inject")
 async def inject_news(payload: dict):
     headline = payload.get("headline")
