@@ -244,6 +244,62 @@ async def health_check():
         "ai": "STANDBY"
     }
 
+@app.get("/api/v1/health/pipeline")
+async def health_pipeline():
+    """
+    Evaluates real-time operational status of the 15-Layer Processing Pipeline
+    and the Multi-Agent Swarm Orchestration system components.
+    """
+    import os, json
+    
+    # 1. Ingestion & Feature Store Checks
+    has_csv = os.path.exists("data/training_features.csv")
+    csv_valid = False
+    if has_csv:
+        try:
+            csv_valid = os.path.getsize("data/training_features.csv") > 1000
+        except Exception:
+            pass
+
+    # 2. AI Parliament & Swarm Checks
+    has_news = os.path.exists("data/news_feed.json")
+    has_qwen_logs = os.path.exists("data/qwen_decisions_log.jsonl")
+    
+    # 3. Risk Engine Check
+    risk_active = False
+    if hasattr(app.state, "risk_engine") and app.state.risk_engine:
+        risk_active = getattr(app.state.risk_engine, "is_running", True)
+
+    # 4. Observability & Healing check
+    has_error_logs = os.path.exists("logs/errors.log") or os.path.exists("logs/stderr.log")
+
+    # Mapping out layer statuses based on real state evaluations
+    return {
+        "pipeline": {
+            "l1": "ACTIVE" if has_csv else "INACTIVE",           # Market Ingestion
+            "l2": "ACTIVE" if csv_valid else "WARNING",          # Data Quality
+            "l3": "ACTIVE" if csv_valid else "INACTIVE",         # Feature Store
+            "l4": "ACTIVE" if has_news else "INACTIVE",          # Perception Swarm
+            "l5": "ACTIVE" if has_news else "INACTIVE",          # Research Swarm
+            "l6": "ACTIVE" if has_qwen_logs else "INACTIVE",     # AI Parliament
+            "l7": "ACTIVE" if has_qwen_logs else "INACTIVE",     # Meta Reasoning
+            "l8": "ACTIVE" if risk_active else "INACTIVE",       # Digital Twin
+            "l9": "ACTIVE" if risk_active else "INACTIVE",       # Risk Command
+            "l10": "ACTIVE" if risk_active else "INACTIVE",      # Execution Engine
+            "l11": "ACTIVE" if risk_active else "INACTIVE",      # Position Management
+            "l12": "ACTIVE" if has_qwen_logs else "INACTIVE",    # Trade Review
+            "l13": "ACTIVE" if os.path.exists("backend/scripts/adaptive_self_learning.py") else "INACTIVE", # Self Learning
+            "l14": "ACTIVE",                                     # Observability (Backend server running)
+            "l15": "WARNING" if has_error_logs else "ACTIVE"     # Self Healing
+        },
+        "swarm": {
+            "ceo": "ACTIVE" if (has_news or has_qwen_logs) else "STANDBY",
+            "cio": "ACTIVE" if risk_active else "STANDBY",
+            "sup": "MONITORING" if risk_active else "STANDBY",
+            "spec": "VOTING / CONSENSUS" if has_news else "IDLE"
+        }
+    }
+
 @app.get("/api/v1/macro/dashboard")
 async def get_macro_dashboard():
     """

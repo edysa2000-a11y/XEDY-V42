@@ -2481,6 +2481,91 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(window.renderForecast10Day, 2500);
     setInterval(window.renderForecast10Day, 300000);
 
+    // ── 15-Layer & Multi-Agent Swarm Dynamic Status Update ────────────────────
+    window.updatePipelineStatus = async () => {
+        try {
+            const res = await fetch('/api/v1/health/pipeline');
+            if (!res.ok) return;
+            const data = await res.json();
+
+            // 1. Update 15-Layer dots
+            for (let i = 1; i <= 15; i++) {
+                const dot = document.getElementById(`pipe-l${i}-dot`);
+                if (dot) {
+                    const status = data.pipeline[`l${i}`];
+                    // Reset classes
+                    dot.className = 'me-1';
+                    if (status === 'ACTIVE') {
+                        dot.classList.add('text-success');
+                        dot.style.animation = 'none';
+                    } else if (status === 'WARNING') {
+                        dot.classList.add('text-warning');
+                        // Subtle blinking animation for warnings
+                        dot.style.animation = 'pulse-warning 1.5s infinite';
+                    } else {
+                        dot.classList.add('text-danger');
+                        dot.style.animation = 'none';
+                    }
+                }
+            }
+
+            // 2. Update Swarm Badges
+            const setBadge = (id, text, type) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.innerText = text;
+                    el.className = 'badge';
+                    if (type === 'success') el.classList.add('bg-success');
+                    else if (type === 'warning') el.classList.add('bg-warning');
+                    else el.classList.add('bg-secondary');
+                }
+            };
+            
+            const swarm = data.swarm;
+            setBadge('swarm-ceo-badge', swarm.ceo, swarm.ceo === 'ACTIVE' ? 'success' : 'secondary');
+            setBadge('swarm-cio-badge', swarm.cio, swarm.cio === 'ACTIVE' ? 'success' : 'secondary');
+            setBadge('swarm-sup-badge', swarm.sup, swarm.sup === 'MONITORING' ? 'success' : 'secondary');
+
+            const specEl = document.getElementById('swarm-spec-text');
+            if (specEl) {
+                specEl.innerText = swarm.spec;
+                if (swarm.spec === 'VOTING / CONSENSUS') {
+                    specEl.className = 'text-bullish fw-bold';
+                    specEl.style.animation = 'pulse-text 2s infinite';
+                } else {
+                    specEl.className = 'text-muted fw-bold';
+                    specEl.style.animation = 'none';
+                }
+            }
+
+        } catch (e) {
+            console.warn('Pipeline status fetch failed:', e);
+        }
+    };
+
+    // Inject custom animation styles to document head if not present
+    if (!document.getElementById('pipeline-dynamic-styles')) {
+        const style = document.createElement('style');
+        style.id = 'pipeline-dynamic-styles';
+        style.innerHTML = `
+            @keyframes pulse-warning {
+                0% { opacity: 0.3; }
+                50% { opacity: 1.0; }
+                100% { opacity: 0.3; }
+            }
+            @keyframes pulse-text {
+                0% { opacity: 0.5; }
+                50% { opacity: 1.0; }
+                100% { opacity: 0.5; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Schedule status check every 15 seconds
+    setTimeout(window.updatePipelineStatus, 1000);
+    setInterval(window.updatePipelineStatus, 15000);
+
     window.loadAutoCleanState();
     setTimeout(initWebSocket, 500);
 });
