@@ -1,0 +1,6 @@
+{
+  "antigravity.ai.provider": "openai-compatible",
+  "antigravity.openai-compatible.endpoint": "https://api.aivene.com/v1",
+  "antigravity.openai-compatible.apiKey": "isk-APbUUeFloI9i34OtwD3KBVfRBHvoA2BppBeSyyll",
+  "antigravity.ai.model": "qwen3.7-flash"
+}
