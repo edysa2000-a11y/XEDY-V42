@@ -8,26 +8,34 @@ on:
       - main
   workflow_dispatch: # Allow manual trigger from GitHub UI
 
+# Concurrency lock to prevent overlapping runs from queueing up if execution takes over 60s
+concurrency:
+  group: xedy-scraper
+  cancel-in-progress: true
+
 jobs:
   scrape-and-analyze:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 1 # Shallow clone to speed up checkout significantly
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-          cache: 'pip' # Step 1: Caching dependencies enabled
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
-          pip install python-dotenv pandas numpy feedparser
+          pip install --upgrade pip
+          pip install --prefer-binary python-dotenv pandas numpy feedparser # Use fast binaries to skip compiling
 
       - name: Restore State from data-feed branch
         run: |
-          git fetch origin data-feed || echo "No previous data-feed branch found."
+          git fetch --depth=1 origin data-feed || echo "No previous data-feed branch found."
           git checkout origin/data-feed -- data/ || echo "No previous data directory found."
 
       - name: Run Cloud News Scraper
