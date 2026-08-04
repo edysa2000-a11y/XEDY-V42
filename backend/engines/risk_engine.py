@@ -1,4 +1,5 @@
 from .base_engine import BaseEngine
+from .claude_tactical_advisor import ClaudeTacticalAdvisor
 import json
 
 class RiskEngine(BaseEngine):
@@ -26,6 +27,7 @@ class RiskEngine(BaseEngine):
         self._hedge_locks = {}
         self.last_trade_time = 0.0
         self._highest_profits = {}
+        self.claude_advisor = ClaudeTacticalAdvisor()
 
     async def start(self):
         self.logger.info("Risk engine online.")
@@ -1082,6 +1084,75 @@ class RiskEngine(BaseEngine):
                                 if not has_positions:
                                     continue  # Skip this cycle entirely if no positions open
                             
+                        # =============================================
+                        # CLAUDE TACTICAL ADVISOR INTEGRATION
+                        # =============================================
+                        claude_instruction = None
+                        if not has_positions:
+                            try:
+                                import time as _time
+                                from datetime import datetime, timedelta
+                                # Build position list for Claude
+                                pos_list = []
+                                if positions:
+                                    for _p in positions:
+                                        pos_list.append({"type": _p.type, "volume": _p.volume, "price_open": _p.price_open, "profit": _p.profit})
+                                # Build today's closed trades for Claude
+                                closed_today = []
+                                try:
+                                    today_start = datetime.now().replace(hour=0, minute=0, second=0)
+                                    deals = mt5.history_deals_get(today_start, datetime.now() + timedelta(hours=1))
+                                    if deals:
+                                        for d in deals:
+                                            dd = d._asdict()
+                                            if dd.get("entry") == 1:  # OUT deals
+                                                closed_today.append({"profit": dd.get("profit", 0) + dd.get("commission", 0) + dd.get("swap", 0)})
+                                except Exception:
+                                    pass
+                                # Get technicals and news
+                                _technicals = {}
+                                _news_text = "No recent headlines."
+                                _macro_strat = getattr(self, "macro_strategist", None)
+                                if not _macro_strat and hasattr(self, "decision_engine") and self.decision_engine:
+                                    _macro_strat = getattr(self.decision_engine, "macro_strategist", None)
+                                if _macro_strat:
+                                    if hasattr(_macro_strat, "data_engine") and _macro_strat.data_engine:
+                                        _technicals = getattr(_macro_strat.data_engine, "technicals", {})
+                                    if hasattr(_macro_strat, "news_engine") and _macro_strat.news_engine:
+                                        _headlines = [n.get("headline", n.get("title", "")) for n in getattr(_macro_strat.news_engine, "news_feed", [])[-5:]]
+                                        if _headlines:
+                                            _news_text = " | ".join(_headlines)
+                                # Calculate ATR for Claude context
+                                _atr_rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M15, 0, 20)
+                                _atr_val = 9.0
+                                if _atr_rates is not None and len(_atr_rates) >= 15:
+                                    import numpy as _np
+                                    _h = _np.array([r[2] for r in _atr_rates])
+                                    _l = _np.array([r[3] for r in _atr_rates])
+                                    _c = _np.array([r[4] for r in _atr_rates])
+                                    _tr = [max(_h[i]-_l[i], abs(_h[i]-_c[i-1]), abs(_l[i]-_c[i-1])) for i in range(1, len(_atr_rates))]
+                                    _atr_val = float(_np.mean(_tr[-14:]))
+                                
+                                claude_instruction = await self.claude_advisor.get_tactical_instruction(
+                                    _technicals, _news_text, pos_list, closed_today, tick.bid, _atr_val
+                                )
+                                
+                                # Apply Claude's instruction to override bias if confident
+                                if claude_instruction and claude_instruction.get("action") in ["BUY", "SELL"]:
+                                    claude_conf = claude_instruction.get("confidence", 0)
+                                    if claude_conf >= 70:
+                                        claude_action = claude_instruction["action"]
+                                        if claude_action == "BUY":
+                                            bias = "BUY_ONLY"
+                                        elif claude_action == "SELL":
+                                            bias = "SELL_ONLY"
+                                        self.logger.info(f"Claude Advisor Override: {claude_action} (Confidence: {claude_conf}%). Bias set to {bias}.")
+                                    elif claude_instruction.get("action") == "HOLD":
+                                        self.logger.info(f"Claude Advisor: HOLD instruction. Skipping entry this cycle.")
+                                        continue
+                            except Exception as claude_err:
+                                self.logger.warning(f"Claude Advisor integration error (non-blocking): {claude_err}")
+                        
                         # A. Sideways Range Repeater Logic (Repeated buy low / sell high in range)
                         if regime == "SIDEWAYS" and bias == "ANY":
                             # Arm BUY Limit at low boundary if no active BUY position/order

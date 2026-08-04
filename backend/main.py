@@ -447,6 +447,20 @@ async def get_macro_dashboard():
 
     return result
 
+@app.get("/api/v1/claude/instruction")
+async def get_claude_instruction():
+    """Returns the latest Claude Tactical Advisor instruction."""
+    import json
+    import os
+    path = "data/claude_tactical_instruction.json"
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {"error": "Failed to read Claude instruction file."}
+    return {"error": "No Claude instruction available yet.", "instruction": None}
+
 @app.get("/api/v1/forecast/stats")
 
 async def get_forecast_stats():
