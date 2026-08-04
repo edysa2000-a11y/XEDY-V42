@@ -1061,14 +1061,14 @@ class RiskEngine(BaseEngine):
                                         self.logger.info(f"HLC Strategy: Triggering Market BUY Entry ({lot_market} lot) at Open price {tick.ask}")
                                         await self.execution_engine.execute_order(symbol, "BUY", lot_market)
                                         
-                                    # B. Pullback BUY LIMIT 1 (Lot 50%) at Mid-Pullback
+                                    # B. Pullback BUY LIMIT 1 (Lot 50%) at Mid-Pullback (TP at midpoint for high probability)
                                     limit_price_1 = mid - 0.5 * grid_dist
                                     if self.execution_engine and limit_price_1 < tick.bid:
                                         await self.execution_engine.execute_pending_limit_order(
-                                            symbol, "BUY", limit_price_1, buy_sl, buy_tp, lot_limit1
+                                            symbol, "BUY", limit_price_1, buy_sl, mid, lot_limit1
                                         )
                                         
-                                    # C. Pullback BUY LIMIT 2 (Lot 120%) at Extreme Low
+                                    # C. Pullback BUY LIMIT 2 (Lot 120%) at Extreme Low (TP at extreme high for max profit)
                                     if self.execution_engine and pred_low < tick.bid:
                                         await self.execution_engine.execute_pending_limit_order(
                                             symbol, "BUY", pred_low, buy_sl, buy_tp, lot_limit2
@@ -1083,14 +1083,14 @@ class RiskEngine(BaseEngine):
                                         self.logger.info(f"HLC Strategy: Triggering Market SELL Entry ({lot_market} lot) at Open price {tick.bid}")
                                         await self.execution_engine.execute_order(symbol, "SELL", lot_market)
                                         
-                                    # B. Pullback SELL LIMIT 1 (Lot 50%) at Mid-Pullback
+                                    # B. Pullback SELL LIMIT 1 (Lot 50%) at Mid-Pullback (TP at midpoint for high probability)
                                     limit_price_1 = mid + 0.5 * grid_dist
                                     if self.execution_engine and limit_price_1 > tick.bid:
                                         await self.execution_engine.execute_pending_limit_order(
-                                            symbol, "SELL", limit_price_1, sell_sl, sell_tp, lot_limit1
+                                            symbol, "SELL", limit_price_1, sell_sl, mid, lot_limit1
                                         )
                                         
-                                    # C. Pullback SELL LIMIT 2 (Lot 120%) at Extreme High
+                                    # C. Pullback SELL LIMIT 2 (Lot 120%) at Extreme High (TP at extreme low for max profit)
                                     if self.execution_engine and pred_high > tick.bid:
                                         await self.execution_engine.execute_pending_limit_order(
                                             symbol, "SELL", pred_high, sell_sl, sell_tp, lot_limit2
