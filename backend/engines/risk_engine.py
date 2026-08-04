@@ -969,6 +969,13 @@ class RiskEngine(BaseEngine):
                         if not tick:
                             continue
                             
+                        # Spread Protection Filter (Max 3.5 USD / 35 pips on Gold)
+                        spread = tick.ask - tick.bid
+                        max_allowed_spread = 3.5
+                        if spread > max_allowed_spread:
+                            self.logger.warning(f"HLC Strategy: Order placement skipped due to high broker spread: {spread:.2f} (Max allowed: {max_allowed_spread})")
+                            continue
+                            
                         # 3. Check current positions and pending orders
                         positions = mt5.positions_get(symbol=symbol)
                         orders = mt5.orders_get(symbol=symbol)
