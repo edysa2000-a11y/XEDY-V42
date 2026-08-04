@@ -2797,8 +2797,7 @@ window.switchBtMetric = function(metric) {
         const titleMap = {
             'close': '📈 CLOSE: AKTUAL vs PREDIKSI (D1)',
             'high': '📈 HIGH: AKTUAL vs PREDIKSI (D1)',
-            'low': '📈 LOW: AKTUAL vs PREDIKSI (D1)',
-            'open': '📈 OPEN: HARGA PEMBUKAAN (D1)'
+            'low': '📈 LOW: AKTUAL vs PREDIKSI (D1)'
         };
         titleEl.textContent = titleMap[metric] || '📈 BACKTEST CHART';
     }
@@ -2832,13 +2831,6 @@ function renderBacktestChart(chartData) {
         dataPred = chartData.predicted_low_1d || [];
         colorActual = '#3498db';
         colorPred = '#ffaa00';
-    } else if (_btCurrentMetric === 'open') {
-        labelActual = 'Harga Open';
-        labelPred = 'Pembukaan (1D)';
-        dataActual = chartData.actual_open || [];
-        dataPred = chartData.predicted_open_1d || [];
-        colorActual = '#9b59b6';
-        colorPred = '#f39c12';
     }
     
     _btChart = new Chart(ctx, {
