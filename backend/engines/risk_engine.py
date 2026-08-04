@@ -539,7 +539,7 @@ class RiskEngine(BaseEngine):
                                                 await self.execution_engine.notifier._send_safe(msg)
 
                             # Method 10: Hybrid (Trailing Stop + Dynamic Break-Even) Exits
-                            if same_dir_count == 1 and ticket not in self._hedge_locks:
+                            if ticket not in self._hedge_locks:
                                 pips = (current_price - entry_price) if p_type == 0 else (entry_price - current_price)
                                 usd_profit = pips * 100.0 * float(p.volume)
                                  
