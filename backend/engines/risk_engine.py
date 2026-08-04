@@ -1282,6 +1282,86 @@ class RiskEngine(BaseEngine):
                                         if self.execution_engine:
                                             await self.execution_engine.execute_order(symbol, "BUY", total_vol)
                                             
+                                # C. Claude Recovery Scenario Executor
+                                # When positions are in drawdown, execute Claude's recovery plans
+                                try:
+                                    total_floating = sum(p.profit for p in positions)
+                                    avg_entry = sum(p.price_open * p.volume for p in positions) / total_vol if total_vol > 0 else tick.bid
+                                    
+                                    # Trigger recovery when floating loss exceeds $5 per lot
+                                    loss_threshold = -5.0 * total_vol
+                                    
+                                    if total_floating < loss_threshold and self.execution_engine:
+                                        cached = self.claude_advisor.get_cached_instruction()
+                                        if cached and cached.get("recovery_scenarios"):
+                                            recovery_triggered = getattr(self, "_recovery_triggered", False)
+                                            if not recovery_triggered:
+                                                scenarios = cached["recovery_scenarios"]
+                                                # Execute first applicable recovery scenario
+                                                for scenario in scenarios:
+                                                    s_action = scenario.get("action", "").upper()
+                                                    s_lot = scenario.get("lot_adjustment", 0.5)
+                                                    s_target = scenario.get("target_price", 0)
+                                                    recovery_lot = normalize_vol(base_lot * s_lot)
+                                                    
+                                                    if s_action == "HEDGE":
+                                                        # Open opposite position to lock losses
+                                                        hedge_dir = "SELL" if active_pos_type == 0 else "BUY"
+                                                        if not any(p.type == (1 if active_pos_type == 0 else 0) for p in positions):
+                                                            self.logger.warning(
+                                                                f"Claude Recovery HEDGE: Floating ${total_floating:.2f}. "
+                                                                f"Opening {hedge_dir} {recovery_lot} lot to lock loss. "
+                                                                f"Reason: {scenario.get('explanation', 'N/A')}"
+                                                            )
+                                                            await self.execution_engine.execute_order(symbol, hedge_dir, recovery_lot)
+                                                            self._recovery_triggered = True
+                                                            break
+                                                            
+                                                    elif s_action == "AVERAGE":
+                                                        # Add position at better price to lower breakeven
+                                                        avg_dir = "BUY" if active_pos_type == 0 else "SELL"
+                                                        # Only average if price has moved enough from avg entry
+                                                        price_diff = abs(tick.bid - avg_entry)
+                                                        if price_diff >= grid_dist * 0.5:
+                                                            self.logger.warning(
+                                                                f"Claude Recovery AVERAGE: Floating ${total_floating:.2f}. "
+                                                                f"Adding {avg_dir} {recovery_lot} lot to lower breakeven. "
+                                                                f"Reason: {scenario.get('explanation', 'N/A')}"
+                                                            )
+                                                            await self.execution_engine.execute_order(symbol, avg_dir, recovery_lot)
+                                                            self._recovery_triggered = True
+                                                            break
+                                                            
+                                                    elif s_action in ["BUY", "SELL"]:
+                                                        # Direct reversal - close all and reverse
+                                                        self.logger.warning(
+                                                            f"Claude Recovery REVERSAL: Floating ${total_floating:.2f}. "
+                                                            f"Opening {s_action} {recovery_lot} lot reversal. "
+                                                            f"Reason: {scenario.get('explanation', 'N/A')}"
+                                                        )
+                                                        await self.execution_engine.execute_order(symbol, s_action, recovery_lot)
+                                                        self._recovery_triggered = True
+                                                        break
+                                        else:
+                                            # No Claude instruction cached — use built-in smart averaging
+                                            recovery_triggered = getattr(self, "_recovery_triggered", False)
+                                            if not recovery_triggered:
+                                                avg_dir = "BUY" if active_pos_type == 0 else "SELL"
+                                                price_diff = abs(tick.bid - avg_entry)
+                                                if price_diff >= grid_dist * 0.5:
+                                                    recovery_lot = normalize_vol(base_lot * 0.5)
+                                                    self.logger.warning(
+                                                        f"Built-in Recovery: Floating ${total_floating:.2f}. "
+                                                        f"Smart-averaging {avg_dir} {recovery_lot} lot at better price to lower breakeven."
+                                                    )
+                                                    await self.execution_engine.execute_order(symbol, avg_dir, recovery_lot)
+                                                    self._recovery_triggered = True
+                                    elif total_floating >= 0:
+                                        # Reset recovery flag when back to profit
+                                        self._recovery_triggered = False
+                                except Exception as rec_err:
+                                    self.logger.warning(f"Recovery Executor error (non-blocking): {rec_err}")
+                                            
             except Exception as e:
                 self.logger.error(f"Error in _forecast_hlc_bound_loop: {e}", exc_info=True)
                 
