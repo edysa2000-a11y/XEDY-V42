@@ -474,12 +474,12 @@ class RiskEngine(BaseEngine):
                                 avg_entry = weighted_sum / total_vol
                                 
                                 if direction == 0: # BUY
-                                    logical_sl = round(avg_entry - (sl_mult * atr), 2)
-                                    disaster_sl = round(avg_entry - (sl_mult * atr * 3.0), 2)
+                                    logical_sl = round(avg_entry - (min(1.0, sl_mult) * atr), 2)
+                                    disaster_sl = round(avg_entry - (min(1.0, sl_mult) * atr * 1.5), 2)
                                     target_tp = round(avg_entry + (tp_mult * atr), 2)
                                 if direction == 1: # SELL
-                                    logical_sl = round(avg_entry + (sl_mult * atr), 2)
-                                    disaster_sl = round(avg_entry + (sl_mult * atr * 3.0), 2)
+                                    logical_sl = round(avg_entry + (min(1.0, sl_mult) * atr), 2)
+                                    disaster_sl = round(avg_entry + (min(1.0, sl_mult) * atr * 1.5), 2)
                                     target_tp = round(avg_entry - (tp_mult * atr), 2)
                                     
                                 for p in dir_positions:
@@ -501,11 +501,11 @@ class RiskEngine(BaseEngine):
                             # Handle standalone target logical SL & disaster SL
                             if same_dir_count == 1:
                                 if p_type == 0: # BUY
-                                    logical_sl = round(entry_price - (sl_mult * atr), 2)
-                                    disaster_sl = round(entry_price - (sl_mult * atr * 3.0), 2)
+                                    logical_sl = round(entry_price - (min(1.0, sl_mult) * atr), 2)
+                                    disaster_sl = round(entry_price - (min(1.0, sl_mult) * atr * 1.5), 2)
                                 else: # SELL
-                                    logical_sl = round(entry_price + (sl_mult * atr), 2)
-                                    disaster_sl = round(entry_price + (sl_mult * atr * 3.0), 2)
+                                    logical_sl = round(entry_price + (min(1.0, sl_mult) * atr), 2)
+                                    disaster_sl = round(entry_price + (min(1.0, sl_mult) * atr * 1.5), 2)
                                     
                                 self._logical_sls[ticket] = logical_sl
                                 if abs(current_sl - disaster_sl) > 0.05:
