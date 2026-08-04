@@ -266,6 +266,39 @@ class MacroStrategistEngine(BaseEngine):
             self.tp_mult = 2.5  # Standard optimized TP
             optimal_spacing = 0.65  # Moderate spacing for trending/normal markets
             
+        # Apply Live MAE/MFE Calibration to optimize spacing, SL, and TP dynamically
+        try:
+            mae_mfe_stats = self._get_recent_mae_mfe()
+            avg_mae = mae_mfe_stats.get("average_mae_points", 0)
+            avg_mfe = mae_mfe_stats.get("average_mfe_points", 0)
+            
+            if avg_mae > 0 and avg_mfe > 0:
+                self.logger.info(f"Live MAE/MFE Calibration: Avg MAE=${avg_mae:.2f}, Avg MFE=${avg_mfe:.2f}")
+                
+                # MAE Calibration (Adverse Excursion / Drawdown)
+                # If trades suffer deep drawdowns > $4.00, widen the limit spacing to capture better average prices
+                if avg_mae > 4.0:
+                    optimal_spacing *= 1.5
+                    self.sl_mult *= 1.2  # Give more breathing room
+                    self.logger.info(f"MAE Calibration: High adverse excursion detected. Widened Spacing to {optimal_spacing:.2f} and SL mult to {self.sl_mult:.2f}")
+                # If entries are highly precise with < $1.50 drawdown, tighten SL and spacing
+                elif avg_mae < 1.5:
+                    optimal_spacing *= 0.8
+                    self.sl_mult = max(0.4, self.sl_mult * 0.8)
+                    self.logger.info(f"MAE Calibration: High precision entries detected. Tightened Spacing to {optimal_spacing:.2f} and SL mult to {self.sl_mult:.2f}")
+                    
+                # MFE Calibration (Favorable Excursion / Profit Run)
+                # If trades run deep into profit > $6.00, extend TP to ride the trend
+                if avg_mfe > 6.0:
+                    self.tp_mult *= 1.5
+                    self.logger.info(f"MFE Calibration: Strong profit runs detected. Extended TP mult to {self.tp_mult:.2f}")
+                # If profits reverse quickly < $2.50, reduce TP for faster, safer realization
+                elif avg_mfe < 2.5:
+                    self.tp_mult = max(1.0, self.tp_mult * 0.8)
+                    self.logger.info(f"MFE Calibration: Shallow profits detected. Reduced TP mult to {self.tp_mult:.2f} for faster realization")
+        except Exception as e:
+            self.logger.error(f"Error during MAE/MFE Calibration: {e}")
+
         self.logger.info(f"Regime set to {self.volatility_regime}: Limit={self.limit_spacing}, SL={self.sl_mult}, TP={self.tp_mult}. Bias: {self.macro_bias}")
         
         # Apply the dynamically optimized spacing multiplier to RiskEngine
