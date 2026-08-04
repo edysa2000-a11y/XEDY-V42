@@ -25,6 +25,7 @@ env/
 # Logs & Temporary Files
 /logs/
 /scratch/
+/data/
 *.log
 /tests/.pytest_cache/
 
