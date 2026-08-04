@@ -51,6 +51,45 @@ class RiskEngine(BaseEngine):
             self._forecast_hlc_task.cancel()
         self.logger.info("Risk engine offline.")
 
+    def _get_daily_profit(self) -> float:
+        import MetaTrader5 as mt5
+        import datetime
+        now = datetime.datetime.now()
+        start_of_day = datetime.datetime(now.year, now.month, now.day)
+        
+        if not mt5.initialize():
+            return 0.0
+            
+        deals = mt5.history_deals_get(start_of_day, now + datetime.timedelta(days=1))
+        if deals is None:
+            return 0.0
+            
+        total_profit = 0.0
+        for d in deals:
+            total_profit += float(d.profit) + float(d.swap) + float(d.commission)
+        return total_profit
+
+    def _is_news_blackout(self) -> bool:
+        import os
+        import time
+        blackout_enabled = os.environ.get("NEWS_BLACKOUT_ENABLED", "True").lower() == "true"
+        if not blackout_enabled:
+            return False
+            
+        if not hasattr(self, "news_engine") or not self.news_engine:
+            return False
+            
+        now = time.time()
+        # Suspend trading if any high-impact news was published within the last 30 minutes (1800s)
+        # Using the RSS news_feed from news_engine
+        if hasattr(self.news_engine, "news_feed"):
+            for news in self.news_engine.news_feed:
+                if news.get("relevancy", 0) >= 90 and news.get("regime", "") in ["High Volatility", "VIP (High Impact)"]:
+                    news_time = news.get("timestamp", 0)
+                    if 0 <= (now - news_time) <= 1800:
+                        return True
+        return False
+
     async def validate_trade(self, signal: str, price: float, confidence: float = 0.5):
         """
         Validates if a trade can be taken based on current risk exposure and market sentiment.
@@ -73,8 +112,28 @@ class RiskEngine(BaseEngine):
             self.logger.warning(f"Risk Reject: Debounce filter active. Last execution was {now - self.last_trade_time:.1f}s ago (Cooldown: 60s).")
             return
             
+        # --- Safety Daily Limits & News Blackout ---
+        profit_lock = float(os.environ.get("DAILY_PROFIT_LOCK", "100.0"))
+        loss_limit = float(os.environ.get("DAILY_LOSS_LIMIT", "50.0"))
+        daily_pnl = self._get_daily_profit()
+        
         import MetaTrader5 as mt5
         symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+        
+        if mt5.initialize():
+            positions = mt5.positions_get(symbol=symbol)
+            has_positions = positions is not None and len(positions) > 0
+            
+            if not has_positions:
+                if daily_pnl >= profit_lock:
+                    self.logger.warning(f"Safety Lock: Daily Profit Target Reached (${daily_pnl:.2f} >= ${profit_lock:.2f}). Trading suspended.")
+                    return
+                if daily_pnl <= -loss_limit:
+                    self.logger.error(f"Safety Lock: Daily Loss Limit Hit (${daily_pnl:.2f} <= -${loss_limit:.2f}). Trading suspended.")
+                    return
+                if self._is_news_blackout():
+                    self.logger.warning(f"Safety Lock: News Blackout active. Trading suspended for 30 mins.")
+                    return
         
         # Default fallback values
         thresh = float(os.environ.get("CONFIDENCE_THRESHOLD", "0.68"))
@@ -983,6 +1042,25 @@ class RiskEngine(BaseEngine):
                         tick = mt5.symbol_info_tick(symbol)
                         if not tick:
                             continue
+                            
+                        # --- Safety Daily Limits & News Blackout ---
+                        profit_lock = float(os.environ.get("DAILY_PROFIT_LOCK", "100.0"))
+                        loss_limit = float(os.environ.get("DAILY_LOSS_LIMIT", "50.0"))
+                        daily_pnl = self._get_daily_profit()
+                        
+                        positions = mt5.positions_get(symbol=symbol)
+                        has_positions = positions is not None and len(positions) > 0
+                        
+                        if not has_positions:
+                            if daily_pnl >= profit_lock:
+                                self.logger.warning(f"Safety Lock: Daily Profit Target Reached (${daily_pnl:.2f} >= ${profit_lock:.2f}). Trading suspended.")
+                                continue
+                            if daily_pnl <= -loss_limit:
+                                self.logger.error(f"Safety Lock: Daily Loss Limit Hit (${daily_pnl:.2f} <= -${loss_limit:.2f}). Trading suspended.")
+                                continue
+                            if self._is_news_blackout():
+                                self.logger.warning(f"Safety Lock: News Blackout active. Trading suspended for 30 mins.")
+                                continue
                             
                         # Spread Protection Filter (Max 3.5 USD / 35 pips on Gold)
                         spread = tick.ask - tick.bid
