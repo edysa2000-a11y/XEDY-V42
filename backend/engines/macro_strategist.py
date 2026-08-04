@@ -120,6 +120,14 @@ class MacroStrategistEngine(BaseEngine):
         
         self.macro_bias = result.get("bias", "ANY").upper()
         self.volatility_regime = result.get("regime", "NORMAL").upper()
+        
+        # Override volatility_regime explicitly if bias suggests a strong trend
+        if self.volatility_regime in ["NORMAL", "TRENDING"]:
+            if self.macro_bias == "BUY_ONLY":
+                self.volatility_regime = "TREND_UP"
+            elif self.macro_bias == "SELL_ONLY":
+                self.volatility_regime = "TREND_DOWN"
+                
         self.optimal_confidence_threshold = result.get("optimal_confidence_threshold")
         self.optimal_max_op = result.get("optimal_max_op")
         self.reasoning = result.get("reasoning", "")
@@ -242,6 +250,16 @@ class MacroStrategistEngine(BaseEngine):
             self.sl_mult = round(optimal_sl * 0.8, 2)
             self.tp_mult = round(optimal_tp * 0.8, 2)
             optimal_spacing = 0.35  # Tight spacing for sideways/ranging markets to capture small swings
+        elif self.volatility_regime == "TREND_UP":
+            self.limit_spacing = 0.3
+            self.sl_mult = optimal_sl
+            self.tp_mult = round(optimal_tp * 1.5, 2)  # Let profits run higher for buying uptrends
+            optimal_spacing = 0.65
+        elif self.volatility_regime == "TREND_DOWN":
+            self.limit_spacing = 0.45  # Widen limit spacing for steep panic drops
+            self.sl_mult = round(optimal_sl * 0.8, 2)  # Tighter SL for sell direction risk containment
+            self.tp_mult = round(optimal_tp * 1.5, 2)  # Maximized TP for crash segments
+            optimal_spacing = 0.8  # Wider spacing for safety
         else: # NORMAL
             self.limit_spacing = 0.3
             self.sl_mult = optimal_sl

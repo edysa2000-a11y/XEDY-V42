@@ -1023,6 +1023,14 @@ class RiskEngine(BaseEngine):
                         if macro_strat:
                             regime = getattr(macro_strat, "volatility_regime", "NORMAL")
                             
+                        # Override bias based on trend regime to prevent counter-trend execution
+                        if regime == "TREND_UP":
+                            bias = "BUY_ONLY"
+                            self.logger.info("HLC Strategy: TREND_UP regime active, overriding bias to BUY_ONLY.")
+                        elif regime == "TREND_DOWN":
+                            bias = "SELL_ONLY"
+                            self.logger.info("HLC Strategy: TREND_DOWN regime active, overriding bias to SELL_ONLY.")
+                            
                         # A. Sideways Range Repeater Logic (Repeated buy low / sell high in range)
                         if regime == "SIDEWAYS" and bias == "ANY":
                             # Arm BUY Limit at low boundary if no active BUY position/order
