@@ -820,7 +820,7 @@ class RiskEngine(BaseEngine):
                                     tp_price = stop_price + atr * 3.0
                                     sl_price = stop_price - atr * 2.5
                                     req = {
-                                        "action": mt5.TRADE_ACTION_DEAL,
+                                        "action": mt5.TRADE_ACTION_PENDING,
                                         "symbol": symbol,
                                         "volume": lot_size,
                                         "type": mt5.ORDER_TYPE_BUY_STOP,
@@ -837,7 +837,7 @@ class RiskEngine(BaseEngine):
                                     tp_price = stop_price - atr * 3.0
                                     sl_price = stop_price + atr * 2.5
                                     req = {
-                                        "action": mt5.TRADE_ACTION_DEAL,
+                                        "action": mt5.TRADE_ACTION_PENDING,
                                         "symbol": symbol,
                                         "volume": lot_size,
                                         "type": mt5.ORDER_TYPE_SELL_STOP,
