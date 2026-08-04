@@ -996,7 +996,21 @@ class RiskEngine(BaseEngine):
                         grid_range = pred_high - pred_low
                         grid_dist = grid_range / 3.0
                         
-                        base_lot = float(os.environ.get("LOT_SIZE", "0.10"))
+                        # Get broker volume constraints dynamically to avoid Error 10014 (Invalid Volume)
+                        sym_info = mt5.symbol_info(symbol)
+                        vol_step = 0.01
+                        vol_min = 0.01
+                        vol_max = 500.0
+                        if sym_info is not None:
+                            vol_step = float(sym_info.volume_step)
+                            vol_min = float(sym_info.volume_min)
+                            vol_max = float(sym_info.volume_max)
+                            
+                        def normalize_vol(v):
+                            v_norm = round(v / vol_step) * vol_step
+                            return max(vol_min, min(vol_max, round(v_norm, 2)))
+                            
+                        base_lot = normalize_vol(float(os.environ.get("LOT_SIZE", "0.10")))
                         
                         # 6. Resolve Regime
                         regime = "NORMAL"
@@ -1032,9 +1046,9 @@ class RiskEngine(BaseEngine):
                         # B. Trending / Default Zone Scaling Logic
                         else:
                             # Dynamic Lot Weighting:
-                            lot_market = max(0.01, round(base_lot * 0.30, 2))
-                            lot_limit1 = max(0.01, round(base_lot * 0.50, 2))
-                            lot_limit2 = max(0.01, round(base_lot * 1.20, 2))
+                            lot_market = normalize_vol(base_lot * 0.30)
+                            lot_limit1 = normalize_vol(base_lot * 0.50)
+                            lot_limit2 = normalize_vol(base_lot * 1.20)
                             
                             if not has_positions and not has_orders:
                                 # Trigger trade sequence based on bias and mid price
