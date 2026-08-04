@@ -19,6 +19,7 @@ class DataEngine:
         self.account_info = {}
         self.positions = []
         self.history = []
+        self.today_profit = 0.0
         self.technicals = {}
         self.smart_money = {}
 
@@ -159,6 +160,17 @@ class DataEngine:
                     "close_time": cp["close_time"],
                     "profit": round(cp["profit"], 2)
                 })
+                
+            # Calculate today's profit (from 00:00:00 local time today)
+            today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            today_profit = 0.0
+            for d in deals:
+                d_dict = d._asdict()
+                if d_dict.get('entry') == 1:
+                    dt_close = datetime.fromtimestamp(d_dict.get('time'))
+                    if dt_close >= today_start:
+                        today_profit += d_dict.get('profit', 0.0) + d_dict.get('commission', 0.0) + d_dict.get('swap', 0.0)
+            self.today_profit = round(today_profit, 2)
 
     async def _update_technical_data(self):
         # Fetch M15 historical rates (last 250 candles to allow MA 200 calculation)
@@ -346,6 +358,7 @@ class DataEngine:
             "account": self.account_info,
             "positions": self.positions,
             "history": self.history,
+            "today_profit": self.today_profit,
             "technicals": self.technicals,
             "smart_money": self.smart_money
         }

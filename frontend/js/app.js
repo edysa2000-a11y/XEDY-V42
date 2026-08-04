@@ -572,6 +572,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (elPosSizing) elPosSizing.innerText = `${totalLots.toFixed(2)} Lots`;
                         if (elPanelOpenPos) elPanelOpenPos.innerText = openCount;
 
+                        const elDailyProfit = document.getElementById('trade-daily-profit');
+                        if (elDailyProfit && de.today_profit !== undefined) {
+                            const todayProfit = de.today_profit;
+                            const todayProfitFormatted = todayProfit >= 0 ? `+$${todayProfit.toFixed(2)}` : `-$${Math.abs(todayProfit).toFixed(2)}`;
+                            elDailyProfit.innerText = todayProfitFormatted;
+                            elDailyProfit.className = todayProfit >= 0 ? 'kpi-value text-bullish' : 'kpi-value text-critical';
+                        }
+
                         if (de.account) {
                             const profit = de.account.profit;
                             const profitFormatted = profit >= 0 ? `+$${profit.toFixed(2)}` : `-$${Math.abs(profit).toFixed(2)}`;
