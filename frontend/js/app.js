@@ -596,9 +596,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         de.history.forEach(h => {
                             const profitStr = h.profit >= 0 ? `+$${h.profit.toFixed(2)}` : `-$${Math.abs(h.profit).toFixed(2)}`;
                             const profitClass = h.profit >= 0 ? 'text-bullish' : 'text-critical';
+                            const volVal = h.volume !== undefined ? h.volume.toFixed(2) : '0.00';
                             historyHtml += `<tr>
                                 <td>#${h.ticket}</td>
                                 <td class="${h.type === 'BUY' ? 'text-bullish' : 'text-critical'} fw-bold">${h.type}</td>
+                                <td>${volVal}</td>
                                 <td>${h.open_time}</td>
                                 <td>${h.close_time}</td>
                                 <td class="${profitClass}">${profitStr}</td>
@@ -606,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
 
                         if (historyHtml === '') {
-                            historyHtml = '<tr><td colspan="5" class="text-muted text-center">No recent history.</td></tr>';
+                            historyHtml = '<tr><td colspan="6" class="text-muted text-center">No recent history.</td></tr>';
                         }
                         if (historyTbody) historyTbody.innerHTML = historyHtml;
                     }

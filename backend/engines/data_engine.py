@@ -126,6 +126,7 @@ class DataEngine:
                     pos_map[pos_id] = {
                         "ticket": pos_id,
                         "type": "BUY" if d_dict.get('type') == 0 else "SELL",
+                        "volume": d_dict.get('volume', 0.0),
                         "open_time": "--",
                         "close_time": "--",
                         "profit": 0.0,
@@ -137,6 +138,7 @@ class DataEngine:
                     dt_open = datetime.fromtimestamp(d_dict.get('time'))
                     pos_map[pos_id]["open_time"] = dt_open.strftime('%H:%M:%S')
                     pos_map[pos_id]["type"] = "BUY" if d_dict.get('type') == 0 else "SELL"
+                    pos_map[pos_id]["volume"] = d_dict.get('volume', pos_map[pos_id].get("volume", 0.0))
                     
                 # Entry OUT
                 elif d_dict.get('entry') == 1:
@@ -152,6 +154,7 @@ class DataEngine:
                 self.history.append({
                     "ticket": cp["ticket"],
                     "type": cp["type"],
+                    "volume": cp.get("volume", 0.0),
                     "open_time": cp["open_time"],
                     "close_time": cp["close_time"],
                     "profit": round(cp["profit"], 2)
