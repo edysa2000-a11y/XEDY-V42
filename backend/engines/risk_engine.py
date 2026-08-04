@@ -1065,8 +1065,11 @@ class RiskEngine(BaseEngine):
                                     orders = mt5.orders_get(symbol=symbol)
                                     has_orders = orders is not None and len(orders) > 0
                                     
-                                # Trigger trade sequence based on bias and mid price
-                                if bias == "BUY_ONLY" or (bias == "ANY" and tick.bid >= mid):
+                                # Whipsaw Prevention: Add buffer around midpoint to avoid opening trades on tiny fluctuations
+                                mid_buffer = max(1.0, 0.1 * grid_dist)
+                                
+                                # Trigger trade sequence based on bias and mid price with buffer filter
+                                if bias == "BUY_ONLY" or (bias == "ANY" and tick.bid >= mid + mid_buffer):
                                     buy_tp = pred_high - 1.0 # Safety buffer
                                     buy_sl = pred_low - 15.0
                                     
@@ -1088,7 +1091,7 @@ class RiskEngine(BaseEngine):
                                             symbol, "BUY", pred_low, buy_sl, buy_tp, lot_limit2
                                         )
                                         
-                                elif bias == "SELL_ONLY" or (bias == "ANY" and tick.bid < mid):
+                                elif bias == "SELL_ONLY" or (bias == "ANY" and tick.bid <= mid - mid_buffer):
                                     sell_tp = pred_low + 1.0 # Safety buffer
                                     sell_sl = pred_high + 15.0
                                     
