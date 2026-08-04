@@ -989,6 +989,37 @@ class RiskEngine(BaseEngine):
                             self.logger.warning(f"HLC Strategy: Order placement skipped due to high broker spread: {spread:.2f} (Max allowed: {max_allowed_spread})")
                             continue
                             
+                        # RSI Confluence Filter (RSI 14 from M15 data)
+                        import numpy as np
+                        rsi_value = 50.0  # Default neutral
+                        rsi_filter_direction = "ANY"  # ANY = no restriction
+                        try:
+                            rsi_rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M15, 0, 20)
+                            if rsi_rates is not None and len(rsi_rates) >= 15:
+                                rsi_closes = np.array([r[4] for r in rsi_rates])  # close prices
+                                rsi_delta = np.diff(rsi_closes)
+                                rsi_gain = np.where(rsi_delta > 0, rsi_delta, 0)
+                                rsi_loss = np.where(rsi_delta < 0, -rsi_delta, 0)
+                                avg_gain = np.mean(rsi_gain[-14:])
+                                avg_loss = np.mean(rsi_loss[-14:])
+                                if avg_loss > 0:
+                                    rs = avg_gain / avg_loss
+                                    rsi_value = 100.0 - (100.0 / (1.0 + rs))
+                                else:
+                                    rsi_value = 100.0
+                                    
+                                if rsi_value < 35.0:
+                                    rsi_filter_direction = "BUY_ONLY"
+                                    self.logger.info(f"HLC RSI Filter: RSI={rsi_value:.1f} (Oversold) -> BUY_ONLY confluence confirmed.")
+                                elif rsi_value > 65.0:
+                                    rsi_filter_direction = "SELL_ONLY"
+                                    self.logger.info(f"HLC RSI Filter: RSI={rsi_value:.1f} (Overbought) -> SELL_ONLY confluence confirmed.")
+                                else:
+                                    rsi_filter_direction = "ANY"
+                                    self.logger.info(f"HLC RSI Filter: RSI={rsi_value:.1f} (Neutral zone) -> Deferring to AI bias.")
+                        except Exception as rsi_err:
+                            self.logger.warning(f"HLC RSI Filter: Could not calculate RSI: {rsi_err}")
+                            
                         # 3. Check current positions and pending orders
                         positions = mt5.positions_get(symbol=symbol)
                         orders = mt5.orders_get(symbol=symbol)
@@ -1037,6 +1068,19 @@ class RiskEngine(BaseEngine):
                         elif regime == "TREND_DOWN":
                             bias = "SELL_ONLY"
                             self.logger.info("HLC Strategy: TREND_DOWN regime active, overriding bias to SELL_ONLY.")
+                            
+                        # 7. RSI Confluence Enforcement
+                        # If RSI disagrees with current bias, tighten bias to prevent counter-momentum entries
+                        if rsi_filter_direction != "ANY":
+                            if bias == "ANY":
+                                # No regime override, let RSI guide direction
+                                bias = rsi_filter_direction
+                                self.logger.info(f"HLC RSI Confluence: RSI overriding neutral bias to {rsi_filter_direction}.")
+                            elif bias != rsi_filter_direction:
+                                # RSI conflicts with regime bias -> block new entries entirely
+                                self.logger.warning(f"HLC RSI Confluence: RSI={rsi_filter_direction} CONFLICTS with Regime bias={bias}. Blocking new entries this cycle.")
+                                if not has_positions:
+                                    continue  # Skip this cycle entirely if no positions open
                             
                         # A. Sideways Range Repeater Logic (Repeated buy low / sell high in range)
                         if regime == "SIDEWAYS" and bias == "ANY":
