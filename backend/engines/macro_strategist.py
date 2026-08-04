@@ -238,32 +238,32 @@ class MacroStrategistEngine(BaseEngine):
         except Exception as e:
             self.logger.error(f"Error in dynamic 3D auto-optimization: {e}")
 
-        # Dynamically set ATR multipliers and spacing based on regime and auto-optimized baseline
+        # Dynamically set HLC-optimized SL/TP multipliers based on volatility regime (from 30-day backtest)
         optimal_spacing = 0.65
         if self.volatility_regime == "HIGH_NEWS":
             self.limit_spacing = 0.5
-            self.sl_mult = round(optimal_sl * 1.33, 2)
-            self.tp_mult = round(optimal_tp * 1.33, 2)
+            self.sl_mult = 0.8  # Extra buffer for high volatility noise
+            self.tp_mult = 4.0  # Exploit large range sweeps
             optimal_spacing = 1.0  # Wide spacing for high news/volatility to prevent fast averaging drawdowns
         elif self.volatility_regime == "SIDEWAYS":
             self.limit_spacing = 0.2
-            self.sl_mult = round(optimal_sl * 0.8, 2)
-            self.tp_mult = round(optimal_tp * 0.8, 2)
+            self.sl_mult = 0.6  # Super tight SL to contain range breakout risk
+            self.tp_mult = 2.0  # Quick TP to lock in range swings safely
             optimal_spacing = 0.35  # Tight spacing for sideways/ranging markets to capture small swings
         elif self.volatility_regime == "TREND_UP":
             self.limit_spacing = 0.3
-            self.sl_mult = optimal_sl
-            self.tp_mult = round(optimal_tp * 1.5, 2)  # Let profits run higher for buying uptrends
+            self.sl_mult = 0.6  # Cut losses quickly
+            self.tp_mult = 3.5  # Ride the upward momentum for high profits
             optimal_spacing = 0.65
         elif self.volatility_regime == "TREND_DOWN":
             self.limit_spacing = 0.45  # Widen limit spacing for steep panic drops
-            self.sl_mult = round(optimal_sl * 0.8, 2)  # Tighter SL for sell direction risk containment
-            self.tp_mult = round(optimal_tp * 1.5, 2)  # Maximized TP for crash segments
+            self.sl_mult = 0.6  # Tighter SL for sell direction risk containment
+            self.tp_mult = 3.5  # High TP for crash segments
             optimal_spacing = 0.8  # Wider spacing for safety
         else: # NORMAL
             self.limit_spacing = 0.3
-            self.sl_mult = optimal_sl
-            self.tp_mult = optimal_tp
+            self.sl_mult = 0.6  # Standard optimized tight SL
+            self.tp_mult = 2.5  # Standard optimized TP
             optimal_spacing = 0.65  # Moderate spacing for trending/normal markets
             
         self.logger.info(f"Regime set to {self.volatility_regime}: Limit={self.limit_spacing}, SL={self.sl_mult}, TP={self.tp_mult}. Bias: {self.macro_bias}")
