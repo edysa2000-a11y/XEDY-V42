@@ -473,13 +473,18 @@ class RiskEngine(BaseEngine):
                                 weighted_sum = sum(p.price_open * p.volume for p in dir_positions)
                                 avg_entry = weighted_sum / total_vol
                                 
+                                # Dynamic SL Compression: Tighten SL multiplier as grid size grows
+                                grid_size = len(dir_positions)
+                                sl_tightener = 1.0 if grid_size < 2 else (0.50 if grid_size == 2 else 0.35)
+                                tightened_sl_mult = min(1.0, sl_mult) * sl_tightener
+                                
                                 if direction == 0: # BUY
-                                    logical_sl = round(avg_entry - (min(1.0, sl_mult) * atr), 2)
-                                    disaster_sl = round(avg_entry - (min(1.0, sl_mult) * atr * 1.5), 2)
+                                    logical_sl = round(avg_entry - (tightened_sl_mult * atr), 2)
+                                    disaster_sl = round(avg_entry - (tightened_sl_mult * atr * 1.5), 2)
                                     target_tp = round(avg_entry + (tp_mult * atr), 2)
                                 if direction == 1: # SELL
-                                    logical_sl = round(avg_entry + (min(1.0, sl_mult) * atr), 2)
-                                    disaster_sl = round(avg_entry + (min(1.0, sl_mult) * atr * 1.5), 2)
+                                    logical_sl = round(avg_entry + (tightened_sl_mult * atr), 2)
+                                    disaster_sl = round(avg_entry + (tightened_sl_mult * atr * 1.5), 2)
                                     target_tp = round(avg_entry - (tp_mult * atr), 2)
                                     
                                 for p in dir_positions:
