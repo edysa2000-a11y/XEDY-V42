@@ -991,89 +991,122 @@ class RiskEngine(BaseEngine):
                         
                         base_lot = float(os.environ.get("LOT_SIZE", "0.10"))
                         
-                        # Dynamic Lot Weighting:
-                        lot_market = max(0.01, round(base_lot * 0.30, 2))
-                        lot_limit1 = max(0.01, round(base_lot * 0.50, 2))
-                        lot_limit2 = max(0.01, round(base_lot * 1.20, 2))
-                        
-                        if not has_positions and not has_orders:
-                            # Trigger trade sequence based on bias and mid price
-                            if bias == "BUY_ONLY" or (bias == "ANY" and tick.bid >= mid):
-                                buy_tp = pred_high - 1.0 # Safety buffer
+                        # 6. Resolve Regime
+                        regime = "NORMAL"
+                        if macro_strat:
+                            regime = getattr(macro_strat, "regime", "NORMAL")
+                            
+                        # A. Sideways Range Repeater Logic (Repeated buy low / sell high in range)
+                        if regime == "SIDEWAYS" and bias == "ANY":
+                            # Arm BUY Limit at low boundary if no active BUY position/order
+                            buy_positions = [p for p in positions if p.type == 0] if positions else []
+                            buy_orders = [o for o in orders if o.type == mt5.ORDER_TYPE_BUY_LIMIT] if orders else []
+                            if not buy_positions and not buy_orders:
+                                buy_tp = mid
                                 buy_sl = pred_low - 15.0
-                                
-                                # A. Instant Market BUY Entry (Lot 30%)
-                                if self.execution_engine:
-                                    self.logger.info(f"HLC Strategy: Triggering Market BUY Entry ({lot_market} lot) at Open price {tick.ask}")
-                                    await self.execution_engine.execute_order(symbol, "BUY", lot_market)
-                                    
-                                # B. Pullback BUY LIMIT 1 (Lot 50%) at Mid-Pullback
-                                limit_price_1 = mid - 0.5 * grid_dist
-                                if self.execution_engine and limit_price_1 < tick.bid:
-                                    await self.execution_engine.execute_pending_limit_order(
-                                        symbol, "BUY", limit_price_1, buy_sl, buy_tp, lot_limit1
-                                    )
-                                    
-                                # C. Pullback BUY LIMIT 2 (Lot 120%) at Extreme Low
                                 if self.execution_engine and pred_low < tick.bid:
+                                    self.logger.info(f"Sideways Range Repeater: Arming BUY Limit at Low boundary {pred_low}")
                                     await self.execution_engine.execute_pending_limit_order(
-                                        symbol, "BUY", pred_low, buy_sl, buy_tp, lot_limit2
+                                        symbol, "BUY", pred_low, buy_sl, buy_tp, base_lot
                                     )
                                     
-                            elif bias == "SELL_ONLY" or (bias == "ANY" and tick.bid < mid):
-                                sell_tp = pred_low + 1.0 # Safety buffer
+                            # Arm SELL Limit at high boundary if no active SELL position/order
+                            sell_positions = [p for p in positions if p.type == 1] if positions else []
+                            sell_orders = [o for o in orders if o.type == mt5.ORDER_TYPE_SELL_LIMIT] if orders else []
+                            if not sell_positions and not sell_orders:
+                                sell_tp = mid
                                 sell_sl = pred_high + 15.0
-                                
-                                # A. Instant Market SELL Entry (Lot 30%)
-                                if self.execution_engine:
-                                    self.logger.info(f"HLC Strategy: Triggering Market SELL Entry ({lot_market} lot) at Open price {tick.bid}")
-                                    await self.execution_engine.execute_order(symbol, "SELL", lot_market)
-                                    
-                                # B. Pullback SELL LIMIT 1 (Lot 50%) at Mid-Pullback
-                                limit_price_1 = mid + 0.5 * grid_dist
-                                if self.execution_engine and limit_price_1 > tick.bid:
-                                    await self.execution_engine.execute_pending_limit_order(
-                                        symbol, "SELL", limit_price_1, sell_sl, sell_tp, lot_limit1
-                                    )
-                                    
-                                # C. Pullback SELL LIMIT 2 (Lot 120%) at Extreme High
                                 if self.execution_engine and pred_high > tick.bid:
+                                    self.logger.info(f"Sideways Range Repeater: Arming SELL Limit at High boundary {pred_high}")
                                     await self.execution_engine.execute_pending_limit_order(
-                                        symbol, "SELL", pred_high, sell_sl, sell_tp, lot_limit2
+                                        symbol, "SELL", pred_high, sell_sl, sell_tp, base_lot
                                     )
                                     
-                        elif has_positions:
-                            # A. Active Position Management: Cancel opposing pending limit orders
-                            active_pos_type = positions[0].type # 0 = BUY, 1 = SELL
-                            if has_orders:
-                                for o in orders:
-                                    # If active position is BUY, cancel SELL LIMIT pending orders
-                                    if active_pos_type == 0 and o.type == mt5.ORDER_TYPE_SELL_LIMIT:
-                                        cancel_req = {"action": mt5.TRADE_ACTION_REMOVE, "order": o.ticket}
-                                        mt5.order_send(cancel_req)
-                                        self.logger.info(f"HLC Strategy: Cancelled opposing SELL limit order #{o.ticket} because BUY position is active.")
-                                    # If active position is SELL, cancel BUY LIMIT pending orders
-                                    elif active_pos_type == 1 and o.type == mt5.ORDER_TYPE_BUY_LIMIT:
-                                        cancel_req = {"action": mt5.TRADE_ACTION_REMOVE, "order": o.ticket}
-                                        mt5.order_send(cancel_req)
-                                        self.logger.info(f"HLC Strategy: Cancelled opposing BUY limit order #{o.ticket} because SELL position is active.")
-                                        
-                            # B. Disaster Auto-Hedge Lock check
-                            total_vol = sum(p.volume for p in positions)
-                            if active_pos_type == 0 and tick.bid <= (pred_low - 12.0):
-                                # BUY positions breached: open SELL hedge lock
-                                if not any(p.type == 1 for p in positions):
-                                    self.logger.warning(f"HLC Strategy Breach: BUY Positions breached extreme low level. Triggering SELL Hedge Lock of {total_vol} lots.")
+                        # B. Trending / Default Zone Scaling Logic
+                        else:
+                            # Dynamic Lot Weighting:
+                            lot_market = max(0.01, round(base_lot * 0.30, 2))
+                            lot_limit1 = max(0.01, round(base_lot * 0.50, 2))
+                            lot_limit2 = max(0.01, round(base_lot * 1.20, 2))
+                            
+                            if not has_positions and not has_orders:
+                                # Trigger trade sequence based on bias and mid price
+                                if bias == "BUY_ONLY" or (bias == "ANY" and tick.bid >= mid):
+                                    buy_tp = pred_high - 1.0 # Safety buffer
+                                    buy_sl = pred_low - 15.0
+                                    
+                                    # A. Instant Market BUY Entry (Lot 30%)
                                     if self.execution_engine:
-                                        await self.execution_engine.execute_order(symbol, "SELL", total_vol)
+                                        self.logger.info(f"HLC Strategy: Triggering Market BUY Entry ({lot_market} lot) at Open price {tick.ask}")
+                                        await self.execution_engine.execute_order(symbol, "BUY", lot_market)
                                         
-                            elif active_pos_type == 1 and tick.ask >= (pred_high + 12.0):
-                                # SELL positions breached: open BUY hedge lock
-                                if not any(p.type == 0 for p in positions):
-                                    self.logger.warning(f"HLC Strategy Breach: SELL Positions breached extreme high level. Triggering BUY Hedge Lock of {total_vol} lots.")
+                                    # B. Pullback BUY LIMIT 1 (Lot 50%) at Mid-Pullback
+                                    limit_price_1 = mid - 0.5 * grid_dist
+                                    if self.execution_engine and limit_price_1 < tick.bid:
+                                        await self.execution_engine.execute_pending_limit_order(
+                                            symbol, "BUY", limit_price_1, buy_sl, buy_tp, lot_limit1
+                                        )
+                                        
+                                    # C. Pullback BUY LIMIT 2 (Lot 120%) at Extreme Low
+                                    if self.execution_engine and pred_low < tick.bid:
+                                        await self.execution_engine.execute_pending_limit_order(
+                                            symbol, "BUY", pred_low, buy_sl, buy_tp, lot_limit2
+                                        )
+                                        
+                                elif bias == "SELL_ONLY" or (bias == "ANY" and tick.bid < mid):
+                                    sell_tp = pred_low + 1.0 # Safety buffer
+                                    sell_sl = pred_high + 15.0
+                                    
+                                    # A. Instant Market SELL Entry (Lot 30%)
                                     if self.execution_engine:
-                                        await self.execution_engine.execute_order(symbol, "BUY", total_vol)
+                                        self.logger.info(f"HLC Strategy: Triggering Market SELL Entry ({lot_market} lot) at Open price {tick.bid}")
+                                        await self.execution_engine.execute_order(symbol, "SELL", lot_market)
                                         
+                                    # B. Pullback SELL LIMIT 1 (Lot 50%) at Mid-Pullback
+                                    limit_price_1 = mid + 0.5 * grid_dist
+                                    if self.execution_engine and limit_price_1 > tick.bid:
+                                        await self.execution_engine.execute_pending_limit_order(
+                                            symbol, "SELL", limit_price_1, sell_sl, sell_tp, lot_limit1
+                                        )
+                                        
+                                    # C. Pullback SELL LIMIT 2 (Lot 120%) at Extreme High
+                                    if self.execution_engine and pred_high > tick.bid:
+                                        await self.execution_engine.execute_pending_limit_order(
+                                            symbol, "SELL", pred_high, sell_sl, sell_tp, lot_limit2
+                                        )
+                                        
+                            elif has_positions:
+                                # A. Active Position Management: Cancel opposing pending limit orders
+                                active_pos_type = positions[0].type # 0 = BUY, 1 = SELL
+                                if has_orders:
+                                    for o in orders:
+                                        # If active position is BUY, cancel SELL LIMIT pending orders
+                                        if active_pos_type == 0 and o.type == mt5.ORDER_TYPE_SELL_LIMIT:
+                                            cancel_req = {"action": mt5.TRADE_ACTION_REMOVE, "order": o.ticket}
+                                            mt5.order_send(cancel_req)
+                                            self.logger.info(f"HLC Strategy: Cancelled opposing SELL limit order #{o.ticket} because BUY position is active.")
+                                        # If active position is SELL, cancel BUY LIMIT pending orders
+                                        elif active_pos_type == 1 and o.type == mt5.ORDER_TYPE_BUY_LIMIT:
+                                            cancel_req = {"action": mt5.TRADE_ACTION_REMOVE, "order": o.ticket}
+                                            mt5.order_send(cancel_req)
+                                            self.logger.info(f"HLC Strategy: Cancelled opposing BUY limit order #{o.ticket} because SELL position is active.")
+                                            
+                                # B. Disaster Auto-Hedge Lock check
+                                total_vol = sum(p.volume for p in positions)
+                                if active_pos_type == 0 and tick.bid <= (pred_low - 12.0):
+                                    # BUY positions breached: open SELL hedge lock
+                                    if not any(p.type == 1 for p in positions):
+                                        self.logger.warning(f"HLC Strategy Breach: BUY Positions breached extreme low level. Triggering SELL Hedge Lock of {total_vol} lots.")
+                                        if self.execution_engine:
+                                            await self.execution_engine.execute_order(symbol, "SELL", total_vol)
+                                            
+                                elif active_pos_type == 1 and tick.ask >= (pred_high + 12.0):
+                                    # SELL positions breached: open BUY hedge lock
+                                    if not any(p.type == 0 for p in positions):
+                                        self.logger.warning(f"HLC Strategy Breach: SELL Positions breached extreme high level. Triggering BUY Hedge Lock of {total_vol} lots.")
+                                        if self.execution_engine:
+                                            await self.execution_engine.execute_order(symbol, "BUY", total_vol)
+                                            
             except Exception as e:
                 self.logger.error(f"Error in _forecast_hlc_bound_loop: {e}", exc_info=True)
                 
