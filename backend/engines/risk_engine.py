@@ -1050,7 +1050,21 @@ class RiskEngine(BaseEngine):
                             lot_limit1 = normalize_vol(base_lot * 0.50)
                             lot_limit2 = normalize_vol(base_lot * 1.20)
                             
-                            if not has_positions and not has_orders:
+                            # Auto-Reset Grid: If no active positions exist, cancel old leftover limit orders and start fresh
+                            if not has_positions:
+                                if has_orders and orders:
+                                    self.logger.info("HLC Strategy: All active positions closed. Cancelling old pending orders to start a fresh cycle.")
+                                    for o in orders:
+                                        if "LIMIT" in getattr(o, "comment", "") or "HLC" in getattr(o, "comment", ""):
+                                            req = {
+                                                "action": mt5.TRADE_ACTION_REMOVE,
+                                                "order": o.ticket
+                                            }
+                                            mt5.order_send(req)
+                                    # Refresh orders
+                                    orders = mt5.orders_get(symbol=symbol)
+                                    has_orders = orders is not None and len(orders) > 0
+                                    
                                 # Trigger trade sequence based on bias and mid price
                                 if bias == "BUY_ONLY" or (bias == "ANY" and tick.bid >= mid):
                                     buy_tp = pred_high - 1.0 # Safety buffer
