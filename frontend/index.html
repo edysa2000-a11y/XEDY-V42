@@ -1327,7 +1327,15 @@
 
                     <!-- Chart -->
                     <div class="bg-dark-panel p-3 rounded border border-secondary mb-4">
-                        <h6 class="text-white mb-3" style="font-size:0.8rem;letter-spacing:0.5px;">📈 CLOSE: AKTUAL vs PREDIKSI (D1)</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <h6 class="text-white m-0" style="font-size:0.8rem;letter-spacing:0.5px;" id="bt-chart-title">📈 CLOSE: AKTUAL vs PREDIKSI (D1)</h6>
+                            <div class="btn-group btn-group-sm" role="group" aria-label="Metric Selection" id="bt-metric-buttons">
+                                <button type="button" class="btn btn-warning btn-xs fw-bold px-3 py-1 btn-chart-metric active" data-metric="close" onclick="switchBtMetric('close')" style="font-size: 0.7rem;">Close</button>
+                                <button type="button" class="btn btn-outline-secondary btn-xs text-white px-3 py-1 btn-chart-metric" data-metric="high" onclick="switchBtMetric('high')" style="font-size: 0.7rem;">High</button>
+                                <button type="button" class="btn btn-outline-secondary btn-xs text-white px-3 py-1 btn-chart-metric" data-metric="low" onclick="switchBtMetric('low')" style="font-size: 0.7rem;">Low</button>
+                                <button type="button" class="btn btn-outline-secondary btn-xs text-white px-3 py-1 btn-chart-metric" data-metric="open" onclick="switchBtMetric('open')" style="font-size: 0.7rem;">Open</button>
+                            </div>
+                        </div>
                         <canvas id="bt-chart" height="100"></canvas>
                     </div>
 

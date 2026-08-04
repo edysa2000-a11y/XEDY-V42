@@ -342,6 +342,8 @@ def run_backtest(days: int = 30) -> dict:
         "predicted_high_1d":  [r["pred_high"]     for r in detail_1d],
         "actual_low":         [r["actual_low"]    for r in detail_1d],
         "predicted_low_1d":   [r["pred_low"]      for r in detail_1d],
+        "actual_open":        [r["open"]          for r in detail_1d],
+        "predicted_open_1d":  [r["open"]          for r in detail_1d],
     }
 
     period_from = d1_rates_full[d1_start_idx]["time"] if len(d1_rates_full) > d1_start_idx else "N/A"

@@ -2676,6 +2676,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let _btData = null;
 let _btCurrentTf = '1d';
 let _btChart = null;
+let _btCurrentMetric = 'close';
 
 window.loadBacktest = async function(refresh) {
     refresh = refresh || false;
@@ -2772,17 +2773,81 @@ function renderBtMetrics(tf) {
     }
 }
 
+window.switchBtMetric = function(metric) {
+    if (!_btData) return;
+    _btCurrentMetric = metric;
+    
+    // Update button states
+    const container = document.getElementById('bt-metric-buttons');
+    if (container) {
+        const buttons = container.querySelectorAll('.btn-chart-metric');
+        buttons.forEach(btn => {
+            const m = btn.getAttribute('data-metric');
+            if (m === metric) {
+                btn.className = 'btn btn-warning btn-xs fw-bold px-3 py-1 btn-chart-metric active';
+            } else {
+                btn.className = 'btn btn-outline-secondary btn-xs text-white px-3 py-1 btn-chart-metric';
+            }
+        });
+    }
+    
+    // Update Chart Title
+    const titleEl = document.getElementById('bt-chart-title');
+    if (titleEl) {
+        const titleMap = {
+            'close': '📈 CLOSE: AKTUAL vs PREDIKSI (D1)',
+            'high': '📈 HIGH: AKTUAL vs PREDIKSI (D1)',
+            'low': '📈 LOW: AKTUAL vs PREDIKSI (D1)',
+            'open': '📈 OPEN: HARGA PEMBUKAAN (D1)'
+        };
+        titleEl.textContent = titleMap[metric] || '📈 BACKTEST CHART';
+    }
+    
+    renderBacktestChart(_btData.chart_data);
+};
+
 function renderBacktestChart(chartData) {
     const ctx = document.getElementById('bt-chart');
     if (!ctx || !chartData) return;
     if (_btChart) { _btChart.destroy(); _btChart = null; }
+    
+    let labelActual = 'Aktual Close';
+    let labelPred = 'Prediksi Close (1D)';
+    let dataActual = chartData.actual_close || [];
+    let dataPred = chartData.predicted_close_1d || [];
+    let colorActual = '#00bc8c';
+    let colorPred = '#f39c12';
+    
+    if (_btCurrentMetric === 'high') {
+        labelActual = 'Aktual High';
+        labelPred = 'Prediksi High (1D)';
+        dataActual = chartData.actual_high || [];
+        dataPred = chartData.predicted_high_1d || [];
+        colorActual = '#e74c3c';
+        colorPred = '#ffaa00';
+    } else if (_btCurrentMetric === 'low') {
+        labelActual = 'Aktual Low';
+        labelPred = 'Prediksi Low (1D)';
+        dataActual = chartData.actual_low || [];
+        dataPred = chartData.predicted_low_1d || [];
+        colorActual = '#3498db';
+        colorPred = '#ffaa00';
+    } else if (_btCurrentMetric === 'open') {
+        labelActual = 'Harga Open';
+        labelPred = 'Pembukaan (1D)';
+        dataActual = chartData.actual_open || [];
+        dataPred = chartData.predicted_open_1d || [];
+        colorActual = '#9b59b6';
+        colorPred = '#f39c12';
+    }
+    
     _btChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: chartData.dates || [],
             datasets: [
-                { label: 'Aktual Close', data: chartData.actual_close || [], borderColor: '#00bc8c', backgroundColor: 'rgba(0,188,140,0.08)', borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false },
-                { label: 'Prediksi Close (1D)', data: chartData.predicted_close_1d || [], borderColor: '#f39c12', backgroundColor: 'rgba(243,156,18,0.08)', borderWidth: 2, borderDash: [5,3], pointRadius: 3, tension: 0.3, fill: false }
+                { label: labelActual, data: dataActual, borderColor: colorActual, backgroundColor: 'rgba(0,188,140,0.08)', borderWidth: 2, pointRadius: 3, tension: 0.3, fill: false },
+                { label: labelPred, data: dataPred, borderColor: colorPred, backgroundColor: 'rgba(243,156,18,0.08)', borderWidth: 2, borderDash: [5,3], pointRadius: 3, tension: 0.3, fill: false }
             ]
         },
         options: {
