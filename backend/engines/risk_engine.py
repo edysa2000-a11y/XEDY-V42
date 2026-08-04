@@ -1085,19 +1085,27 @@ class RiskEngine(BaseEngine):
                                     continue  # Skip this cycle entirely if no positions open
                             
                         # =============================================
-                        # CLAUDE TACTICAL ADVISOR INTEGRATION
+                        # DUAL AI CONSENSUS ENGINE (Claude + Qwen)
                         # =============================================
                         claude_instruction = None
-                        if not has_positions:
-                            try:
-                                import time as _time
-                                from datetime import datetime, timedelta
-                                # Build position list for Claude
+                        claude_tp_primary = None
+                        claude_tp_conservative = None
+                        claude_sl = None
+                        
+                        # Always try to get or use cached Claude instruction
+                        try:
+                            import time as _time
+                            from datetime import datetime, timedelta
+                            
+                            # Try cached instruction first
+                            claude_instruction = self.claude_advisor.get_cached_instruction()
+                            
+                            # If no cached instruction and no positions, request new one
+                            if not claude_instruction and not has_positions:
                                 pos_list = []
                                 if positions:
                                     for _p in positions:
                                         pos_list.append({"type": _p.type, "volume": _p.volume, "price_open": _p.price_open, "profit": _p.profit})
-                                # Build today's closed trades for Claude
                                 closed_today = []
                                 try:
                                     today_start = datetime.now().replace(hour=0, minute=0, second=0)
@@ -1105,11 +1113,10 @@ class RiskEngine(BaseEngine):
                                     if deals:
                                         for d in deals:
                                             dd = d._asdict()
-                                            if dd.get("entry") == 1:  # OUT deals
+                                            if dd.get("entry") == 1:
                                                 closed_today.append({"profit": dd.get("profit", 0) + dd.get("commission", 0) + dd.get("swap", 0)})
                                 except Exception:
                                     pass
-                                # Get technicals and news
                                 _technicals = {}
                                 _news_text = "No recent headlines."
                                 _macro_strat = getattr(self, "macro_strategist", None)
@@ -1122,7 +1129,6 @@ class RiskEngine(BaseEngine):
                                         _headlines = [n.get("headline", n.get("title", "")) for n in getattr(_macro_strat.news_engine, "news_feed", [])[-5:]]
                                         if _headlines:
                                             _news_text = " | ".join(_headlines)
-                                # Calculate ATR for Claude context
                                 _atr_rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M15, 0, 20)
                                 _atr_val = 9.0
                                 if _atr_rates is not None and len(_atr_rates) >= 15:
@@ -1136,22 +1142,68 @@ class RiskEngine(BaseEngine):
                                 claude_instruction = await self.claude_advisor.get_tactical_instruction(
                                     _technicals, _news_text, pos_list, closed_today, tick.bid, _atr_val
                                 )
+                            
+                            # Extract Claude's precise TP/SL targets
+                            if claude_instruction and claude_instruction.get("action") in ["BUY", "SELL"]:
+                                claude_tp_primary = claude_instruction.get("tp_primary")
+                                claude_tp_conservative = claude_instruction.get("tp_conservative")
+                                claude_sl = claude_instruction.get("sl_price")
+                                claude_conf = claude_instruction.get("confidence", 0)
+                                claude_action = claude_instruction["action"]
                                 
-                                # Apply Claude's instruction to override bias if confident
-                                if claude_instruction and claude_instruction.get("action") in ["BUY", "SELL"]:
-                                    claude_conf = claude_instruction.get("confidence", 0)
-                                    if claude_conf >= 70:
-                                        claude_action = claude_instruction["action"]
-                                        if claude_action == "BUY":
-                                            bias = "BUY_ONLY"
-                                        elif claude_action == "SELL":
-                                            bias = "SELL_ONLY"
-                                        self.logger.info(f"Claude Advisor Override: {claude_action} (Confidence: {claude_conf}%). Bias set to {bias}.")
-                                    elif claude_instruction.get("action") == "HOLD":
-                                        self.logger.info(f"Claude Advisor: HOLD instruction. Skipping entry this cycle.")
-                                        continue
-                            except Exception as claude_err:
-                                self.logger.warning(f"Claude Advisor integration error (non-blocking): {claude_err}")
+                                # =============================================
+                                # DUAL AI CONSENSUS CHECK
+                                # =============================================
+                                # Qwen bias is already set. Check if Claude agrees.
+                                qwen_bias = bias  # Current bias from Qwen/Regime
+                                claude_bias = "BUY_ONLY" if claude_action == "BUY" else "SELL_ONLY"
+                                
+                                if qwen_bias in ["BUY_ONLY", "SELL_ONLY"] and claude_bias == qwen_bias:
+                                    # CONSENSUS: Both AIs agree on direction
+                                    self.logger.info(
+                                        f"DUAL AI CONSENSUS: Qwen({qwen_bias}) + Claude({claude_action}, {claude_conf}%) AGREE. "
+                                        f"High-conviction entry authorized."
+                                    )
+                                    # Boost lot size by 20% on consensus
+                                    lot_market = normalize_vol(base_lot * 0.36)  # 30% -> 36%
+                                    lot_limit1 = normalize_vol(base_lot * 0.60)  # 50% -> 60%
+                                    lot_limit2 = normalize_vol(base_lot * 1.40)  # 120% -> 140%
+                                    
+                                elif qwen_bias == "ANY" and claude_conf >= 70:
+                                    # Qwen neutral, Claude confident -> follow Claude
+                                    bias = claude_bias
+                                    self.logger.info(
+                                        f"DUAL AI: Qwen neutral, Claude({claude_action}, {claude_conf}%) leads. Bias set to {bias}."
+                                    )
+                                    
+                                elif qwen_bias in ["BUY_ONLY", "SELL_ONLY"] and claude_bias != qwen_bias:
+                                    # CONFLICT: AIs disagree on direction
+                                    if claude_conf >= 85:
+                                        # Claude very confident -> follow Claude but reduce lot
+                                        bias = claude_bias
+                                        lot_market = normalize_vol(base_lot * 0.20)  # Reduced
+                                        lot_limit1 = normalize_vol(base_lot * 0.30)
+                                        lot_limit2 = normalize_vol(base_lot * 0.80)
+                                        self.logger.warning(
+                                            f"DUAL AI CONFLICT: Qwen({qwen_bias}) vs Claude({claude_action}, {claude_conf}%). "
+                                            f"Claude overrides with reduced lot size."
+                                        )
+                                    else:
+                                        # Low confidence conflict -> skip entry
+                                        self.logger.warning(
+                                            f"DUAL AI CONFLICT: Qwen({qwen_bias}) vs Claude({claude_action}, {claude_conf}%). "
+                                            f"Skipping entry — no consensus."
+                                        )
+                                        if not has_positions:
+                                            continue
+                                
+                            elif claude_instruction and claude_instruction.get("action") == "HOLD":
+                                self.logger.info(f"Claude Advisor: HOLD instruction. Skipping entry this cycle.")
+                                if not has_positions:
+                                    continue
+                                    
+                        except Exception as claude_err:
+                            self.logger.warning(f"Dual AI Consensus error (non-blocking): {claude_err}")
                         
                         # A. Sideways Range Repeater Logic (Repeated buy low / sell high in range)
                         if regime == "SIDEWAYS" and bias == "ANY":
@@ -1207,44 +1259,48 @@ class RiskEngine(BaseEngine):
                                 # Trigger trade sequence based on bias and mid price with buffer filter
                                 # For range trading (bias ANY): Buy Low (bid <= mid - buffer), Sell High (bid >= mid + buffer)
                                 if bias == "BUY_ONLY" or (bias == "ANY" and tick.bid <= mid - mid_buffer):
-                                    buy_tp = pred_high - 1.0 # Safety buffer
-                                    buy_sl = pred_low - 15.0
+                                    # Use Claude's precise TP if available, otherwise use forecast boundary
+                                    buy_tp = claude_tp_primary if claude_tp_primary and claude_tp_primary > tick.bid else pred_high - 1.0
+                                    buy_tp_safe = claude_tp_conservative if claude_tp_conservative and claude_tp_conservative > tick.bid else mid
+                                    buy_sl = claude_sl if claude_sl and claude_sl < tick.bid else pred_low - 15.0
                                     
-                                    # A. Instant Market BUY Entry (Lot 30%)
+                                    # A. Instant Market BUY Entry (Lot 30%) — TP = Conservative (high probability)
                                     if self.execution_engine:
-                                        self.logger.info(f"HLC Strategy: Triggering Market BUY Entry ({lot_market} lot) at Open price {tick.ask}")
+                                        self.logger.info(f"HLC Strategy: Triggering Market BUY Entry ({lot_market} lot) at {tick.ask} | TP1={buy_tp_safe:.2f} TP2={buy_tp:.2f} SL={buy_sl:.2f}")
                                         await self.execution_engine.execute_order(symbol, "BUY", lot_market)
                                         
-                                    # B. Pullback BUY LIMIT 1 (Lot 50%) at Mid-Pullback (TP at midpoint for high probability)
+                                    # B. Pullback BUY LIMIT 1 (Lot 50%) — TP = Conservative midpoint
                                     limit_price_1 = mid - 0.5 * grid_dist
                                     if self.execution_engine and limit_price_1 < tick.bid:
                                         await self.execution_engine.execute_pending_limit_order(
-                                            symbol, "BUY", limit_price_1, buy_sl, mid, lot_limit1
+                                            symbol, "BUY", limit_price_1, buy_sl, buy_tp_safe, lot_limit1
                                         )
                                         
-                                    # C. Pullback BUY LIMIT 2 (Lot 120%) at Extreme Low (TP at extreme high for max profit)
+                                    # C. Pullback BUY LIMIT 2 (Lot 120%) — TP = Primary (max profit)
                                     if self.execution_engine and pred_low < tick.bid:
                                         await self.execution_engine.execute_pending_limit_order(
                                             symbol, "BUY", pred_low, buy_sl, buy_tp, lot_limit2
                                         )
                                         
                                 elif bias == "SELL_ONLY" or (bias == "ANY" and tick.bid >= mid + mid_buffer):
-                                    sell_tp = pred_low + 1.0 # Safety buffer
-                                    sell_sl = pred_high + 15.0
+                                    # Use Claude's precise TP if available, otherwise use forecast boundary
+                                    sell_tp = claude_tp_primary if claude_tp_primary and claude_tp_primary < tick.bid else pred_low + 1.0
+                                    sell_tp_safe = claude_tp_conservative if claude_tp_conservative and claude_tp_conservative < tick.bid else mid
+                                    sell_sl = claude_sl if claude_sl and claude_sl > tick.bid else pred_high + 15.0
                                     
-                                    # A. Instant Market SELL Entry (Lot 30%)
+                                    # A. Instant Market SELL Entry (Lot 30%) — TP = Conservative (high probability)
                                     if self.execution_engine:
-                                        self.logger.info(f"HLC Strategy: Triggering Market SELL Entry ({lot_market} lot) at Open price {tick.bid}")
+                                        self.logger.info(f"HLC Strategy: Triggering Market SELL Entry ({lot_market} lot) at {tick.bid} | TP1={sell_tp_safe:.2f} TP2={sell_tp:.2f} SL={sell_sl:.2f}")
                                         await self.execution_engine.execute_order(symbol, "SELL", lot_market)
                                         
-                                    # B. Pullback SELL LIMIT 1 (Lot 50%) at Mid-Pullback (TP at midpoint for high probability)
+                                    # B. Pullback SELL LIMIT 1 (Lot 50%) — TP = Conservative midpoint
                                     limit_price_1 = mid + 0.5 * grid_dist
                                     if self.execution_engine and limit_price_1 > tick.bid:
                                         await self.execution_engine.execute_pending_limit_order(
-                                            symbol, "SELL", limit_price_1, sell_sl, mid, lot_limit1
+                                            symbol, "SELL", limit_price_1, sell_sl, sell_tp_safe, lot_limit1
                                         )
                                         
-                                    # C. Pullback SELL LIMIT 2 (Lot 120%) at Extreme High (TP at extreme low for max profit)
+                                    # C. Pullback SELL LIMIT 2 (Lot 120%) — TP = Primary (max profit)
                                     if self.execution_engine and pred_high > tick.bid:
                                         await self.execution_engine.execute_pending_limit_order(
                                             symbol, "SELL", pred_high, sell_sl, sell_tp, lot_limit2
