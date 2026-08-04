@@ -60,6 +60,7 @@ class RiskEngine(BaseEngine):
             return
             
         # Block raw DecisionEngine signals if running a loop-based quantitative strategy
+        import os
         active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
         if active_method in ["forecast-hlc-bound", "intra-candle-scalper", "intra-candle-scalper-m5", "intra-candle-scalper-m15", "intra-candle-scalper-h1", "intra-candle-scalper-h4", "open-shift-close"]:
             self.logger.info(f"DecisionEngine Signal: Raw {signal} trade request ignored because active quantitative method is {active_method}")
@@ -72,7 +73,6 @@ class RiskEngine(BaseEngine):
             self.logger.warning(f"Risk Reject: Debounce filter active. Last execution was {now - self.last_trade_time:.1f}s ago (Cooldown: 60s).")
             return
             
-        import os
         import MetaTrader5 as mt5
         symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
         
