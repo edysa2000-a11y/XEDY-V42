@@ -57,6 +57,12 @@ class RiskEngine(BaseEngine):
             self.logger.info(f"AutoTrade is OFF. Trade request ignored: {signal} at {price}")
             return
             
+        # Block raw DecisionEngine signals if running a loop-based quantitative strategy
+        active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
+        if active_method in ["forecast-hlc-bound", "intra-candle-scalper", "intra-candle-scalper-m5", "intra-candle-scalper-m15", "intra-candle-scalper-h1", "intra-candle-scalper-h4", "open-shift-close"]:
+            self.logger.info(f"DecisionEngine Signal: Raw {signal} trade request ignored because active quantitative method is {active_method}")
+            return
+            
         # Debounce Filter (prevent multiple fast consecutive orders within 60 seconds)
         import time
         now = time.time()
@@ -204,7 +210,7 @@ class RiskEngine(BaseEngine):
                 
                 regime = "Normal"
                 if self.macro_strategist:
-                    regime = getattr(self.macro_strategist, "regime", "Normal")
+                    regime = getattr(self.macro_strategist, "volatility_regime", "Normal")
                 
                 # Stretch spacing by 2.0x during high news/volatility to prevent clustering grid positions
                 if regime in ["HIGH_NEWS", "HIGH_VOLATILITY", "VIP (High Impact)"]:
@@ -1015,7 +1021,7 @@ class RiskEngine(BaseEngine):
                         # 6. Resolve Regime
                         regime = "NORMAL"
                         if macro_strat:
-                            regime = getattr(macro_strat, "regime", "NORMAL")
+                            regime = getattr(macro_strat, "volatility_regime", "NORMAL")
                             
                         # A. Sideways Range Repeater Logic (Repeated buy low / sell high in range)
                         if regime == "SIDEWAYS" and bias == "ANY":
