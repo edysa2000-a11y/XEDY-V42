@@ -1,5 +1,11 @@
 // XEDY V42 ENTERPRISE - Bloomberg Terminal Logic
 
+window.API_BASE = '';
+const hostName = window.location.hostname;
+if (hostName.includes('github.io') || hostName.includes('vercel.app') || hostName.includes('netlify.app')) {
+    window.API_BASE = 'http://127.0.0.1:8000';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Clock functionality
     const timeDisplay = document.getElementById('sys-time');
@@ -11,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch Score Stats (Backtest XGBoost)
     async function fetchScoreStats() {
         try {
-            const res = await fetch('/api/v1/score_stats');
+            const res = await fetch(window.API_BASE + '/api/v1/score_stats');
             if (res.ok) {
                 const data = await res.json();
                 if (data && data.metrics) {
@@ -1771,7 +1777,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.innerText = '🧹 CLEANING MEMORY...';
         
         try {
-            const response = await fetch('/api/v1/system/rammap/clean', { method: 'POST' });
+            const response = await fetch(window.API_BASE + '/api/v1/system/rammap/clean', { method: 'POST' });
             const result = await response.json();
             alert(result.message);
         } catch (err) {
@@ -1820,7 +1826,7 @@ document.addEventListener('DOMContentLoaded', () => {
         autoCleanIntervalId = setInterval(async () => {
             console.log("Triggering scheduled RAM clean...");
             try {
-                const response = await fetch('/api/v1/system/rammap/clean', { method: 'POST' });
+                const response = await fetch(window.API_BASE + '/api/v1/system/rammap/clean', { method: 'POST' });
                 const result = await response.json();
                 
                 // Alert in UI status label dynamically instead of pop-up
@@ -1887,7 +1893,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
-            const response = await fetch('/api/v1/system/vram/set', {
+            const response = await fetch(window.API_BASE + '/api/v1/system/vram/set', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ initial_mb: initialMb, max_mb: maxMb })
@@ -2374,7 +2380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.fetchForecastStats = async function() {
         try {
-            const response = await fetch('/api/v1/forecast/stats');
+            const response = await fetch(window.API_BASE + '/api/v1/forecast/stats');
             const data = await response.json();
             
             if (data.error) {
@@ -2506,7 +2512,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     window.fetchQwenQuota = async function() {
         try {
-            const response = await fetch('/api/v1/qwen/quota');
+            const response = await fetch(window.API_BASE + '/api/v1/qwen/quota');
             if (!response.ok) return;
             const d = await response.json();
             if (d.error) return;
@@ -2586,7 +2592,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     window.fetchMacroDashboard = async function() {
         try {
-            const res = await fetch('/api/v1/macro/dashboard');
+            const res = await fetch(window.API_BASE + '/api/v1/macro/dashboard');
             if (!res.ok) return;
             const d = await res.json();
             if (d.error) return;
@@ -2651,7 +2657,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     window.renderForecast10Day = async function() {
         try {
-            const res = await fetch('/api/v1/forecast/10day');
+            const res = await fetch(window.API_BASE + '/api/v1/forecast/10day');
             if (!res.ok) return;
             const d = await res.json();
             if (!d.days || d.days.length === 0) return;
@@ -2779,7 +2785,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── 15-Layer & Multi-Agent Swarm Dynamic Status Update ────────────────────
     window.updatePipelineStatus = async () => {
         try {
-            const res = await fetch('/api/v1/health/pipeline');
+            const res = await fetch(window.API_BASE + '/api/v1/health/pipeline');
             if (!res.ok) return;
             const data = await res.json();
 
@@ -2871,7 +2877,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.replace('btn-warning', 'btn-secondary');
         
         try {
-            const response = await fetch('/api/v1/forecast/trigger', { method: 'POST' });
+            const response = await fetch(window.API_BASE + '/api/v1/forecast/trigger', { method: 'POST' });
             if (!response.ok) {
                 const textErr = await response.text();
                 throw new Error(`Server returned HTTP ${response.status}: ${textErr}`);
