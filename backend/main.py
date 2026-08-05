@@ -447,6 +447,20 @@ async def get_macro_dashboard():
 
     return result
 
+@app.get("/api/v1/score_stats")
+async def get_score_stats():
+    import json
+    import os
+    project_root = os.path.dirname(os.path.dirname(__file__))
+    data_path = os.path.join(project_root, 'data', 'score_stats.json')
+    if os.path.exists(data_path):
+        try:
+            with open(data_path, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            return {"error": str(e)}
+    return {"metrics": None, "daily_distribution": []}
+
 @app.get("/api/v1/claude/instruction")
 async def get_claude_instruction():
     """Returns the latest Claude Tactical Advisor instruction."""

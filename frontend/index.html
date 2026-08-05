@@ -697,20 +697,34 @@
                     <!-- Decision & Self-Evaluation -->
                     <div class="col-md-5">
                         <div class="row g-4 h-100">
-                            <div class="col-12 h-50" style="padding-bottom: 0.5rem;">
+                            <div class="col-12" style="flex: 1 1 auto; padding-bottom: 0.5rem;">
                                 <div class="glass-panel p-3 h-100" style="border-left: 3px solid #0dcaf0;">
                                     <h6 class="text-info mb-2">Final Decision Engine</h6>
                                     <h4 class="text-white mb-2">STATUS: <span class="text-warning" id="os-decision-status">WAITING FOR PULLBACK</span></h4>
                                     <p class="small text-muted mb-0" id="os-decision-reason">Primary Reason: UES is 87 (Watchlist). Price is currently overextended. Waiting for liquidity sweep at 2430 before institutional execution. Rejecting immediate market order due to poor R:R.</p>
                                 </div>
                             </div>
-                            <div class="col-12 h-50" style="padding-top: 0.5rem;">
+                            <div class="col-12" style="flex: 1 1 auto; padding-bottom: 0.5rem;">
                                 <div class="glass-panel p-3 h-100" style="border-left: 3px solid #6c757d;">
                                     <h6 class="text-secondary mb-2">Evaluasi Mandiri & Ketidakpastian (Self-Evaluation)</h6>
                                     <p class="small text-muted mb-0">
                                         <strong>Kalibrasi:</strong> Konfidensi tinggi pada tren, tingkat menengah pada penentuan waktu masuk <i>(entry timing)</i>.<br>
                                         <strong>Batasan:</strong> Data NFP besok menambah risiko <i>tail risk</i> yang sangat besar. Ketidakpastian model meningkat drastis setelah 24 jam.<br>
                                         <strong>Asumsi:</strong> Mengasumsikan DXY tetap berada di bawah level 104.50.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-12" style="flex: 1 1 auto;">
+                                <div class="glass-panel p-3 h-100" style="border-left: 3px solid #ffc107;">
+                                    <h6 class="text-warning mb-2">Legend Kuantitatif: % Skor vs % Winrate 📊</h6>
+                                    <table class="table table-sm table-dark table-borderless text-white mb-1">
+                                        <tbody>
+                                            <tr><td class="text-muted"><span class="badge bg-warning">Skor 80 - 90</span></td><td class="text-end fw-bold" id="stat-wr-80">--% Winrate</td></tr>
+                                            <tr><td class="text-muted"><span class="badge bg-success">Skor > 90</span></td><td class="text-end fw-bold text-success" id="stat-wr-90">--% Winrate</td></tr>
+                                        </tbody>
+                                    </table>
+                                    <p class="small text-muted mb-0" id="stat-daily-freq">
+                                        Peluang Hari Ini: <span class="text-white">Menunggu kalkulasi backtest...</span>
                                     </p>
                                 </div>
                             </div>

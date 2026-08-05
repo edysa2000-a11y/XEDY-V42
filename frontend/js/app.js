@@ -8,6 +8,38 @@ document.addEventListener('DOMContentLoaded', () => {
         timeDisplay.innerText = now.toISOString().split('T')[1].split('.')[0] + " UTC";
     }, 1000);
 
+    // Fetch Score Stats (Backtest XGBoost)
+    async function fetchScoreStats() {
+        try {
+            const res = await fetch('/api/v1/score_stats');
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.metrics) {
+                    const wr80 = document.getElementById('stat-wr-80');
+                    const wr90 = document.getElementById('stat-wr-90');
+                    const dailyFreq = document.getElementById('stat-daily-freq');
+                    
+                    if (wr80 && data.metrics.score_80_90) {
+                        wr80.innerText = `${data.metrics.score_80_90.winrate}% Winrate`;
+                    }
+                    if (wr90 && data.metrics.score_90_plus) {
+                        wr90.innerText = `${data.metrics.score_90_plus.winrate}% Winrate`;
+                    }
+                    if (dailyFreq && data.daily_distribution && data.daily_distribution.length > 0) {
+                        const today = data.daily_distribution[0];
+                        dailyFreq.innerHTML = `Peluang Hari Ini: <span class="text-white">Skor 80-90 (${today.count_80_90}x), Skor >90 (${today.count_90_plus}x)</span>`;
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Failed to fetch score stats:", e);
+        }
+    }
+    
+    // Call it initially and then every 1 hour
+    fetchScoreStats();
+    setInterval(fetchScoreStats, 3600000);
+
     // 2. SPA Tab Navigation
     const navLinks = document.querySelectorAll('.nav-link');
     const tabs = document.querySelectorAll('.spa-tab');
