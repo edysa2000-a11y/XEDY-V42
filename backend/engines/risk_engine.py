@@ -728,13 +728,11 @@ class RiskEngine(BaseEngine):
                                 self.logger.info(f"Intra-Candle Scalper: Active positions ({len(existing_positions)}) >= Max allowed ({max_pos}). Skipping new pending orders.")
                                 continue
                                 
-                            # Close any remaining open positions on the symbol from the previous candle
+                            # Let active positions run to TP/SL. Do not close them on candle change.
                             if self.execution_engine:
                                 active_positions = mt5.positions_get(symbol=symbol)
                                 if active_positions:
-                                    self.logger.info(f"Intra-Candle: Closing {len(active_positions)} active positions from previous bar to align with model...")
-                                    for p in active_positions:
-                                        await self.execution_engine.close_position(p.ticket)
+                                    self.logger.info(f"Intra-Candle: Keeping {len(active_positions)} active positions open from previous bar to hit TP/SL.")
                                         
                             self.logger.info(f"New candle detected at timestamp {current_bar_time}. Executing Intra-Candle Scalper...")
                             
@@ -880,8 +878,11 @@ class RiskEngine(BaseEngine):
                                             should_close = True
                                         
                                     if should_close:
-                                        self.logger.info(f"Open Shift Close: Trend/AI shift detected. Closing position #{p.ticket}...")
-                                        await self.execution_engine.close_position(p.ticket)
+                                        if p.profit > 0.0:
+                                            self.logger.info(f"Open Shift Close: Trend/AI shift detected and position in profit (${p.profit:.2f}). Closing position #{p.ticket}...")
+                                            await self.execution_engine.close_position(p.ticket)
+                                        else:
+                                            self.logger.info(f"Open Shift Close: Trend/AI shift detected, but position is in floating loss (${p.profit:.2f}). Skipping early exit to allow TP/SL.")
                                         
                             # Re-fetch positions after closures
                             active_positions = mt5.positions_get(symbol=symbol)
