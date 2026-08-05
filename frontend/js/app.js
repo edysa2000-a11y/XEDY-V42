@@ -1586,6 +1586,24 @@ document.addEventListener('DOMContentLoaded', () => {
             window.sendTradingSettings(); // Send to backend for Autotrade enforcement
         }
     };
+    
+    window.adjustSniperLot = function(amount) {
+        const input = document.getElementById('sniper-lot-input');
+        if (input) {
+            let val = parseFloat(input.value) + amount;
+            if (val < 0) val = 0;
+            input.value = val.toFixed(2);
+            window.updateSniperLot();
+        }
+    };
+    
+    window.updateSniperLot = function() {
+        const input = document.getElementById('sniper-lot-input');
+        if (input) {
+            window.sniperLotSize = parseFloat(input.value);
+            window.sendTradingSettings();
+        }
+    };
 
     window.toggleAutoTrade = function() {
         autotradeEnabled = !autotradeEnabled;
@@ -1666,6 +1684,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 lot_size: lotSize,
                 confidence_threshold: confidenceThreshold,
                 sniper_score: window.sniperScoreThreshold || 80,
+                sniper_lot: window.sniperLotSize !== undefined ? window.sniperLotSize : 0.50,
                 max_positions: maxPositions,
                 hedging_enabled: hedgingEnabled,
                 auto_lot: autoLot,

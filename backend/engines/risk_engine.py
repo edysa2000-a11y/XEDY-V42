@@ -172,14 +172,11 @@ class RiskEngine(BaseEngine):
         os.environ["AVERAGING_MAX_POSITIONS"] = str(max_op)
         self.logger.info(f"Entry parameter auto-refresh: Max OP={max_op}, Threshold={thresh}")
         
-        # 0. Sniper Score Check (Prime Execution Filter)
+        # 0. Sniper Score Evaluation
         prob = confidence if signal == "BUY" else (1.0 - confidence)
         ues_score = int(round(prob * 100))
         sniper_score_threshold = int(os.environ.get("SNIPER_SCORE_THRESHOLD", "80"))
-        
-        if ues_score < sniper_score_threshold:
-            self.logger.warning(f"Risk Reject: UES Score ({ues_score}) is below Sniper Threshold ({sniper_score_threshold}). Trade Blocked.")
-            return
+        is_sniper_entry = ues_score >= sniper_score_threshold
             
         # 1. News Cool-down Filter (15 minutes before or after high-impact news)
         if self.news_engine:
@@ -367,17 +364,22 @@ class RiskEngine(BaseEngine):
         else:
             base_volume = float(os.environ.get("LOT_SIZE", "0.10"))
         
-        # 2. Confidence-Based Sizing (Dynamic Lot Sizing)
-        prob = confidence if signal == "BUY" else (1.0 - confidence)
-        if prob <= 0.70:
-            volume = base_volume * 0.5
-            self.logger.info(f"AI Sizing: Low Confidence ({prob:.2f}), scaling lot from {base_volume} to {volume}")
-        elif prob <= 0.80:
-            volume = base_volume
-            self.logger.info(f"AI Sizing: Normal Confidence ({prob:.2f}), lot set to {base_volume}")
+        # 2. Confidence-Based Sizing & Sniper Override
+        sniper_lot = float(os.environ.get("SNIPER_LOT_SIZE", "0.0"))
+        
+        if is_sniper_entry and sniper_lot > 0:
+            volume = sniper_lot
+            self.logger.info(f"AI Sizing: Sniper Mode Activated (Score: {ues_score} >= {sniper_score_threshold}). Using strict Sniper Lot: {volume}")
         else:
-            volume = base_volume * 1.5
-            self.logger.info(f"AI Sizing: High Confidence ({prob:.2f}), scaling lot from {base_volume} to {volume}")
+            if prob <= 0.70:
+                volume = base_volume * 0.5
+                self.logger.info(f"AI Sizing: Low Confidence ({prob:.2f}), scaling lot from {base_volume} to {volume}")
+            elif prob <= 0.80:
+                volume = base_volume
+                self.logger.info(f"AI Sizing: Normal Confidence ({prob:.2f}), lot set to {base_volume}")
+            else:
+                volume = base_volume * 1.5
+                self.logger.info(f"AI Sizing: High Confidence ({prob:.2f}), scaling lot from {base_volume} to {volume}")
             
         volume = round(max(0.01, volume), 2)
         
