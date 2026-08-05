@@ -1713,6 +1713,15 @@
                         </div>
                         <div class="vr bg-secondary d-none d-sm-block" style="height: 20px;"></div>
                         <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted" style="font-size: 0.8rem; font-weight: bold;">SNIPER SCORE:</span>
+                            <div class="input-group input-group-sm" style="width: 110px;">
+                                <button class="btn btn-outline-secondary py-0" type="button" onclick="adjustSniperScore(-1)">-</button>
+                                <input type="number" class="form-control text-center bg-dark text-white border-warning py-0" id="sniper-score-input" value="80" min="50" max="99" step="1" style="font-weight: bold; font-size: 0.85rem;" onchange="updateSniperScore()">
+                                <button class="btn btn-outline-secondary py-0" type="button" onclick="adjustSniperScore(1)">+</button>
+                            </div>
+                        </div>
+                        <div class="vr bg-secondary d-none d-sm-block" style="height: 20px;"></div>
+                        <div class="d-flex align-items-center gap-2">
                             <span class="text-muted" style="font-size: 0.8rem; font-weight: bold;">MAX OP:</span>
                             <div class="input-group input-group-sm" style="width: 95px;">
                                 <button class="btn btn-outline-secondary py-0" type="button" onclick="adjustMaxOP(-1)">-</button>

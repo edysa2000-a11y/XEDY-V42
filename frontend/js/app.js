@@ -883,7 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const reasonEl = document.getElementById('os-decision-reason');
                         
                         // User-editable threshold for Prime Execution
-                        const EXECUTION_THRESHOLD = 80;
+                        const EXECUTION_THRESHOLD = window.sniperScoreThreshold || 80;
                         
                         let isCounterTrend = false;
                         if (de.technicals && de.technicals.trend) {
@@ -1556,6 +1556,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if (val > 50) val = 50;
             input.value = val;
             window.sendTradingSettings();
+        }
+    };
+    
+    // Sniper Score local state management
+    window.sniperScoreThreshold = 80;
+    
+    window.adjustSniperScore = function(amount) {
+        const input = document.getElementById('sniper-score-input');
+        if (input) {
+            let val = parseInt(input.value) + amount;
+            if (val < 50) val = 50;
+            if (val > 99) val = 99;
+            input.value = val;
+            window.updateSniperScore();
+        }
+    };
+    
+    window.updateSniperScore = function() {
+        const input = document.getElementById('sniper-score-input');
+        if (input) {
+            window.sniperScoreThreshold = parseInt(input.value);
+            // Optionally we can send it to the backend here, 
+            // but since it's just for frontend execution filtering, local state is enough.
         }
     };
 
