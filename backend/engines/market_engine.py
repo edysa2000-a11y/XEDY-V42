@@ -73,7 +73,10 @@ class MarketEngine(BaseEngine):
                 if is_mt5_ok:
                     tick = mt5.symbol_info_tick(self.symbol)
                     if tick:
-                        await self.on_tick_received(self.symbol, tick.bid, tick.ask, tick.time)
+                        tick_time_msc = getattr(tick, 'time_msc', tick.time * 1000)
+                        if tick_time_msc > getattr(self, 'last_tick_time_msc', 0):
+                            self.last_tick_time_msc = tick_time_msc
+                            await self.on_tick_received(self.symbol, tick.bid, tick.ask, tick.time)
             except Exception as e:
                 self.logger.error(f"Error dalam _poll_ticks: {e}", exc_info=True)
             await asyncio.sleep(0.1)  # 100ms poll interval

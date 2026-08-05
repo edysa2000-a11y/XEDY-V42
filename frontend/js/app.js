@@ -849,17 +849,47 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         const statusEl = document.getElementById('os-decision-status');
                         const reasonEl = document.getElementById('os-decision-reason');
+                        
+                        // User-editable threshold for Prime Execution
+                        const EXECUTION_THRESHOLD = 80;
+                        
+                        let isCounterTrend = false;
+                        if (de.technicals && de.technicals.trend) {
+                            if ((latestSignal.signal === 'BUY' && de.technicals.trend === 'BEARISH') || 
+                                (latestSignal.signal === 'SELL' && de.technicals.trend === 'BULLISH')) {
+                                isCounterTrend = true;
+                            }
+                        }
+
                         if (statusEl) {
                             if (latestSignal.signal === 'WAIT') {
                                 statusEl.innerText = 'MENUNGGU PULLBACK';
                                 statusEl.className = 'text-warning';
                             } else {
-                                statusEl.innerText = 'EKSEKUSI SEKARANG';
-                                statusEl.className = 'text-success';
+                                if (uesScore < 60) {
+                                    statusEl.innerText = 'TIDAK LAYAK (SKOR RENDAH)';
+                                    statusEl.className = 'text-danger';
+                                } else if (uesScore < EXECUTION_THRESHOLD) {
+                                    statusEl.innerText = 'WATCHLIST (TUNGGU MOMENTUM)';
+                                    statusEl.className = 'text-warning';
+                                } else {
+                                    statusEl.innerText = 'EKSEKUSI SEKARANG (PRIME)';
+                                    statusEl.className = 'text-success';
+                                }
                             }
                         }
+                        
                         if (reasonEl) {
-                            reasonEl.innerText = `Alasan Utama: Skor UES berada di angka ${uesScore}. Konfidensi Sinyal AI sebesar ${confVal}%. Probabilitas dinamis terus diperbarui berdasarkan perhitungan model kuantitatif.`;
+                            let reasonText = `Alasan Utama: Skor UES berada di angka ${uesScore}. Konfidensi Sinyal AI sebesar ${confVal}%.`;
+                            if (isCounterTrend && latestSignal.signal !== 'WAIT') {
+                                reasonText += `\n⚠️ PERINGATAN: Sinyal ini melawan arus (Counter-Trend). Kurangi Lot sebesar 50%!`;
+                                // Highlight warning if it's prime but counter-trend
+                                if (uesScore >= EXECUTION_THRESHOLD && statusEl) {
+                                    statusEl.className = 'text-warning';
+                                    statusEl.innerText += ' (HIGH RISK)';
+                                }
+                            }
+                            reasonEl.innerText = reasonText;
                         }
                         
                         const probBullBar = document.getElementById('os-prob-bull-bar');

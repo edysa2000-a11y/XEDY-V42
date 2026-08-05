@@ -80,4 +80,4 @@ class MLEngine(BaseEngine):
         )
         # Pass to Decision Engine
         if self.decision_engine:
-            await self.decision_engine.evaluate_market_state(confidence, rsi, macd, price)
+            await self.decision_engine.evaluate_market_state(confidence, rsi, macd, price, atr)
