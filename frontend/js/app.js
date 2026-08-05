@@ -267,8 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         let wsHost = window.location.host;
         
-        // GitHub Pages Cloud Fallback -> Force connection to local backend
-        if (window.location.hostname.includes('github.io')) {
+        // Cloud Fallback (GitHub Pages / Vercel / Netlify) -> Force connection to local backend
+        const hostName = window.location.hostname;
+        if (hostName.includes('github.io') || hostName.includes('vercel.app') || hostName.includes('netlify.app')) {
             wsProtocol = 'ws:'; // Localhost does not use HTTPS/WSS natively
             wsHost = '127.0.0.1:8000'; // Default local backend port
         }
