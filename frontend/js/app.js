@@ -1583,8 +1583,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = document.getElementById('sniper-score-input');
         if (input) {
             window.sniperScoreThreshold = parseInt(input.value);
-            // Optionally we can send it to the backend here, 
-            // but since it's just for frontend execution filtering, local state is enough.
+            window.sendTradingSettings(); // Send to backend for Autotrade enforcement
         }
     };
 
@@ -1666,6 +1665,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 autotrade: autotradeEnabled,
                 lot_size: lotSize,
                 confidence_threshold: confidenceThreshold,
+                sniper_score: window.sniperScoreThreshold || 80,
                 max_positions: maxPositions,
                 hedging_enabled: hedgingEnabled,
                 auto_lot: autoLot,

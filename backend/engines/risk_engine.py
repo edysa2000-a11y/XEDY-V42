@@ -114,10 +114,7 @@ class RiskEngine(BaseEngine):
             self.logger.warning(f"Risk Reject: Debounce filter active. Last execution was {now - self.last_trade_time:.1f}s ago (Cooldown: 60s).")
             return
             
-        # --- Safety Daily Limits & News Blackout ---
-        profit_lock = float(os.environ.get("DAILY_PROFIT_LOCK", "100.0"))
-        loss_limit = float(os.environ.get("DAILY_LOSS_LIMIT", "50.0"))
-        daily_pnl = self._get_daily_profit()
+        # --- Safety Limits & News Blackout ---
         
         import MetaTrader5 as mt5
         symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
@@ -127,12 +124,7 @@ class RiskEngine(BaseEngine):
             has_positions = positions is not None and len(positions) > 0
             
             if not has_positions:
-                if daily_pnl >= profit_lock:
-                    self.logger.warning(f"Safety Lock: Daily Profit Target Reached (${daily_pnl:.2f} >= ${profit_lock:.2f}). Trading suspended.")
-                    return
-                if daily_pnl <= -loss_limit:
-                    self.logger.error(f"Safety Lock: Daily Loss Limit Hit (${daily_pnl:.2f} <= -${loss_limit:.2f}). Trading suspended.")
-                    return
+
                 if self._is_news_blackout():
                     self.logger.warning(f"Safety Lock: News Blackout active. Trading suspended for 30 mins.")
                     return
@@ -180,6 +172,15 @@ class RiskEngine(BaseEngine):
         os.environ["AVERAGING_MAX_POSITIONS"] = str(max_op)
         self.logger.info(f"Entry parameter auto-refresh: Max OP={max_op}, Threshold={thresh}")
         
+        # 0. Sniper Score Check (Prime Execution Filter)
+        prob = confidence if signal == "BUY" else (1.0 - confidence)
+        ues_score = int(round(prob * 100))
+        sniper_score_threshold = int(os.environ.get("SNIPER_SCORE_THRESHOLD", "80"))
+        
+        if ues_score < sniper_score_threshold:
+            self.logger.warning(f"Risk Reject: UES Score ({ues_score}) is below Sniper Threshold ({sniper_score_threshold}). Trade Blocked.")
+            return
+            
         # 1. News Cool-down Filter (15 minutes before or after high-impact news)
         if self.news_engine:
             high_impact_keywords = ["NFP", "CPI", "FOMC", "FED RATE", "INTEREST RATE", "PAYROLLS", "DECISION", "CENTRAL BANK"]
@@ -1045,23 +1046,12 @@ class RiskEngine(BaseEngine):
                         if not tick:
                             continue
                             
-                        # --- Safety Daily Limits & News Blackout ---
-                        profit_lock = float(os.environ.get("DAILY_PROFIT_LOCK", "100.0"))
-                        loss_limit = float(os.environ.get("DAILY_LOSS_LIMIT", "50.0"))
-                        daily_pnl = self._get_daily_profit()
+                        # --- Safety Limits & News Blackout ---
                         
                         positions = mt5.positions_get(symbol=symbol)
                         has_positions = positions is not None and len(positions) > 0
                         
                         if not has_positions:
-                            if daily_pnl >= profit_lock:
-                                self.logger.warning(f"Safety Lock: Daily Profit Target Reached (${daily_pnl:.2f} >= ${profit_lock:.2f}). Trading suspended.")
-                                await asyncio.sleep(30)
-                                continue
-                            if daily_pnl <= -loss_limit:
-                                self.logger.error(f"Safety Lock: Daily Loss Limit Hit (${daily_pnl:.2f} <= -${loss_limit:.2f}). Trading suspended.")
-                                await asyncio.sleep(30)
-                                continue
                             if self._is_news_blackout():
                                 self.logger.warning(f"Safety Lock: News Blackout active. Trading suspended for 30 mins.")
                                 await asyncio.sleep(30)

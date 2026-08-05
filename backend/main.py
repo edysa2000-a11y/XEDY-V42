@@ -39,7 +39,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 
-def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold: float, max_positions: int, hedging_enabled: bool, auto_lot: bool, risk_percent: float, active_method: str):
+def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold: float, sniper_score: int, max_positions: int, hedging_enabled: bool, auto_lot: bool, risk_percent: float, active_method: str):
     env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
     lines = []
     if os.path.exists(env_path):
@@ -74,6 +74,9 @@ def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold:
             elif key == "RISK_PERCENT":
                 new_lines.append(f"RISK_PERCENT={risk_percent:.1f}\n")
                 keys_updated.add(key)
+            elif key == "SNIPER_SCORE_THRESHOLD":
+                new_lines.append(f"SNIPER_SCORE_THRESHOLD={sniper_score}\n")
+                keys_updated.add(key)
             elif key == "ACTIVE_METHOD":
                 new_lines.append(f"ACTIVE_METHOD={active_method}\n")
                 keys_updated.add(key)
@@ -96,6 +99,8 @@ def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold:
         new_lines.append(f"AUTO_LOT_ENABLED={str(auto_lot)}\n")
     if "RISK_PERCENT" not in keys_updated:
         new_lines.append(f"RISK_PERCENT={risk_percent:.1f}\n")
+    if "SNIPER_SCORE_THRESHOLD" not in keys_updated:
+        new_lines.append(f"SNIPER_SCORE_THRESHOLD={sniper_score}\n")
     if "ACTIVE_METHOD" not in keys_updated:
         new_lines.append(f"ACTIVE_METHOD={active_method}\n")
         
@@ -110,6 +115,7 @@ def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold:
     os.environ["HEDGING_ENABLED"] = str(hedging_enabled)
     os.environ["AUTO_LOT_ENABLED"] = str(auto_lot)
     os.environ["RISK_PERCENT"] = f"{risk_percent:.1f}"
+    os.environ["SNIPER_SCORE_THRESHOLD"] = str(sniper_score)
     os.environ["ACTIVE_METHOD"] = active_method
     dotenv.load_dotenv(env_path, override=True)
 
@@ -1208,6 +1214,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         autotrade = payload.get("autotrade", False)
                         lot_size = float(payload.get("lot_size", 0.1))
                         confidence = float(payload.get("confidence_threshold", 0.65))
+                        sniper_score = int(payload.get("sniper_score", 80))
                         max_positions = int(payload.get("max_positions", 3))
                         hedging_enabled = bool(payload.get("hedging_enabled", True))
                         auto_lot = bool(payload.get("auto_lot", False))
@@ -1215,7 +1222,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         active_method = payload.get("active_method", "intra-candle-scalper")
                         
                         # Persist settings to .env file
-                        save_settings_to_env(autotrade, lot_size, confidence, max_positions, hedging_enabled, auto_lot, risk_percent, active_method)
+                        save_settings_to_env(autotrade, lot_size, confidence, sniper_score, max_positions, hedging_enabled, auto_lot, risk_percent, active_method)
                         
                         if hasattr(app.state, "risk_engine"):
                             app.state.risk_engine.autotrade_enabled = autotrade
