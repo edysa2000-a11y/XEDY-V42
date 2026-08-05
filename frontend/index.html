@@ -7,8 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Top Bar -->
@@ -40,6 +40,7 @@
             <h6 class="text-muted mb-3" style="font-size: 0.7rem; letter-spacing: 1px;">NAVIGATION</h6>
             <ul class="nav flex-column nav-pills" id="sidebar-nav">
                 <li class="nav-item"><a class="nav-link active" data-target="tab-executive" href="#">🏠 Executive Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-xau-os" href="#">🤖 XAU AI GOLD OS</a></li>
                 <li class="nav-item d-none"><a class="nav-link" data-target="tab-market" href="#">📈 Market Intelligence</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-macro" href="#">🌍 Macro Intelligence</a></li>
                 <li class="nav-item d-none"><a class="nav-link" data-target="tab-moneyflow" href="#">💸 Money Flow Transmission</a></li>
@@ -570,6 +571,149 @@
                                     <tr><td colspan="3" class="text-muted text-center">Waiting for signals...</td></tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 1A: XAU AI GOLD OS -->
+            <div id="tab-xau-os" class="spa-tab d-none">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="mb-1 text-warning"><i class="fas fa-robot"></i> XAU AI GOLD OS</h4>
+                        <p class="text-muted small mb-0">Institutional-Grade Autonomous Quantitative Intelligence System</p>
+                    </div>
+                </div>
+                
+                <div class="row g-4 mb-4">
+                    <!-- Unified Edge Score -->
+                    <div class="col-md-4">
+                        <div class="glass-panel p-4 h-100 text-center" style="border-top: 3px solid #f39c12;">
+                            <h6 class="text-muted mb-3">UNIFIED EDGE SCORE</h6>
+                            <h1 class="display-3 mb-0 text-success fw-bold" id="os-ues-score">87</h1>
+                            <span class="badge bg-warning text-dark mb-3">Eligible (Watchlist)</span>
+                            <div class="text-start small">
+                                <div class="d-flex justify-content-between mb-1"><span>Trend (20%)</span><span class="text-white">18/20</span></div>
+                                <div class="d-flex justify-content-between mb-1"><span>Liquidity (20%)</span><span class="text-white">19/20</span></div>
+                                <div class="d-flex justify-content-between mb-1"><span>Orderflow (15%)</span><span class="text-white">12/15</span></div>
+                                <div class="d-flex justify-content-between mb-1"><span>Macro (15%)</span><span class="text-white">14/15</span></div>
+                                <div class="d-flex justify-content-between mb-1"><span>Sentiment (10%)</span><span class="text-white">8/10</span></div>
+                                <div class="d-flex justify-content-between mb-1"><span>Execution (10%)</span><span class="text-white">9/10</span></div>
+                                <div class="d-flex justify-content-between"><span>Risk (10%)</span><span class="text-white">7/10</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Market State & Forecast -->
+                    <div class="col-md-8">
+                        <div class="row g-4 h-100">
+                            <div class="col-sm-6">
+                                <div class="glass-panel p-3 h-100">
+                                    <h6 class="text-warning border-bottom border-secondary pb-2 mb-3">Market State</h6>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Regime</span>
+                                        <span class="text-white fw-bold" id="os-regime">TREND_UP (Expansion)</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Trend</span>
+                                        <span class="text-success fw-bold" id="os-trend">Bullish</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Volatility</span>
+                                        <span class="text-danger fw-bold" id="os-volatility">High (ATR 25.4)</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Macro Bias</span>
+                                        <span class="text-success fw-bold" id="os-macro">Dovish Fed / Buy Gold</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">Inst. Bias</span>
+                                        <span class="text-warning fw-bold" id="os-inst">Accumulation</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="glass-panel p-3 h-100">
+                                    <h6 class="text-info border-bottom border-secondary pb-2 mb-3">Probabilistic Forecast</h6>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span>Bull Probability</span>
+                                            <span class="text-success" id="os-prob-bull-txt">65%</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-success" id="os-prob-bull-bar" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span>Bear Probability</span>
+                                            <span class="text-danger" id="os-prob-bear-txt">15%</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-danger" id="os-prob-bear-bar" style="width: 15%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span>Sideways Probability</span>
+                                            <span class="text-warning" id="os-prob-side-txt">20%</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-warning" id="os-prob-side-bar" style="width: 20%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-top border-secondary small text-muted">
+                                        Forecast Horizon: <strong>H4 / Intra-week</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <!-- Trading Plan & Execution -->
+                    <div class="col-md-7">
+                        <div class="glass-panel p-4 h-100">
+                            <h6 class="text-primary border-bottom border-secondary pb-2 mb-3">Optimal Execution Plan</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-dark table-borderless text-white mb-0">
+                                    <tbody>
+                                        <tr><td class="text-muted">Direction</td><td class="text-success fw-bold" id="os-plan-dir">BUY (LONG)</td></tr>
+                                        <tr><td class="text-muted">Optimal Entry Zone</td><td id="os-plan-entry">2425.50 - 2430.00</td></tr>
+                                        <tr><td class="text-muted">Stop Loss (Hard)</td><td class="text-danger" id="os-plan-sl">2415.00</td></tr>
+                                        <tr><td class="text-muted">TP1 (Partial Exit 50%)</td><td class="text-success" id="os-plan-tp1">2445.00</td></tr>
+                                        <tr><td class="text-muted">TP2 (Swing Target)</td><td class="text-success" id="os-plan-tp2">2460.00</td></tr>
+                                        <tr><td class="text-muted">Expected MAE</td><td id="os-plan-mae">$2.50 (Adverse Excursion)</td></tr>
+                                        <tr><td class="text-muted">Risk/Reward</td><td id="os-plan-rr">1 : 2.8</td></tr>
+                                        <tr><td class="text-muted">Dynamic Risk</td><td id="os-plan-risk">1.5% of Equity</td></tr>
+                                        <tr><td class="text-muted">Position Management</td><td id="os-plan-mgmt">Move SL to BE at TP1. Trail 20 pips.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Decision & Self-Evaluation -->
+                    <div class="col-md-5">
+                        <div class="row g-4 h-100">
+                            <div class="col-12 h-50" style="padding-bottom: 0.5rem;">
+                                <div class="glass-panel p-3 h-100" style="border-left: 3px solid #0dcaf0;">
+                                    <h6 class="text-info mb-2">Final Decision Engine</h6>
+                                    <h4 class="text-white mb-2">STATUS: <span class="text-warning" id="os-decision-status">WAITING FOR PULLBACK</span></h4>
+                                    <p class="small text-muted mb-0" id="os-decision-reason">Primary Reason: UES is 87 (Watchlist). Price is currently overextended. Waiting for liquidity sweep at 2430 before institutional execution. Rejecting immediate market order due to poor R:R.</p>
+                                </div>
+                            </div>
+                            <div class="col-12 h-50" style="padding-top: 0.5rem;">
+                                <div class="glass-panel p-3 h-100" style="border-left: 3px solid #6c757d;">
+                                    <h6 class="text-secondary mb-2">Evaluasi Mandiri & Ketidakpastian (Self-Evaluation)</h6>
+                                    <p class="small text-muted mb-0">
+                                        <strong>Kalibrasi:</strong> Konfidensi tinggi pada tren, tingkat menengah pada penentuan waktu masuk <i>(entry timing)</i>.<br>
+                                        <strong>Batasan:</strong> Data NFP besok menambah risiko <i>tail risk</i> yang sangat besar. Ketidakpastian model meningkat drastis setelah 24 jam.<br>
+                                        <strong>Asumsi:</strong> Mengasumsikan DXY tetap berada di bawah level 104.50.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

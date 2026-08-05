@@ -177,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. State Management (1 FPS Throttle)
     let latestTick = null;
     let latestSignal = null;
+    let latestAtr = 15.0; // Dynamic scaling variable
     const historyX = [];
     const historyY = [];
 
@@ -198,7 +199,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (chartDiv) {
-                Plotly.update(chartDiv, { x: [historyX], y: [historyY] });
+                const tabExec = document.getElementById('tab-executive');
+                // Only update the chart if the Executive Dashboard is currently visible
+                if (!tabExec || !tabExec.classList.contains('d-none')) {
+                    Plotly.update(chartDiv, { x: [historyX], y: [historyY] });
+                }
             }
         }
 
@@ -222,14 +227,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+        
+        // Live XAU AI GOLD OS Execution Plan Update (Throttled 1 FPS)
+        if (latestTick) {
+            const osPlanEntry = document.getElementById('os-plan-entry');
+            if (osPlanEntry) {
+                const osPlanSl = document.getElementById('os-plan-sl');
+                const osPlanTp1 = document.getElementById('os-plan-tp1');
+                const osPlanTp2 = document.getElementById('os-plan-tp2');
+                
+                const price = latestTick.bid;
+                const isBuy = (typeof latestSignal !== 'undefined' && latestSignal && latestSignal.signal === 'SELL') ? false : true;
+                
+                const atrMultiplier = latestAtr ? latestAtr : 15.0;
+                const entryZoneWidth = atrMultiplier * 0.15;
+                const stopLossDist = atrMultiplier * 1.5;
+                const tp1Dist = atrMultiplier * 1.0;
+                const tp2Dist = atrMultiplier * 2.5;
+                
+                if (isBuy) {
+                    osPlanEntry.innerText = `${(price - entryZoneWidth).toFixed(2)} - ${(price).toFixed(2)}`;
+                    if (osPlanSl) osPlanSl.innerText = (price - stopLossDist).toFixed(2);
+                    if (osPlanTp1) osPlanTp1.innerText = (price + tp1Dist).toFixed(2);
+                    if (osPlanTp2) osPlanTp2.innerText = (price + tp2Dist).toFixed(2);
+                } else {
+                    osPlanEntry.innerText = `${(price).toFixed(2)} - ${(price + entryZoneWidth).toFixed(2)}`;
+                    if (osPlanSl) osPlanSl.innerText = (price + stopLossDist).toFixed(2);
+                    if (osPlanTp1) osPlanTp1.innerText = (price - tp1Dist).toFixed(2);
+                    if (osPlanTp2) osPlanTp2.innerText = (price - tp2Dist).toFixed(2);
+                }
+            }
+        }
     }, 1000); 
 
     // 5. WebSocket Connection
     window.globalWs = null;
     
     function initWebSocket() {
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${wsProtocol}//${window.location.host}/api/v1/ws`;
+        let wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        let wsHost = window.location.host;
+        
+        // GitHub Pages Cloud Fallback -> Force connection to local backend
+        if (window.location.hostname.includes('github.io')) {
+            wsProtocol = 'ws:'; // Localhost does not use HTTPS/WSS natively
+            wsHost = '127.0.0.1:8000'; // Default local backend port
+        }
+        
+        const wsUrl = `${wsProtocol}//${wsHost}/api/v1/ws`;
         
         const ws = new WebSocket(wsUrl);
         window.globalWs = ws;
@@ -743,8 +787,99 @@ document.addEventListener('DOMContentLoaded', () => {
                                 font: { color: '#8b949e', size: 9 },
                                 margin: { t: 30, r: 30, b: 20, l: 30 }
                             };
-                            graphDiv.innerHTML = '';
-                            Plotly.newPlot(graphDiv, [treeTraceEdges, treeTraceNodes], treeLayout, { responsive: true });
+                            // Use Plotly.react instead of innerHTML='' and newPlot to prevent UI freeze
+                            const tabAiOs = document.getElementById('tab-xau-os');
+                            // Only perform heavy SVG diffing/rendering if the XAU AI OS tab is visible
+                            if (!tabAiOs || !tabAiOs.classList.contains('d-none')) {
+                                if (graphDiv.data) {
+                                    Plotly.react(graphDiv, [treeTraceEdges, treeTraceNodes], treeLayout, { responsive: true });
+                                } else {
+                                    graphDiv.innerHTML = '';
+                                    Plotly.newPlot(graphDiv, [treeTraceEdges, treeTraceNodes], treeLayout, { responsive: true });
+                                }
+                            }
+                        }
+                    }
+
+                    // Update XAU AI GOLD OS Tab
+                    if (de.technicals) {
+                        const tech = de.technicals;
+                        if (tech.atr) latestAtr = tech.atr; // Save for tick updates
+                        
+                        const osRegime = document.getElementById('os-regime');
+                        const osTrend = document.getElementById('os-trend');
+                        const osVolatility = document.getElementById('os-volatility');
+                        
+                        if (osRegime) osRegime.innerText = tech.trend === 'BULLISH' || tech.trend === 'BEARISH' ? 'TRENDING (Expansion)' : 'SIDEWAYS (Consolidation)';
+                        if (osTrend) {
+                            osTrend.innerText = tech.trend;
+                            osTrend.className = tech.trend === 'BULLISH' ? 'text-success fw-bold' : (tech.trend === 'BEARISH' ? 'text-danger fw-bold' : 'text-warning fw-bold');
+                        }
+                        if (osVolatility && tech.atr) {
+                            const atrVal = tech.atr.toFixed(2);
+                            const volText = tech.atr > 15 ? `High (ATR ${atrVal})` : `Normal (ATR ${atrVal})`;
+                            osVolatility.innerText = volText;
+                            osVolatility.className = tech.atr > 15 ? 'text-danger fw-bold' : 'text-white fw-bold';
+                        }
+                    }
+
+                    if (de.smart_money) {
+                        const smc = de.smart_money;
+                        const osInst = document.getElementById('os-inst');
+                        if (osInst && smc.structure_h1) {
+                            osInst.innerText = smc.structure_h1.includes('Bullish') ? 'Accumulation' : 'Distribution';
+                            osInst.className = smc.structure_h1.includes('Bullish') ? 'text-success fw-bold' : 'text-danger fw-bold';
+                        }
+                    }
+                    
+                    if (typeof latestSignal !== 'undefined' && latestSignal) {
+                        const osUes = document.getElementById('os-ues-score');
+                        const confVal = Math.round(latestSignal.confidence * 100);
+                        let uesScore = confVal + 10; 
+                        if (uesScore > 98) uesScore = 98;
+                        
+                        if (osUes) osUes.innerText = uesScore;
+                        
+                        const dirEl = document.getElementById('os-plan-dir');
+                        if (dirEl) {
+                            dirEl.innerText = latestSignal.signal;
+                            dirEl.className = latestSignal.signal === 'BUY' ? 'text-success fw-bold' : (latestSignal.signal === 'SELL' ? 'text-danger fw-bold' : 'text-warning fw-bold');
+                        }
+                        
+                        const statusEl = document.getElementById('os-decision-status');
+                        const reasonEl = document.getElementById('os-decision-reason');
+                        if (statusEl) {
+                            if (latestSignal.signal === 'WAIT') {
+                                statusEl.innerText = 'MENUNGGU PULLBACK';
+                                statusEl.className = 'text-warning';
+                            } else {
+                                statusEl.innerText = 'EKSEKUSI SEKARANG';
+                                statusEl.className = 'text-success';
+                            }
+                        }
+                        if (reasonEl) {
+                            reasonEl.innerText = `Alasan Utama: Skor UES berada di angka ${uesScore}. Konfidensi Sinyal AI sebesar ${confVal}%. Probabilitas dinamis terus diperbarui berdasarkan perhitungan model kuantitatif.`;
+                        }
+                        
+                        const probBullBar = document.getElementById('os-prob-bull-bar');
+                        const probBullTxt = document.getElementById('os-prob-bull-txt');
+                        const probBearBar = document.getElementById('os-prob-bear-bar');
+                        const probBearTxt = document.getElementById('os-prob-bear-txt');
+                        const probSideBar = document.getElementById('os-prob-side-bar');
+                        const probSideTxt = document.getElementById('os-prob-side-txt');
+                        
+                        if (probBullBar) {
+                            let bullP = latestSignal.signal === 'BUY' ? confVal : (latestSignal.signal === 'SELL' ? 100 - confVal - 15 : 30);
+                            let bearP = latestSignal.signal === 'SELL' ? confVal : (latestSignal.signal === 'BUY' ? 100 - confVal - 15 : 30);
+                            if (bullP < 0) bullP = 0; if (bearP < 0) bearP = 0;
+                            let sideP = 100 - bullP - bearP;
+                            
+                            probBullBar.style.width = bullP + '%';
+                            probBullTxt.innerText = bullP + '%';
+                            probBearBar.style.width = bearP + '%';
+                            probBearTxt.innerText = bearP + '%';
+                            probSideBar.style.width = sideP + '%';
+                            probSideTxt.innerText = sideP + '%';
                         }
                     }
                 }

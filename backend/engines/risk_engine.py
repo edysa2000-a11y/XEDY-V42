@@ -66,7 +66,9 @@ class RiskEngine(BaseEngine):
             
         total_profit = 0.0
         for d in deals:
-            total_profit += float(d.profit) + float(d.swap) + float(d.commission)
+            # DEAL_TYPE_BUY=0, DEAL_TYPE_SELL=1. Avoid DEAL_TYPE_BALANCE(2) and CREDIT(3)
+            if d.type in (0, 1):
+                total_profit += float(d.profit) + float(d.swap) + float(d.commission)
         return total_profit
 
     def _is_news_blackout(self) -> bool:
@@ -1054,12 +1056,15 @@ class RiskEngine(BaseEngine):
                         if not has_positions:
                             if daily_pnl >= profit_lock:
                                 self.logger.warning(f"Safety Lock: Daily Profit Target Reached (${daily_pnl:.2f} >= ${profit_lock:.2f}). Trading suspended.")
+                                await asyncio.sleep(30)
                                 continue
                             if daily_pnl <= -loss_limit:
                                 self.logger.error(f"Safety Lock: Daily Loss Limit Hit (${daily_pnl:.2f} <= -${loss_limit:.2f}). Trading suspended.")
+                                await asyncio.sleep(30)
                                 continue
                             if self._is_news_blackout():
                                 self.logger.warning(f"Safety Lock: News Blackout active. Trading suspended for 30 mins.")
+                                await asyncio.sleep(30)
                                 continue
                             
                         # Spread Protection Filter (Max 3.5 USD / 35 pips on Gold)
@@ -1067,6 +1072,7 @@ class RiskEngine(BaseEngine):
                         max_allowed_spread = 3.5
                         if spread > max_allowed_spread:
                             self.logger.warning(f"HLC Strategy: Order placement skipped due to high broker spread: {spread:.2f} (Max allowed: {max_allowed_spread})")
+                            await asyncio.sleep(30)
                             continue
                             
                         # RSI Confluence Filter (RSI 14 from M15 data)

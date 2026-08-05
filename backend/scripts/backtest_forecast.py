@@ -17,7 +17,11 @@ try:
     MT5_AVAILABLE = True
 except ImportError:
     MT5_AVAILABLE = False
-    print("[WARN] MetaTrader5 not available.")
+    print("[WARN] MetaTrader5 not available. Falling back to tvDatafeed.")
+    class DummyMT5:
+        TIMEFRAME_D1 = "D"
+        TIMEFRAME_W1 = "W"
+    mt5 = DummyMT5()
 
 AIVENE_API_KEY = os.getenv("AIVENE_API_KEY", "")
 SYMBOL = "XAUUSD"
@@ -54,7 +58,30 @@ def direction_correct(pred_close: float, open_price: float, actual_close: float)
 
 def fetch_mt5_rates(timeframe, days_back: int = 60):
     if not MT5_AVAILABLE:
-        return []
+        try:
+            from tvDatafeed import TvDatafeed, Interval
+            tv = TvDatafeed()
+            interval = Interval.in_daily if timeframe == "D" else Interval.in_weekly
+            bars_needed = days_back if interval == Interval.in_daily else (days_back // 7) + 5
+            
+            data = tv.get_hist("XAUUSD", "OANDA", interval=interval, n_bars=bars_needed)
+            if data is None or data.empty:
+                return []
+                
+            result = []
+            for idx, row in data.iterrows():
+                result.append({
+                    "time":  idx.strftime("%Y-%m-%d"),
+                    "open":  float(row["open"]),
+                    "high":  float(row["high"]),
+                    "low":   float(row["low"]),
+                    "close": float(row["close"]),
+                })
+            return result
+        except Exception as e:
+            print(f"[ERROR] tvDatafeed fallback failed: {e}")
+            return []
+
     if not mt5.initialize():
         print(f"[ERROR] MT5 init failed: {mt5.last_error()}")
         return []
@@ -293,7 +320,7 @@ def build_detail(all_rates, start_idx, timeframe_label):
 def run_backtest(days: int = 30) -> dict:
     print(f"[INFO] Starting backtest – {days} days – symbol: {SYMBOL}")
     if not MT5_AVAILABLE:
-        return {"error": "MetaTrader5 library not available on this system"}
+        print("[INFO] Using tvDatafeed fallback instead of MT5.")
 
     ma_buffer = 10
     total_days_to_fetch = days + ma_buffer + 5
@@ -378,7 +405,14 @@ def run_backtest(days: int = 30) -> dict:
 
 
 if __name__ == "__main__":
-    result = run_backtest(days=30)
+    import sys
+    days_arg = 30
+    if len(sys.argv) > 1:
+        try:
+            days_arg = int(sys.argv[1])
+        except ValueError:
+            pass
+    result = run_backtest(days=days_arg)
     print(json.dumps({
         "period":     result.get("backtest_period"),
         "metrics_1d": result["results"].get("1d"),
