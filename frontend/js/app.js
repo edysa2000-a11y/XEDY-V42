@@ -926,6 +926,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         if (osUes) osUes.innerText = uesScore;
                         
+                        // === ASIAN SESSION TIME FILTER ===
+                        const currentUtcHour = new Date().getUTCHours();
+                        const isAsianSession = (currentUtcHour >= 0 && currentUtcHour < 8);
+                        
+                        if (isAsianSession && latestSignal.signal !== 'WAIT') {
+                            latestSignal.signal = 'WAIT';
+                        }
+                        // =================================
+                        
                         const dirEl = document.getElementById('os-plan-dir');
                         if (dirEl) {
                             dirEl.innerText = latestSignal.signal;
@@ -948,8 +957,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (statusEl) {
                             if (latestSignal.signal === 'WAIT') {
-                                statusEl.innerText = 'MENUNGGU PULLBACK';
-                                statusEl.className = 'text-warning';
+                                if (isAsianSession) {
+                                    statusEl.innerText = 'STANDBY (ASIAN SESSION)';
+                                    statusEl.className = 'text-warning';
+                                } else {
+                                    statusEl.innerText = 'MENUNGGU PULLBACK';
+                                    statusEl.className = 'text-warning';
+                                }
                             } else {
                                 if (uesScore < 60) {
                                     statusEl.innerText = 'TIDAK LAYAK (SKOR RENDAH)';
@@ -966,7 +980,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         if (reasonEl) {
                             let reasonText = `Alasan Utama: Skor UES berada di angka ${uesScore}. Konfidensi Sinyal AI sebesar ${confVal}%.`;
-                            if (isCounterTrend && latestSignal.signal !== 'WAIT') {
+                            if (isAsianSession) {
+                                reasonText = `⚠️ ASIAN SESSION FILTER AKTIF (00:00 - 08:00 UTC): Eksekusi ditangguhkan untuk menghindari False Breakout di jam likuiditas rendah.`;
+                            } else if (isCounterTrend && latestSignal.signal !== 'WAIT') {
                                 reasonText += `\n⚠️ PERINGATAN: Sinyal ini melawan arus (Counter-Trend). Kurangi Lot sebesar 50%!`;
                                 // Highlight warning if it's prime but counter-trend
                                 if (uesScore >= EXECUTION_THRESHOLD && statusEl) {
