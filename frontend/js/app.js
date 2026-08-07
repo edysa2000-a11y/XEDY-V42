@@ -7,6 +7,15 @@ if (hostName.includes('github.io') || hostName.includes('vercel.app') || hostNam
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 0. Load Last Known Price from LocalStorage (for weekends/closed markets)
+    const storedPrice = localStorage.getItem('xedy_last_close_price');
+    if (storedPrice) {
+        const kpiEl = document.getElementById('kpi-price');
+        const topEl = document.getElementById('top-price');
+        if (kpiEl) kpiEl.innerText = storedPrice;
+        if (topEl) topEl.innerText = storedPrice;
+    }
+
     // 1. Clock functionality
     const timeDisplay = document.getElementById('sys-time');
     setInterval(() => {
@@ -268,9 +277,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setInterval(() => {
         if (latestTick) {
-            const priceStr = latestTick.bid.toFixed(2);
+            // Format price with comma and dollar sign e.g. $4,325.81
+            const bidVal = latestTick.bid;
+            const priceStr = "$" + bidVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
             document.getElementById('kpi-price').innerText = priceStr;
             document.getElementById('top-price').innerText = priceStr;
+            
+            // Save to localStorage so it survives page reloads on weekends
+            localStorage.setItem('xedy_last_close_price', priceStr);
             
             const timeStr = new Date(latestTick.time * 1000).toLocaleTimeString();
             document.getElementById('bottom-update').innerText = timeStr;
