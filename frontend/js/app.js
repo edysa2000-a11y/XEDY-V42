@@ -275,20 +275,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyX = [];
     const historyY = [];
 
+    // Cache DOM Elements for extreme UI speed
+    const kpiPriceEl = document.getElementById('kpi-price');
+    const topPriceEl = document.getElementById('top-price');
+    const bottomUpdateEl = document.getElementById('bottom-update');
+
     setInterval(() => {
         if (latestTick) {
             // Format price with comma and dollar sign e.g. $4,325.81
             const bidVal = latestTick.bid;
             const priceStr = "$" + bidVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             
-            document.getElementById('kpi-price').innerText = priceStr;
-            document.getElementById('top-price').innerText = priceStr;
+            if (kpiPriceEl) kpiPriceEl.innerText = priceStr;
+            if (topPriceEl) topPriceEl.innerText = priceStr;
             
             // Save to localStorage so it survives page reloads on weekends
             localStorage.setItem('xedy_last_close_price', priceStr);
             
             const timeStr = new Date(latestTick.time * 1000).toLocaleTimeString();
-            document.getElementById('bottom-update').innerText = timeStr;
+            if (bottomUpdateEl) bottomUpdateEl.innerText = timeStr;
 
             historyX.push(timeStr);
             historyY.push(latestTick.bid);
