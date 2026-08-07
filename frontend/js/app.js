@@ -46,6 +46,53 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchScoreStats();
     setInterval(fetchScoreStats, 3600000);
 
+    // Fetch System Logs
+    async function fetchLogs() {
+        try {
+            const res = await fetch(window.API_BASE + '/api/v1/logs');
+            if (res.ok) {
+                const data = await res.json();
+                
+                const profitLogContent = document.getElementById('profit-log-content');
+                if (profitLogContent && data.profit_monitor) {
+                    profitLogContent.innerText = data.profit_monitor.length > 0 
+                        ? data.profit_monitor.join('\n') 
+                        : "Belum ada log dari Profit Monitor Daemon...";
+                    profitLogContent.parentElement.scrollTop = profitLogContent.parentElement.scrollHeight;
+                }
+                
+                const decisionLogContent = document.getElementById('decision-log-content');
+                if (decisionLogContent && data.decision_engine) {
+                    decisionLogContent.innerText = data.decision_engine.length > 0 
+                        ? data.decision_engine.join('\n') 
+                        : "Belum ada log dari Decision Priority Engine...";
+                    decisionLogContent.parentElement.scrollTop = decisionLogContent.parentElement.scrollHeight;
+                }
+            }
+        } catch (e) {
+            console.error("Failed to fetch logs:", e);
+        }
+    }
+    
+    // Refresh logs every 3 seconds if active tab is logs
+    setInterval(() => {
+        const activeNav = document.querySelector('.nav-link.active');
+        if (activeNav && activeNav.getAttribute('data-target') === 'tab-logs') {
+            fetchLogs();
+        }
+    }, 3000);
+    
+    // Add manual refresh button listener
+    const btnRefreshLogs = document.getElementById('btn-refresh-logs');
+    if (btnRefreshLogs) {
+        btnRefreshLogs.addEventListener('click', () => {
+            fetchLogs();
+            if (typeof showToast === 'function') {
+                showToast('Logs diperbarui!', 'success');
+            }
+        });
+    }
+
     // 2. SPA Tab Navigation
     const navLinks = document.querySelectorAll('.nav-link');
     const tabs = document.querySelectorAll('.spa-tab');
@@ -2322,6 +2369,14 @@ document.addEventListener('DOMContentLoaded', () => {
         'open-shift-close': {
             title: '🔄 Baseline Hybrid Mode - Qwen AI (M30)',
             desc: 'Model baseline EMA 5/15 + ATR TP/SL dinamis yang disaring oleh bias makro Qwen AI Hybrid (DD 34.86%, Profit +133.43%).'
+        },
+        'decision-priority-engine': {
+            title: '🧠 14-Layer Decision Priority Engine',
+            desc: 'Model institusional 14 lapis (Macro, Regime, Liquidity, Orderflow, dsb). Menghasilkan skor Unified Edge (UES). Eksekusi hanya pada area High Probability/Institutional Grade (UES >= 90).'
+        },
+        'smart-money-bos': {
+            title: '🏛️ Smart Money: BOS Breakout (Break of Structure)',
+            desc: 'Metode deteksi Smart Money Concepts. Mengidentifikasi Swing High/Low utama pada timeframe H1 menggunakan pola Fractal, dan mengeksekusi posisi ketika candlestick M15 berhasil menembus (close breakout) di atas/bawah area struktur. Menggunakan Stop Loss dan Take Profit berbasis volatilitas ATR(14).'
         },
         'scalping-1-1': {
             title: '⚡ Scalping 1:1 TP/SL (M30)',

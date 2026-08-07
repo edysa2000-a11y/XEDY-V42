@@ -106,6 +106,7 @@ class HybridNewsEngine:
         self.last_equity_strength = 0.0
         self.news_sentiment_score = 50.0
         self.global_sentiment_index = 50.0
+        self.oanda_cvd_data = None
         
         # Define sources and weights based on institutional tiers requested
         self.sources = [
@@ -138,11 +139,11 @@ class HybridNewsEngine:
         logger.info("Hybrid News Engine dihentikan.")
 
     async def _news_loop(self):
-        """Polls RSS feeds every 60 seconds and updates macro drivers from GitHub every 10 minutes"""
+        """Polls RSS feeds every 60 seconds and updates macro drivers from GitHub every 5 minutes"""
         loop_count = 0
         while self._running:
-            # Update real macro drivers from GitHub on startup and then every 10 minutes
-            if loop_count % 10 == 0:
+            # Update real macro drivers from GitHub on startup and then every 5 minutes
+            if loop_count % 5 == 0:
                 try:
                     await self._update_real_macro_data()
                 except Exception as e:
@@ -178,6 +179,17 @@ class HybridNewsEngine:
                 with urllib.request.urlopen(req, timeout=10.0) as r:
                     return json.loads(r.read().decode('utf-8'))
             data = await asyncio.to_thread(_fetch)
+            
+            # Fetch OANDA CVD Data from GitHub as well
+            oanda_url = "https://raw.githubusercontent.com/edysa2000-a11y/XEDY-V42/data-feed/data/oanda_cvd.json"
+            oanda_req = urllib.request.Request(oanda_url, headers=headers)
+            def _fetch_oanda():
+                with urllib.request.urlopen(oanda_req, timeout=10.0) as r:
+                    return json.loads(r.read().decode('utf-8'))
+            try:
+                self.oanda_cvd_data = await asyncio.to_thread(_fetch_oanda)
+            except Exception as e:
+                logger.warning(f"Could not fetch Oanda CVD from cloud: {e}")
             
             # Map news
             feed_news = data.get("news", [])

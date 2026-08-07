@@ -31,20 +31,21 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install --prefer-binary python-dotenv pandas numpy feedparser # Use fast binaries to skip compiling
+          pip install --prefer-binary python-dotenv pandas numpy feedparser tvdatafeed # Use fast binaries to skip compiling
 
       - name: Restore State from data-feed branch
         run: |
           git fetch --depth=1 origin data-feed || echo "No previous data-feed branch found."
           git checkout origin/data-feed -- data/ || echo "No previous data directory found."
 
-      - name: Run Cloud News Scraper
+      - name: Run Cloud News Scraper & Oanda Volume Fetcher
         env:
           AIVENE_API_KEY: ${{ secrets.AIVENE_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ADMIN_ID: ${{ secrets.TELEGRAM_ADMIN_ID }}
         run: |
           python backend/scripts/scrape_news.py
+          python backend/scripts/scrape_oanda_volume.py || echo "Oanda volume scraper failed, skipping..."
 
       - name: Run Cloud Self-Learning Feedback Loop
         run: |
@@ -63,6 +64,7 @@ jobs:
           cp data/closed_trades.json temp_data/data/ || true
           cp data/keyword_impact_memory.json temp_data/data/ || true
           cp data/forecast_accuracy_stats.json temp_data/data/ || true
+          cp data/oanda_cvd.json temp_data/data/ || true
           
           # Switch to data-feed branch (create if not exists)
           git checkout -B data-feed

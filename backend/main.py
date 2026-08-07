@@ -1093,6 +1093,50 @@ def debug_settings():
         "trailing_task_running": re._trailing_task is not None and not re._trailing_task.done()
     }
 
+@app.get("/api/v1/logs")
+async def get_system_logs():
+    """Get recent lines from profit monitor and decision priority logs."""
+    import os
+    
+    def tail_file(filepath, n_lines=100):
+        if not os.path.exists(filepath):
+            return []
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                return lines[-n_lines:]
+        except Exception as e:
+            return [f"Error reading {filepath}: {e}"]
+            
+    # File paths
+    base_dir = os.path.dirname(os.path.dirname(__file__))
+    profit_log_path = os.path.join(base_dir, "data", "profit_monitor.log")
+    decision_log_path = os.path.join(base_dir, "data", "decision_priority_log.jsonl")
+    
+    profit_logs = tail_file(profit_log_path, 100)
+    decision_logs = tail_file(decision_log_path, 100)
+    
+    # Clean up decision logs for UI readability (JSON strings)
+    clean_decision_logs = []
+    for line in decision_logs:
+        try:
+            import json
+            data = json.loads(line)
+            # Just extract key info to not flood the UI
+            timestamp = data.get("timestamp", "Unknown Time")
+            score = data.get("unified_edge_score", "N/A")
+            decision = data.get("decision", "WAIT")
+            tp = data.get("take_profit", "N/A")
+            sl = data.get("stop_loss", "N/A")
+            clean_decision_logs.append(f"[{timestamp}] Score: {score} | Action: {decision} | TP: {tp} | SL: {sl}")
+        except:
+            clean_decision_logs.append(line.strip())
+            
+    return {
+        "profit_monitor": [line.strip() for line in profit_logs if line.strip()],
+        "decision_engine": clean_decision_logs
+    }
+
 @app.post("/api/v1/system/rammap/clean")
 async def clean_ram_memory():
     import gc

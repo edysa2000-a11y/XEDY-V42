@@ -58,6 +58,7 @@
                 <li class="nav-item"><a class="nav-link" data-target="tab-telegram" href="#">📱 Telegram Center</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-sysops" href="#">🖥 System Operations</a></li>
                 <li class="nav-item"><a class="nav-link" data-target="tab-admin" href="#">⚙ Administration</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-logs" href="#">📝 Log Monitor</a></li>
             </ul>
         </div>
 
@@ -1808,6 +1809,8 @@
                                     <option value="intra-candle-scalper-h1">⚡ Double-Sided Intra-Candle Scalper (H1: +6.8% Daily Profit - WR 100.0%)</option>
                                     <option value="intra-candle-scalper-h4">⚡ Double-Sided Intra-Candle Scalper (H4: +2.3% Daily Profit - WR 100.0%)</option>
                                     <option value="qwen3.7-flash-dynamic">🤖 Qwen 3.7 Flash Dynamic (Teroptimasi 12 Bulan: +3538% Profit)</option>
+                                    <option value="decision-priority-engine">🧠 14-Layer Decision Priority Engine (Institutional Edge Score)</option>
+                                    <option value="smart-money-bos">🏛️ Smart Money: BOS Breakout (Break of Structure)</option>
                                     <option value="qwen3-embedding-8b">📊 Qwen3 Embedding 8B (Real-Time Vector Search & News Alignment)</option>
                                     <option value="xgboost-standalone-9d">📊 XGBoost Standalone (9-D Baseline)</option>
                                     <option value="smc-liquidity-v2">🏛️ Smart Money Concepts & Liquidity Engine (Grid)</option>
@@ -2441,8 +2444,36 @@
                 </div>
             </div>
 
+            <!-- TAB: LOG MONITOR -->
+            <div id="tab-logs" class="spa-tab d-none">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-white mb-0">📝 SYSTEM & AI LOG MONITOR</h5>
+                    <button id="btn-refresh-logs" class="btn btn-sm btn-outline-primary">🔄 Refresh Now</button>
+                </div>
+                <div class="row g-3">
+                    <!-- Profit Monitor Log -->
+                    <div class="col-12">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-2" style="font-size:0.75rem;">PROFIT MONITOR DAEMON (Terminal Output)</h6>
+                            <div class="bg-black p-2 rounded border border-secondary" style="height: 250px; overflow-y: auto;">
+                                <pre id="profit-log-content" class="text-white font-monospace m-0" style="font-size: 0.75rem; white-space: pre-wrap;">Menunggu log...</pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Decision Log -->
+                    <div class="col-12">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-2" style="font-size:0.75rem;">14-LAYER AI DECISION ENGINE (decision_priority_log)</h6>
+                            <div class="bg-black p-2 rounded border border-secondary" style="height: 350px; overflow-y: auto;">
+                                <pre id="decision-log-content" class="text-white font-monospace m-0" style="font-size: 0.75rem; white-space: pre-wrap;">Menunggu log...</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
         </div>
-
     </div>
 
     <!-- Bottom Status Bar -->

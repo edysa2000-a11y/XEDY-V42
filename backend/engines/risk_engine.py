@@ -1,5 +1,6 @@
 from .base_engine import BaseEngine
 from .claude_tactical_advisor import ClaudeTacticalAdvisor
+from .decision_priority_engine import DecisionPriorityEngine
 import json
 
 class RiskEngine(BaseEngine):
@@ -28,6 +29,7 @@ class RiskEngine(BaseEngine):
         self.last_trade_time = 0.0
         self._highest_profits = {}
         self.claude_advisor = ClaudeTacticalAdvisor()
+        self.decision_priority_engine = DecisionPriorityEngine()
 
     async def start(self):
         self.logger.info("Risk engine online.")
@@ -37,6 +39,8 @@ class RiskEngine(BaseEngine):
         self._open_shift_close_task = asyncio.create_task(self._open_shift_close_loop())
         self._adaptive_task = asyncio.create_task(self._adaptive_portfolio_loop())
         self._forecast_hlc_task = asyncio.create_task(self._forecast_hlc_bound_loop())
+        self._decision_priority_task = asyncio.create_task(self._decision_priority_loop())
+        self._smart_money_bos_task = asyncio.create_task(self._smart_money_bos_loop())
 
     async def stop(self):
         if self._trailing_task:
@@ -49,6 +53,10 @@ class RiskEngine(BaseEngine):
             self._adaptive_task.cancel()
         if hasattr(self, "_forecast_hlc_task") and self._forecast_hlc_task:
             self._forecast_hlc_task.cancel()
+        if hasattr(self, "_decision_priority_task") and self._decision_priority_task:
+            self._decision_priority_task.cancel()
+        if hasattr(self, "_smart_money_bos_task") and self._smart_money_bos_task:
+            self._smart_money_bos_task.cancel()
         self.logger.info("Risk engine offline.")
 
     def _get_daily_profit(self) -> float:
@@ -103,7 +111,7 @@ class RiskEngine(BaseEngine):
         # Block raw DecisionEngine signals if running a loop-based quantitative strategy
         import os
         active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
-        if active_method in ["forecast-hlc-bound", "intra-candle-scalper", "intra-candle-scalper-m5", "intra-candle-scalper-m15", "intra-candle-scalper-h1", "intra-candle-scalper-h4", "open-shift-close"]:
+        if active_method in ["forecast-hlc-bound", "intra-candle-scalper", "intra-candle-scalper-m5", "intra-candle-scalper-m15", "intra-candle-scalper-h1", "intra-candle-scalper-h4", "open-shift-close", "decision-priority-engine"]:
             self.logger.info(f"DecisionEngine Signal: Raw {signal} trade request ignored because active quantitative method is {active_method}")
             return
             
@@ -1498,4 +1506,204 @@ class RiskEngine(BaseEngine):
             except Exception as e:
                 self.logger.error(f"Error in _forecast_hlc_bound_loop: {e}", exc_info=True)
                 
+            await asyncio.sleep(30)
+
+    async def _decision_priority_loop(self):
+        import asyncio
+        import MetaTrader5 as mt5
+        import os
+        import time
+
+        while True:
+            try:
+                active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
+                if active_method == "decision-priority-engine" and self.autotrade_enabled:
+                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    
+                    if not mt5.initialize():
+                        await asyncio.sleep(30)
+                        continue
+                        
+                    # Fetch 100 candles for proper indicator calculation
+                    rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M15, 0, 100)
+                    tick = mt5.symbol_info_tick(symbol)
+                    
+                    if rates is not None and len(rates) > 50 and tick is not None:
+                        current_price = tick.ask
+                        
+                        import pandas as pd
+                        import numpy as np
+                        
+                        df = pd.DataFrame(rates)
+                        
+                        # 1. ATR (14) Calculation
+                        df['tr0'] = abs(df['high'] - df['low'])
+                        df['tr1'] = abs(df['high'] - df['close'].shift())
+                        df['tr2'] = abs(df['low'] - df['close'].shift())
+                        df['tr'] = df[['tr0', 'tr1', 'tr2']].max(axis=1)
+                        atr = df['tr'].rolling(14).mean().iloc[-1]
+                        if np.isnan(atr): atr = 9.0
+                        
+                        # 2. RSI (14) Calculation
+                        delta = df['close'].diff()
+                        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+                        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+                        rs = gain / loss
+                        df['rsi'] = 100 - (100 / (1 + rs))
+                        rsi_14 = float(df['rsi'].iloc[-1])
+                        if np.isnan(rsi_14): rsi_14 = 50.0
+                        
+                        # 3. EMA (50) Calculation
+                        df['ema_50'] = df['close'].ewm(span=50, adjust=False).mean()
+                        ema_50 = float(df['ema_50'].iloc[-1])
+                        if np.isnan(ema_50): ema_50 = current_price
+                        
+                        # 4. CVD (Cumulative Volume Delta) - Last 20 candles
+                        # Try to use OANDA CVD from cloud, fallback to local MT5 tick_volume
+                        cvd = 0
+                        trend = "BULLISH"
+                        using_oanda = False
+                        
+                        if self.news_engine and hasattr(self.news_engine, "oanda_cvd_data") and self.news_engine.oanda_cvd_data:
+                            try:
+                                oanda_data = self.news_engine.oanda_cvd_data
+                                cvd = int(oanda_data.get("cvd_20", 0))
+                                trend = oanda_data.get("volume_trend", "BULLISH")
+                                using_oanda = True
+                            except:
+                                pass
+                                
+                        if not using_oanda:
+                            recent_df = df.tail(20).copy()
+                            recent_df['delta'] = np.where(recent_df['close'] >= recent_df['open'], recent_df['tick_volume'], -recent_df['tick_volume'])
+                            cvd = int(recent_df['delta'].sum())
+                            trend = "BULLISH_ABSORPTION" if cvd > 0 and current_price < ema_50 else ("BEARISH_EXHAUSTION" if cvd < 0 and current_price > ema_50 else ("BULLISH" if cvd > 0 else "BEARISH"))
+                        
+                        technicals = {
+                            "RSI_14": round(rsi_14, 2),
+                            "EMA_50": round(ema_50, 2),
+                            "Cumulative_Volume_Delta_20": cvd,
+                            "Volume_Trend": trend,
+                            "CVD_Source": "OANDA_CLOUD" if using_oanda else "LOCAL_MT5"
+                        }
+                        
+                        news_text = "No major news."
+                        if self.news_engine and hasattr(self.news_engine, "news_feed"):
+                            news_text = str([n.get("headline") for n in self.news_engine.news_feed[:3]])
+                            
+                        # Evaluate market using the new Engine
+                        decision_data = await self.decision_priority_engine.evaluate_market(
+                            technicals=technicals,
+                            news_text=news_text,
+                            current_price=current_price,
+                            atr=atr
+                        )
+                        
+                        decision = decision_data.get("decision", "WAIT")
+                        ues = decision_data.get("unified_edge_score", 0)
+                        
+                        # Only execute if score >= 90
+                        if decision in ["MARKET_BUY", "MARKET_SELL", "LIMIT_BUY", "LIMIT_SELL"] and ues >= 90:
+                            action = "BUY" if "BUY" in decision else "SELL"
+                            lot_size = float(os.environ.get("LOT_SIZE", "0.10"))
+                            
+                            self.logger.info(f"Decision Priority Engine Trigger: {decision} (UES: {ues}). Executing {action} {lot_size} lot.")
+                            if self.execution_engine:
+                                await self.execution_engine.execute_order(symbol, action, lot_size)
+                                
+            except Exception as e:
+                self.logger.error(f"Error in _decision_priority_loop: {e}")
+                
+            # Loop every 15 minutes (900 seconds) since it's a heavy evaluation
+            await asyncio.sleep(900)
+
+    async def _smart_money_bos_loop(self):
+        """
+        Autotrade Method: Smart Money BOS (Break of Structure).
+        Detects Swing High/Low on H1 using Fractals, executes on M15 close breakout.
+        """
+        import MetaTrader5 as mt5
+        import os
+        import time
+        import pandas as pd
+        
+        last_executed_time = 0
+        
+        while True:
+            try:
+                active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
+                if active_method == "smart-money-bos" and self.autotrade_enabled:
+                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    
+                    if not mt5.initialize():
+                        await asyncio.sleep(10)
+                        continue
+                        
+                    # 1. Fetch H1 rates for Fractal calculation
+                    h1_rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_H1, 0, 100)
+                    if h1_rates is None or len(h1_rates) < 5:
+                        await asyncio.sleep(10)
+                        continue
+                        
+                    df_h1 = pd.DataFrame(h1_rates)
+                    
+                    # Calculate Fractals (Bill Williams)
+                    # Swing High: 2 lower highs left, 2 lower highs right
+                    swing_highs = []
+                    swing_lows = []
+                    
+                    for i in range(2, len(df_h1) - 2):
+                        if (df_h1['high'].iloc[i] > df_h1['high'].iloc[i-1] and 
+                            df_h1['high'].iloc[i] > df_h1['high'].iloc[i-2] and 
+                            df_h1['high'].iloc[i] > df_h1['high'].iloc[i+1] and 
+                            df_h1['high'].iloc[i] > df_h1['high'].iloc[i+2]):
+                            swing_highs.append({'price': df_h1['high'].iloc[i], 'time': df_h1['time'].iloc[i]})
+                            
+                        if (df_h1['low'].iloc[i] < df_h1['low'].iloc[i-1] and 
+                            df_h1['low'].iloc[i] < df_h1['low'].iloc[i-2] and 
+                            df_h1['low'].iloc[i] < df_h1['low'].iloc[i+1] and 
+                            df_h1['low'].iloc[i] < df_h1['low'].iloc[i+2]):
+                            swing_lows.append({'price': df_h1['low'].iloc[i], 'time': df_h1['time'].iloc[i]})
+                            
+                    if not swing_highs or not swing_lows:
+                        await asyncio.sleep(60)
+                        continue
+                        
+                    recent_swing_high = swing_highs[-1]['price']
+                    recent_swing_low = swing_lows[-1]['price']
+                    
+                    # 2. Fetch M15 rates for execution confirmation
+                    m15_rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M15, 0, 3)
+                    if m15_rates is None or len(m15_rates) < 2:
+                        await asyncio.sleep(10)
+                        continue
+                        
+                    # We check the most recently CLOSED M15 candle
+                    last_closed_m15 = m15_rates[-2]
+                    close_price = last_closed_m15[4]
+                    candle_time = last_closed_m15[0]
+                    
+                    if candle_time > last_executed_time:
+                        action = None
+                        
+                        # Bullish BOS: M15 closes above H1 Swing High
+                        if close_price > recent_swing_high:
+                            action = "BUY"
+                            
+                        # Bearish BOS: M15 closes below H1 Swing Low
+                        elif close_price < recent_swing_low:
+                            action = "SELL"
+                            
+                        if action:
+                            lot_size = float(os.environ.get("LOT_SIZE", "0.10"))
+                            self.logger.info(f"BOS Detected: M15 Close ({close_price}) broke H1 Swing (High: {recent_swing_high}, Low: {recent_swing_low}). Executing {action} {lot_size} lot.")
+                            
+                            if self.execution_engine:
+                                await self.execution_engine.execute_order(symbol, action, lot_size)
+                                last_executed_time = candle_time
+                                
+            except Exception as e:
+                self.logger.error(f"Error in _smart_money_bos_loop: {e}")
+                
+            # Loop every 30 seconds to catch M15 closes relatively quickly
             await asyncio.sleep(30)

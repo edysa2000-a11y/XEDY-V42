@@ -12,9 +12,12 @@ echo [2/3] Terminating duplicate Python/Uvicorn processes...
 taskkill /f /fi "WINDOWTITLE eq C:\WINDOWS\system32\cmd.exe - start_direct_uvicorn.bat" >nul 2>&1
 taskkill /f /im python.exe >nul 2>&1
 
-echo [3/3] Launching ONE single clean XEDY Server instance...
+echo [3/4] Launching ONE single clean XEDY Server instance...
 cd /d "c:\Antigravity\Project\XEDY Mission Control"
 start "XEDY_PRODUCTION_SERVER" /min "C:\Users\ACER\AppData\Local\Programs\Python\Python314\python.exe" -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --workers 1 --log-level info
+
+echo [4/4] Launching Profit Monitor Daemon in background...
+start "PROFIT_MONITOR_DAEMON" /min "C:\Users\ACER\AppData\Local\Programs\Python\Python314\python.exe" backend\scripts\profit_monitor_daemon.py
 
 echo ========================================================
 echo SUCCESS: All duplicate servers cleared. 
