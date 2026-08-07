@@ -717,7 +717,7 @@
                         <div class="glass-panel p-4 h-100">
                             <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3">
                                 <h6 class="text-primary mb-0">Optimal Execution Plan</h6>
-                                <select id="os-risk-profile" class="form-select form-select-sm bg-dark text-white border-secondary" style="width: auto; font-size: 0.8rem;">
+                                <select id="os-risk-profile" class="form-select form-select-sm bg-dark text-white border-secondary" style="width: auto; font-size: 0.8rem;" onchange="window.forceRiskUpdate()">
                                     <option value="conservative">Risk: Conservative</option>
                                     <option value="standard" selected>Risk: Standard</option>
                                     <option value="moderate">Risk: Moderate</option>

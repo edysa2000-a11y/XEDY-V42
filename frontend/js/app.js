@@ -323,11 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             osPlanMgmt.innerText = `Move SL to BE at TP1. Trail by ${trailDist.toFixed(2)} pts.`;
         }
         
-        if (osPlanRisk && typeof latestSignal !== 'undefined' && latestSignal) {
-            const confVal = Math.round(latestSignal.confidence * 100);
-            let uesScore = confVal + 10;
-            if (uesScore > 98) uesScore = 98;
-            
+        if (osPlanRisk) {
             const riskSelect = document.getElementById('os-risk-profile');
             const riskProfile = riskSelect ? riskSelect.value : 'standard';
             
@@ -342,6 +338,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 riskSafe = 1.0; riskStd = 1.5; riskSuper = 2.5;
             }
             
+            let uesScore = 90; // Default standard score if no signal
+            if (typeof latestSignal !== 'undefined' && latestSignal) {
+                const confVal = Math.round(latestSignal.confidence * 100);
+                uesScore = confVal + 10;
+                if (uesScore > 98) uesScore = 98;
+            }
+            
             if (uesScore < 90) {
                 osPlanRisk.innerHTML = `<span class="text-success fw-bold">${riskSafe.toFixed(1)}% of Equity (Safe Mode)</span>`;
             } else if (uesScore >= 95) {
@@ -350,6 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 osPlanRisk.innerText = `${riskStd.toFixed(1)}% of Equity (Standard)`;
             }
         }
+        
+        window.forceRiskUpdate = function() {
+            if (typeof window.latestDe !== 'undefined') {
+                updateDashboard(window.latestDe, window.latestTick);
+            }
+        };
         
         // Live XAU AI GOLD OS Execution Plan Update (Throttled 1 FPS)
         if (latestTick) {
