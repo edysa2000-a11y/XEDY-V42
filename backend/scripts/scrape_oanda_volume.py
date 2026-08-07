@@ -21,45 +21,50 @@ def fetch_and_calculate_cvd():
         data = tv.get_hist(symbol=symbol, exchange=exchange, interval=Interval.in_5_minute, n_bars=60)
         
         if data is None or data.empty:
-            logger.error("Failed to fetch data from TradingView.")
-            return False
+            logger.error("Failed to fetch volume data from TradingView. Using fallback.")
+            cvd = 0.0
+            current_price = 0.0
+            ema_50 = 0.0
+            trend = "UNKNOWN"
+        else:
+            # Calculate Delta: if Close >= Open, volume is positive, else negative
+            data['delta'] = np.where(data['close'] >= data['open'], data['volume'], -data['volume'])
             
-        # Calculate Delta: if Close >= Open, volume is positive, else negative
-        data['delta'] = np.where(data['close'] >= data['open'], data['volume'], -data['volume'])
-        
-        # Calculate CVD for the last 20 candles
-        recent_20 = data.tail(20)
-        cvd = float(recent_20['delta'].sum())
-        
-        current_price = float(data['close'].iloc[-1])
-        ema_50 = float(data['close'].ewm(span=50, adjust=False).mean().iloc[-1])
-        
-        trend = "BULLISH"
-        if cvd > 0 and current_price < ema_50:
-            trend = "BULLISH_ABSORPTION"
-        elif cvd < 0 and current_price > ema_50:
-            trend = "BEARISH_EXHAUSTION"
-        elif cvd < 0:
-            trend = "BEARISH"
+            # Calculate CVD for the last 20 candles
+            recent_20 = data.tail(20)
+            cvd = float(recent_20['delta'].sum())
+            
+            current_price = float(data['close'].iloc[-1])
+            ema_50 = float(data['close'].ewm(span=50, adjust=False).mean().iloc[-1])
+            
+            trend = "BULLISH"
+            if cvd > 0 and current_price < ema_50:
+                trend = "BULLISH_ABSORPTION"
+            elif cvd < 0 and current_price > ema_50:
+                trend = "BEARISH_EXHAUSTION"
+            elif cvd < 0:
+                trend = "BEARISH"
             
         # Also Fetch DXY and US10Y for the Ticker Bar
-        def fetch_asset(sym, exc):
+        # Fetch DXY, US10Y, XAUUSD using yfinance for robustness
+        def fetch_asset_yf(ticker):
             try:
-                # Get daily data to calculate 1D change
-                df = tv.get_hist(symbol=sym, exchange=exc, interval=Interval.in_daily, n_bars=2)
-                if df is not None and len(df) >= 2:
-                    current = float(df['close'].iloc[-1])
-                    prev = float(df['close'].iloc[-2])
+                import yfinance as yf
+                ticker_obj = yf.Ticker(ticker)
+                hist = ticker_obj.history(period="5d")
+                if hist is not None and not hist.empty and len(hist) >= 2:
+                    current = float(hist['Close'].iloc[-1])
+                    prev = float(hist['Close'].iloc[-2])
                     change = current - prev
                     change_pct = (change / prev) * 100
                     return current, change, change_pct
-            except:
-                pass
+            except Exception as e:
+                logger.error(f"yfinance failed for {ticker}: {e}")
             return 0.0, 0.0, 0.0
             
-        xau_current, xau_change, xau_pct = fetch_asset('XAUUSD', 'OANDA')
-        dxy_current, dxy_change, dxy_pct = fetch_asset('DXY', 'TVC') # TVC usually has DXY
-        us10y_current, us10y_change, us10y_pct = fetch_asset('US10Y', 'TVC')
+        xau_current, xau_change, xau_pct = fetch_asset_yf('GC=F')
+        dxy_current, dxy_change, dxy_pct = fetch_asset_yf('DX-Y.NYB')
+        us10y_current, us10y_change, us10y_pct = fetch_asset_yf('^TNX')
         
         # Calculate Real Yield mockup (US10Y - 2.5% expected inflation roughly)
         real_yield_current = us10y_current - 2.5
