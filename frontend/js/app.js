@@ -342,12 +342,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     let uesScore = confVal + 10;
                     if (uesScore > 98) uesScore = 98;
                     
+                    const riskSelect = document.getElementById('os-risk-profile');
+                    const riskProfile = riskSelect ? riskSelect.value : 'standard';
+                    
+                    let riskSafe, riskStd, riskSuper;
+                    if (riskProfile === 'conservative') {
+                        riskSafe = 0.5; riskStd = 1.0; riskSuper = 1.5;
+                    } else if (riskProfile === 'moderate') {
+                        riskSafe = 1.5; riskStd = 2.5; riskSuper = 4.0;
+                    } else if (riskProfile === 'extreme') {
+                        riskSafe = 2.5; riskStd = 4.0; riskSuper = 6.0;
+                    } else { // standard
+                        riskSafe = 1.0; riskStd = 1.5; riskSuper = 2.5;
+                    }
+                    
                     if (uesScore < 90) {
-                        osPlanRisk.innerHTML = `<span class="text-success fw-bold">1.0% of Equity (Safe Mode)</span>`;
+                        osPlanRisk.innerHTML = `<span class="text-success fw-bold">${riskSafe.toFixed(1)}% of Equity (Safe Mode)</span>`;
                     } else if (uesScore >= 95) {
-                        osPlanRisk.innerHTML = `<span class="text-danger fw-bold">2.5% of Equity (Sniper Mode)</span>`;
+                        osPlanRisk.innerHTML = `<span class="text-danger fw-bold">${riskSuper.toFixed(1)}% of Equity (Sniper Mode)</span>`;
                     } else {
-                        osPlanRisk.innerText = `1.5% of Equity (Standard)`;
+                        osPlanRisk.innerText = `${riskStd.toFixed(1)}% of Equity (Standard)`;
                     }
                 }
                 
