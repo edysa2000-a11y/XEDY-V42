@@ -58,7 +58,7 @@ def get_live_multi_asset_prices():
                 "tickers": ["FX_IDC:XAUUSD", "TVC:USOIL", "TVC:DXY", "TVC:US10Y"],
                 "query": { "types": [] }
             },
-            "columns": ["close"]
+            "columns": ["close", "change"]
         }
         req_tv = urllib.request.Request(
             url_tv, 
@@ -72,7 +72,11 @@ def get_live_multi_asset_prices():
                 for item in data["data"]:
                     ticker = item["s"]
                     close_price = float(item["d"][0])
-                    if "XAUUSD" in ticker: prices["XAUUSD"] = close_price
+                    change = float(item["d"][1]) if len(item["d"]) > 1 else 0.0
+                    
+                    if "XAUUSD" in ticker:
+                        prices["XAUUSD"] = close_price
+                        prices["XAUUSD_CHANGE"] = change
                     elif "USOIL" in ticker: prices["USOIL"] = close_price
                     elif "DXY" in ticker: prices["DXY"] = close_price
                     elif "US10Y" in ticker: prices["US10Y"] = close_price
@@ -91,7 +95,8 @@ def get_live_multi_asset_prices():
             with urllib.request.urlopen(req, timeout=8) as r:
                 data = json.loads(r.read().decode())
                 prices["XAUUSD"] = float(data['chart']['result'][0]['meta']['regularMarketPrice'])
-        
+                prev_close = float(data['chart']['result'][0]['meta']['chartPreviousClose'])
+                prices["XAUUSD_CHANGE"] = prices["XAUUSD"] - prev_close
         # Fallback USOIL via CL=F
         if prices["USOIL"] == 0.0:
             url = "https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1m&range=1d"
@@ -300,12 +305,13 @@ def get_qwen_analysis(api_key, news_text, prices):
         "Analyze the news headlines, identify any recent US economic calendar data releases (like GDP, PCE, CPI, NFP) mentioned, study the cross-market prices (Gold vs DXY, Yields, and Oil), and decide the macro trading bias.\n"
         "You MUST respond ONLY with a valid JSON object matching this structure, without markdown code fences:\n"
         "{\n"
+        "  \"market_summary_id\": \"Rangkuman komprehensif berita dan penjelasan spesifik MENGAPA faktor makro ini membuat harga XAUUSD naik atau turun. Wajib diisi dalam bahasa Indonesia.\",\n"
         "  \"bias\": \"BUY_ONLY\" | \"SELL_ONLY\" | \"ANY\" | \"WAIT\",\n"
         "  \"regime\": \"NORMAL\" | \"HIGH_NEWS\" | \"SIDEWAYS\",\n"
         "  \"optimal_confidence_threshold\": float (value between 0.60 and 0.85),\n"
         "  \"optimal_max_op\": int (value between 2 and 6),\n"
         "  \"optimal_method\": \"Opsi X: [Method Name] (e.g. Opsi 5: Scalping 1:1, Opsi 2: Breakout Stop-Entry, Opsi 8: H1 Pyramid)\",\n"
-        "  \"economic_releases\": [\"Release 1 with value and brief impact in INDONESIAN\", \"Release 2 in INDONESIAN\"],\n"
+        "  \"economic_releases\": [\"Data 1: Aktual vs Forecast dan dampaknya\"],\n"
         "  \"forecast_price_target\": float (Estimated target price for XAUUSD, e.g. 2425.50. Make it realistic based on news impact),\n"
         "  \"forecast_duration_hours\": int (Estimated duration in hours to reach target price, e.g. 24),\n"
         "  \"forecast_high_24h\": float (Estimated 24-hour HIGH price for XAUUSD),\n"
@@ -381,7 +387,7 @@ def main():
     print(f"Current live Spot Gold price: ${gold_price:.2f} | Oil: ${prices.get('USOIL', 0.0):.2f} | DXY: {prices.get('DXY', 0.0):.2f}")
     
     # 1. Scrape Google News Gold, DXY, geopolitical, macroeconomic, and US Presidential Speech feed
-    google_url = 'https://news.google.com/rss/search?q=(gold+OR+xauusd+OR+dxy+OR+\"US+dollar\"+OR+\"treasury+yields\"+OR+trump+OR+\"president+speech\"+OR+\"trump+comments\")+(war+OR+geopolitics+OR+conflict+OR+fed+OR+inflation+OR+nfp+OR+gdp+OR+cpi+OR+tariff)&hl=en-US&gl=US&ceid=US:en'
+    google_url = 'https://news.google.com/rss/search?q=(gold+OR+xauusd+OR+dxy+OR+\"US+dollar\"+OR+\"treasury+yields\"+OR+trump+OR+\"president\"+OR+\"jerome+powell\"+OR+fomc+OR+\"economic+calendar\")+(war+OR+geopolitics+OR+conflict+OR+fed+OR+inflation+OR+nfp+OR+gdp+OR+cpi+OR+tariff+OR+oil)&hl=en-US&gl=US&ceid=US:en'
     articles = scrape_rss(google_url)
     
     if not articles:
@@ -486,7 +492,27 @@ def main():
     # 3. Analyze with Qwen AI in the Cloud
     print("Calling Qwen AI for Macro Analysis...")
     analysis = get_qwen_analysis(api_key, news_text, prices)
-    print(f"Qwen Bias Result: {analysis.get('bias')}")
+    print(f"Qwen Initial Bias Result: {analysis.get('bias')}")
+    
+    # 3.5. AGENTIC REFLECTION LOOP (Validate AI vs Real Market Price)
+    xau_change = prices.get("XAUUSD_CHANGE", 0.0)
+    actual_trend = "BULLISH" if xau_change > 0 else "BEARISH"
+    ai_bias = analysis.get("bias", "")
+    
+    # If AI says BUY but market is dropping, or SELL but market is rising, challenge the AI
+    if (ai_bias == "BUY_ONLY" and actual_trend == "BEARISH") or (ai_bias == "SELL_ONLY" and actual_trend == "BULLISH"):
+        print(f"⚠️ VALIDATION FAILURE: AI predicted {ai_bias} but actual market trend is {actual_trend} (Change: {xau_change:.2f}). Triggering Reflection Loop...")
+        reflection_prompt = (
+            f"TUNGGU! Analisismu sebelumnya menyimpulkan BIAS = {ai_bias}. "
+            f"Namun, FAKTA di pasar saat ini harga Emas justru bergerak {actual_trend} (Perubahan: {xau_change:.2f}). "
+            f"Apakah kamu melewatkan sesuatu? Apakah pasar melakukan 'Buy the Rumor Sell the Fact'? "
+            f"Tolong review ulang berita dan korelasinya dengan pergerakan harga nyata ini. Sesuaikan BIAS dan MARKET_SUMMARY_ID-mu!"
+        )
+        
+        # Inject reflection into the news text so Qwen re-evaluates
+        reflected_news_text = news_text + f"\n\n[SYSTEM OVERRIDE/REFLECTION]\n{reflection_prompt}\n"
+        analysis = get_qwen_analysis(api_key, reflected_news_text, prices)
+        print(f"Qwen Reflected Bias Result: {analysis.get('bias')}")
     
     # Translate Qwen's reasoning to Indonesian
     reasoning_en = analysis.get('reasoning', '')
@@ -576,13 +602,17 @@ def main():
 
     # 5. Send Telegram Notification from Cloud in Indonesian (GMT+7)
     optimal_method_str = analysis.get('optimal_method', 'Tidak ditentukan')
+    market_summary = analysis.get('market_summary_id', 'Tidak ada rangkuman.')
+    
     tg_msg = (
         f"LAPORAN INTEL AWAN XEDY\n"
         f"Waktu: {local_now.strftime('%Y-%m-%d %H:%M:%S WIB')}\n\n"
         f"Berita Utama Teratas (Diterjemahkan):\n" + "\n".join(tg_news_list) + "\n\n"
         f"Rilis Data Kalender Ekonomi Terkini:\n" + releases_str + "\n\n"
+        f"📊 RANGKUMAN & KORELASI PASAR:\n"
+        f"{market_summary}\n\n"
         f"Keputusan Strategis Qwen AI:\n"
-        f"• Harga Emas Saat Ini: ${gold_price:.2f}\n"
+        f"• Harga Emas Saat Ini: ${gold_price:.2f} (Trend: {'Naik 📈' if prices.get('XAUUSD_CHANGE', 0) > 0 else 'Turun 📉'})\n"
         f"• Target Harga Proyeksi: ${analysis.get('forecast_price_target', 0.0):.2f}\n"
         f"• Estimasi Durasi Waktu: {analysis.get('forecast_duration_hours', 0)} Jam\n"
         f"• Arah Bias: {translated_bias}\n"
