@@ -872,7 +872,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             const conf = latestSignal ? (latestSignal.confidence * 100).toFixed(1) + '%' : '75.5%';
                             elAiConfidence.innerText = conf;
                         }
-                        }
 
                         // Render XAI Decision Tree Graph inside AI Center
                         const graphDiv = document.getElementById('ai-tree-graph');
