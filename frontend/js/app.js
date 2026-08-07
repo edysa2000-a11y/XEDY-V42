@@ -3198,3 +3198,73 @@ function renderBacktestTable(records, label) {
             '</tr>';
     }).join('');
 }
+
+// SERVERLESS TICKER FETCH (Bypass Local Backend for Vercel support)
+window.fetchServerlessTicker = async function() {
+    try {
+        const url = 'https://raw.githubusercontent.com/edysa2000-a11y/XEDY-V42/data-feed/data/market_ticker.json?t=' + new Date().getTime();
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        function updateTicker(idPrefix, itemData) {
+            if (!itemData) return;
+            const priceEl = document.getElementById(`ticker-${idPrefix}-price`);
+            const changeEl = document.getElementById(`ticker-${idPrefix}-change`);
+            
+            if (priceEl && itemData.price !== undefined) {
+                let formattedPrice = itemData.price;
+                if (idPrefix === 'xau' || idPrefix === 'dxy') formattedPrice = parseFloat(itemData.price).toFixed(2);
+                else if (idPrefix === 'us10y' || idPrefix === 'real') formattedPrice = parseFloat(itemData.price).toFixed(2) + '%';
+                else if (idPrefix === 'gld') formattedPrice = (itemData.price > 0 ? '+' : '') + parseFloat(itemData.price).toFixed(2) + ' Ton';
+                else if (idPrefix === 'comex') formattedPrice = parseInt(itemData.price).toLocaleString();
+                
+                priceEl.innerText = formattedPrice;
+            }
+            
+            if (changeEl && itemData.change !== undefined) {
+                let changeVal = parseFloat(itemData.change);
+                let pctVal = parseFloat(itemData.change_pct);
+                let sign = changeVal > 0 ? '+' : '';
+                let textClass = changeVal > 0 ? 'text-bullish' : (changeVal < 0 ? 'text-bearish' : 'text-muted');
+                
+                if (idPrefix === 'dxy' || idPrefix === 'us10y' || idPrefix === 'real') {
+                    // For DXY/Yields, UP is bearish for Gold
+                    textClass = changeVal > 0 ? 'text-bearish' : (changeVal < 0 ? 'text-bullish' : 'text-muted');
+                }
+                
+                if (idPrefix === 'gld' || idPrefix === 'comex') {
+                    if (itemData.status) {
+                        changeEl.innerText = `${itemData.status}`;
+                    } else {
+                        changeEl.innerText = `${sign}${changeVal} (${sign}${pctVal.toFixed(2)}%)`;
+                    }
+                } else {
+                    changeEl.innerText = `${sign}${changeVal.toFixed(2)} (${sign}${pctVal.toFixed(2)}%)`;
+                }
+                
+                changeEl.className = `small fw-bold ${textClass}`;
+            }
+        }
+        
+        updateTicker('xau', data.XAUUSD);
+        updateTicker('dxy', data.DXY);
+        updateTicker('us10y', data.US10Y);
+        updateTicker('real', data.REAL_YIELD);
+        updateTicker('gld', data.GLD_NET_FLOW);
+        updateTicker('comex', data.COMEX_NET_LONG);
+        
+        if (data.RISK_SENTIMENT) {
+            const rsEl = document.getElementById('ticker-risk-status');
+            const rdEl = document.getElementById('ticker-risk-desc');
+            if (rsEl) rsEl.innerText = data.RISK_SENTIMENT.status;
+            if (rdEl) rdEl.innerText = data.RISK_SENTIMENT.desc;
+        }
+        
+    } catch (e) {
+        console.error("Failed to fetch serverless ticker:", e);
+    }
+};
+
+setTimeout(window.fetchServerlessTicker, 1000);
+setInterval(window.fetchServerlessTicker, 60000);

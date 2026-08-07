@@ -586,6 +586,45 @@
                     </div>
                 </div>
                 
+                <!-- Serverless Ticker Bar -->
+                <div class="d-flex flex-nowrap overflow-auto mb-4 pb-2 ticker-container" style="gap: 15px; scrollbar-width: none;">
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px; border-top: 2px solid #2ecc71;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">XAUUSD</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-xau-price">----.--</div>
+                        <div class="small fw-bold" id="ticker-xau-change">--- (---%)</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">DXY</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-dxy-price">---.--</div>
+                        <div class="small fw-bold" id="ticker-dxy-change">--- (---%)</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">US 10Y YIELD</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-us10y-price">-.--%</div>
+                        <div class="small fw-bold" id="ticker-us10y-change">--- (---%)</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">REAL YIELD (10Y)</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-real-price">-.--%</div>
+                        <div class="small fw-bold" id="ticker-real-change">--- (---%)</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">GLD NET FLOW</div>
+                        <div class="fw-bold fs-4 text-bullish" id="ticker-gld-price">+-.-- Ton</div>
+                        <div class="small fw-bold text-bullish" id="ticker-gld-change">-- Bullish</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">COMEX NET LONG</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-comex-price">---,---</div>
+                        <div class="small fw-bold text-bullish" id="ticker-comex-change">+--- (+--%)</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px; border-right: 3px solid #e74c3c;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">RISK SENTIMENT</div>
+                        <div class="fw-bold fs-4 text-bearish" id="ticker-risk-status">---- ---</div>
+                        <div class="small text-muted" id="ticker-risk-desc">---</div>
+                    </div>
+                </div>
+                
                 <div class="row g-4 mb-4">
                     <!-- Unified Edge Score -->
                     <div class="col-md-4">
