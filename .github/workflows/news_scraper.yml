@@ -31,7 +31,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install --prefer-binary python-dotenv pandas numpy feedparser tvdatafeed # Use fast binaries to skip compiling
+          pip install --prefer-binary python-dotenv pandas numpy feedparser
+          pip install --upgrade --no-cache-dir git+https://github.com/rongardF/tvdatafeed.git
 
       - name: Restore State from data-feed branch
         run: |
