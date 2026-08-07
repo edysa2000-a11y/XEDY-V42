@@ -587,52 +587,52 @@
                 </div>
                 
                 <!-- Serverless Ticker Bar -->
-                <div class="d-flex flex-wrap mb-4 pb-2 ticker-container" style="gap: 10px;">
-                    <div class="glass-panel p-2 flex-grow-1 text-center" style="min-width: 130px; border-top: 2px solid #2ecc71;">
-                        <div class="text-muted mb-1" style="font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px;">XAUUSD</div>
-                        <div class="fw-bold fs-5 text-white" id="ticker-xau-price">----.--</div>
-                        <div class="small fw-bold" id="ticker-xau-change" style="font-size: 0.75rem;">--- (---%)</div>
+                <div class="d-flex flex-nowrap overflow-auto mb-4 pb-2 ticker-container" style="gap: 15px; scrollbar-width: none;">
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px; border-top: 2px solid #2ecc71;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">XAUUSD</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-xau-price">----.--</div>
+                        <div class="small fw-bold" id="ticker-xau-change">--- (---%)</div>
                     </div>
-                    <div class="glass-panel p-2 flex-grow-1 text-center" style="min-width: 130px;">
-                        <div class="text-muted mb-1" style="font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px;">DXY</div>
-                        <div class="fw-bold fs-5 text-white" id="ticker-dxy-price">---.--</div>
-                        <div class="small fw-bold" id="ticker-dxy-change" style="font-size: 0.75rem;">--- (---%)</div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">DXY</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-dxy-price">---.--</div>
+                        <div class="small fw-bold" id="ticker-dxy-change">--- (---%)</div>
                     </div>
-                    <div class="glass-panel p-2 flex-grow-1 text-center" style="min-width: 130px;">
-                        <div class="text-muted mb-1" style="font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px;">US 10Y YIELD</div>
-                        <div class="fw-bold fs-5 text-white" id="ticker-us10y-price">-.--%</div>
-                        <div class="small fw-bold" id="ticker-us10y-change" style="font-size: 0.75rem;">--- (---%)</div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">US 10Y YIELD</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-us10y-price">-.--%</div>
+                        <div class="small fw-bold" id="ticker-us10y-change">--- (---%)</div>
                     </div>
-                    <div class="glass-panel p-2 flex-grow-1 text-center" style="min-width: 130px;">
-                        <div class="text-muted mb-1" style="font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px;">REAL YIELD (10Y)</div>
-                        <div class="fw-bold fs-5 text-white" id="ticker-real-price">-.--%</div>
-                        <div class="small fw-bold" id="ticker-real-change" style="font-size: 0.75rem;">--- (---%)</div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">REAL YIELD (10Y)</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-real-price">-.--%</div>
+                        <div class="small fw-bold" id="ticker-real-change">--- (---%)</div>
                     </div>
-                    <div class="glass-panel p-2 flex-grow-1 text-center" style="min-width: 130px;">
-                        <div class="text-muted mb-1" style="font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px;">GLD NET FLOW</div>
-                        <div class="fw-bold fs-5 text-bullish" id="ticker-gld-price">+-.-- Ton</div>
-                        <div class="small fw-bold text-bullish" id="ticker-gld-change" style="font-size: 0.75rem;">-- Bullish</div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">GLD NET FLOW</div>
+                        <div class="fw-bold fs-4 text-bullish" id="ticker-gld-price">+-.-- Ton</div>
+                        <div class="small fw-bold text-bullish" id="ticker-gld-change">-- Bullish</div>
                     </div>
-                    <div class="glass-panel p-2 flex-grow-1 text-center" style="min-width: 130px;">
-                        <div class="text-muted mb-1" style="font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px;">COMEX NET LONG</div>
-                        <div class="fw-bold fs-5 text-white" id="ticker-comex-price">---,---</div>
-                        <div class="small fw-bold text-bullish" id="ticker-comex-change" style="font-size: 0.75rem;">+--- (+--%)</div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">COMEX NET LONG</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-comex-price">---,---</div>
+                        <div class="small fw-bold text-bullish" id="ticker-comex-change">+--- (+--%)</div>
                     </div>
-                    <div class="glass-panel p-2 flex-grow-1 text-center" style="min-width: 130px; border-right: 3px solid #e74c3c;">
-                        <div class="text-muted mb-1" style="font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px;">RISK SENTIMENT</div>
-                        <div class="fw-bold fs-5 text-bearish" id="ticker-risk-status">---- ---</div>
-                        <div class="small text-muted" id="ticker-risk-desc" style="font-size: 0.7rem;">---</div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px; border-right: 3px solid #e74c3c;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">RISK SENTIMENT</div>
+                        <div class="fw-bold fs-4 text-bearish" id="ticker-risk-status">---- ---</div>
+                        <div class="small text-muted" id="ticker-risk-desc">---</div>
                     </div>
                 </div>
                 
-                <div class="row g-2 mb-2">
+                <div class="row g-4 mb-4">
                     <!-- Unified Edge Score -->
                     <div class="col-md-4">
-                        <div class="glass-panel p-2 h-100 text-center" style="border-top: 3px solid #f39c12;">
-                            <h6 class="text-muted mb-1" style="font-size: 0.75rem;">UNIFIED EDGE SCORE</h6>
-                            <h1 class="display-5 mb-0 text-success fw-bold" id="os-ues-score">87</h1>
-                            <span class="badge bg-warning text-dark mb-2">Eligible (Watchlist)</span>
-                            <div class="text-start" style="font-size: 0.75rem;">
+                        <div class="glass-panel p-4 h-100 text-center" style="border-top: 3px solid #f39c12;">
+                            <h6 class="text-muted mb-3">UNIFIED EDGE SCORE</h6>
+                            <h1 class="display-3 mb-0 text-success fw-bold" id="os-ues-score">87</h1>
+                            <span class="badge bg-warning text-dark mb-3">Eligible (Watchlist)</span>
+                            <div class="text-start small">
                                 <div class="d-flex justify-content-between mb-1"><span>Trend (20%)</span><span class="text-white">18/20</span></div>
                                 <div class="d-flex justify-content-between mb-1"><span>Liquidity (20%)</span><span class="text-white">19/20</span></div>
                                 <div class="d-flex justify-content-between mb-1"><span>Orderflow (15%)</span><span class="text-white">12/15</span></div>
@@ -646,63 +646,63 @@
                     
                     <!-- Market State & Forecast -->
                     <div class="col-md-8">
-                        <div class="row g-2 h-100">
+                        <div class="row g-4 h-100">
                             <div class="col-sm-6">
-                                <div class="glass-panel p-2 h-100">
-                                    <h6 class="text-warning border-bottom border-secondary pb-1 mb-2" style="font-size: 0.8rem;">Market State</h6>
-                                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.75rem;">
+                                <div class="glass-panel p-3 h-100">
+                                    <h6 class="text-warning border-bottom border-secondary pb-2 mb-3">Market State</h6>
+                                    <div class="d-flex justify-content-between mb-2">
                                         <span class="text-muted">Regime</span>
                                         <span class="text-white fw-bold" id="os-regime">TREND_UP (Expansion)</span>
                                     </div>
-                                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.75rem;">
+                                    <div class="d-flex justify-content-between mb-2">
                                         <span class="text-muted">Trend</span>
                                         <span class="text-success fw-bold" id="os-trend">Bullish</span>
                                     </div>
-                                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.75rem;">
+                                    <div class="d-flex justify-content-between mb-2">
                                         <span class="text-muted">Volatility</span>
                                         <span class="text-danger fw-bold" id="os-volatility">High (ATR 25.4)</span>
                                     </div>
-                                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.75rem;">
+                                    <div class="d-flex justify-content-between mb-2">
                                         <span class="text-muted">Macro Bias</span>
                                         <span class="text-success fw-bold" id="os-macro">Dovish Fed / Buy Gold</span>
                                     </div>
-                                    <div class="d-flex justify-content-between" style="font-size: 0.75rem;">
+                                    <div class="d-flex justify-content-between">
                                         <span class="text-muted">Inst. Bias</span>
                                         <span class="text-warning fw-bold" id="os-inst">Accumulation</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="glass-panel p-2 h-100">
-                                    <h6 class="text-info border-bottom border-secondary pb-1 mb-2" style="font-size: 0.8rem;">Probabilistic Forecast</h6>
-                                    <div class="mb-2">
-                                        <div class="d-flex justify-content-between mb-1" style="font-size: 0.75rem;">
+                                <div class="glass-panel p-3 h-100">
+                                    <h6 class="text-info border-bottom border-secondary pb-2 mb-3">Probabilistic Forecast</h6>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small mb-1">
                                             <span>Bull Probability</span>
                                             <span class="text-success" id="os-prob-bull-txt">65%</span>
                                         </div>
-                                        <div class="progress" style="height: 5px;">
+                                        <div class="progress" style="height: 6px;">
                                             <div class="progress-bar bg-success" id="os-prob-bull-bar" style="width: 65%"></div>
                                         </div>
                                     </div>
-                                    <div class="mb-2">
-                                        <div class="d-flex justify-content-between mb-1" style="font-size: 0.75rem;">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small mb-1">
                                             <span>Bear Probability</span>
                                             <span class="text-danger" id="os-prob-bear-txt">15%</span>
                                         </div>
-                                        <div class="progress" style="height: 5px;">
+                                        <div class="progress" style="height: 6px;">
                                             <div class="progress-bar bg-danger" id="os-prob-bear-bar" style="width: 15%"></div>
                                         </div>
                                     </div>
-                                    <div class="mb-2">
-                                        <div class="d-flex justify-content-between mb-1" style="font-size: 0.75rem;">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small mb-1">
                                             <span>Sideways Probability</span>
                                             <span class="text-warning" id="os-prob-side-txt">20%</span>
                                         </div>
-                                        <div class="progress" style="height: 5px;">
+                                        <div class="progress" style="height: 6px;">
                                             <div class="progress-bar bg-warning" id="os-prob-side-bar" style="width: 20%"></div>
                                         </div>
                                     </div>
-                                    <div class="mt-2 pt-1 border-top border-secondary text-muted" style="font-size: 0.7rem;">
+                                    <div class="mt-3 pt-2 border-top border-secondary small text-muted">
                                         Forecast Horizon: <strong>H4 / Intra-week</strong>
                                     </div>
                                 </div>
@@ -711,23 +711,23 @@
                     </div>
                 </div>
 
-                <div class="row g-2 mb-2">
+                <div class="row g-4 mb-4">
                     <!-- Trading Plan & Execution -->
                     <div class="col-md-7">
-                        <div class="glass-panel p-2 h-100">
-                            <h6 class="text-primary border-bottom border-secondary pb-1 mb-2" style="font-size: 0.8rem;">Optimal Execution Plan</h6>
+                        <div class="glass-panel p-4 h-100">
+                            <h6 class="text-primary border-bottom border-secondary pb-2 mb-3">Optimal Execution Plan</h6>
                             <div class="table-responsive">
-                                <table class="table table-sm table-dark table-borderless text-white mb-0" style="font-size: 0.75rem;">
+                                <table class="table table-sm table-dark table-borderless text-white mb-0">
                                     <tbody>
-                                        <tr><td class="text-muted pb-0">Direction</td><td class="text-success fw-bold pb-0" id="os-plan-dir">BUY (LONG)</td></tr>
-                                        <tr><td class="text-muted pb-0">Optimal Entry Zone</td><td class="pb-0" id="os-plan-entry">2425.50 - 2430.00</td></tr>
-                                        <tr><td class="text-muted pb-0">Stop Loss (Hard)</td><td class="text-danger pb-0" id="os-plan-sl">2415.00</td></tr>
-                                        <tr><td class="text-muted pb-0">TP1 (Partial Exit 50%)</td><td class="text-success pb-0" id="os-plan-tp1">2445.00</td></tr>
-                                        <tr><td class="text-muted pb-0">TP2 (Swing Target)</td><td class="text-success pb-0" id="os-plan-tp2">2460.00</td></tr>
-                                        <tr><td class="text-muted pb-0">Expected MAE</td><td class="pb-0" id="os-plan-mae">$2.50 (Adverse Excursion)</td></tr>
-                                        <tr><td class="text-muted pb-0">Risk/Reward</td><td class="pb-0" id="os-plan-rr">1 : 2.8</td></tr>
-                                        <tr><td class="text-muted pb-0">Dynamic Risk</td><td class="pb-0" id="os-plan-risk">1.5% of Equity</td></tr>
-                                        <tr><td class="text-muted pb-0">Position Management</td><td class="pb-0" id="os-plan-mgmt">Move SL to BE at TP1. Trail 20 pips.</td></tr>
+                                        <tr><td class="text-muted">Direction</td><td class="text-success fw-bold" id="os-plan-dir">BUY (LONG)</td></tr>
+                                        <tr><td class="text-muted">Optimal Entry Zone</td><td id="os-plan-entry">2425.50 - 2430.00</td></tr>
+                                        <tr><td class="text-muted">Stop Loss (Hard)</td><td class="text-danger" id="os-plan-sl">2415.00</td></tr>
+                                        <tr><td class="text-muted">TP1 (Partial Exit 50%)</td><td class="text-success" id="os-plan-tp1">2445.00</td></tr>
+                                        <tr><td class="text-muted">TP2 (Swing Target)</td><td class="text-success" id="os-plan-tp2">2460.00</td></tr>
+                                        <tr><td class="text-muted">Expected MAE</td><td id="os-plan-mae">$2.50 (Adverse Excursion)</td></tr>
+                                        <tr><td class="text-muted">Risk/Reward</td><td id="os-plan-rr">1 : 2.8</td></tr>
+                                        <tr><td class="text-muted">Dynamic Risk</td><td id="os-plan-risk">1.5% of Equity</td></tr>
+                                        <tr><td class="text-muted">Position Management</td><td id="os-plan-mgmt">Move SL to BE at TP1. Trail 20 pips.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -736,36 +736,35 @@
                     
                     <!-- Decision & Self-Evaluation -->
                     <div class="col-md-5">
-                        <div class="row g-2 h-100">
-                            <div class="col-12" style="flex: 1 1 auto;">
-                                <div class="glass-panel p-2 h-100" style="border-left: 3px solid #0dcaf0;">
-                                    <h6 class="text-info mb-1" style="font-size: 0.75rem;">Final Decision Engine</h6>
-                                    <h5 class="text-white mb-1" style="font-size: 0.9rem;">STATUS: <span class="text-warning" id="os-decision-status">WAITING FOR PULLBACK</span></h5>
-                                    <p class="text-muted mb-0" style="font-size: 0.7rem;" id="os-decision-reason">Primary Reason: UES is 87 (Watchlist). Price is currently overextended. Waiting for liquidity sweep at 2430 before institutional execution. Rejecting immediate market order due to poor R:R.</p>
+                        <div class="row g-4 h-100">
+                            <div class="col-12" style="flex: 1 1 auto; padding-bottom: 0.5rem;">
+                                <div class="glass-panel p-3 h-100" style="border-left: 3px solid #0dcaf0;">
+                                    <h6 class="text-info mb-2">Final Decision Engine</h6>
+                                    <h4 class="text-white mb-2">STATUS: <span class="text-warning" id="os-decision-status">WAITING FOR PULLBACK</span></h4>
+                                    <p class="small text-muted mb-0" id="os-decision-reason">Primary Reason: UES is 87 (Watchlist). Price is currently overextended. Waiting for liquidity sweep at 2430 before institutional execution. Rejecting immediate market order due to poor R:R.</p>
                                 </div>
                             </div>
-                            <div class="col-12" style="flex: 1 1 auto;">
-                                <div class="glass-panel p-2 h-100" style="border-left: 3px solid #6c757d;">
-                                    <h6 class="text-secondary mb-1" style="font-size: 0.75rem;">Evaluasi Mandiri & Ketidakpastian</h6>
-                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">
-                                        <strong>Kalibrasi:</strong> Konfidensi tinggi pada tren, menengah pada <i>timing</i>.<br>
-                                        <strong>Batasan:</strong> Data NFP besok menambah risiko <i>tail risk</i> sangat besar.<br>
-                                        <strong>Asumsi:</strong> DXY tetap berada di bawah level 104.50.
+                            <div class="col-12" style="flex: 1 1 auto; padding-bottom: 0.5rem;">
+                                <div class="glass-panel p-3 h-100" style="border-left: 3px solid #6c757d;">
+                                    <h6 class="text-secondary mb-2">Evaluasi Mandiri & Ketidakpastian (Self-Evaluation)</h6>
+                                    <p class="small text-muted mb-0">
+                                        <strong>Kalibrasi:</strong> Konfidensi tinggi pada tren, tingkat menengah pada penentuan waktu masuk <i>(entry timing)</i>.<br>
+                                        <strong>Batasan:</strong> Data NFP besok menambah risiko <i>tail risk</i> yang sangat besar. Ketidakpastian model meningkat drastis setelah 24 jam.<br>
+                                        <strong>Asumsi:</strong> Mengasumsikan DXY tetap berada di bawah level 104.50.
                                     </p>
                                 </div>
                             </div>
                             <div class="col-12" style="flex: 1 1 auto;">
-                                <div class="glass-panel p-2 h-100" style="border-left: 3px solid #ffc107;">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem;">Skor 80 - 90</span>
-                                        <span class="fw-bold text-white" style="font-size: 0.75rem;" id="stat-wr-80">--% Winrate</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="badge bg-success" style="font-size: 0.7rem;">Skor > 90</span>
-                                        <span class="fw-bold text-success" style="font-size: 0.75rem;" id="stat-wr-90">--% Winrate</span>
-                                    </div>
-                                    <p class="text-muted mb-0" style="font-size: 0.7rem;" id="stat-daily-freq">
-                                        Peluang Hari Ini: <span class="text-white">Menunggu kalkulasi...</span>
+                                <div class="glass-panel p-3 h-100" style="border-left: 3px solid #ffc107;">
+                                    <h6 class="text-warning mb-2">Legend Kuantitatif: % Skor vs % Winrate 📊</h6>
+                                    <table class="table table-sm table-dark table-borderless text-white mb-1">
+                                        <tbody>
+                                            <tr><td class="text-muted"><span class="badge bg-warning">Skor 80 - 90</span></td><td class="text-end fw-bold" id="stat-wr-80">--% Winrate</td></tr>
+                                            <tr><td class="text-muted"><span class="badge bg-success">Skor > 90</span></td><td class="text-end fw-bold text-success" id="stat-wr-90">--% Winrate</td></tr>
+                                        </tbody>
+                                    </table>
+                                    <p class="small text-muted mb-0" id="stat-daily-freq">
+                                        Peluang Hari Ini: <span class="text-white">Menunggu kalkulasi backtest...</span>
                                     </p>
                                 </div>
                             </div>
