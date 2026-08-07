@@ -320,6 +320,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const osPlanSl = document.getElementById('os-plan-sl');
                 const osPlanTp1 = document.getElementById('os-plan-tp1');
                 const osPlanTp2 = document.getElementById('os-plan-tp2');
+                const osPlanRisk = document.getElementById('os-plan-risk');
+                const osPlanMgmt = document.getElementById('os-plan-mgmt');
                 
                 const price = latestTick.bid;
                 const isBuy = (typeof latestSignal !== 'undefined' && latestSignal && latestSignal.signal === 'SELL') ? false : true;
@@ -329,6 +331,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const stopLossDist = atrMultiplier * 1.5;
                 const tp1Dist = atrMultiplier * 1.0;
                 const tp2Dist = atrMultiplier * 2.5;
+                const trailDist = atrMultiplier * 0.5;
+                
+                if (osPlanMgmt) {
+                    osPlanMgmt.innerText = `Move SL to BE at TP1. Trail by ${trailDist.toFixed(2)} pts.`;
+                }
+                
+                if (osPlanRisk && typeof latestSignal !== 'undefined' && latestSignal) {
+                    const confVal = Math.round(latestSignal.confidence * 100);
+                    let uesScore = confVal + 10;
+                    if (uesScore > 98) uesScore = 98;
+                    
+                    if (uesScore < 90) {
+                        osPlanRisk.innerHTML = `<span class="text-success fw-bold">1.0% of Equity (Safe Mode)</span>`;
+                    } else if (uesScore >= 95) {
+                        osPlanRisk.innerHTML = `<span class="text-danger fw-bold">2.5% of Equity (Sniper Mode)</span>`;
+                    } else {
+                        osPlanRisk.innerText = `1.5% of Equity (Standard)`;
+                    }
+                }
                 
                 if (isBuy) {
                     osPlanEntry.innerText = `${(price - entryZoneWidth).toFixed(2)} - ${(price).toFixed(2)}`;
@@ -941,7 +962,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (isLowVolatility && uesScore < EXECUTION_THRESHOLD && latestSignal.signal !== 'WAIT') {
                             latestSignal.signal = 'WAIT';
                         }
-                        // ====================================
+                        // === H1 SMART MONEY ALIGNMENT FILTER ===
+                        let isH1Misaligned = false;
+                        if (de.smart_money && de.smart_money.structure_h1) {
+                            const smcH1 = de.smart_money.structure_h1;
+                            if ((latestSignal.signal === 'BUY' && smcH1.includes('Bearish')) || 
+                                (latestSignal.signal === 'SELL' && smcH1.includes('Bullish'))) {
+                                isH1Misaligned = true;
+                            }
+                        }
+                        
+                        if (isH1Misaligned && latestSignal.signal !== 'WAIT') {
+                            latestSignal.signal = 'WAIT';
+                        }
+                        // =======================================
                         
                         const dirEl = document.getElementById('os-plan-dir');
                         if (dirEl) {
@@ -962,7 +996,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (statusEl) {
                             if (latestSignal.signal === 'WAIT') {
-                                if (isLowVolatility && uesScore >= 80 && uesScore < 90) {
+                                if (isH1Misaligned) {
+                                    statusEl.innerText = 'DIBLOKIR (MELAWAN H1)';
+                                    statusEl.className = 'text-danger';
+                                } else if (isLowVolatility && uesScore >= 80 && uesScore < 90) {
                                     statusEl.innerText = 'STANDBY (LOW VOL) - BUTUH SKOR >90';
                                     statusEl.className = 'text-warning';
                                 } else {
@@ -985,10 +1022,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         if (reasonEl) {
                             let reasonText = `Alasan Utama: Skor UES berada di angka ${uesScore}. Konfidensi Sinyal AI sebesar ${confVal}%.`;
-                            if (isLowVolatility && uesScore >= 80 && uesScore < 90) {
+                            if (isH1Misaligned) {
+                                reasonText = `⛔ H1 ALIGNMENT FILTER AKTIF: Sinyal diblokir karena arah berlawanan dengan Struktur Institusi (Smart Money) di time-frame H1.`;
+                            } else if (isLowVolatility && uesScore >= 80 && uesScore < 90) {
                                 reasonText = `⚠️ DYNAMIC THRESHOLD AKTIF: Karena pasar sedang sepi (Sesi Asia / ATR < 10), syarat OP dinaikkan menjadi UES > 90. Skor saat ini (${uesScore}) ditangguhkan untuk mencegah False Breakout.`;
                             } else if (isCounterTrend && latestSignal.signal !== 'WAIT') {
-                                reasonText += `\n⚠️ PERINGATAN: Sinyal ini melawan arus (Counter-Trend). Kurangi Lot sebesar 50%!`;
+                                reasonText += `\n⚠️ PERINGATAN: Sinyal ini melawan arus jangka pendek (Counter-Trend). Kurangi Lot sebesar 50%!`;
                                 // Highlight warning if it's prime but counter-trend
                                 if (uesScore >= EXECUTION_THRESHOLD && statusEl) {
                                     statusEl.className = 'text-warning';
