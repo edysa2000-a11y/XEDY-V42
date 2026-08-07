@@ -313,6 +313,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        // UI Updates that do not depend on live market ticks (e.g. Risk Dropdown)
+        const osPlanRisk = document.getElementById('os-plan-risk');
+        const osPlanMgmt = document.getElementById('os-plan-mgmt');
+        
+        if (osPlanMgmt) {
+            const atrMultiplier = typeof latestAtr !== 'undefined' && latestAtr ? latestAtr : 15.0;
+            const trailDist = atrMultiplier * 0.5;
+            osPlanMgmt.innerText = `Move SL to BE at TP1. Trail by ${trailDist.toFixed(2)} pts.`;
+        }
+        
+        if (osPlanRisk && typeof latestSignal !== 'undefined' && latestSignal) {
+            const confVal = Math.round(latestSignal.confidence * 100);
+            let uesScore = confVal + 10;
+            if (uesScore > 98) uesScore = 98;
+            
+            const riskSelect = document.getElementById('os-risk-profile');
+            const riskProfile = riskSelect ? riskSelect.value : 'standard';
+            
+            let riskSafe, riskStd, riskSuper;
+            if (riskProfile === 'conservative') {
+                riskSafe = 0.5; riskStd = 1.0; riskSuper = 1.5;
+            } else if (riskProfile === 'moderate') {
+                riskSafe = 1.5; riskStd = 2.5; riskSuper = 4.0;
+            } else if (riskProfile === 'extreme') {
+                riskSafe = 2.5; riskStd = 4.0; riskSuper = 6.0;
+            } else { // standard
+                riskSafe = 1.0; riskStd = 1.5; riskSuper = 2.5;
+            }
+            
+            if (uesScore < 90) {
+                osPlanRisk.innerHTML = `<span class="text-success fw-bold">${riskSafe.toFixed(1)}% of Equity (Safe Mode)</span>`;
+            } else if (uesScore >= 95) {
+                osPlanRisk.innerHTML = `<span class="text-danger fw-bold">${riskSuper.toFixed(1)}% of Equity (Sniper Mode)</span>`;
+            } else {
+                osPlanRisk.innerText = `${riskStd.toFixed(1)}% of Equity (Standard)`;
+            }
+        }
+        
         // Live XAU AI GOLD OS Execution Plan Update (Throttled 1 FPS)
         if (latestTick) {
             const osPlanEntry = document.getElementById('os-plan-entry');
@@ -320,8 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const osPlanSl = document.getElementById('os-plan-sl');
                 const osPlanTp1 = document.getElementById('os-plan-tp1');
                 const osPlanTp2 = document.getElementById('os-plan-tp2');
-                const osPlanRisk = document.getElementById('os-plan-risk');
-                const osPlanMgmt = document.getElementById('os-plan-mgmt');
                 
                 const price = latestTick.bid;
                 const isBuy = (typeof latestSignal !== 'undefined' && latestSignal && latestSignal.signal === 'SELL') ? false : true;
@@ -331,39 +367,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const stopLossDist = atrMultiplier * 1.5;
                 const tp1Dist = atrMultiplier * 1.0;
                 const tp2Dist = atrMultiplier * 2.5;
-                const trailDist = atrMultiplier * 0.5;
-                
-                if (osPlanMgmt) {
-                    osPlanMgmt.innerText = `Move SL to BE at TP1. Trail by ${trailDist.toFixed(2)} pts.`;
-                }
-                
-                if (osPlanRisk && typeof latestSignal !== 'undefined' && latestSignal) {
-                    const confVal = Math.round(latestSignal.confidence * 100);
-                    let uesScore = confVal + 10;
-                    if (uesScore > 98) uesScore = 98;
-                    
-                    const riskSelect = document.getElementById('os-risk-profile');
-                    const riskProfile = riskSelect ? riskSelect.value : 'standard';
-                    
-                    let riskSafe, riskStd, riskSuper;
-                    if (riskProfile === 'conservative') {
-                        riskSafe = 0.5; riskStd = 1.0; riskSuper = 1.5;
-                    } else if (riskProfile === 'moderate') {
-                        riskSafe = 1.5; riskStd = 2.5; riskSuper = 4.0;
-                    } else if (riskProfile === 'extreme') {
-                        riskSafe = 2.5; riskStd = 4.0; riskSuper = 6.0;
-                    } else { // standard
-                        riskSafe = 1.0; riskStd = 1.5; riskSuper = 2.5;
-                    }
-                    
-                    if (uesScore < 90) {
-                        osPlanRisk.innerHTML = `<span class="text-success fw-bold">${riskSafe.toFixed(1)}% of Equity (Safe Mode)</span>`;
-                    } else if (uesScore >= 95) {
-                        osPlanRisk.innerHTML = `<span class="text-danger fw-bold">${riskSuper.toFixed(1)}% of Equity (Sniper Mode)</span>`;
-                    } else {
-                        osPlanRisk.innerText = `${riskStd.toFixed(1)}% of Equity (Standard)`;
-                    }
-                }
                 
                 if (isBuy) {
                     osPlanEntry.innerText = `${(price - entryZoneWidth).toFixed(2)} - ${(price).toFixed(2)}`;
