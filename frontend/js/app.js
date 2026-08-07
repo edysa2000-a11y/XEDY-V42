@@ -926,6 +926,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         if (osUes) osUes.innerText = uesScore;
                         
+                        // === DYNAMIC THRESHOLD (OPTION 3) ===
+                        let EXECUTION_THRESHOLD = window.sniperScoreThreshold || 80;
+                        const currentUtcHour = new Date().getUTCHours();
+                        const isAsianSession = (currentUtcHour >= 0 && currentUtcHour < 8);
+                        const atrVal = (typeof latestAtr !== 'undefined' && latestAtr) ? parseFloat(latestAtr) : 15.0;
+                        
+                        let isLowVolatility = false;
+                        if (isAsianSession || atrVal < 10.0) {
+                            EXECUTION_THRESHOLD = 90; // Demand Sniper Score
+                            isLowVolatility = true;
+                        }
+                        
+                        if (isLowVolatility && uesScore < EXECUTION_THRESHOLD && latestSignal.signal !== 'WAIT') {
+                            latestSignal.signal = 'WAIT';
+                        }
+                        // ====================================
+                        
                         const dirEl = document.getElementById('os-plan-dir');
                         if (dirEl) {
                             dirEl.innerText = latestSignal.signal;
@@ -934,9 +951,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         const statusEl = document.getElementById('os-decision-status');
                         const reasonEl = document.getElementById('os-decision-reason');
-                        
-                        // User-editable threshold for Prime Execution
-                        const EXECUTION_THRESHOLD = window.sniperScoreThreshold || 80;
                         
                         let isCounterTrend = false;
                         if (de.technicals && de.technicals.trend) {
@@ -948,8 +962,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (statusEl) {
                             if (latestSignal.signal === 'WAIT') {
-                                statusEl.innerText = 'MENUNGGU PULLBACK';
-                                statusEl.className = 'text-warning';
+                                if (isLowVolatility && uesScore >= 80 && uesScore < 90) {
+                                    statusEl.innerText = 'STANDBY (LOW VOL) - BUTUH SKOR >90';
+                                    statusEl.className = 'text-warning';
+                                } else {
+                                    statusEl.innerText = 'MENUNGGU PULLBACK';
+                                    statusEl.className = 'text-warning';
+                                }
                             } else {
                                 if (uesScore < 60) {
                                     statusEl.innerText = 'TIDAK LAYAK (SKOR RENDAH)';
@@ -966,7 +985,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         if (reasonEl) {
                             let reasonText = `Alasan Utama: Skor UES berada di angka ${uesScore}. Konfidensi Sinyal AI sebesar ${confVal}%.`;
-                            if (isCounterTrend && latestSignal.signal !== 'WAIT') {
+                            if (isLowVolatility && uesScore >= 80 && uesScore < 90) {
+                                reasonText = `⚠️ DYNAMIC THRESHOLD AKTIF: Karena pasar sedang sepi (Sesi Asia / ATR < 10), syarat OP dinaikkan menjadi UES > 90. Skor saat ini (${uesScore}) ditangguhkan untuk mencegah False Breakout.`;
+                            } else if (isCounterTrend && latestSignal.signal !== 'WAIT') {
                                 reasonText += `\n⚠️ PERINGATAN: Sinyal ini melawan arus (Counter-Trend). Kurangi Lot sebesar 50%!`;
                                 // Highlight warning if it's prime but counter-trend
                                 if (uesScore >= EXECUTION_THRESHOLD && statusEl) {
