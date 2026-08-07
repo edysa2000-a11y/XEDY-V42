@@ -13,6 +13,9 @@ concurrency:
   group: xedy-scraper
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   scrape-and-analyze:
     runs-on: ubuntu-latest
