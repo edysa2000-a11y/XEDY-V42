@@ -872,10 +872,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             const conf = latestSignal ? (latestSignal.confidence * 100).toFixed(1) + '%' : '75.5%';
                             elAiConfidence.innerText = conf;
                         }
-                        if (elAiFinal) {
-                            const sig = latestSignal ? latestSignal.signal : 'WAIT';
-                            elAiFinal.innerText = sig;
-                            elAiFinal.className = sig === 'BUY' ? 'text-bullish fw-bold' : (sig === 'SELL' ? 'text-critical fw-bold' : 'text-warning-v42 fw-bold');
                         }
 
                         // Render XAI Decision Tree Graph inside AI Center
@@ -993,6 +989,34 @@ document.addEventListener('DOMContentLoaded', () => {
                             latestSignal.signal = 'WAIT';
                         }
                         // =======================================
+                        
+                        // UPDATE AI DECISION CENTER TAB (WITH ULTIMATE ENGINE FILTERS)
+                        const elAiH1Alignment = document.getElementById('ai-h1-alignment');
+                        if (elAiH1Alignment) {
+                            elAiH1Alignment.innerText = isH1Misaligned ? 'MISALIGNED (BLOCKED)' : 'ALIGNED (SYNC)';
+                            elAiH1Alignment.className = isH1Misaligned ? 'text-danger fw-bold text-end' : 'text-success fw-bold text-end';
+                        }
+                        
+                        const elAiDynVol = document.getElementById('ai-dyn-volatility');
+                        if (elAiDynVol) {
+                            const reqScore = isLowVolatility ? 90 : 80;
+                            const passed = uesScore >= reqScore;
+                            elAiDynVol.innerText = isLowVolatility ? (passed ? 'PASSED (LOW VOL >90)' : 'BLOCKED (LOW VOL <90)') : 'PASSED (NORMAL VOL)';
+                            elAiDynVol.className = passed ? 'text-success fw-bold text-end' : 'text-warning fw-bold text-end';
+                        }
+                        
+                        const elAiUesScore = document.getElementById('ai-ues-score');
+                        if (elAiUesScore) {
+                            elAiUesScore.innerText = uesScore;
+                            elAiUesScore.className = uesScore >= EXECUTION_THRESHOLD ? 'text-success fw-bold text-end' : 'text-warning fw-bold text-end';
+                        }
+                        
+                        const elAiFinal = document.getElementById('ai-finaldecision');
+                        if (elAiFinal) {
+                            const sig = latestSignal.signal;
+                            elAiFinal.innerText = sig;
+                            elAiFinal.className = sig === 'BUY' ? 'text-bullish fw-bold' : (sig === 'SELL' ? 'text-critical fw-bold' : 'text-warning-v42 fw-bold');
+                        }
                         
                         const dirEl = document.getElementById('os-plan-dir');
                         if (dirEl) {
