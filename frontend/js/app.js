@@ -3199,72 +3199,66 @@ function renderBacktestTable(records, label) {
     }).join('');
 }
 
-// SERVERLESS TICKER FETCH (Bypass Local Backend for Vercel support)
-window.fetchServerlessTicker = async function() {
+// SERVERLESS TICKER FETCH (Sync from Executive Dashboard DOM)
+window.fetchServerlessTicker = function() {
     try {
-        const url = 'https://raw.githubusercontent.com/edysa2000-a11y/XEDY-V42/data-feed/data/market_ticker.json?t=' + new Date().getTime();
-        const res = await fetch(url);
-        if (!res.ok) return;
-        const data = await res.json();
+        const getElText = (id, fallback) => {
+            const el = document.getElementById(id);
+            return el ? el.innerText : fallback;
+        };
+        const getElChange = (id, fallback) => {
+            const el = document.getElementById(id);
+            if (el && el.nextElementSibling) return el.nextElementSibling.innerText;
+            return fallback;
+        };
+
+        const xauPrice = getElText('kpi-price', '----.--');
+        const xauChange = getElChange('kpi-price', '--- (---%)');
         
-        function updateTicker(idPrefix, itemData) {
-            if (!itemData) return;
+        const dxyPrice = getElText('kpi-dxy-price', '---.--');
+        const dxyChange = getElChange('kpi-dxy-price', '--- (---%)');
+        
+        const us10yPrice = getElText('kpi-us10y-price', '-.--%');
+        const us10yChange = getElChange('kpi-us10y-price', '--- (---%)');
+        
+        const realYieldPrice = getElText('kpi-realyield-price', '-.--%');
+        const realYieldChange = getElChange('kpi-realyield-price', '--- (---%)');
+        
+        const gldPrice = getElText('kpi-gld-flow', '+-.-- Ton');
+        const gldChange = getElChange('kpi-gld-flow', '-- Bullish');
+        
+        const comexPrice = getElText('kpi-comex-long', '---,---');
+        const comexChange = getElChange('kpi-comex-long', '+--- (+--%)');
+
+        function updateTickerEl(idPrefix, priceStr, changeStr) {
             const priceEl = document.getElementById(`ticker-${idPrefix}-price`);
             const changeEl = document.getElementById(`ticker-${idPrefix}-change`);
             
-            if (priceEl && itemData.price !== undefined) {
-                let formattedPrice = itemData.price;
-                if (idPrefix === 'xau' || idPrefix === 'dxy') formattedPrice = parseFloat(itemData.price).toFixed(2);
-                else if (idPrefix === 'us10y' || idPrefix === 'real') formattedPrice = parseFloat(itemData.price).toFixed(2) + '%';
-                else if (idPrefix === 'gld') formattedPrice = (itemData.price > 0 ? '+' : '') + parseFloat(itemData.price).toFixed(2) + ' Ton';
-                else if (idPrefix === 'comex') formattedPrice = parseInt(itemData.price).toLocaleString();
-                
-                priceEl.innerText = formattedPrice;
-            }
-            
-            if (changeEl && itemData.change !== undefined) {
-                let changeVal = parseFloat(itemData.change);
-                let pctVal = parseFloat(itemData.change_pct);
-                let sign = changeVal > 0 ? '+' : '';
-                let textClass = changeVal > 0 ? 'text-bullish' : (changeVal < 0 ? 'text-bearish' : 'text-muted');
+            if (priceEl) priceEl.innerText = priceStr;
+            if (changeEl) {
+                changeEl.innerText = changeStr;
+                let textClass = 'text-bullish';
+                if (changeStr.includes('-')) textClass = 'text-bearish';
                 
                 if (idPrefix === 'dxy' || idPrefix === 'us10y' || idPrefix === 'real') {
-                    // For DXY/Yields, UP is bearish for Gold
-                    textClass = changeVal > 0 ? 'text-bearish' : (changeVal < 0 ? 'text-bullish' : 'text-muted');
+                    // Invert color logic for DXY/Yields (up is bearish for gold)
+                    textClass = changeStr.includes('-') ? 'text-bullish' : 'text-bearish';
                 }
-                
-                if (idPrefix === 'gld' || idPrefix === 'comex') {
-                    if (itemData.status) {
-                        changeEl.innerText = `${itemData.status}`;
-                    } else {
-                        changeEl.innerText = `${sign}${changeVal} (${sign}${pctVal.toFixed(2)}%)`;
-                    }
-                } else {
-                    changeEl.innerText = `${sign}${changeVal.toFixed(2)} (${sign}${pctVal.toFixed(2)}%)`;
-                }
-                
                 changeEl.className = `small fw-bold ${textClass}`;
             }
         }
         
-        updateTicker('xau', data.XAUUSD);
-        updateTicker('dxy', data.DXY);
-        updateTicker('us10y', data.US10Y);
-        updateTicker('real', data.REAL_YIELD);
-        updateTicker('gld', data.GLD_NET_FLOW);
-        updateTicker('comex', data.COMEX_NET_LONG);
-        
-        if (data.RISK_SENTIMENT) {
-            const rsEl = document.getElementById('ticker-risk-status');
-            const rdEl = document.getElementById('ticker-risk-desc');
-            if (rsEl) rsEl.innerText = data.RISK_SENTIMENT.status;
-            if (rdEl) rdEl.innerText = data.RISK_SENTIMENT.desc;
-        }
+        updateTickerEl('xau', xauPrice, xauChange);
+        updateTickerEl('dxy', dxyPrice, dxyChange);
+        updateTickerEl('us10y', us10yPrice, us10yChange);
+        updateTickerEl('real', realYieldPrice, realYieldChange);
+        updateTickerEl('gld', gldPrice, gldChange);
+        updateTickerEl('comex', comexPrice, comexChange);
         
     } catch (e) {
-        console.error("Failed to fetch serverless ticker:", e);
+        console.error("Failed to sync ticker from Executive Dashboard", e);
     }
 };
 
 setTimeout(window.fetchServerlessTicker, 1000);
-setInterval(window.fetchServerlessTicker, 60000);
+setInterval(window.fetchServerlessTicker, 3000);
