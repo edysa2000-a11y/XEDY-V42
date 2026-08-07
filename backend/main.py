@@ -200,6 +200,9 @@ async def lifespan(app: FastAPI):
     await app.state.macro_strategist.start()
     await app.state.market_engine.start()
     
+    if hasattr(app.state.telegram_bot, "notifier") and app.state.telegram_bot.notifier:
+        await app.state.telegram_bot.notifier.notify_system_status("🚀 XEDY Core Server <b>BERHASIL DIBOOT</b>.\nSemua mesin AI <i>online</i> dan siap memantau pergerakan pasar.")
+
     yield
     
     # Shutdown Engines
