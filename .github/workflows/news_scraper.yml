@@ -80,5 +80,5 @@ jobs:
           rm -rf temp_data
           
           # Commit and force push to prevent main branch bloat
-          git add data/
+          git add -f data/
           git diff --quiet && git diff --staged --quiet || (git commit -m "Deploy cloud news feed and self-learning updates" && git push -f origin data-feed)
