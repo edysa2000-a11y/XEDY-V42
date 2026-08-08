@@ -1006,10 +1006,25 @@ CONFIDENCE
 {raw_conf*100:.0f}%
 
 PRIMARY HORIZON
-🟢 H1 / {analysis.get("forecast_duration_hours", 4)}–12 HOURS
+🟢 H1 / {analysis.get("forecast_duration_hours", 12)} HOURS
 </pre>"""
 
     # Final Execution Block (Part 4)
+    bias_clean = str(analysis.get('bias')).split('_')[0]
+    is_neutral = bias_clean not in ["BUY", "SELL"]
+    if is_neutral:
+        entry_str = "WAITING"
+        sl_str = "WAITING"
+        tp1_str = "WAITING"
+        tp2_str = "WAITING"
+    else:
+        entry_str = f"{analysis.get('forecast_price_target', gold_price):.2f}"
+        sl_str = f"{analysis.get('sl_price', gold_price-10):.2f}"
+        tp1_str = f"{analysis.get('tp1_price', gold_price+10):.2f}"
+        tp2_str = f"{analysis.get('tp2_price', gold_price+20):.2f}"
+        
+    duration_hours = analysis.get('forecast_duration_hours', 12)
+    
     tg_msg_p4 = f"""<pre>⑪ 💰 PERFORMANCE INTELLIGENCE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Direction Accuracy      85%
@@ -1046,12 +1061,12 @@ TRADE GATE
 ║ CONFIDENCE      ⭐ {raw_conf*100:.0f}%                      ║
 ║ TREND STRENGTH  81/100                       ║
 ║ PRIMARY TF      H1                           ║
-║ DURATION        {analysis.get('forecast_duration_hours', 4)}–12 HOURS                 ║
+║ DURATION        {duration_hours} HOURS{' '*(26 - len(f"{duration_hours} HOURS"))}║
 ║                                              ║
-║ ENTRY           {analysis.get('forecast_price_target', gold_price):.2f}{' '*(27 - len(f"{analysis.get('forecast_price_target', gold_price):.2f}"))}║
-║ SL              {analysis.get('sl_price', gold_price-10):.2f}{' '*(27 - len(f"{analysis.get('sl_price', gold_price-10):.2f}"))}║
-║ TP1             {analysis.get('tp1_price', gold_price+10):.2f}{' '*(27 - len(f"{analysis.get('tp1_price', gold_price+10):.2f}"))}║
-║ TP2             {analysis.get('tp2_price', gold_price+20):.2f}{' '*(27 - len(f"{analysis.get('tp2_price', gold_price+20):.2f}"))}║
+║ ENTRY           {entry_str:<27}║
+║ SL              {sl_str:<27}║
+║ TP1             {tp1_str:<27}║
+║ TP2             {tp2_str:<27}║
 ╚══════════════════════════════════════════════╝
 
 ⚠️ INVALIDATION
