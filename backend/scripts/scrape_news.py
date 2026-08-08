@@ -680,13 +680,18 @@ def main():
     import textwrap
     import re
     
+    # Bersihkan semua newline bawaan Qwen agar tidak ada patahan aneh di tengah kalimat
+    narrative_clean = narrative.replace('\n', ' ')
+    # Hapus spasi berlebih
+    narrative_clean = re.sub(r'\s+', ' ', narrative_clean)
+    
     # Memaksa setiap kalimat (setelah titik) menjadi paragraf baru
     # Ganti ". " dengan ".\n\n"
-    narrative_clean = narrative.replace(". ", ".\n\n")
+    narrative_clean = narrative_clean.replace(". ", ".\n\n")
     # Tangani kasus nyangkut tanpa spasi (misal "pasar.叠加") tapi jangan merusak angka desimal
     narrative_clean = re.sub(r'\.(?=[^\d\s\n])', '.\n\n', narrative_clean)
     
-    paragraphs = narrative_clean.split('\n')
+    paragraphs = narrative_clean.split('\n\n')
     wrapped_paragraphs = []
     for p in paragraphs:
         if p.strip():
