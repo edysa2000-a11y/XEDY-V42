@@ -659,12 +659,11 @@ def main():
     mtf_m5 = rating_to_icon(mtf.get("M5"))
     mtf_m1 = rating_to_icon(mtf.get("M1"))
     
-direction = "🟢 BULLISH" if analysis.get("bias") == "BUY_ONLY" else "🔴 BEARISH" if analysis.get("bias") == "SELL_ONLY" else "🟡 NEUTRAL"
+    direction = "🟢 BULLISH" if analysis.get("bias") == "BUY_ONLY" else "🔴 BEARISH" if analysis.get("bias") == "SELL_ONLY" else "🟡 NEUTRAL"
     dir_short = "🟢 UP" if analysis.get("bias") == "BUY_ONLY" else "🔴 DOWN" if analysis.get("bias") == "SELL_ONLY" else "🟡 SIDE"
     raw_conf = (analysis.get("conf_fundamental", 0) + analysis.get("conf_news", 0) + analysis.get("conf_fed_shock", 0)) / 3.0
     
-    inv_c = "
-".join([esc(str(x)) for x in analysis.get("invalidation_criteria", [])])
+    inv_c = "\\n".join([esc(str(x)) for x in analysis.get("invalidation_criteria", [])])
     
     # Safely get statistical fields with defaults
     win_rate = analysis.get("win_rate_pct", 75)
