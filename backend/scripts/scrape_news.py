@@ -941,7 +941,6 @@ Status: 🟢 ACTIVE
         
         # Render and send image first
         img_path = "data/report.png"
-        import os
         if not os.path.exists("data"): os.makedirs("data")
         if render_report_image(template_data, img_path):
             send_telegram_photo(tg_token, tg_chat, img_path)
