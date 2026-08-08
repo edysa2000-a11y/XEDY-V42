@@ -79,14 +79,14 @@ def translate_to_id(text):
         return text
 
 def get_live_multi_asset_prices():
-    prices = {"XAUUSD": 0.0, "USOIL": 0.0, "DXY": 0.0, "US10Y": 0.0}
+    prices = {"XAUUSD": 0.0, "USOIL": 0.0, "DXY": 0.0, "US10Y": 0.0, "SPX": 0.0, "DJI": 0.0, "DAX": 0.0, "NI225": 0.0}
     
     # 1. Prioritas 1: Ambil dari TradingView CFD Scan untuk semua aset (Batch Request)
     try:
         url_tv = "https://scanner.tradingview.com/cfd/scan"
         payload_tv = {
             "symbols": {
-                "tickers": ["FX_IDC:XAUUSD", "TVC:USOIL", "TVC:DXY", "TVC:US10Y"],
+                "tickers": ["FX_IDC:XAUUSD", "TVC:USOIL", "TVC:DXY", "TVC:US10Y", "SP:SPX", "TVC:DJI", "XETR:DAX", "TVC:NI225"],
                 "query": { "types": [] }
             },
             "columns": ["close", "change", "Recommend.All|1", "Recommend.All|5", "Recommend.All|15", "Recommend.All|30", "Recommend.All|60", "Recommend.All|240", "Recommend.All"]
@@ -121,6 +121,10 @@ def get_live_multi_asset_prices():
                     elif "USOIL" in ticker: prices["USOIL"] = close_price
                     elif "DXY" in ticker: prices["DXY"] = close_price
                     elif "US10Y" in ticker: prices["US10Y"] = close_price
+                    elif "SPX" in ticker: prices["SPX"] = close_price
+                    elif "DJI" in ticker: prices["DJI"] = close_price
+                    elif "DAX" in ticker: prices["DAX"] = close_price
+                    elif "NI225" in ticker: prices["NI225"] = close_price
                 print(f"Fetched live multi-asset prices from TradingView: {prices}")
                 if prices["XAUUSD"] > 0:
                     return prices
@@ -339,10 +343,14 @@ def get_qwen_analysis(api_key, news_text, prices):
         f"- Crude Oil WTI (USOIL): ${prices.get('USOIL', 0.0):.2f}\n"
         f"- US Dollar Index (DXY): {prices.get('DXY', 0.0):.2f}\n"
         f"- US 10Y Treasury Yield: {prices.get('US10Y', 0.0):.2f}%\n"
+        f"- S&P 500 (SPX): {prices.get('SPX', 0.0):.2f}\n"
+        f"- Dow Jones (DJI): {prices.get('DJI', 0.0):.2f}\n"
+        f"- DAX 40 (DAX): {prices.get('DAX', 0.0):.2f}\n"
+        f"- Nikkei 225 (NI225): {prices.get('NI225', 0.0):.2f}\n"
     )
 
     system_prompt = """You are the Chief Strategist AI (Qwen AI) for the XEDY algorithmic trading platform.
-Analyze the news headlines, identify any recent US economic calendar data releases (like GDP, PCE, CPI, NFP) mentioned, study the cross-market prices (Gold vs DXY, Yields, and Oil), and decide the macro trading bias.
+Analyze the news headlines, identify any recent US economic calendar data releases (like GDP, PCE, CPI, NFP) mentioned, study the cross-market prices (Gold vs DXY, Yields, Oil, and Global Stock Indices like SPX, DJI, DAX, Nikkei), and decide the macro trading bias.
 Write your explanation (ai_narrative_id) in strictly formal Indonesian (EYD/KBBI) like a top-tier Global Professional Economist, using advanced terminology and deep causal logic. Ensure perfect spelling (e.g., use 'korelasi', 'fundamental'). Keep the narrative concise, impactful, and structured (maximum 4 sentences).
 You MUST respond ONLY with a valid JSON object matching this structure, without markdown code fences:
 {
@@ -809,6 +817,15 @@ NET CAUSE
 
     bias_clean = str(analysis.get('bias')).split('_')[0]
 
+    # Dynamic arrows logic
+    # 🟢 = Bullish for GOLD. For DXY/Yields, it means they go DOWN (↓).
+    # 🟢 = Bullish for GOLD. For Oil/Risk Assets, it means they go UP/AWAY (↑/↓)
+    dx_arrow = "↓" if dx_icon == "🟢" else "↑" if dx_icon == "🔴" else "↕"
+    us_arrow = "↓" if us_icon == "🟢" else "↑" if us_icon == "🔴" else "↕"
+    e_arrow = "↑" if e_icon == "🟢" else "↓" if e_icon == "🔴" else "↕"
+    risk_arrow = "↓" if m_icon == "🟢" else "↑" if m_icon == "🔴" else "↕"
+    t_arrow = "↑" if f_icon == "🔴" else "↓"
+    
     tg_msg_p2 = f"""<pre>⑥ 🤖 AI NARRATIVE — CAUSAL MACRO INTELLIGENCE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -847,9 +864,9 @@ USD / Treasury Repricing
 Gold Volatility ↑
 
 MARKET CONFIRMATION
-DXY        ↓  {dx_icon}
-US10Y      ↓  {us_icon}
-Real Yield ↓  {us_icon}
+DXY        {dx_arrow}  {dx_icon}
+US10Y      {us_arrow}  {us_icon}
+Real Yield {us_arrow}  {us_icon}
 
 POLICY IMPACT
 {f_icon} GOLD SUPPORTIVE
@@ -900,11 +917,11 @@ Confidence {g_conf}%
 
     tg_msg_p3 = f"""<pre>📊 MARKET TRANSMISSION
 
-DXY        ↓  → GOLD {dx_icon}
-US10Y      ↓  → GOLD {us_icon}
-Real Yield ↓  → GOLD {us_icon}
-Oil        ↑  → Inflation Risk {e_icon}
-Risk Assets→ Defensive Flow {m_icon}
+DXY        {dx_arrow}  → GOLD {dx_icon}
+US10Y      {us_arrow}  → GOLD {us_icon}
+Real Yield {us_arrow}  → GOLD {us_icon}
+Oil        {e_arrow}  → Inflation Risk {e_icon}
+Risk Assets {risk_arrow} → Defensive Flow {m_icon}
 
 
 💰 CAPITAL FLOW
