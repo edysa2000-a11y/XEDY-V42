@@ -58,7 +58,7 @@ def get_live_multi_asset_prices():
                 "tickers": ["FX_IDC:XAUUSD", "TVC:USOIL", "TVC:DXY", "TVC:US10Y"],
                 "query": { "types": [] }
             },
-            "columns": ["close", "change"]
+            "columns": ["close", "change", "Recommend.All|1", "Recommend.All|5", "Recommend.All|15", "Recommend.All|30", "Recommend.All|60", "Recommend.All|240", "Recommend.All"]
         }
         req_tv = urllib.request.Request(
             url_tv, 
@@ -77,6 +77,16 @@ def get_live_multi_asset_prices():
                     if "XAUUSD" in ticker:
                         prices["XAUUSD"] = close_price
                         prices["XAUUSD_CHANGE"] = change
+                        if len(item["d"]) > 8:
+                            prices["XAUUSD_MTF"] = {
+                                "M1": float(item["d"][2]),
+                                "M5": float(item["d"][3]),
+                                "M15": float(item["d"][4]),
+                                "M30": float(item["d"][5]),
+                                "H1": float(item["d"][6]),
+                                "H4": float(item["d"][7]),
+                                "D1": float(item["d"][8])
+                            }
                     elif "USOIL" in ticker: prices["USOIL"] = close_price
                     elif "DXY" in ticker: prices["DXY"] = close_price
                     elif "US10Y" in ticker: prices["US10Y"] = close_price
@@ -305,42 +315,43 @@ def get_qwen_analysis(api_key, news_text, prices):
         "Analyze the news headlines, identify any recent US economic calendar data releases (like GDP, PCE, CPI, NFP) mentioned, study the cross-market prices (Gold vs DXY, Yields, and Oil), and decide the macro trading bias.\n"
         "You MUST respond ONLY with a valid JSON object matching this structure, without markdown code fences:\n"
         "{\n"
-        "  \"market_summary_id\": \"Rangkuman komprehensif berita dan penjelasan spesifik MENGAPA faktor makro ini membuat harga XAUUSD naik atau turun. Wajib diisi dalam bahasa Indonesia.\",\n"
+        "  \"market_summary_id\": \"Detailed explanation in INDONESIAN explaining the analysis and causes\",\n"
         "  \"bias\": \"BUY_ONLY\" | \"SELL_ONLY\" | \"ANY\" | \"WAIT\",\n"
         "  \"regime\": \"NORMAL\" | \"HIGH_NEWS\" | \"SIDEWAYS\",\n"
-        "  \"optimal_confidence_threshold\": float (value between 0.60 and 0.85),\n"
-        "  \"optimal_max_op\": int (value between 2 and 6),\n"
-        "  \"optimal_method\": \"Opsi X: [Method Name] (e.g. Opsi 5: Scalping 1:1, Opsi 2: Breakout Stop-Entry, Opsi 8: H1 Pyramid)\",\n"
-        "  \"economic_releases\": [\"Data 1: Aktual vs Forecast dan dampaknya\"],\n"
-        "  \"forecast_price_target\": float (Estimated target price for XAUUSD, e.g. 2425.50. Make it realistic based on news impact),\n"
-        "  \"forecast_duration_hours\": int (Estimated duration in hours to reach target price, e.g. 24),\n"
-        "  \"forecast_high_24h\": float (Estimated 24-hour HIGH price for XAUUSD),\n"
-        "  \"forecast_low_24h\": float (Estimated 24-hour LOW price for XAUUSD),\n"
-        "  \"forecast_close_24h\": float (Estimated 24-hour CLOSE price for XAUUSD),\n"
-        "  \"forecast_reasoning_id\": \"Detailed explanation in INDONESIAN explaining the analysis and causes of these forecast price targets so it is easy to understand\",\n"
-        "  \"forecasts\": {\n"
-        "    \"1d\": {\n"
-        "      \"open\": float (Current Gold price, e.g. 4058.50),\n"
-        "      \"high\": float (Expected 1-day highest price),\n"
-        "      \"low\": float (Expected 1-day lowest price),\n"
-        "      \"close\": float (Expected 1-day closing price),\n"
-        "      \"reasoning_id\": \"Detailed explanation in INDONESIAN for 1-day perspective\"\n"
-        "    },\n"
-        "    \"1w\": {\n"
-        "      \"open\": float (Current Gold price),\n"
-        "      \"high\": float (Expected 1-week highest price),\n"
-        "      \"low\": float (Expected 1-week lowest price),\n"
-        "      \"close\": float (Expected 1-week closing price),\n"
-        "      \"reasoning_id\": \"Detailed explanation in INDONESIAN for 1-week perspective\"\n"
-        "    },\n"
-        "    \"2w\": {\n"
-        "      \"open\": float (Current Gold price),\n"
-        "      \"high\": float (Expected 2-week highest price),\n"
-        "      \"low\": float (Expected 2-week lowest price),\n"
-        "      \"close\": float (Expected 2-week closing price),\n"
-        "      \"reasoning_id\": \"Detailed explanation in INDONESIAN for 2-week perspective\"\n"
-        "    }\n"
-        "  },\n"
+        "  \"primary_driver\": \"e.g. FED INDEPENDENCE RISK\",\n"
+        "  \"primary_driver_desc\": \"Deskripsi primary driver dalam bahasa Indonesia\",\n"
+        "  \"secondary_driver\": \"e.g. SAFE-HAVEN DEMAND\",\n"
+        "  \"secondary_driver_desc\": \"Deskripsi secondary driver dalam bahasa Indonesia\",\n"
+        "  \"trigger\": \"e.g. Trump / Fed headline\",\n"
+        "  \"amplifier\": \"e.g. Risk Premium\",\n"
+        "  \"fiscal_geopolitical\": \"Supportive / Non-Supportive\",\n"
+        "  \"counter_pressure\": \"e.g. DXY masih neutral\",\n"
+        "  \"causality_score\": float (e.g. 0.63 or -0.80),\n"
+        "  \"causal_confidence\": float (e.g. 0.78),\n"
+        "  \"intermarket_dxy\": \"Bullish | Bearish | Neutral\",\n"
+        "  \"intermarket_us10y\": \"Bullish | Bearish | Neutral\",\n"
+        "  \"intermarket_real_yield\": \"Bullish | Bearish | Neutral\",\n"
+        "  \"intermarket_geopolitical\": \"Bullish | Bearish | Neutral\",\n"
+        "  \"news_event_impact\": \"HIGH | MEDIUM | LOW\",\n"
+        "  \"fed_shock_level\": int (1 to 5),\n"
+        "  \"mtf_alignment_score\": float (e.g. 0.72),\n"
+        "  \"entry_primary_setup_name\": \"e.g. BUY PULLBACK\",\n"
+        "  \"entry_primary_stars\": int (1 to 5),\n"
+        "  \"entry_secondary_setup_name\": \"e.g. BREAKOUT + RETEST\",\n"
+        "  \"entry_secondary_stars\": int (1 to 5),\n"
+        "  \"entry_invalid_setup_name\": \"e.g. CHASE BUY\",\n"
+        "  \"invalidation_criteria\": [\"Reason 1\", \"Reason 2\", \"Reason 3\"],\n"
+        "  \"conf_fundamental\": float (0 to 1),\n"
+        "  \"conf_news\": float (0 to 1),\n"
+        "  \"conf_fed_shock\": float (0 to 1),\n"
+        "  \"conf_causality\": float (0 to 1),\n"
+        "  \"conf_intermarket\": float (0 to 1),\n"
+        "  \"conf_htf_structure\": float (0 to 1),\n"
+        "  \"conf_m5_entry\": float (0 to 1),\n"
+        "  \"conf_execution\": float (0 to 1),\n"
+        "  \"forecast_price_target\": float,\n"
+        "  \"forecast_duration_hours\": int,\n"
+        "  \"optimal_max_op\": int,\n"
         "  \"reasoning\": \"Brief explanation in English\"\n"
         "}"
     )
@@ -602,27 +613,268 @@ def main():
     releases_str = "\n".join([f"• {r}" for r in releases]) if releases else "• Tidak ada rilis data penting baru"
 
     # 5. Send Telegram Notification from Cloud in Indonesian (GMT+7)
-    optimal_method_str = analysis.get('optimal_method', 'Tidak ditentukan')
-    market_summary = analysis.get('market_summary_id', 'Tidak ada rangkuman.')
+    def rating_to_icon(val):
+        if val is None: return "🟡 WAIT"
+        if val > 0.1: return "🟢 BULLISH"
+        if val < -0.1: return "🔴 BEARISH"
+        return "🟡 WAIT"
+        
+    mtf = prices.get("XAUUSD_MTF", {})
+    mtf_d1 = rating_to_icon(mtf.get("D1"))
+    mtf_h4 = rating_to_icon(mtf.get("H4"))
+    mtf_h1 = rating_to_icon(mtf.get("H1"))
+    mtf_m30 = rating_to_icon(mtf.get("M30"))
+    mtf_m15 = rating_to_icon(mtf.get("M15"))
+    mtf_m5 = rating_to_icon(mtf.get("M5"))
+    mtf_m1 = rating_to_icon(mtf.get("M1"))
     
-    tg_msg = (
-        f"LAPORAN INTEL AWAN XEDY\n"
-        f"Waktu: {local_now.strftime('%Y-%m-%d %H:%M:%S WIB')}\n\n"
-        f"Berita Utama Teratas (Diterjemahkan):\n" + "\n".join(tg_news_list) + "\n\n"
-        f"Rilis Data Kalender Ekonomi Terkini:\n" + releases_str + "\n\n"
-        f"📊 RANGKUMAN & KORELASI PASAR:\n"
-        f"{market_summary}\n\n"
-        f"Keputusan Strategis Qwen AI:\n"
-        f"• Harga Emas Saat Ini: ${gold_price:.2f} (Trend: {'Naik 📈' if prices.get('XAUUSD_CHANGE', 0) > 0 else 'Turun 📉'})\n"
-        f"• Target Harga Proyeksi: ${analysis.get('forecast_price_target', 0.0):.2f}\n"
-        f"• Estimasi Durasi Waktu: {analysis.get('forecast_duration_hours', 0)} Jam\n"
-        f"• Arah Bias: {translated_bias}\n"
-        f"• Rezim Pasar: {translated_regime}\n"
-        f"• Ambang Batas Sinyal: {analysis.get('optimal_confidence_threshold') * 100:.0f}%\n"
-        f"• Maksimum Posisi Aktif: {analysis.get('optimal_max_op')}\n"
-        f"• Saran Metode Optimal: {optimal_method_str}\n\n"
-        f"Analisis & Dasar Pemikiran:\n{reasoning_id}"
-    )
+    direction = "🟢 BULLISH" if analysis.get("bias") == "BUY_ONLY" else "🔴 BEARISH" if analysis.get("bias") == "SELL_ONLY" else "🟡 NEUTRAL"
+    raw_conf = (analysis.get("conf_fundamental", 0) + analysis.get("conf_news", 0) + analysis.get("conf_fed_shock", 0)) / 3.0
+    
+    inv_c = "\\n".join(["🔴 " + str(x) for x in analysis.get("invalidation_criteria", [])])
+    
+    tg_msg = f"""━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🕐 {local_now.strftime('%d %b %Y | %H:%M WIB').upper()}
+💰 XAUUSD : {gold_price:.2f}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+00. 📊 PREDICTION vs ACTUAL TREND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+LAST XEDY PREDICTION
+
+Direction       : {direction}
+Confidence      : {raw_conf*100:.0f}%
+Target          : {analysis.get('forecast_price_target', 0.0):.2f}
+Horizon         : {analysis.get('forecast_duration_hours', 0)} Hours
+Recommendation  : {translated_bias}
+
+ACTUAL TREND REVIEW
+
++1H   : ⏳ PENDING
++4H   : ⏳ PENDING
++8H   : ⏳ PENDING
++18H  : ⏳ PENDING
+
+Direction Accuracy : —
+Trend Accuracy     : —
+Trade Accuracy     : —
+
+STATUS:
+🟡 WAITING FOR ACTUAL RESULT
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+01. 🧠 SELF-LEARNING ENGINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Model              : XEDY-SL-V1.00
+Learning Status    : 🟢 ACTIVE
+
+7D Direction       : —
+30D Direction      : —
+100 Prediction     : —
+
+Current Regime Accuracy
+Normal Trend       : —
+News               : —
+High Volatility    : —
+Sideways           : —
+
+Confidence Mode    : CALIBRATED
+
+⚠️ Belum cukup historical sample
+untuk melakukan adjustment agresif.
+
+Learning Rule:
+Maximum weight adjustment = ±2%
+per learning cycle.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+02. 🎯 CURRENT EXECUTIVE DECISION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MACRO BIAS
+{direction}
+
+TRADE BIAS
+{"🟢 BUY PREFERRED" if analysis.get("bias") == "BUY_ONLY" else "🔴 SELL PREFERRED" if analysis.get("bias") == "SELL_ONLY" else "🟡 WAIT"}
+
+EXECUTION
+🟡 WAIT FOR CONFIRMATION
+
+FINAL ACTION
+🟡 WAIT → {"BUY" if analysis.get("bias") == "BUY_ONLY" else "SELL" if analysis.get("bias") == "SELL_ONLY" else "WAIT"} CONFIRMATION
+
+Raw Confidence       : {raw_conf*100:.0f}%
+Calibrated Confidence: {raw_conf*100 - 5:.0f}–{raw_conf*100:.0f}%
+
+Market Regime:
+{"🔴" if analysis.get("regime") == "HIGH_NEWS" else "🟢"} {translated_regime}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+03. 🔍 WHY XAUUSD NAIK/TURUN?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PRIMARY DRIVER
+🟢 {str(analysis.get("primary_driver", "N/A")).upper()}
+{analysis.get("primary_driver_desc", "")}
+
+SECONDARY DRIVER
+🟢 {str(analysis.get("secondary_driver", "N/A")).upper()}
+{analysis.get("secondary_driver_desc", "")}
+
+TRIGGER
+🟡 {analysis.get("trigger", "")}
+
+AMPLIFIER
+🟢 {analysis.get("amplifier", "")}
+
+FISCAL / GEOPOLITICAL
+🟢 {analysis.get("fiscal_geopolitical", "")}
+
+COUNTER PRESSURE
+🟡 {analysis.get("counter_pressure", "")}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+04. 🔗 MARKET CAUSALITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{analysis.get('market_summary_id', '')}
+
+CAUSALITY SCORE
+{'+' if analysis.get("causality_score", 0) > 0 else ''}{analysis.get("causality_score", 0):.2f}
+
+CAUSAL CONFIDENCE
+{analysis.get("causal_confidence", 0)*100:.0f}%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+05. 📊 INTERMARKET ENGINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+XAUUSD       : {direction}
+DXY          : {analysis.get("intermarket_dxy", "Neutral")}
+US10Y        : {analysis.get("intermarket_us10y", "Neutral")}
+Real Yield   : {analysis.get("intermarket_real_yield", "Neutral")}
+Geopolitical : {analysis.get("intermarket_geopolitical", "Neutral")}
+
+INTERMARKET STATUS:
+🟡 PARTIAL CONFIRMATION
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+06. 📰 NEWS INTELLIGENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Main Event:
+🇺🇸 {str(analysis.get("primary_driver", "N/A")).upper()}
+
+EVENT IMPACT
+{"🔴" if analysis.get("news_event_impact") == "HIGH" else "🟡"} {analysis.get("news_event_impact", "MEDIUM")}
+
+FED SHOCK LEVEL
+{"🔴" if analysis.get("fed_shock_level", 1) >= 4 else "🟡"} {analysis.get("fed_shock_level", 1)} / 5
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+07. 📈 MULTI-TIMEFRAME STRUCTURE (TradingView Technicals)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+D1   : {mtf_d1}
+H4   : {mtf_h4}
+H1   : {mtf_h1}
+M30  : {mtf_m30}
+M15  : {mtf_m15}
+M5   : {mtf_m5}
+M1   : {mtf_m1}
+
+MTF ALIGNMENT
+🟢 {analysis.get("mtf_alignment_score", 0)*100:.0f}%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+08. 🎯 ENTRY ENGINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PRIMARY SETUP
+{"⭐"*int(analysis.get("entry_primary_stars", 3))}
+🟢 {str(analysis.get("entry_primary_setup_name", "")).upper()}
+
+SECONDARY SETUP
+{"⭐"*int(analysis.get("entry_secondary_stars", 3))}
+🟢 {str(analysis.get("entry_secondary_setup_name", "")).upper()}
+
+INVALID SETUP
+🔴 {str(analysis.get("entry_invalid_setup_name", "")).upper()}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+09. 🧪 EXECUTION GATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Macro              ✓
+Fundamental        ✓
+Fed Risk           ✓
+HTF Trend          ✓
+M15 Structure      ✓
+M5 Confirmation    ✗
+Spread             ⏳
+RR                 ⏳
+
+EXECUTION RESULT:
+🔴 NOT ALLOWED YET (Menunggu M5 Confirmation)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. 💰 RISK MANAGEMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Risk / Trade       : 0.25–0.50%
+Maximum Positions  : {analysis.get("optimal_max_op", 2)}
+Minimum RR         : 1:1.5
+Preferred RR       : 1:2+
+Martingale         : OFF
+Averaging Down     : OFF
+Daily DD Limit     : 3%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. 🎯 TRADE PLAN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STATUS: 🟡 WAIT
+ENTRY → AUTO AFTER M5 CONFIRMATION
+STOP LOSS → STRUCTURE BASED
+TP1 → RR 1:1.5
+TP2 → RR 1:2
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12. ⚠️ INVALIDATION ENGINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Thesis INVALID jika:
+{inv_c}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+13. 🧠 AI CONFIDENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Fundamental       : {analysis.get("conf_fundamental", 0)*100:.0f}%
+News              : {analysis.get("conf_news", 0)*100:.0f}%
+Fed Shock         : {analysis.get("conf_fed_shock", 0)*100:.0f}%
+Causality         : {analysis.get("conf_causality", 0)*100:.0f}%
+Intermarket       : {analysis.get("conf_intermarket", 0)*100:.0f}%
+HTF Structure     : {analysis.get("conf_htf_structure", 0)*100:.0f}%
+M5 Entry          : {analysis.get("conf_m5_entry", 0)*100:.0f}%
+Execution         : {analysis.get("conf_execution", 0)*100:.0f}%
+
+RAW CONFIDENCE    : 🟢 {raw_conf*100:.0f}%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+16. 🏁 FINAL XEDY DECISION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        {"🟢 BUY PREFERRED" if analysis.get("bias") == "BUY_ONLY" else "🔴 SELL PREFERRED" if analysis.get("bias") == "SELL_ONLY" else "🟡 WAIT"}
+              BUT
+        🟡 WAIT FOR ENTRY
+
+NEXT ACTION:
+Menunggu M5 Pullback, Rejection, CHOCH / BOS.
+Jika terpenuhi → 🚨 XEDY CONFIRMATION
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🤖 XEDY SELF-LEARNING ENGINE
+Model : XEDY-SL-V1.00
+Status: 🟢 ACTIVE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
     
     if has_changed:
         send_telegram_notification(tg_token, tg_chat, tg_msg)
