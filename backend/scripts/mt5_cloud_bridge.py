@@ -2,6 +2,7 @@ import time
 import json
 import urllib.request
 import os
+import subprocess
 from datetime import datetime
 import MetaTrader5 as mt5
 from dotenv import load_dotenv
@@ -10,7 +11,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/edysa2000-a11y/XEDY-V42/main/data/news_feed.json"
-GITHUB_PAT = os.getenv("GITHUB_PAT", "")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID", "")
 
@@ -18,6 +18,7 @@ TELEGRAM_ADMIN_ID = os.getenv("TELEGRAM_ADMIN_ID", "")
 MT5_SYMBOL = os.getenv("MT5_SYMBOL", "XAUUSD")
 MT5_LOT_SIZE = float(os.getenv("MT5_LOT_SIZE", "0.01"))
 POLL_INTERVAL_SECONDS = 30
+ACTIVE_TICKETS = set()
 
 def send_telegram_msg(text):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_ADMIN_ID:
@@ -40,7 +41,6 @@ def send_telegram_msg(text):
         print(f"[ERROR] Failed to send Telegram message: {e}")
 
 def fetch_cloud_json():
-    import subprocess
     try:
         # Fetch metadata safely from the remote (does not alter working directory)
         subprocess.run(["git", "fetch", "origin", "data-feed"], check=True, capture_output=True)
@@ -54,12 +54,86 @@ def fetch_cloud_json():
         )
         return json.loads(result.stdout)
     except subprocess.CalledProcessError as e:
-        print(f"[ERROR] Git operation failed. Pastikan Git Anda memiliki akses ke repository.")
+        print(f"[ERROR] Git operation failed: {e.stderr}")
     except Exception as e:
         print(f"[ERROR] Failed to fetch JSON via git: {e}")
     return None
 
+def save_trade_history(ticket, pnl, exit_price):
+    history_file = "data/real_trades_history.json"
+    os.makedirs(os.path.dirname(history_file), exist_ok=True)
+    
+    data = []
+    if os.path.exists(history_file):
+        try:
+            with open(history_file, "r") as f:
+                data = json.load(f)
+        except Exception:
+            data = []
+            
+    data.append({
+        "ticket": ticket,
+        "close_time": datetime.now().isoformat(),
+        "pnl": pnl,
+        "exit_price": exit_price
+    })
+    
+    with open(history_file, "w") as f:
+        json.dump(data, f, indent=4)
+        
+    # Push to GitHub for Self-Learning Loop
+    try:
+        subprocess.run(["git", "add", history_file], check=True, capture_output=True)
+        # We commit it locally to main branch so it gets picked up.
+        subprocess.run(["git", "commit", "-m", f"auto: log real trade {ticket} PnL {pnl}"], check=True, capture_output=True)
+        print("✅ Trade history saved locally and committed to Git for Self-Learning!")
+    except Exception as e:
+        print(f"⚠️ Failed to commit history to Git: {e}. Saved locally only.")
+
+def monitor_closed_positions():
+    global ACTIVE_TICKETS
+    if not ACTIVE_TICKETS:
+        return
+        
+    positions = mt5.positions_get()
+    current_tickets = set()
+    if positions:
+        current_tickets = {p.ticket for p in positions}
+        
+    closed_tickets = ACTIVE_TICKETS - current_tickets
+    
+    for ticket in list(closed_tickets):
+        # Trade has been closed! Retrieve history to get Profit/Loss
+        deals = mt5.history_deals_get(position=ticket)
+        if deals:
+            profit = sum(d.profit for d in deals)
+            commission = sum(d.commission for d in deals)
+            swap = sum(d.swap for d in deals)
+            total_net = profit + commission + swap
+            
+            # Find the exit deal to get the closing price
+            exit_deals = [d for d in deals if d.entry == 1]
+            exit_price = exit_deals[0].price if exit_deals else 0
+            
+            status_icon = "🟢 PROFIT" if total_net > 0 else "🔴 LOSS"
+            msg = (
+                f"🔔 <b>XEDY LIVE TRADE CLOSED</b>\n\n"
+                f"Status: <b>{status_icon}</b>\n"
+                f"Ticket: {ticket}\n"
+                f"Exit Price: {exit_price}\n"
+                f"Net PnL: <b>${total_net:.2f}</b>\n"
+                f"Terminal: MT5 Lokal"
+            )
+            print(f"\n[{datetime.now().strftime('%H:%M:%S')}] Trade {ticket} closed. PnL: ${total_net:.2f}")
+            send_telegram_msg(msg)
+            
+            # Save to local file for AI self-learning
+            save_trade_history(ticket, total_net, exit_price)
+            
+        ACTIVE_TICKETS.remove(ticket)
+
 def execute_mt5_order(symbol, bias, analysis_data):
+    global ACTIVE_TICKETS
     if not mt5.initialize():
         msg = f"❌ [MT5 Bridge] Gagal inisialisasi MT5! Error code: {mt5.last_error()}"
         print(msg)
@@ -139,10 +213,12 @@ def execute_mt5_order(symbol, bias, analysis_data):
             f"Terminal: MT5 Lokal Terhubung 🟢"
         )
         print(f"OP Berhasil! Ticket: {result.order}")
+        ACTIVE_TICKETS.add(result.order)
         send_telegram_msg(msg)
         return True
 
 def main():
+    global ACTIVE_TICKETS
     print("="*50)
     print("🚀 XEDY MT5 CLOUD BRIDGE 🚀")
     print("="*50)
@@ -156,10 +232,17 @@ def main():
         print("Harap buka terminal MT5 terlebih dahulu!")
     else:
         print(f"✅ MetaTrader 5 terhubung! Terminal: {mt5.terminal_info().name}")
+        # Pre-seed active tickets so we track anything already open by the bot
+        positions = mt5.positions_get()
+        if positions:
+            for p in positions:
+                if p.magic == 999111: # Only track our bot's trades
+                    ACTIVE_TICKETS.add(p.ticket)
+            if ACTIVE_TICKETS:
+                print(f"🔍 Ditemukan {len(ACTIVE_TICKETS)} posisi aktif milik bot. Mulai memantau...")
         
     last_seen_timestamp = None
     
-    # Ambil kondisi awal agar tidak langsung OP saat script pertama kali dinyalakan
     print("Melakukan sinkronisasi state awal...")
     initial_data = fetch_cloud_json()
     if initial_data:
@@ -170,26 +253,37 @@ def main():
         
     print("\nMenunggu sinyal trading baru dari Cloud AI Qwen...\n")
     
+    # We use a tighter loop for monitoring positions (every 2 seconds)
+    # But only poll GitHub every POLL_INTERVAL_SECONDS (30 seconds)
+    loops_since_poll = 0
+    poll_loop_threshold = int(POLL_INTERVAL_SECONDS / 2)
+    
     while True:
         try:
-            data = fetch_cloud_json()
-            if data:
-                current_timestamp = data.get("generated_at")
-                
-                # Deteksi sinyal baru
-                if current_timestamp and current_timestamp != last_seen_timestamp:
-                    print(f"\n[{datetime.now().strftime('%H:%M:%S')}] 🚨 SINYAL BARU TERDETEKSI DARI CLOUD!")
-                    last_seen_timestamp = current_timestamp
+            # 1. Monitor active trades
+            monitor_closed_positions()
+            
+            # 2. Check for new signals
+            if loops_since_poll >= poll_loop_threshold:
+                loops_since_poll = 0
+                data = fetch_cloud_json()
+                if data:
+                    current_timestamp = data.get("generated_at")
                     
-                    analysis = data.get("macro_analysis", {})
-                    bias = analysis.get("bias", "")
-                    
-                    if bias in ["BUY_ONLY", "SELL_ONLY"]:
-                        execute_mt5_order(MT5_SYMBOL, bias, analysis)
-                    else:
-                        print(f"Sinyal adalah {bias}. Mengabaikan (Tidak OP).")
+                    if current_timestamp and current_timestamp != last_seen_timestamp:
+                        print(f"\n[{datetime.now().strftime('%H:%M:%S')}] 🚨 SINYAL BARU TERDETEKSI DARI CLOUD!")
+                        last_seen_timestamp = current_timestamp
                         
-            time.sleep(POLL_INTERVAL_SECONDS)
+                        analysis = data.get("macro_analysis", {})
+                        bias = analysis.get("bias", "")
+                        
+                        if bias in ["BUY_ONLY", "SELL_ONLY"]:
+                            execute_mt5_order(MT5_SYMBOL, bias, analysis)
+                        else:
+                            print(f"Sinyal adalah {bias}. Mengabaikan (Tidak OP).")
+            
+            time.sleep(2)
+            loops_since_poll += 1
             
         except KeyboardInterrupt:
             print("\nMenghentikan MT5 Bridge...")
