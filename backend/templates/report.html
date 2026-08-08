@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>XEDY Premium Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --card-bg: rgba(20, 26, 39, 0.7);
+            --card-border: rgba(50, 140, 255, 0.2);
+            --accent: #00d2ff;
+            --accent-glow: rgba(0, 210, 255, 0.4);
+            --green: #00ff88;
+            --red: #ff3366;
+            --yellow: #ffcc00;
+            --text-main: #e2e8f0;
+            --text-dim: #94a3b8;
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 30px;
+            width: 1200px; /* Fixed width for screenshot */
+            background-image: radial-gradient(circle at 50% 0%, #152238 0%, var(--bg-dark) 60%);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--card-border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+        .header h1 span { color: var(--accent); }
+        .price-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--yellow);
+            background: rgba(255, 204, 0, 0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 204, 0, 0.3);
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        /* 3D Top highlight */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.5;
+        }
+        .card h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            padding-bottom: 4px;
+        }
+        .label { color: var(--text-dim); }
+        .val { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+        
+        .val.green { color: var(--green); text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+        .val.red { color: var(--red); text-shadow: 0 0 10px rgba(255,51,102,0.3); }
+        .val.yellow { color: var(--yellow); }
+        
+        .big-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .full-width { grid-column: span 3; }
+        .half-width { grid-column: span 2; }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 800;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .mtf-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .mtf-box {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 8px 0;
+        }
+        .mtf-tf { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; }
+        .mtf-val { font-size: 18px; }
+        
+        pre.code-block {
+            background: rgba(0,0,0,0.5);
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--green);
+            white-space: pre-wrap;
+            border-left: 3px solid var(--red);
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 12px;
+            letter-spacing: 2px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>XEDY <span>Mission Control</span></h1>
+        <div style="text-align: right;">
+            <div style="color: var(--text-dim); font-size: 14px; margin-bottom: 5px;">{{ time_str }}</div>
+            <div class="price-tag">XAUUSD: ${{ "%.2f"|format(gold_price) }}</div>
+        </div>
+    </div>
+
+    <div class="grid">
+        
+        <!-- MACRO BIAS -->
+        <div class="card">
+            <h2>02. 🎯 EXECUTIVE DECISION</h2>
+            <div class="big-number {% if 'BUY' in direction %}green{% elif 'SELL' in direction %}red{% else %}yellow{% endif %}">
+                {{ direction }}
+            </div>
+            <div class="row"><span class="label">Trade Bias:</span><span class="val">{{ trade_bias }}</span></div>
+            <div class="row"><span class="label">Final Action:</span><span class="val yellow">WAIT FOR CONFIRMATION</span></div>
+            <div class="row"><span class="label">AI Confidence:</span><span class="val">{{ "%.0f"|format(raw_conf*100) }}%</span></div>
+            <div class="row"><span class="label">Market Regime:</span><span class="val">{{ regime }}</span></div>
+        </div>
+
+        <!-- MTF -->
+        <div class="card half-width">
+            <h2>07. 📈 MULTI-TIMEFRAME STRUCTURE</h2>
+            <div class="row" style="border:none;">
+                <span class="label">Overall Alignment:</span>
+                <span class="val green" style="font-size:18px;">{{ "%.0f"|format(mtf_alignment*100) }}%</span>
+            </div>
+            <div class="mtf-grid">
+                <div class="mtf-box"><div class="mtf-tf">D1</div><div class="mtf-val">{{ mtf_d1|replace('🟢 BULLISH','🟢')|replace('🔴 BEARISH','🔴')|replace('🟡 WAIT','🟡') }}</div></div>
+                <div class="mtf-box"><div class="mtf-tf">H4</div><div class="mtf-val">{{ mtf_h4|replace('🟢 BULLISH','🟢')|replace('🔴 BEARISH','🔴')|replace('🟡 WAIT','🟡') }}</div></div>
+                <div class="mtf-box"><div class="mtf-tf">H1</div><div class="mtf-val">{{ mtf_h1|replace('🟢 BULLISH','🟢')|replace('🔴 BEARISH','🔴')|replace('🟡 WAIT','🟡') }}</div></div>
+                <div class="mtf-box"><div class="mtf-tf">M30</div><div class="mtf-val">{{ mtf_m30|replace('🟢 BULLISH','🟢')|replace('🔴 BEARISH','🔴')|replace('🟡 WAIT','🟡') }}</div></div>
+                <div class="mtf-box"><div class="mtf-tf">M15</div><div class="mtf-val">{{ mtf_m15|replace('🟢 BULLISH','🟢')|replace('🔴 BEARISH','🔴')|replace('🟡 WAIT','🟡') }}</div></div>
+                <div class="mtf-box"><div class="mtf-tf">M5</div><div class="mtf-val">{{ mtf_m5|replace('🟢 BULLISH','🟢')|replace('🔴 BEARISH','🔴')|replace('🟡 WAIT','🟡') }}</div></div>
+                <div class="mtf-box"><div class="mtf-tf">M1</div><div class="mtf-val">{{ mtf_m1|replace('🟢 BULLISH','🟢')|replace('🔴 BEARISH','🔴')|replace('🟡 WAIT','🟡') }}</div></div>
+            </div>
+        </div>
+
+        <!-- CAUSALITY -->
+        <div class="card full-width" style="border-left: 4px solid var(--accent);">
+            <h2>04. 🔗 MARKET CAUSALITY & FUNDAMENTAL DRIVERS</h2>
+            <div style="font-size: 14px; line-height: 1.6; color: #cbd5e1; margin-bottom: 15px;">
+                {{ causality_desc }}
+            </div>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <div>
+                    <div class="row"><span class="label">Primary Driver:</span><span class="val green">{{ primary_driver }}</span></div>
+                    <div class="row"><span class="label">Secondary Driver:</span><span class="val green">{{ secondary_driver }}</span></div>
+                    <div class="row"><span class="label">Fed Shock Level:</span><span class="val red">{{ fed_shock }} / 5</span></div>
+                </div>
+                <div>
+                    <div class="row"><span class="label">Causality Score:</span><span class="val accent">{{ causality_score }}</span></div>
+                    <div class="row"><span class="label">Causal Confidence:</span><span class="val">{{ causality_conf }}%</span></div>
+                    <div class="row"><span class="label">Event Impact:</span><span class="val red">{{ event_impact }}</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ENTRY ENGINE -->
+        <div class="card">
+            <h2>08. 🎯 ENTRY ENGINE</h2>
+            <div style="margin-bottom: 15px;">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;">PRIMARY SETUP ({{ entry_primary_stars }}⭐)</div>
+                <div class="badge" style="color:var(--green); border-color:var(--green);">🟢 {{ entry_primary }}</div>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;">SECONDARY SETUP ({{ entry_secondary_stars }}⭐)</div>
+                <div class="badge" style="color:var(--yellow); border-color:var(--yellow);">🟡 {{ entry_secondary }}</div>
+            </div>
+            <div>
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;">INVALID SETUP</div>
+                <div class="badge" style="color:var(--red); border-color:var(--red);">🔴 {{ entry_invalid }}</div>
+            </div>
+        </div>
+
+        <!-- EXECUTION GATE -->
+        <div class="card">
+            <h2>09. 🧪 EXECUTION GATE</h2>
+            <div class="row"><span class="label">Macro</span><span class="val green">✓</span></div>
+            <div class="row"><span class="label">Fundamental</span><span class="val green">✓</span></div>
+            <div class="row"><span class="label">Fed Risk</span><span class="val green">✓</span></div>
+            <div class="row"><span class="label">HTF Trend</span><span class="val green">✓</span></div>
+            <div class="row"><span class="label">M15 Structure</span><span class="val green">✓</span></div>
+            <div class="row"><span class="label">M5 Confirmation</span><span class="val red">✗</span></div>
+            <div class="row"><span class="label" style="color:var(--red); font-weight:bold; margin-top:10px;">RESULT:</span><span class="val red" style="margin-top:10px;">NOT ALLOWED YET</span></div>
+        </div>
+
+        <!-- INVALIDATION ENGINE -->
+        <div class="card">
+            <h2>12. ⚠️ INVALIDATION ENGINE</h2>
+            <div style="font-size:12px; color:var(--text-dim); margin-bottom:10px;">Thesis INVALID jika:</div>
+            <pre class="code-block">{{ inv_c }}</pre>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        XEDY SELF-LEARNING ENGINE V1.00 • AI PREDICTIVE ANALYTICS • DESIGNED FOR XAUUSD
+    </div>
+
+</body>
+</html>

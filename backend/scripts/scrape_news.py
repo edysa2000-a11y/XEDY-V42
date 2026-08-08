@@ -11,6 +11,37 @@ from dotenv import load_dotenv
 # Load local environment variables from .env file
 load_dotenv()
 
+
+def send_telegram_photo(token, chat_id, photo_path):
+    if not token or not chat_id:
+        return
+    import subprocess
+    url = f"https://api.telegram.org/bot{token}/sendPhoto"
+    cmd = ["curl", "-s", "-X", "POST", url, "-F", f"chat_id={chat_id}", "-F", f"photo=@{photo_path}"]
+    subprocess.run(cmd)
+
+def render_report_image(template_data, output_path="data/report.png"):
+    try:
+        from jinja2 import Environment, FileSystemLoader
+        from html2image import Html2Image
+        import os
+        
+        env = Environment(loader=FileSystemLoader("backend/templates"))
+        template = env.get_template("report.html")
+        html_out = template.render(**template_data)
+        
+        # Write temporary HTML file (html2image handles files better with relative paths sometimes)
+        tmp_html = "data/tmp_report.html"
+        with open(tmp_html, "w", encoding="utf-8") as f:
+            f.write(html_out)
+            
+        hti = Html2Image(output_path=os.path.dirname(output_path), custom_flags=['--no-sandbox', '--disable-gpu'])
+        hti.screenshot(html_file=tmp_html, save_as=os.path.basename(output_path), size=(1200, 1100))
+        return True
+    except Exception as e:
+        print(f"Failed to render image: {e}")
+        return False
+
 def send_telegram_notification(token, chat_id, text):
     if not token or not chat_id:
         return
