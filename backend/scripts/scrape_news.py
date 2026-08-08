@@ -913,7 +913,49 @@ Status: 🟢 ACTIVE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
     
     if has_changed:
-        send_telegram_notification(tg_token, tg_chat, tg_msg)
+        # Prepare Data for Image Template
+        template_data = {
+            "time_str": local_now.strftime('%d %b %Y | %H:%M WIB').upper(),
+            "gold_price": gold_price,
+            "direction": direction,
+            "trade_bias": "🟢 BUY PREFERRED" if analysis.get("bias") == "BUY_ONLY" else "🔴 SELL PREFERRED" if analysis.get("bias") == "SELL_ONLY" else "🟡 WAIT",
+            "raw_conf": raw_conf,
+            "regime": f"{'🔴' if analysis.get('regime') == 'HIGH_NEWS' else '🟢'} {translated_regime}",
+            "mtf_alignment": analysis.get("mtf_alignment_score", 0),
+            "mtf_d1": mtf_d1, "mtf_h4": mtf_h4, "mtf_h1": mtf_h1, "mtf_m30": mtf_m30,
+            "mtf_m15": mtf_m15, "mtf_m5": mtf_m5, "mtf_m1": mtf_m1,
+            "primary_driver": esc(str(analysis.get("primary_driver", "N/A")).upper()),
+            "secondary_driver": esc(str(analysis.get("secondary_driver", "N/A")).upper()),
+            "fed_shock": analysis.get("fed_shock_level", 1),
+            "causality_score": f"{'+' if analysis.get('causality_score', 0) > 0 else ''}{analysis.get('causality_score', 0):.2f}",
+            "causality_conf": f"{analysis.get('causal_confidence', 0)*100:.0f}",
+            "event_impact": analysis.get("news_event_impact", "MEDIUM"),
+            "causality_desc": esc(analysis.get('market_summary_id', '')),
+            "entry_primary_stars": int(analysis.get("entry_primary_stars", 3)),
+            "entry_primary": esc(str(analysis.get("entry_primary_setup_name", "")).upper()),
+            "entry_secondary_stars": int(analysis.get("entry_secondary_stars", 3)),
+            "entry_secondary": esc(str(analysis.get("entry_secondary_setup_name", "")).upper()),
+            "entry_invalid": esc(str(analysis.get("entry_invalid_setup_name", "")).upper()),
+            "inv_c": inv_c
+        }
+        
+        # Render and send image first
+        img_path = "data/report.png"
+        import os
+        if not os.path.exists("data"): os.makedirs("data")
+        if render_report_image(template_data, img_path):
+            send_telegram_photo(tg_token, tg_chat, img_path)
+            import time; time.sleep(1)
+        
+        split_marker = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n08. 🎯 ENTRY ENGINE"
+        if split_marker in tg_msg:
+            tg_msg_part1 = tg_msg[:tg_msg.find(split_marker)].strip()
+            tg_msg_part2 = tg_msg[tg_msg.find(split_marker):].strip()
+            send_telegram_notification(tg_token, tg_chat, tg_msg_part1)
+            import time; time.sleep(1) # small delay to ensure ordered delivery
+            send_telegram_notification(tg_token, tg_chat, tg_msg_part2)
+        else:
+            send_telegram_notification(tg_token, tg_chat, tg_msg)
         print("Strategy change detected! Telegram notification sent.")
     else:
         print("No strategy changes detected. Telegram notification skipped to prevent spam.")
