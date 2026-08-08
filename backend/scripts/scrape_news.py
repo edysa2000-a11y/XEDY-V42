@@ -929,7 +929,7 @@ Current macro narrative:
 {bullets}
 
 NET FUNDAMENTAL
-{f_icon} {bias_clean} / {regime}
+{f_icon} {bias_clean} / {analysis.get('regime', 'NORMAL')}
 
 {esc(weighted_articles[0].get('title',''))[:40]}...
 
