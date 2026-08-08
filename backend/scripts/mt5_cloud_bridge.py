@@ -40,20 +40,23 @@ def send_telegram_msg(text):
         print(f"[ERROR] Failed to send Telegram message: {e}")
 
 def fetch_cloud_json():
-    headers = {"User-Agent": "MT5-Cloud-Bridge/1.0"}
-    if GITHUB_PAT:
-        headers["Authorization"] = f"token {GITHUB_PAT}"
-        
+    import subprocess
     try:
-        req = urllib.request.Request(GITHUB_RAW_URL, headers=headers)
-        with urllib.request.urlopen(req, timeout=10) as response:
-            if response.status == 200:
-                data = json.loads(response.read().decode('utf-8'))
-                return data
-    except urllib.error.HTTPError as e:
-        print(f"[ERROR] HTTP Error {e.code}: {e.reason}")
+        # Fetch metadata safely from the remote (does not alter working directory)
+        subprocess.run(["git", "fetch", "origin", "main"], check=True, capture_output=True)
+        # Read the file directly from the remote-tracking branch
+        result = subprocess.run(
+            ["git", "show", "origin/main:data/news_feed.json"],
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding='utf-8'
+        )
+        return json.loads(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"[ERROR] Git operation failed. Pastikan Git Anda memiliki akses ke repository.")
     except Exception as e:
-        print(f"[ERROR] Failed to fetch JSON: {e}")
+        print(f"[ERROR] Failed to fetch JSON via git: {e}")
     return None
 
 def execute_mt5_order(symbol, bias, analysis_data):
