@@ -1018,10 +1018,25 @@ PRIMARY HORIZON
         tp1_str = "WAITING"
         tp2_str = "WAITING"
     else:
-        entry_str = f"{analysis.get('forecast_price_target', gold_price):.2f}"
-        sl_str = f"{analysis.get('sl_price', gold_price-10):.2f}"
-        tp1_str = f"{analysis.get('tp1_price', gold_price+10):.2f}"
-        tp2_str = f"{analysis.get('tp2_price', gold_price+20):.2f}"
+        entry_val = float(analysis.get('forecast_price_target', gold_price))
+        sl_val = float(analysis.get('sl_price', 0))
+        tp1_val = float(analysis.get('tp1_price', 0))
+        tp2_val = float(analysis.get('tp2_price', 0))
+        
+        # Auto-correct AI mathematical hallucinations
+        if bias_clean == "BUY":
+            if sl_val >= entry_val or sl_val == 0: sl_val = entry_val - 15.0
+            if tp1_val <= entry_val or tp1_val == 0: tp1_val = entry_val + 15.0
+            if tp2_val <= tp1_val or tp2_val == 0: tp2_val = tp1_val + 15.0
+        elif bias_clean == "SELL":
+            if sl_val <= entry_val or sl_val == 0: sl_val = entry_val + 15.0
+            if tp1_val >= entry_val or tp1_val == 0: tp1_val = entry_val - 15.0
+            if tp2_val >= tp1_val or tp2_val == 0: tp2_val = tp1_val - 15.0
+            
+        entry_str = f"{entry_val:.2f}"
+        sl_str = f"{sl_val:.2f}"
+        tp1_str = f"{tp1_val:.2f}"
+        tp2_str = f"{tp2_val:.2f}"
         
     duration_hours = analysis.get('forecast_duration_hours', 12)
     
