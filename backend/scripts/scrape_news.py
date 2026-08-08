@@ -631,7 +631,7 @@ def main():
     direction = "🟢 BULLISH" if analysis.get("bias") == "BUY_ONLY" else "🔴 BEARISH" if analysis.get("bias") == "SELL_ONLY" else "🟡 NEUTRAL"
     raw_conf = (analysis.get("conf_fundamental", 0) + analysis.get("conf_news", 0) + analysis.get("conf_fed_shock", 0)) / 3.0
     
-    inv_c = "\\n".join(["🔴 " + str(x) for x in analysis.get("invalidation_criteria", [])])
+    inv_c = "\\n".join(["🔴 " + esc(str(x)) for x in analysis.get("invalidation_criteria", [])])
     
     tg_msg = f"""━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🕐 {local_now.strftime('%d %b %Y | %H:%M WIB').upper()}
@@ -716,30 +716,30 @@ Market Regime:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 PRIMARY DRIVER
-🟢 {str(analysis.get("primary_driver", "N/A")).upper()}
-{analysis.get("primary_driver_desc", "")}
+🟢 {esc(str(analysis.get("primary_driver", "N/A")).upper())}
+{esc(analysis.get("primary_driver_desc", ""))}
 
 SECONDARY DRIVER
-🟢 {str(analysis.get("secondary_driver", "N/A")).upper()}
-{analysis.get("secondary_driver_desc", "")}
+🟢 {esc(str(analysis.get("secondary_driver", "N/A")).upper())}
+{esc(analysis.get("secondary_driver_desc", ""))}
 
 TRIGGER
-🟡 {analysis.get("trigger", "")}
+🟡 {esc(analysis.get("trigger", ""))}
 
 AMPLIFIER
-🟢 {analysis.get("amplifier", "")}
+🟢 {esc(analysis.get("amplifier", ""))}
 
 FISCAL / GEOPOLITICAL
-🟢 {analysis.get("fiscal_geopolitical", "")}
+🟢 {esc(analysis.get("fiscal_geopolitical", ""))}
 
 COUNTER PRESSURE
-🟡 {analysis.get("counter_pressure", "")}
+🟡 {esc(analysis.get("counter_pressure", ""))}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 04. 🔗 MARKET CAUSALITY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-{analysis.get('market_summary_id', '')}
+{esc(analysis.get('market_summary_id', ''))}
 
 CAUSALITY SCORE
 {'+' if analysis.get("causality_score", 0) > 0 else ''}{analysis.get("causality_score", 0):.2f}
@@ -765,7 +765,7 @@ INTERMARKET STATUS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Main Event:
-🇺🇸 {str(analysis.get("primary_driver", "N/A")).upper()}
+🇺🇸 {esc(str(analysis.get("primary_driver", "N/A")).upper())}
 
 EVENT IMPACT
 {"🔴" if analysis.get("news_event_impact") == "HIGH" else "🟡"} {analysis.get("news_event_impact", "MEDIUM")}
@@ -794,14 +794,14 @@ MTF ALIGNMENT
 
 PRIMARY SETUP
 {"⭐"*int(analysis.get("entry_primary_stars", 3))}
-🟢 {str(analysis.get("entry_primary_setup_name", "")).upper()}
+🟢 {esc(str(analysis.get("entry_primary_setup_name", "")).upper())}
 
 SECONDARY SETUP
 {"⭐"*int(analysis.get("entry_secondary_stars", 3))}
-🟢 {str(analysis.get("entry_secondary_setup_name", "")).upper()}
+🟢 {esc(str(analysis.get("entry_secondary_setup_name", "")).upper())}
 
 INVALID SETUP
-🔴 {str(analysis.get("entry_invalid_setup_name", "")).upper()}
+🔴 {esc(str(analysis.get("entry_invalid_setup_name", "")).upper())}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 09. 🧪 EXECUTION GATE
