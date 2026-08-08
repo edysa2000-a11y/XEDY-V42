@@ -583,7 +583,7 @@ def main():
         
         # If bias, regime, and the headlines are exactly the same, suppress the notification (Spam Filter)
         if prev_bias == curr_bias and prev_regime == curr_regime and prev_news_titles == curr_news_titles:
-            has_changed = False
+            has_changed = True
     
     local_now = datetime.utcnow() + timedelta(hours=7)
     news_feed_data = {
@@ -679,7 +679,13 @@ def main():
     narrative = esc(analysis.get("ai_narrative_id", "Analisis fundamental dan makroekonomi sedang diproses."))
     # Wrap narrative strictly to avoid super long lines (simple chunking for ASCII)
     import textwrap
-    wrapped_narrative = "\n".join(textwrap.wrap(narrative, width=65))
+    paragraphs = narrative.split('\n')
+    wrapped_paragraphs = []
+    for p in paragraphs:
+        if p.strip():
+            wrapped_p = "\n".join(textwrap.wrap(p.strip(), width=65))
+            wrapped_paragraphs.append(wrapped_p)
+    wrapped_narrative = "\n\n".join(wrapped_paragraphs)
     
     # 3-part Message Split
     # Part 1
