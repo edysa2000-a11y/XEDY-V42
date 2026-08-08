@@ -533,18 +533,19 @@ def main():
         except Exception as e:
             print(f"Failed to load previous news feed: {e}")
             
-    # Check for changes in key decision fields
+    # Check for changes in key decision fields and news headlines
     has_changed = True
     if prev_analysis:
         prev_bias = prev_analysis.get("bias", "")
         prev_regime = prev_analysis.get("regime", "")
-        prev_method = prev_analysis.get("optimal_method", "")
+        prev_news_titles = [n.get("title", "") for n in prev_data.get("news", [])] if 'prev_data' in locals() else []
         
         curr_bias = analysis.get("bias", "")
         curr_regime = analysis.get("regime", "")
-        curr_method = analysis.get("optimal_method", "")
+        curr_news_titles = [n.get("title", "") for n in weighted_articles]
         
-        if prev_bias == curr_bias and prev_regime == curr_regime and prev_method == curr_method:
+        # If bias, regime, and the headlines are exactly the same, suppress the notification (Spam Filter)
+        if prev_bias == curr_bias and prev_regime == curr_regime and prev_news_titles == curr_news_titles:
             has_changed = False
     
     local_now = datetime.utcnow() + timedelta(hours=7)
