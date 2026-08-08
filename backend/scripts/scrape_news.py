@@ -679,7 +679,7 @@ def main():
     narrative = esc(analysis.get("ai_narrative_id", "Analisis fundamental dan makroekonomi sedang diproses."))
     # Wrap narrative strictly to avoid super long lines (simple chunking for ASCII)
     import textwrap
-    wrapped_narrative = "\\n".join(textwrap.wrap(narrative, width=44))
+    wrapped_narrative = "\n".join(textwrap.wrap(narrative, width=44))
     
     # 3-part Message Split
     # Part 1
