@@ -631,7 +631,7 @@ def main():
     direction = "🟢 BULLISH" if analysis.get("bias") == "BUY_ONLY" else "🔴 BEARISH" if analysis.get("bias") == "SELL_ONLY" else "🟡 NEUTRAL"
     raw_conf = (analysis.get("conf_fundamental", 0) + analysis.get("conf_news", 0) + analysis.get("conf_fed_shock", 0)) / 3.0
     
-    inv_c = "\\n".join(["🔴 " + esc(str(x)) for x in analysis.get("invalidation_criteria", [])])
+    inv_c = "\n".join(["🔴 " + esc(str(x)) for x in analysis.get("invalidation_criteria", [])])
     
     tg_msg = f"""━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🕐 {local_now.strftime('%d %b %Y | %H:%M WIB').upper()}
