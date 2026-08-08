@@ -801,7 +801,7 @@ NET CAUSE
     flow_status = analysis.get("capital_flow", "SUPPORTIVE")
     bullets_list = analysis.get("fundamental_bullets", [])
     if not isinstance(bullets_list, list): bullets_list = ["No bullets provided"]
-    bullets = "\\n".join([f"• {b}" for b in bullets_list])
+    bullets = "\n".join([f"• {b}" for b in bullets_list])
     fwd = analysis.get("forward_implication", "")
     t_driver = analysis.get("tertiary_driver", "N/A")
     prob_side = analysis.get("next_regime_sideway_prob", 24)
