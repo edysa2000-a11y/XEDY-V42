@@ -644,11 +644,16 @@ def main():
     releases_str = "\n".join([f"• {r}" for r in releases]) if releases else "• Tidak ada rilis data penting baru"
 
     # 5. Send Telegram Notification from Cloud in Indonesian (GMT+7)
+    import html
     def rating_to_icon(val):
         if val is None: return "🟡 WAIT"
         if val > 0.1: return "🟢 BULLISH"
         if val < -0.1: return "🔴 BEARISH"
         return "🟡 WAIT"
+        
+    def esc(text):
+        if text is None: return ""
+        return html.escape(str(text))
         
     mtf = prices.get("XAUUSD_MTF", {})
     mtf_d1 = rating_to_icon(mtf.get("D1"))
