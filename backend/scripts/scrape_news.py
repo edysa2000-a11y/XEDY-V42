@@ -677,7 +677,6 @@ def main():
     contrarian = analysis.get("contrarian_risk_pct", 25)
     
     narrative = esc(analysis.get("ai_narrative_id", "Analisis fundamental dan makroekonomi sedang diproses."))
-    import textwrap
     import re
     
     # Bersihkan semua newline bawaan Qwen agar tidak ada patahan aneh di tengah kalimat
@@ -691,16 +690,7 @@ def main():
     # Tangani kasus nyangkut tanpa spasi (misal "pasar.叠加") tapi jangan merusak angka desimal
     narrative_clean = re.sub(r'\.(?=[^\d\s\n])', '.\n\n', narrative_clean)
     
-    paragraphs = narrative_clean.split('\n\n')
-    wrapped_paragraphs = []
-    for p in paragraphs:
-        if p.strip():
-            # Wrap masing-masing kalimat, lalu sisipkan newline
-            wrapped_p = "\n".join(textwrap.wrap(p.strip(), width=65))
-            wrapped_paragraphs.append(wrapped_p)
-            
-    # Gabungkan kembali dengan double newline agar ada spasi antar paragraf/kalimat
-    wrapped_narrative = "\n\n".join(wrapped_paragraphs)
+    wrapped_narrative = narrative_clean.strip()
     
     # 3-part Message Split
     # Part 1
