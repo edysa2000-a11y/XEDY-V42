@@ -663,7 +663,7 @@ def main():
     dir_short = "🟢 UP" if analysis.get("bias") == "BUY_ONLY" else "🔴 DOWN" if analysis.get("bias") == "SELL_ONLY" else "🟡 SIDE"
     raw_conf = (analysis.get("conf_fundamental", 0) + analysis.get("conf_news", 0) + analysis.get("conf_fed_shock", 0)) / 3.0
     
-    inv_c = "\\n".join([esc(str(x)) for x in analysis.get("invalidation_criteria", [])])
+    inv_c = "\n".join([f"• {esc(str(x))}" for x in analysis.get("invalidation_criteria", [])])
     
     # Safely get statistical fields with defaults
     win_rate = analysis.get("win_rate_pct", 75)
@@ -679,7 +679,7 @@ def main():
     narrative = esc(analysis.get("ai_narrative_id", "Analisis fundamental dan makroekonomi sedang diproses."))
     # Wrap narrative strictly to avoid super long lines (simple chunking for ASCII)
     import textwrap
-    wrapped_narrative = "\n".join(textwrap.wrap(narrative, width=44))
+    wrapped_narrative = "\n".join(textwrap.wrap(narrative, width=65))
     
     # 3-part Message Split
     # Part 1
