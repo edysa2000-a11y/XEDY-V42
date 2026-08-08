@@ -677,14 +677,24 @@ def main():
     contrarian = analysis.get("contrarian_risk_pct", 25)
     
     narrative = esc(analysis.get("ai_narrative_id", "Analisis fundamental dan makroekonomi sedang diproses."))
-    # Wrap narrative strictly to avoid super long lines (simple chunking for ASCII)
     import textwrap
-    paragraphs = narrative.split('\n')
+    import re
+    
+    # Memaksa setiap kalimat (setelah titik) menjadi paragraf baru
+    # Ganti ". " dengan ".\n\n"
+    narrative_clean = narrative.replace(". ", ".\n\n")
+    # Tangani kasus nyangkut tanpa spasi (misal "pasar.叠加") tapi jangan merusak angka desimal
+    narrative_clean = re.sub(r'\.(?=[^\d\s\n])', '.\n\n', narrative_clean)
+    
+    paragraphs = narrative_clean.split('\n')
     wrapped_paragraphs = []
     for p in paragraphs:
         if p.strip():
+            # Wrap masing-masing kalimat, lalu sisipkan newline
             wrapped_p = "\n".join(textwrap.wrap(p.strip(), width=65))
             wrapped_paragraphs.append(wrapped_p)
+            
+    # Gabungkan kembali dengan double newline agar ada spasi antar paragraf/kalimat
     wrapped_narrative = "\n\n".join(wrapped_paragraphs)
     
     # 3-part Message Split
