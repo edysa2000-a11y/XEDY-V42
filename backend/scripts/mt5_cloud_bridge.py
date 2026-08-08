@@ -103,6 +103,9 @@ def monitor_closed_positions():
     closed_tickets = ACTIVE_TICKETS - current_tickets
     
     for ticket in list(closed_tickets):
+        # Beri jeda sedikit (0.5 detik) agar MT5 sempat memindahkan data ke History
+        time.sleep(0.5)
+        
         # Trade has been closed! Retrieve history to get Profit/Loss
         deals = mt5.history_deals_get(position=ticket)
         if deals:
@@ -134,6 +137,13 @@ def monitor_closed_positions():
 
 def execute_mt5_order(symbol, bias, analysis_data):
     global ACTIVE_TICKETS
+    
+    # 🚨 ANTI-SPAM PROTEKSI 🚨
+    # Jika masih ada posisi aktif yang dibuka oleh bot, jangan OP lagi
+    if len(ACTIVE_TICKETS) > 0:
+        print(f"🛑 [Anti-Spam] Abaikan sinyal {bias}. Masih ada {len(ACTIVE_TICKETS)} posisi aktif.")
+        return False
+        
     if not mt5.initialize():
         msg = f"❌ [MT5 Bridge] Gagal inisialisasi MT5! Error code: {mt5.last_error()}"
         print(msg)
