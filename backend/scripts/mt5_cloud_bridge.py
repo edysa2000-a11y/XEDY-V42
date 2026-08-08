@@ -43,10 +43,10 @@ def fetch_cloud_json():
     import subprocess
     try:
         # Fetch metadata safely from the remote (does not alter working directory)
-        subprocess.run(["git", "fetch", "origin", "main"], check=True, capture_output=True)
+        subprocess.run(["git", "fetch", "origin", "data-feed"], check=True, capture_output=True)
         # Read the file directly from the remote-tracking branch
         result = subprocess.run(
-            ["git", "show", "origin/main:data/news_feed.json"],
+            ["git", "show", "origin/data-feed:data/news_feed.json"],
             check=True,
             capture_output=True,
             text=True,
