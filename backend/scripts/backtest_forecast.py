@@ -10,6 +10,7 @@ import urllib.request
 import time
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
+from utils import clean_json_string
 
 load_dotenv()
 
@@ -28,16 +29,6 @@ AIVENE_API_KEY = os.getenv("AIVENE_API_KEY", "")
 SYMBOL = "XAUUSD"
 
 
-def clean_json_string(raw: str) -> str:
-    raw = raw.strip()
-    if raw.startswith("```"):
-        lines = raw.splitlines()
-        if lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].strip().startswith("```"):
-            lines = lines[:-1]
-        raw = "\n".join(lines).strip()
-    return raw
 
 
 def safe_float(v, default=0.0):

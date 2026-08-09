@@ -8,50 +8,12 @@ import time
 import email.utils
 from dotenv import load_dotenv
 
+from dotenv import load_dotenv
+from utils import get_live_multi_asset_prices, clean_json_string
+
 # Load local system environment configuration
 load_dotenv()
 
-def get_live_multi_asset_prices():
-    prices = {"XAUUSD": 0.0, "USOIL": 0.0, "DXY": 0.0, "US10Y": 0.0}
-    try:
-        url_tv = "https://scanner.tradingview.com/cfd/scan"
-        payload_tv = {
-            "symbols": {
-                "tickers": ["FX_IDC:XAUUSD", "TVC:USOIL", "TVC:DXY", "TVC:US10Y"],
-                "query": { "types": [] }
-            },
-            "columns": ["close"]
-        }
-        req_tv = urllib.request.Request(
-            url_tv, 
-            data=json.dumps(payload_tv).encode("utf-8"), 
-            headers={"User-Agent": "Mozilla/5.0", "Content-Type": "application/json"},
-            method="POST"
-        )
-        with urllib.request.urlopen(req_tv, timeout=15) as response:
-            data = json.loads(response.read().decode("utf-8"))
-            if data.get("data"):
-                for item in data["data"]:
-                    ticker = item["s"]
-                    close_price = float(item["d"][0])
-                    if "XAUUSD" in ticker: prices["XAUUSD"] = close_price
-                    elif "USOIL" in ticker: prices["USOIL"] = close_price
-                    elif "DXY" in ticker: prices["DXY"] = close_price
-                    elif "US10Y" in ticker: prices["US10Y"] = close_price
-    except Exception as e:
-        print(f"TradingView fetch failed: {e}")
-        
-    # Yahoo Fallbacks
-    try:
-        if prices["XAUUSD"] == 0.0:
-            url = "https://query1.finance.yahoo.com/v8/finance/chart/PAXG-USD?interval=1m&range=1d"
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=10) as r:
-                data = json.loads(r.read().decode())
-                prices["XAUUSD"] = float(data['chart']['result'][0]['meta']['regularMarketPrice'])
-    except Exception as e:
-        print(f"Yahoo fallback failed: {e}")
-    return prices
 
 def scrape_rss(url):
     try:
@@ -84,17 +46,6 @@ def scrape_rss(url):
         print(f"Error RSS: {e}")
         return []
 
-def clean_json_string(raw_str):
-    raw_str = raw_str.strip()
-    # Remove markdown code fences if present
-    if raw_str.startswith("```"):
-        lines = raw_str.splitlines()
-        if lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].strip().startswith("```"):
-            lines = lines[:-1]
-        raw_str = "\n".join(lines).strip()
-    return raw_str
 
 def get_claude_analysis(api_key, news_text, prices):
     url = "https://api.aivene.com/v1/chat/completions"
