@@ -35,3 +35,13 @@ jobs:
         # Navigating to the backend directory and running the optimized scraper
         cd "backend/scripts" || exit 1
         python scrape_news.py
+        
+    - name: Commit and push changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add data/news_feed.json
+        git commit -m "Auto-update AI Macro Analysis (V42)" || echo "No changes to commit"
+        git push origin HEAD:data-feed -f
