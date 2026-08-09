@@ -10,8 +10,8 @@ on:
 
 # Concurrency lock to prevent overlapping runs from queueing up if execution takes over 60s
 concurrency:
-  group: xedy-scraper
-  cancel-in-progress: true
+  group: data-feed-deploy
+  cancel-in-progress: false
 
 permissions:
   contents: write

@@ -6,12 +6,13 @@ on:
   workflow_dispatch: # Allow manual trigger from GitHub UI
 
 concurrency:
-  group: xedy-claude-forecast
-  cancel-in-progress: true
+  group: data-feed-deploy
+  cancel-in-progress: false
 
 jobs:
   run-daily-forecast:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3

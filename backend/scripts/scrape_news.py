@@ -22,7 +22,10 @@ def send_telegram_photo(token, chat_id, photo_path):
     import subprocess
     url = f"https://api.telegram.org/bot{token}/sendPhoto"
     cmd = ["curl", "-s", "-X", "POST", url, "-F", f"chat_id={chat_id}", "-F", f"photo=@{photo_path}"]
-    subprocess.run(cmd)
+    try:
+        subprocess.run(cmd, timeout=30)
+    except subprocess.TimeoutExpired:
+        print("Telegram photo upload timed out.")
 
 def render_report_image(template_data, output_path="data/report.png"):
     try:
@@ -41,6 +44,8 @@ def render_report_image(template_data, output_path="data/report.png"):
             
         hti = Html2Image(output_path=os.path.dirname(output_path), custom_flags=['--no-sandbox', '--disable-gpu'])
         hti.screenshot(html_file=tmp_html, save_as=os.path.basename(output_path), size=(1200, 1100))
+        if os.path.exists(tmp_html):
+            os.remove(tmp_html)
         return True
     except Exception as e:
         print(f"Failed to render image: {e}")

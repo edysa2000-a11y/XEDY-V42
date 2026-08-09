@@ -5,6 +5,8 @@ from tvDatafeed import TvDatafeed, Interval
 import pandas as pd
 import numpy as np
 from datetime import datetime, timezone
+import yfinance as yf
+import time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -46,25 +48,35 @@ def fetch_and_calculate_cvd():
                 trend = "BEARISH"
             
         # Also Fetch DXY and US10Y for the Ticker Bar
-        # Fetch DXY, US10Y, XAUUSD using yfinance for robustness
-        def fetch_asset_yf(ticker):
+        # Batch Fetch DXY, US10Y, XAUUSD using yfinance for robustness with retries
+        tickers = ['GC=F', 'DX-Y.NYB', '^TNX']
+        yf_data = None
+        for attempt in range(3):
             try:
-                import yfinance as yf
-                ticker_obj = yf.Ticker(ticker)
-                hist = ticker_obj.history(period="5d")
-                if hist is not None and not hist.empty and len(hist) >= 2:
-                    current = float(hist['Close'].iloc[-1])
-                    prev = float(hist['Close'].iloc[-2])
-                    change = current - prev
-                    change_pct = (change / prev) * 100
-                    return current, change, change_pct
+                yf_data = yf.download(" ".join(tickers), period="5d", progress=False)
+                if yf_data is not None and not yf_data.empty:
+                    break
             except Exception as e:
-                logger.error(f"yfinance failed for {ticker}: {e}")
+                logger.error(f"yfinance batch fetch failed on attempt {attempt+1}: {e}")
+                time.sleep(2)
+        
+        def extract_yf_data(ticker):
+            try:
+                if yf_data is not None and not yf_data.empty and 'Close' in yf_data:
+                    closes = yf_data['Close'][ticker].dropna()
+                    if len(closes) >= 2:
+                        current = float(closes.iloc[-1])
+                        prev = float(closes.iloc[-2])
+                        change = current - prev
+                        change_pct = (change / prev) * 100
+                        return current, change, change_pct
+            except Exception as e:
+                logger.error(f"Failed to extract yfinance data for {ticker}: {e}")
             return 0.0, 0.0, 0.0
             
-        xau_current, xau_change, xau_pct = fetch_asset_yf('GC=F')
-        dxy_current, dxy_change, dxy_pct = fetch_asset_yf('DX-Y.NYB')
-        us10y_current, us10y_change, us10y_pct = fetch_asset_yf('^TNX')
+        xau_current, xau_change, xau_pct = extract_yf_data('GC=F')
+        dxy_current, dxy_change, dxy_pct = extract_yf_data('DX-Y.NYB')
+        us10y_current, us10y_change, us10y_pct = extract_yf_data('^TNX')
         
         # Calculate Real Yield mockup (US10Y - 2.5% expected inflation roughly)
         real_yield_current = us10y_current - 2.5

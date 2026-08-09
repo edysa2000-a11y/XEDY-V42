@@ -7,6 +7,7 @@ Optimasi Lanjutan: Mempersempit Gap Aktual vs Prediksi menggunakan SMA 3 + Previ
 import os
 import json
 import urllib.request
+import time
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
@@ -195,37 +196,41 @@ def retroactive_forecast_ai(open_price: float, date_str: str, timeframe_label: s
         "response_format": {"type": "json_object"},
     }
 
-    try:
-        data_bytes = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
-        with urllib.request.urlopen(req, timeout=30.0) as r:
-            res_json = json.loads(r.read().decode("utf-8"))
-            content  = res_json["choices"][0]["message"]["content"]
-            pred     = json.loads(clean_json_string(content))
-            
-            p_high = safe_float(pred.get("high"),  open_price * (1 + mult))
-            p_low  = safe_float(pred.get("low"),   open_price * (1 - mult))
-            p_close = safe_float(pred.get("close"), open_price * (1 + mult * 0.2))
-            
-            if p_high < p_low:
-                p_high, p_low = p_low, p_high
-            if p_close > p_high:
-                p_close = p_high
-            if p_close < p_low:
-                p_close = p_low
+    for attempt in range(1, 4):
+        try:
+            data_bytes = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=30.0) as r:
+                res_json = json.loads(r.read().decode("utf-8"))
+                content  = res_json["choices"][0]["message"]["content"]
+                pred     = json.loads(clean_json_string(content))
                 
-            return {
-                "high":  round(p_high, 2),
-                "low":   round(p_low, 2),
-                "close": round(p_close, 2),
-            }
-    except Exception as e:
-        print(f"[WARN] AI forecast failed {date_str} ({timeframe_label}): {e}")
-        return {
-            "high":  round(open_price * (1 + mult), 2),
-            "low":   round(open_price * (1 - mult), 2),
-            "close": round(open_price * (1 + mult * 0.2), 2),
-        }
+                p_high = safe_float(pred.get("high"),  open_price * (1 + mult))
+                p_low  = safe_float(pred.get("low"),   open_price * (1 - mult))
+                p_close = safe_float(pred.get("close"), open_price * (1 + mult * 0.2))
+                
+                if p_high < p_low:
+                    p_high, p_low = p_low, p_high
+                if p_close > p_high:
+                    p_close = p_high
+                if p_close < p_low:
+                    p_close = p_low
+                    
+                return {
+                    "high":  round(p_high, 2),
+                    "low":   round(p_low, 2),
+                    "close": round(p_close, 2),
+                }
+        except Exception as e:
+            print(f"[WARN] AI forecast failed {date_str} ({timeframe_label}) attempt {attempt}: {e}")
+            if attempt < 3:
+                time.sleep(attempt * 3)
+                
+    return {
+        "high":  round(open_price * (1 + mult), 2),
+        "low":   round(open_price * (1 - mult), 2),
+        "close": round(open_price * (1 + mult * 0.2), 2),
+    }
 
 
 def calc_metrics(records: list) -> dict:

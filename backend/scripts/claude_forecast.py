@@ -4,6 +4,7 @@ import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
+import time
 import email.utils
 from dotenv import load_dotenv
 
@@ -165,17 +166,20 @@ def get_claude_analysis(api_key, news_text, prices):
         "response_format": {"type": "json_object"}
     }
     
-    try:
-        data_bytes = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
-        with urllib.request.urlopen(req, timeout=45.0) as r:
-            res_json = json.loads(r.read().decode("utf-8"))
-            content = res_json['choices'][0]['message']['content'].strip()
-            cleaned_content = clean_json_string(content)
-            return json.loads(cleaned_content)
-    except Exception as e:
-        print(f"Claude API failed: {e}")
-        return {}
+    for attempt in range(1, 4):
+        try:
+            data_bytes = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=45.0) as r:
+                res_json = json.loads(r.read().decode("utf-8"))
+                content = res_json['choices'][0]['message']['content'].strip()
+                cleaned_content = clean_json_string(content)
+                return json.loads(cleaned_content)
+        except Exception as e:
+            print(f"Claude API failed on attempt {attempt}: {e}")
+            if attempt < 3:
+                time.sleep(attempt * 3)
+    return {}
 
 def main():
     api_key = os.getenv("AIVENE_API_KEY", "")
