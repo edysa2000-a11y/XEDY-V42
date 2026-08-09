@@ -14,6 +14,8 @@ class ExecutionEngine(BaseEngine):
     def __init__(self, config=None):
         super().__init__(config)
         self.notifier = None
+        import asyncio
+        self._trade_lock = asyncio.Lock()
         self._active_tickets = set()
         self._monitor_task = None
 
@@ -26,6 +28,15 @@ class ExecutionEngine(BaseEngine):
         if self._monitor_task:
             self._monitor_task.cancel()
         self.logger.info("Execution Engine offline.")
+
+
+    async def _safe_order_send(self, request):
+        import MetaTrader5 as mt5
+        import asyncio
+        async with self._trade_lock:
+            # Slight delay to ensure MT5 has time to process if multiple arrive at exact same ms
+            await asyncio.sleep(0.1) 
+            return await self._safe_order_send(request)
 
     async def execute_order(self, symbol: str, action: str, volume: float) -> dict:
         """
@@ -81,7 +92,7 @@ class ExecutionEngine(BaseEngine):
                         "action": mt5.TRADE_ACTION_REMOVE,
                         "order": o.ticket
                     }
-                    mt5.order_send(cancel_req)
+                    await self._safe_order_send(cancel_req)
                     self.logger.info(f"Cancelled stale pending order #{o.ticket}")
         except Exception as e:
             self.logger.error(f"Failed to cancel pending orders: {e}")
@@ -137,7 +148,7 @@ class ExecutionEngine(BaseEngine):
         # Real MT5 Order Execution with Dry-Run fallback
         terminal_info = mt5.terminal_info()
         if terminal_info is not None:
-            result = mt5.order_send(request)
+            result = await self._safe_order_send(request)
             if result is not None and result.retcode == mt5.TRADE_RETCODE_DONE:
                 self.logger.info(f"Market order executed successfully via MT5! Ticket: {result.order}")
                 if hasattr(self, "notifier") and self.notifier:
@@ -208,7 +219,7 @@ class ExecutionEngine(BaseEngine):
             "type_filling": filling_mode,
         }
         
-        result = mt5.order_send(request)
+        result = await self._safe_order_send(request)
         if result is not None and result.retcode == mt5.TRADE_RETCODE_DONE:
             self.logger.info(f"Position #{ticket} closed successfully!")
             return {"status": "success", "ticket": ticket}
@@ -356,7 +367,7 @@ class ExecutionEngine(BaseEngine):
 
         terminal_info = mt5.terminal_info()
         if terminal_info is not None:
-            result = mt5.order_send(request)
+            result = await self._safe_order_send(request)
             if result is not None and result.retcode == mt5.TRADE_RETCODE_DONE:
                 self.logger.info(f"LIMIT order placed successfully via MT5! Order Ticket: {result.order}")
                 return {"status": "success", "ticket": str(result.order)}

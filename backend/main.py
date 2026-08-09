@@ -151,12 +151,22 @@ async def lifespan(app: FastAPI):
     os.environ["RISK_PERCENT"] = f"{init_risk_percent:.1f}"
     os.environ["ACTIVE_METHOD"] = init_active_method
     
-    app.state.risk_engine = RiskEngine(execution_engine=app.state.execution_engine)
-    app.state.risk_engine.autotrade_enabled = init_autotrade
-    app.state.risk_engine.config["lot_size"] = init_lot
-    app.state.risk_engine.max_positions = init_max_positions
-    app.state.risk_engine.hedging_enabled = init_hedging
-    app.state.risk_engine.active_method = init_active_method
+    # Create multiple RiskEngines for Multi-Asset Trading
+    app.state.risk_engines = []
+    target_assets = ["XAUUSD", "EURUSD", "GBPUSD", "USDJPY", "USOIL"]
+    
+    for symbol in target_assets:
+        re_instance = RiskEngine(execution_engine=app.state.execution_engine)
+        re_instance.symbol = symbol
+        re_instance.autotrade_enabled = init_autotrade
+        re_instance.config["lot_size"] = init_lot
+        re_instance.max_positions = init_max_positions
+        re_instance.hedging_enabled = init_hedging
+        re_instance.active_method = init_active_method
+        app.state.risk_engines.append(re_instance)
+        
+    # Alias the primary one (XAUUSD) for the UI and legacy endpoints
+    app.state.risk_engine = app.state.risk_engines[0]
     
     app.state.decision_engine = DecisionEngine(risk_engine=app.state.risk_engine)
     app.state.decision_engine.confidence_threshold = init_confidence
@@ -189,9 +199,15 @@ async def lifespan(app: FastAPI):
     if hasattr(app.state.telegram_bot, "notifier") and app.state.telegram_bot.notifier:
         app.state.news_engine.notifier = app.state.telegram_bot.notifier
         app.state.execution_engine.notifier = app.state.telegram_bot.notifier
-    app.state.risk_engine.news_engine = app.state.news_engine
     await app.state.execution_engine.start()
-    await app.state.risk_engine.start()
+    if hasattr(app.state, "risk_engines"):
+        for re in app.state.risk_engines:
+            re.news_engine = app.state.news_engine
+            re.macro_strategist = app.state.macro_strategist
+            await re.start()
+    else:
+        app.state.risk_engine.news_engine = app.state.news_engine
+        await app.state.risk_engine.start()
     await app.state.decision_engine.start()
     await app.state.ml_engine.start()
     await app.state.feature_store.start()
@@ -1278,12 +1294,13 @@ async def websocket_endpoint(websocket: WebSocket):
                         # Persist settings to .env file
                         save_settings_to_env(autotrade, lot_size, confidence, sniper_score, sniper_lot, max_positions, hedging_enabled, auto_lot, risk_percent, active_method)
                         
-                        if hasattr(app.state, "risk_engine"):
-                            app.state.risk_engine.autotrade_enabled = autotrade
-                            app.state.risk_engine.config["lot_size"] = lot_size
-                            app.state.risk_engine.max_positions = max_positions
-                            app.state.risk_engine.hedging_enabled = hedging_enabled
-                            app.state.risk_engine.active_method = active_method
+                        if hasattr(app.state, "risk_engines"):
+                            for re in app.state.risk_engines:
+                                re.autotrade_enabled = autotrade
+                                re.config["lot_size"] = lot_size
+                                re.max_positions = max_positions
+                                re.hedging_enabled = hedging_enabled
+                                re.active_method = active_method
                         if hasattr(app.state, "decision_engine"):
                             app.state.decision_engine.confidence_threshold = confidence
                         logger.info(f"Settings updated via UI: autotrade={autotrade}, lot_size={lot_size}, confidence={confidence}, max_positions={max_positions}, hedging={hedging_enabled}, auto_lot={auto_lot}, risk_percent={risk_percent}, active_method={active_method}")

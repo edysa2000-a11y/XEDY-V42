@@ -7,10 +7,14 @@ from datetime import datetime, timedelta, timezone
 import time
 import email.utils
 from dotenv import load_dotenv
+from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 
 # Load local environment variables from .env file
 load_dotenv()
 
+# --- V38.5 RISK SETTINGS ---
+ACTIVE_RISK_PROFILE = 'MODERATE' # CONSERVATIVE, NORMAL, MODERATE, EXTREME
 
 def send_telegram_photo(token, chat_id, photo_path):
     if not token or not chat_id:
@@ -86,7 +90,7 @@ def get_live_multi_asset_prices():
         url_tv = "https://scanner.tradingview.com/cfd/scan"
         payload_tv = {
             "symbols": {
-                "tickers": ["FX_IDC:XAUUSD", "TVC:USOIL", "TVC:DXY", "TVC:US10Y", "SP:SPX", "TVC:DJI", "XETR:DAX", "TVC:NI225"],
+                "tickers": ["FX_IDC:XAUUSD", "FX:EURUSD", "FX:GBPUSD", "FX:USDJPY", "TVC:USOIL", "TVC:DXY", "TVC:US10Y"],
                 "query": { "types": [] }
             },
             "columns": ["close", "change", "Recommend.All|1", "Recommend.All|5", "Recommend.All|15", "Recommend.All|30", "Recommend.All|60", "Recommend.All|240", "Recommend.All"]
@@ -105,26 +109,24 @@ def get_live_multi_asset_prices():
                     close_price = float(item["d"][0])
                     change = float(item["d"][1]) if len(item["d"]) > 1 else 0.0
                     
-                    if "XAUUSD" in ticker:
-                        prices["XAUUSD"] = close_price
-                        prices["XAUUSD_CHANGE"] = change
-                        if len(item["d"]) > 8:
-                            prices["XAUUSD_MTF"] = {
-                                "M1": float(item["d"][2]),
-                                "M5": float(item["d"][3]),
-                                "M15": float(item["d"][4]),
-                                "M30": float(item["d"][5]),
-                                "H1": float(item["d"][6]),
-                                "H4": float(item["d"][7]),
-                                "D1": float(item["d"][8])
-                            }
-                    elif "USOIL" in ticker: prices["USOIL"] = close_price
-                    elif "DXY" in ticker: prices["DXY"] = close_price
+
+                    target_assets = ["XAUUSD", "EURUSD", "GBPUSD", "USDJPY", "USOIL"]
+                    for ta in target_assets:
+                        if ta in ticker:
+                            prices[ta] = close_price
+                            prices[ta+"_CHANGE"] = change
+                            if len(item["d"]) > 8:
+                                prices[ta+"_MTF"] = {
+                                    "M1": float(item["d"][2]),
+                                    "M5": float(item["d"][3]),
+                                    "M15": float(item["d"][4]),
+                                    "M30": float(item["d"][5]),
+                                    "H1": float(item["d"][6]),
+                                    "H4": float(item["d"][7]),
+                                    "D1": float(item["d"][8])
+                                }
+                    if "DXY" in ticker: prices["DXY"] = close_price
                     elif "US10Y" in ticker: prices["US10Y"] = close_price
-                    elif "SPX" in ticker: prices["SPX"] = close_price
-                    elif "DJI" in ticker: prices["DJI"] = close_price
-                    elif "DAX" in ticker: prices["DAX"] = close_price
-                    elif "NI225" in ticker: prices["NI225"] = close_price
                 print(f"Fetched live multi-asset prices from TradingView: {prices}")
                 if prices["XAUUSD"] > 0:
                     return prices
@@ -276,6 +278,66 @@ def cosine_similarity(v1, v2):
         return 0.0
     return float(dot_product / (norm_v1 * norm_v2))
 
+
+def get_forex_factory_calendar_rag(api_key, target_vector):
+    try:
+        req = urllib.request.Request("https://nfs.faireconomy.media/ff_calendar_thisweek.xml", headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10.0) as r:
+            xml_data = r.read()
+        root = ET.fromstring(xml_data)
+        
+        events = []
+        for event in root.findall('event'):
+            country = event.find('country').text
+            impact = event.find('impact').text
+            if country == "USD" and impact in ["High", "Medium"]:
+                title = event.find('title').text
+                date_str = event.find('date').text
+                time_str = event.find('time').text
+                forecast = event.find('forecast').text or ""
+                
+                text_to_embed = f"US Economic Event: {title} on {date_str} {time_str}. Forecast: {forecast}. Impact: {impact}."
+                vector = get_qwen_embedding(api_key, text_to_embed)
+                sim = cosine_similarity(target_vector, vector) if vector else 0.0
+                
+                events.append({
+                    "title": title,
+                    "impact": impact,
+                    "time": f"{date_str} {time_str}",
+                    "sim": sim
+                })
+                
+        events.sort(key=lambda x: x['sim'], reverse=True)
+        return events[:3]
+    except Exception as e:
+        print(f"Failed to fetch FF calendar RAG: {e}")
+        return []
+
+def get_trade_history_rag(api_key, current_market_vector):
+    try:
+        acc_path = "data/forecast_accuracy_stats.json"
+        if not os.path.exists(acc_path): return []
+        
+        with open(acc_path, "r") as f:
+            acc_data = json.load(f)
+            
+        history = acc_data.get("history", [])
+        if not history: return []
+        
+        rag_history = []
+        for h in history:
+            text = f"Past trade pattern: Start {h.get('start')}, Target {h.get('target')}, Actual Close {h.get('actual_close')}, Status {h.get('status')}."
+            vector = get_qwen_embedding(api_key, text)
+            sim = cosine_similarity(current_market_vector, vector) if vector else 0.0
+            h['sim'] = sim
+            rag_history.append(h)
+            
+        rag_history.sort(key=lambda x: x['sim'], reverse=True)
+        return rag_history[:3]
+    except Exception as e:
+        print(f"Failed RAG history: {e}")
+        return []
+
 def clean_json_string(raw_str):
     raw_str = raw_str.strip()
     # Remove markdown code fences if present
@@ -288,7 +350,7 @@ def clean_json_string(raw_str):
         raw_str = "\n".join(lines).strip()
     return raw_str
 
-def get_qwen_analysis(api_key, news_text, prices):
+def get_qwen_analysis(api_key, news_text, prices, target_asset):
     if not api_key:
         return {"bias": "ANY", "regime": "NORMAL", "optimal_confidence_threshold": 0.68, "optimal_max_op": 4, "reasoning": "No API Key"}
         
@@ -315,25 +377,27 @@ def get_qwen_analysis(api_key, news_text, prices):
         except Exception as e:
             print(f"Failed to load keyword memory in scraper: {e}")
             
-    # Load forecast accuracy memory for reinforcement learning
+    # FULL RAG IMPLEMENTATION FOR HISTORY & CALENDAR
+    market_state_text = f"XAUUSD at {prices.get('XAUUSD', 0.0)}, DXY at {prices.get('DXY', 0.0)}. Market is evaluating current structural trends."
+    current_market_vector = get_qwen_embedding(api_key, market_state_text)
+    
     accuracy_summary = ""
-    accuracy_path = "data/forecast_accuracy_stats.json"
-    if os.path.exists(accuracy_path):
-        try:
-            with open(accuracy_path, "r") as af:
-                acc_data = json.load(af)
-                accuracy_summary = (
-                    f"\n[CRITICAL GOAL: TARGET >90% ACCURACY]\n"
-                    f"Your current forecast accuracy statistics:\n"
-                    f"- Average Accuracy: {acc_data.get('avg_accuracy', 0.0)*100:.1f}%\n"
-                    f"- Total Predictions Analyzed: {acc_data.get('total_predictions', 0)}\n"
-                    f"- Successful Targets Hit: {acc_data.get('successful_hits', 0)}\n"
-                    f"Past predictions feedback list (learn from your pricing/duration mistakes):\n"
-                )
-                for item in acc_data.get("history", [])[-5:]:
-                    accuracy_summary += f"  • Start: ${item.get('start', 0.0):.2f}, Target: ${item.get('target', 0.0):.2f}, Actual: ${item.get('actual_close', 0.0):.2f}, Error: {item.get('error_pct', 0.0)*100:.1f}%, Status: {item.get('status', 'Unknown')}\n"
-        except Exception as e:
-            print(f"Failed to load forecast accuracy: {e}")
+    if current_market_vector:
+        # 1. Trade History RAG
+        rag_trades = get_trade_history_rag(api_key, current_market_vector)
+        if rag_trades:
+            accuracy_summary = "\n[RAG: TOP 3 MOST CORRELATED HISTORICAL TRADES]\n"
+            for t in rag_trades:
+                accuracy_summary += f"  • [Sim: {t.get('sim', 0.0)*100:.1f}%] Start: ${t.get('start', 0.0):.2f}, Target: ${t.get('target', 0.0):.2f}, Actual: ${t.get('actual_close', 0.0):.2f}, Status: {t.get('status', 'Unknown')}\n"
+        
+        # 2. Economic Calendar RAG
+        rag_events = get_forex_factory_calendar_rag(api_key, current_market_vector)
+        calendar_rag_text = ""
+        if rag_events:
+            calendar_rag_text = "\n[RAG: UPCOMING ECONOMIC EVENTS CORRELATED TO TREND]\n"
+            for ev in rag_events:
+                calendar_rag_text += f"  • {ev['title']} ({ev['impact']}) on {ev['time']} - Correlation: {ev['sim']*100:.1f}%\n"
+            accuracy_summary += calendar_rag_text
 
     # Build multi-asset live pricing string
     gold_price = prices.get("XAUUSD", 0.0)
@@ -350,8 +414,8 @@ def get_qwen_analysis(api_key, news_text, prices):
     )
 
     system_prompt = """You are the Chief Strategist AI (Qwen AI) for the XEDY algorithmic trading platform.
-Analyze the news headlines, identify any recent US economic calendar data releases (like GDP, PCE, CPI, NFP) mentioned, study the cross-market prices (Gold vs DXY, Yields, Oil, and Global Stock Indices like SPX, DJI, DAX, Nikkei), and decide the macro trading bias.
-Write your explanation (ai_narrative_id) in strictly formal Indonesian (EYD/KBBI) like a top-tier Global Professional Economist, using advanced terminology and deep causal logic. Ensure perfect spelling (e.g., use 'korelasi', 'fundamental'). Keep the narrative concise, impactful, and structured (maximum 4 sentences).
+Analyze the news headlines, identify any recent US economic calendar data releases, study the cross-market prices, and decide the macro trading bias specifically for the asset: {target_asset}.
+Write your explanation (ai_narrative_id) in strictly formal Indonesian (EYD/KBBI) like a top-tier Global Professional Economist, using advanced terminology and deep causal logic regarding how the news impacts {target_asset}. Ensure perfect spelling (e.g., use 'korelasi', 'fundamental'). Keep the narrative concise, impactful, and structured (maximum 4 sentences).
 You MUST respond ONLY with a valid JSON object matching this structure, without markdown code fences:
 {
   "ai_narrative_id": "Detailed explanation in INDONESIAN like a Professional Economist",
@@ -403,6 +467,7 @@ You MUST respond ONLY with a valid JSON object matching this structure, without 
   "edge_momentum": float (e.g. 0.71),
   "reasoning": "Brief explanation in English"
 }"""
+    system_prompt = system_prompt.replace('{target_asset}', target_asset)
     payload = {
         "model": "qwen3.7-flash",
         "messages": [
@@ -422,7 +487,9 @@ You MUST respond ONLY with a valid JSON object matching this structure, without 
                 res_json = json.loads(r.read().decode("utf-8"))
                 content = res_json['choices'][0]['message']['content'].strip()
                 cleaned_content = clean_json_string(content)
-                return json.loads(cleaned_content)
+                result_json = json.loads(cleaned_content)
+                result_json['calendar_rag_display'] = calendar_rag_text if 'calendar_rag_text' in locals() else "No calendar RAG data available."
+                return result_json
         except Exception as e:
             print(f"Attempt {attempt} failed: {e}")
             if attempt < 3:
@@ -467,34 +534,25 @@ def main():
     twenty_four_hours_ago = local_now - timedelta(hours=24)
     weighted_articles = []
     
-    for art in articles:
+    def process_article(art):
         try:
             art_dt = datetime.strptime(art["pubDate"], "%Y-%m-%d %H:%M:%S")
             if art_dt >= forty_eight_hours_ago:
                 age_hours = int((local_now - art_dt).total_seconds() / 3600)
-                
                 title_upper = art["title"].upper()
                 is_presidential = "TRUMP" in title_upper or "PRESIDENT" in title_upper
                 
-                # Fetch headline vector and check semantic alignment
-                sim_score = 0.50 # default fallback
+                sim_score = 0.50
                 if target_vector:
                     art_vector = get_qwen_embedding(api_key, art["title"])
                     if art_vector:
                         sim_score = cosine_similarity(target_vector, art_vector)
-                        
-                        # Boost presidential speech relevance semantically
                         if is_presidential:
                             sim_score = min(1.0, sim_score + 0.15)
-                        
-                        print(f"Headline: '{art['title'][:45]}...' | Semantic Similarity: {sim_score:.4f}")
                 
-                # Ignore articles below 0.35 similarity (noise filter), unless it's presidential comments
                 if target_vector and sim_score < 0.35 and not is_presidential:
-                    print(f"Skipping unrelated headline (noise): '{art['title'][:40]}...' (Similarity: {sim_score:.4f})")
-                    continue
-
-                # Set custom high priority weights for presidential speeches containing critical market topics
+                    return None
+                    
                 critical_topics = ["WAR", "GEOPOLITICS", "CONFLICT", "TARIFF", "GOLD", "XAUUSD", "CHINA", "TRADE"]
                 if is_presidential and any(topic in title_upper for topic in critical_topics):
                     weight = "150% (CRITICAL / HIGH PRIORITY)"
@@ -510,14 +568,21 @@ def main():
                 art["weight_label"] = weight_label
                 art["age_hours"] = age_hours
                 art["similarity"] = sim_score
-                weighted_articles.append(art)
+                return art
         except Exception as e:
-            # Fallback if parse fails
-            art["weight"] = "100% (FRESH)"
-            art["weight_label"] = "BARU/KUAT"
-            art["age_hours"] = 0
-            art["similarity"] = 0.5
-            weighted_articles.append(art)
+            print(f"Error processing article '{art.get('title', 'Unknown')}': {e}")
+        return None
+
+    # Use ThreadPoolExecutor to fetch embeddings for all articles concurrently
+    print(f"Starting multi-threaded embedding extraction for {len(articles)} articles (Max workers: 25)...")
+    with ThreadPoolExecutor(max_workers=25) as executor:
+        results = executor.map(process_article, articles)
+        
+    for res in results:
+        if res:
+            weighted_articles.append(res)
+            
+    print(f"Finished processing. {len(weighted_articles)} articles passed the semantic filter.")
             
     # Fallback to general list if no news in last 48h
     if not weighted_articles:
@@ -548,10 +613,24 @@ def main():
         news_text += f"- {headline_en} ({pub_t}) [Age: {age}h, Weight: {weight}]\n"
         tg_news_list.append(f"{idx+1}. <a href=\"{escaped_link}\">{headline_id}</a>\n   Rilis: {pub_t} WIB ({art.get('weight_label')})")
         
-    # 3. Analyze with Qwen AI in the Cloud
-    print("Calling Qwen AI for Macro Analysis...")
-    analysis = get_qwen_analysis(api_key, news_text, prices)
-    print(f"Qwen Initial Bias Result: {analysis.get('bias')}")
+    # 3. Analyze with Qwen AI in the Cloud for 5 Assets Concurrently
+    print("Calling Qwen AI for Macro Analysis on 5 Assets...")
+    target_assets = ["XAUUSD", "EURUSD", "GBPUSD", "USDJPY", "USOIL"]
+    results_dict = {}
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_asset = {executor.submit(get_qwen_analysis, api_key, news_text, prices, ta): ta for ta in target_assets}
+        for future in concurrent.futures.as_completed(future_to_asset):
+            ta = future_to_asset[future]
+            try:
+                results_dict[ta] = future.result()
+            except Exception as exc:
+                print(f"{ta} analysis generated an exception: {exc}")
+                results_dict[ta] = {"bias": "WAIT"}
+
+    # Assign XAUUSD analysis to 'analysis' variable so the old reflection loop doesn't crash
+    analysis = results_dict.get("XAUUSD", {"bias": "WAIT"})
+    print(f"Qwen Initial Bias Result for Gold: {analysis.get('bias')}")
     
     # 3.5. AGENTIC REFLECTION LOOP (Validate AI vs Real Market Price)
     xau_change = prices.get("XAUUSD_CHANGE", 0.0)
@@ -611,11 +690,13 @@ def main():
     news_feed_data = {
         "generated_at": local_now.strftime("%Y-%m-%d %H:%M:%S WIB"),
         "news": weighted_articles,
-        "macro_analysis": analysis
+        "macro_analysis": results_dict
     }
     
-    with open(news_feed_path, "w") as f:
+    tmp_feed_path = news_feed_path + ".tmp"
+    with open(tmp_feed_path, "w") as f:
         json.dump(news_feed_data, f, indent=2)
+    os.replace(tmp_feed_path, news_feed_path)
         
     # Append to Qwen Decisions Log for self-learning
     log_entry = {
@@ -814,8 +895,59 @@ NET CAUSE
     t_driver = analysis.get("tertiary_driver", "N/A")
     prob_side = analysis.get("next_regime_sideway_prob", 24)
     prob_rev = analysis.get("next_regime_bear_prob", 8)
+    calendar_rag_display = analysis.get("calendar_rag_display", "No calendar RAG data available.")
 
+
+    raw_conf_val = int(raw_conf * 100)
+    # V38.5 SMART TRADE GATE & RISK MATRIX
+    risk_profiles = {
+        "CONSERVATIVE": {"veto_conf": 80, "veto_side": 25, "risk_tiers": [0.5, 1.0, 1.5]},
+        "NORMAL": {"veto_conf": 72, "veto_side": 30, "risk_tiers": [1.0, 1.5, 2.0]},
+        "MODERATE": {"veto_conf": 65, "veto_side": 40, "risk_tiers": [1.5, 2.0, 2.5]},
+        "EXTREME": {"veto_conf": 55, "veto_side": 55, "risk_tiers": [2.0, 2.5, 3.0]}
+    }
+    
+    active_profile = risk_profiles.get(ACTIVE_RISK_PROFILE, risk_profiles["MODERATE"])
+    
+    # 1. Check Veto
+    is_vetoed = False
+    veto_reason = ""
+    if raw_conf_val < active_profile["veto_conf"]:
+        is_vetoed = True
+        veto_reason = f"Confidence {raw_conf_val}% < {active_profile['veto_conf']}%"
+    elif prob_side > active_profile["veto_side"]:
+        is_vetoed = True
+        veto_reason = f"Sideway Prob {prob_side}% > {active_profile['veto_side']}%"
+        
     bias_clean = str(analysis.get('bias')).split('_')[0]
+    
+    if is_vetoed:
+        bias_clean = "WAITING"
+        gate_status = f"🔴 BLOCKED: {veto_reason}"
+    else:
+        gate_status = "🟢 ALLOWED"
+        
+    # 2. Calculate Confidence-based Risk Sizing
+    tiers = active_profile["risk_tiers"]
+    if ACTIVE_RISK_PROFILE == "CONSERVATIVE":
+        if raw_conf_val >= 90: suggested_risk = tiers[2]
+        elif raw_conf_val >= 85: suggested_risk = tiers[1]
+        else: suggested_risk = tiers[0]
+    elif ACTIVE_RISK_PROFILE == "NORMAL":
+        if raw_conf_val >= 90: suggested_risk = tiers[2]
+        elif raw_conf_val >= 80: suggested_risk = tiers[1]
+        else: suggested_risk = tiers[0]
+    elif ACTIVE_RISK_PROFILE == "MODERATE":
+        if raw_conf_val >= 90: suggested_risk = tiers[2]
+        elif raw_conf_val >= 75: suggested_risk = tiers[1]
+        else: suggested_risk = tiers[0]
+    else: # EXTREME
+        if raw_conf_val >= 85: suggested_risk = tiers[2]
+        elif raw_conf_val >= 65: suggested_risk = tiers[1]
+        else: suggested_risk = tiers[0]
+        
+    suggested_risk_str = f"{suggested_risk:.1f}%"
+
 
     # Dynamic arrows logic
     # 🟢 = Bullish for GOLD. For DXY/Yields, it means they go DOWN (↓).
@@ -1027,7 +1159,57 @@ PRIMARY HORIZON
 </pre>"""
 
     # Final Execution Block (Part 4)
+
+    raw_conf_val = int(raw_conf * 100)
+    # V38.5 SMART TRADE GATE & RISK MATRIX
+    risk_profiles = {
+        "CONSERVATIVE": {"veto_conf": 80, "veto_side": 25, "risk_tiers": [0.5, 1.0, 1.5]},
+        "NORMAL": {"veto_conf": 72, "veto_side": 30, "risk_tiers": [1.0, 1.5, 2.0]},
+        "MODERATE": {"veto_conf": 65, "veto_side": 40, "risk_tiers": [1.5, 2.0, 2.5]},
+        "EXTREME": {"veto_conf": 55, "veto_side": 55, "risk_tiers": [2.0, 2.5, 3.0]}
+    }
+    
+    active_profile = risk_profiles.get(ACTIVE_RISK_PROFILE, risk_profiles["MODERATE"])
+    
+    # 1. Check Veto
+    is_vetoed = False
+    veto_reason = ""
+    if raw_conf_val < active_profile["veto_conf"]:
+        is_vetoed = True
+        veto_reason = f"Confidence {raw_conf_val}% < {active_profile['veto_conf']}%"
+    elif prob_side > active_profile["veto_side"]:
+        is_vetoed = True
+        veto_reason = f"Sideway Prob {prob_side}% > {active_profile['veto_side']}%"
+        
     bias_clean = str(analysis.get('bias')).split('_')[0]
+    
+    if is_vetoed:
+        bias_clean = "WAITING"
+        gate_status = f"🔴 BLOCKED: {veto_reason}"
+    else:
+        gate_status = "🟢 ALLOWED"
+        
+    # 2. Calculate Confidence-based Risk Sizing
+    tiers = active_profile["risk_tiers"]
+    if ACTIVE_RISK_PROFILE == "CONSERVATIVE":
+        if raw_conf_val >= 90: suggested_risk = tiers[2]
+        elif raw_conf_val >= 85: suggested_risk = tiers[1]
+        else: suggested_risk = tiers[0]
+    elif ACTIVE_RISK_PROFILE == "NORMAL":
+        if raw_conf_val >= 90: suggested_risk = tiers[2]
+        elif raw_conf_val >= 80: suggested_risk = tiers[1]
+        else: suggested_risk = tiers[0]
+    elif ACTIVE_RISK_PROFILE == "MODERATE":
+        if raw_conf_val >= 90: suggested_risk = tiers[2]
+        elif raw_conf_val >= 75: suggested_risk = tiers[1]
+        else: suggested_risk = tiers[0]
+    else: # EXTREME
+        if raw_conf_val >= 85: suggested_risk = tiers[2]
+        elif raw_conf_val >= 65: suggested_risk = tiers[1]
+        else: suggested_risk = tiers[0]
+        
+    suggested_risk_str = f"{suggested_risk:.1f}%"
+
     is_neutral = bias_clean not in ["BUY", "SELL"]
     if is_neutral:
         entry_str = "WAITING"
@@ -1081,7 +1263,9 @@ Confidence            84%   🟢
 Statistical Edge      +0.82 🟢
 
 TRADE GATE
-🟢 ALLOWED
+{gate_status}
+RISK PROFILE ({ACTIVE_RISK_PROFILE})
+Suggested Risk: {suggested_risk_str} per trade
 
 ╔══════════════════════════════════════════════╗
 ║             🎯 FINAL AI DECISION             ║
@@ -1105,7 +1289,7 @@ TRADE GATE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {inv_c}
 
-🤖 XEDY V37.0
+🤖 XEDY V38.5
 PREDICT → COMPARE → ATTRIBUTE → LEARN
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</pre>"""
     if has_changed:

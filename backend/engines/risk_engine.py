@@ -13,6 +13,10 @@ class RiskEngine(BaseEngine):
         return "RiskEngine"
 
     def __init__(self, config=None, execution_engine=None):
+        import os
+        self.symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+        if config and "symbol" in config:
+            self.symbol = config["symbol"]
         super().__init__(config)
         self.execution_engine = execution_engine
         self.news_engine = None
@@ -125,7 +129,7 @@ class RiskEngine(BaseEngine):
         # --- Safety Limits & News Blackout ---
         
         import MetaTrader5 as mt5
-        symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+        symbol = self.symbol
         
         if mt5.initialize():
             positions = mt5.positions_get(symbol=symbol)
@@ -422,10 +426,17 @@ class RiskEngine(BaseEngine):
     async def _trailing_stop_loop(self):
         """
         Background trailing stop loop running every 5 seconds.
-        Performs:
-        1. Basket Take Profit Closeout (Hedge Recovery).
-        2. Consolidated Basket SL/TP Synchronization (Disaster SL on MT5, Logical SL tracked in memory).
+        Handles:
+        1. Universal emergency drawdown exit (Basket exit).
+        2. Daily profit/loss capping.
         3. Trailing Stop / Breakeven Lock on individual standalone positions.
+        """
+        import json
+        import os
+        
+        self._highest_pips = getattr(self, "_highest_pips", {})
+        news_feed_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "news_feed.json")
+        """
         4. Dynamic Hedge Locking (Hedge-Lock trigger at logical SL).
         5. AI Review Loop (Analyzes macroeconomic bias after 15 minutes to resolve the hedge).
         """
@@ -438,7 +449,7 @@ class RiskEngine(BaseEngine):
         while True:
             try:
                 if mt5.initialize():
-                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    symbol = self.symbol
                     positions = mt5.positions_get(symbol=symbol)
                     
                     # 5. AI Review Loop (15 minutes after hedge lock)
@@ -637,13 +648,53 @@ class RiskEngine(BaseEngine):
                                     self._highest_profits[ticket] = usd_profit
                                      
                                 peak_prof = self._highest_profits[ticket]
+                                # Read latest AI Confidence and Macro Impact from news_feed
+                                latest_confidence = 0.75
+                                news_impact = "LOW"
+                                fed_shock = 0
+                                if os.path.exists(news_feed_path):
+                                    try:
+                                        with open(news_feed_path, "r", encoding="utf-8") as f:
+                                            feed_data = json.load(f)
+                                            macro_data = feed_data.get("macro_analysis", {})
+                                            latest_confidence = float(macro_data.get("causal_confidence", 0.75))
+                                            news_impact = str(macro_data.get("news_event_impact", "LOW")).upper()
+                                            fed_shock = int(macro_data.get("fed_shock_level", 0))
+                                    except:
+                                        pass
+                                
+                                # Track peak pips (price movement in nominal terms) for dynamic pip-based trailing
+                                if ticket not in self._highest_pips:
+                                    self._highest_pips[ticket] = 0.0
+                                if pips > self._highest_pips[ticket]:
+                                    self._highest_pips[ticket] = pips
+                                     
+                                peak_pips = self._highest_pips[ticket]
                                 should_exit = False
                                 exit_reason = ""
                                  
-                                # 1. Trailing Stop Lock-in ($60 trigger, exit at 50% retracement)
-                                if peak_prof >= 60.0 and usd_profit < (peak_prof * 0.5):
+                                # Confidence-Based Dynamic Trailing Stop Tiers
+                                if latest_confidence >= 0.85 and (news_impact == "HIGH" or fed_shock >= 4):
+                                    ts_activation = 10.00 # +$10.00 Gold movement (100 pips)
+                                    ts_distance = 7.00    # Trail by 70 pips (Kebal guncangan NFP)
+                                    tier_str = "Tier 4 (Macro Badai/NFP)"
+                                elif latest_confidence < 0.75:
+                                    ts_activation = 1.50 # +$1.50 Gold movement (15 pips)
+                                    ts_distance = 1.00   # Trail by 10 pips
+                                    tier_str = "Tier 1 (Ragu)"
+                                elif latest_confidence < 0.85:
+                                    ts_activation = 2.50 # +$2.50 Gold movement (25 pips)
+                                    ts_distance = 1.50   # Trail by 15 pips
+                                    tier_str = "Tier 2 (Normal)"
+                                else:
+                                    ts_activation = 4.00 # +$4.00 Gold movement (40 pips)
+                                    ts_distance = 2.50   # Trail by 25 pips
+                                    tier_str = "Tier 3 (Yakin Penuh)"
+                                
+                                # 1. Dynamic Confidence-Based Trailing Stop Lock-in
+                                if peak_pips >= ts_activation and pips < (peak_pips - ts_distance):
                                     should_exit = True
-                                    exit_reason = f"Trailing Lock-in (Peak: ${peak_prof:.2f}, Current: ${usd_profit:.2f})"
+                                    exit_reason = f"Dynamic Trailing Stop [{tier_str} - Conf: {latest_confidence*100:.0f}%] (Peak: +{peak_pips:.2f} Pips, Current: +{pips:.2f} Pips)"
                                 # 2. Dynamic Break-Even ($30 trigger, exit at $0.00 or reversal)
                                 elif peak_prof >= 30.0 and usd_profit <= 0.0:
                                     should_exit = True
@@ -653,6 +704,7 @@ class RiskEngine(BaseEngine):
                                     self.logger.info(f"AI Exit Triggered for Position #{ticket}: {exit_reason}. Closing position!")
                                     await self.execution_engine.close_position(ticket)
                                     self._highest_profits.pop(ticket, None)
+                                    self._highest_pips.pop(ticket, None)
                                      
                                     # Send Telegram Notification
                                     if hasattr(self.execution_engine, "notifier") and self.execution_engine.notifier:
@@ -695,7 +747,7 @@ class RiskEngine(BaseEngine):
             try:
                 active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
                 if active_method in ["intra-candle-scalper", "intra-candle-scalper-m15", "intra-candle-scalper-m5", "intra-candle-scalper-h1", "intra-candle-scalper-h4"] and self.autotrade_enabled:
-                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    symbol = self.symbol
                     if active_method == "intra-candle-scalper-m5":
                         tf = mt5.TIMEFRAME_M5
                     elif active_method == "intra-candle-scalper-m15":
@@ -821,7 +873,7 @@ class RiskEngine(BaseEngine):
             try:
                 active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
                 if active_method == "open-shift-close" and self.autotrade_enabled:
-                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    symbol = self.symbol
                     tf = mt5.TIMEFRAME_M30
                     
                     # Fetch rates (need at least 50 bars to calculate EMA 25 accurately)
@@ -1008,6 +1060,32 @@ class RiskEngine(BaseEngine):
                 
             await asyncio.sleep(86400)
 
+
+    async def _circuit_breaker_watchdog_loop(self):
+        import asyncio
+        import MetaTrader5 as mt5
+        import time
+        while True:
+            if not getattr(self, "autotrade_enabled", False):
+                await asyncio.sleep(1)
+                continue
+                
+            acc_info = mt5.account_info()
+            if acc_info:
+                curr_equity = acc_info.equity
+                if not hasattr(self, "_peak_equity"):
+                    self._peak_equity = curr_equity
+                elif curr_equity > self._peak_equity:
+                    self._peak_equity = curr_equity
+                    
+                dd_pct = ((self._peak_equity - curr_equity) / self._peak_equity) * 100
+                if dd_pct >= 8.0:
+                    if not hasattr(self, "_circuit_breaker_until") or time.time() > self._circuit_breaker_until:
+                        self.logger.error(f"[{self.symbol}] CIRCUIT BREAKER TRIGGERED! Drawdown {dd_pct:.2f}%. Halting 12 hours.")
+                        self._circuit_breaker_until = time.time() + (12 * 3600)
+            
+            await asyncio.sleep(1)
+
     async def _forecast_hlc_bound_loop(self):
         """
         Background loop for the Forecast HLC Boundary trading method.
@@ -1023,7 +1101,80 @@ class RiskEngine(BaseEngine):
             try:
                 active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
                 if active_method == "forecast-hlc-bound" and self.autotrade_enabled:
-                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    symbol = self.symbol
+                    
+                    import time
+                    if hasattr(self, "_circuit_breaker_until") and time.time() < self._circuit_breaker_until:
+                        await asyncio.sleep(10)
+                        continue
+                        
+                    # --- DYNAMIC MAX OP LIMITER ---
+                    active_profile = os.environ.get("ACTIVE_RISK_PROFILE", "MODERATE").upper()
+                    global_max_op = 3
+                    asset_max_op = 1
+                    
+                    if active_profile == "EXTREME":
+                        global_max_op = 2
+                        asset_max_op = 1
+                    elif active_profile == "MODERATE":
+                        global_max_op = 3
+                        asset_max_op = 1
+                    elif active_profile == "NORMAL":
+                        global_max_op = 4
+                        asset_max_op = 2
+                    elif active_profile == "CONSERVATIVE":
+                        global_max_op = 5
+                        asset_max_op = 2
+                        
+                    all_positions = mt5.positions_get()
+                    if all_positions is not None:
+                        total_global_op = len(all_positions)
+                        asset_op_count = sum(1 for p in all_positions if p.symbol == symbol)
+                        
+                        if total_global_op >= global_max_op or asset_op_count >= asset_max_op:
+                            # Too many positions open, skip entry
+                            self._dynamic_op_blocked = True
+                        else:
+                            self._dynamic_op_blocked = False
+                    else:
+                        self._dynamic_op_blocked = False
+
+                    # --- EQUILIBRIUM RISK SCALER ---
+                    import json
+                    news_feed_path = "data/news_feed.json"
+                    risk_pct = 0.0
+                    if os.path.exists(news_feed_path):
+                        try:
+                            with open(news_feed_path, "r", encoding="utf-8") as nf:
+                                feed_data = json.load(nf)
+                                macro_data = feed_data.get("macro_analysis", {}).get(symbol, {})
+                                conf = float(macro_data.get("causal_confidence", 0.0))
+                                
+                                active_profile = os.environ.get("ACTIVE_RISK_PROFILE", "MODERATE").upper()
+                                if active_profile == "CONSERVATIVE": base_risk = 0.5
+                                elif active_profile == "NORMAL": base_risk = 1.0
+                                elif active_profile == "EXTREME": base_risk = 2.0
+                                else: base_risk = 1.5 # MODERATE
+                                
+                                if conf >= 0.93: risk_pct = base_risk + 4.0
+                                elif conf >= 0.85: risk_pct = base_risk + 3.0
+                                elif conf >= 0.77: risk_pct = base_risk + 2.0
+                                elif conf >= 0.69: risk_pct = base_risk + 1.0
+                                elif conf >= 0.61: risk_pct = base_risk + 0.0
+                                else: risk_pct = 0.0 # Smart Gate Veto
+                        except:
+                            pass
+                            
+                    if risk_pct == 0.0:
+                        await asyncio.sleep(10)
+                        continue # Veto trade due to low confidence (< 61%)
+                        
+                    if getattr(self, "_dynamic_op_blocked", False):
+                        await asyncio.sleep(5)
+                        continue # Veto trade due to Dynamic Max OP Limit
+                        
+                    # Override the environment variable dynamically for this instance's execution flow
+                    os.environ["AUTO_LOT_RISK_PERCENT"] = str(risk_pct)
                     
                     # 1. Fetch latest optimized forecasts
                     cache_path = "data/backtest_cache.json"
@@ -1518,7 +1669,7 @@ class RiskEngine(BaseEngine):
             try:
                 active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
                 if active_method == "decision-priority-engine" and self.autotrade_enabled:
-                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    symbol = self.symbol
                     
                     if not mt5.initialize():
                         await asyncio.sleep(30)
@@ -1633,7 +1784,7 @@ class RiskEngine(BaseEngine):
             try:
                 active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
                 if active_method == "smart-money-bos" and self.autotrade_enabled:
-                    symbol = os.environ.get("TRADE_SYMBOL", "XAUUSD")
+                    symbol = self.symbol
                     
                     if not mt5.initialize():
                         await asyncio.sleep(10)
