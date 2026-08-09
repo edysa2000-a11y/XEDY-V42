@@ -43,6 +43,7 @@ jobs:
           git checkout origin/data-feed -- data/ || echo "No previous data directory found."
 
       - name: Run Cloud News Scraper & Oanda Volume Fetcher
+        timeout-minutes: 4
         env:
           AIVENE_API_KEY: ${{ secrets.AIVENE_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -70,6 +71,7 @@ jobs:
           cp data/forecast_accuracy_stats.json temp_data/data/ || true
           cp data/oanda_cvd.json temp_data/data/ || true
           cp data/market_ticker.json temp_data/data/ || true
+          cp data/embedding_cache.json temp_data/data/ || true
           
           # Switch to data-feed branch (create if not exists)
           git checkout -B data-feed

@@ -181,7 +181,7 @@ def scrape_rss(url):
             xml_data = r.read()
             root = ET.fromstring(xml_data)
             articles = []
-            for item in root.findall('.//item')[:5]:
+            for item in root.findall('.//item')[:15]:
                 title = item.find('title')
                 pub_date = item.find('pubDate')
                 link = item.find('link')
@@ -228,7 +228,7 @@ def save_embedding_cache(cache_data):
 
 def get_qwen_embedding(api_key, text):
     """
-    Calls Aivene embeddings API using Qwen3 Embedding 8B model with local cache.
+    Calls Aivene embeddings API using Qwen3 Embedding 0.6B model with local cache.
     """
     if not api_key or not text:
         return []
@@ -649,7 +649,7 @@ def main():
         
         # Inject reflection into the news text so Qwen re-evaluates
         reflected_news_text = news_text + f"\n\n[SYSTEM OVERRIDE/REFLECTION]\n{reflection_prompt}\n"
-        analysis = get_qwen_analysis(api_key, reflected_news_text, prices)
+        analysis = get_qwen_analysis(api_key, reflected_news_text, prices, "XAUUSD")
         print(f"Qwen Reflected Bias Result: {analysis.get('bias')}")
     
     # Translate Qwen's reasoning to Indonesian
@@ -684,7 +684,7 @@ def main():
         
         # If bias, regime, and the headlines are exactly the same, suppress the notification (Spam Filter)
         if prev_bias == curr_bias and prev_regime == curr_regime and prev_news_titles == curr_news_titles:
-            has_changed = True
+            has_changed = False
     
     local_now = datetime.utcnow() + timedelta(hours=7)
     news_feed_data = {
@@ -1159,56 +1159,7 @@ PRIMARY HORIZON
 </pre>"""
 
     # Final Execution Block (Part 4)
-
-    raw_conf_val = int(raw_conf * 100)
-    # V38.5 SMART TRADE GATE & RISK MATRIX
-    risk_profiles = {
-        "CONSERVATIVE": {"veto_conf": 80, "veto_side": 25, "risk_tiers": [0.5, 1.0, 1.5]},
-        "NORMAL": {"veto_conf": 72, "veto_side": 30, "risk_tiers": [1.0, 1.5, 2.0]},
-        "MODERATE": {"veto_conf": 65, "veto_side": 40, "risk_tiers": [1.5, 2.0, 2.5]},
-        "EXTREME": {"veto_conf": 55, "veto_side": 55, "risk_tiers": [2.0, 2.5, 3.0]}
-    }
-    
-    active_profile = risk_profiles.get(ACTIVE_RISK_PROFILE, risk_profiles["MODERATE"])
-    
-    # 1. Check Veto
-    is_vetoed = False
-    veto_reason = ""
-    if raw_conf_val < active_profile["veto_conf"]:
-        is_vetoed = True
-        veto_reason = f"Confidence {raw_conf_val}% < {active_profile['veto_conf']}%"
-    elif prob_side > active_profile["veto_side"]:
-        is_vetoed = True
-        veto_reason = f"Sideway Prob {prob_side}% > {active_profile['veto_side']}%"
-        
-    bias_clean = str(analysis.get('bias')).split('_')[0]
-    
-    if is_vetoed:
-        bias_clean = "WAITING"
-        gate_status = f"🔴 BLOCKED: {veto_reason}"
-    else:
-        gate_status = "🟢 ALLOWED"
-        
-    # 2. Calculate Confidence-based Risk Sizing
-    tiers = active_profile["risk_tiers"]
-    if ACTIVE_RISK_PROFILE == "CONSERVATIVE":
-        if raw_conf_val >= 90: suggested_risk = tiers[2]
-        elif raw_conf_val >= 85: suggested_risk = tiers[1]
-        else: suggested_risk = tiers[0]
-    elif ACTIVE_RISK_PROFILE == "NORMAL":
-        if raw_conf_val >= 90: suggested_risk = tiers[2]
-        elif raw_conf_val >= 80: suggested_risk = tiers[1]
-        else: suggested_risk = tiers[0]
-    elif ACTIVE_RISK_PROFILE == "MODERATE":
-        if raw_conf_val >= 90: suggested_risk = tiers[2]
-        elif raw_conf_val >= 75: suggested_risk = tiers[1]
-        else: suggested_risk = tiers[0]
-    else: # EXTREME
-        if raw_conf_val >= 85: suggested_risk = tiers[2]
-        elif raw_conf_val >= 65: suggested_risk = tiers[1]
-        else: suggested_risk = tiers[0]
-        
-    suggested_risk_str = f"{suggested_risk:.1f}%"
+    # Note: risk_profiles, gate_status, suggested_risk, bias_clean already computed above (L902-949)
 
     is_neutral = bias_clean not in ["BUY", "SELL"]
     if is_neutral:

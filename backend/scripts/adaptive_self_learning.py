@@ -228,10 +228,12 @@ def run_self_learning():
     # ── ADAPTIVE SELF-LEARNING FORECAST PARAMETER CALIBRATION (MAE < $10) ──
     print("Calibrating adaptive forecast correction parameters...")
     try:
-        import MetaTrader5 as mt5_sec
-        mt5_avail = False
-        if mt5_sec and mt5_sec.initialize():
-            mt5_avail = True
+        try:
+            import MetaTrader5 as mt5_sec
+            mt5_avail = mt5_sec is not None and mt5_sec.initialize()
+        except ImportError:
+            mt5_avail = False
+            print("MT5 not available (GitHub Actions environment). Using default calibration params.")
         
         calibrated_params = {
             "1d": {"corr_factor": 0.82},
