@@ -49,10 +49,11 @@ jobs:
           mkdir -p temp_data/data
           cp data/news_feed.json temp_data/data/ || true
           
-          git checkout -B data-feed
+          git checkout --orphan data-feed-temp
+          git rm -rf . > /dev/null 2>&1 || true
           rm -rf backend frontend docs models tests .github
           mv temp_data/data .
           rm -rf temp_data
           
           git add data/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Deploy daily Claude HLC forecast updates" && git push -f origin data-feed)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Deploy daily Claude HLC forecast updates" && git push -f origin data-feed-temp:data-feed)

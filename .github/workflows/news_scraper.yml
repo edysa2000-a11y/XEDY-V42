@@ -73,14 +73,15 @@ jobs:
           cp data/market_ticker.json temp_data/data/ || true
           cp data/embedding_cache.json temp_data/data/ || true
           
-          # Switch to data-feed branch (create if not exists)
-          git checkout -B data-feed
+          # Switch to an orphan branch (No History) to prevent git bloat
+          git checkout --orphan data-feed-temp
           
-          # Clean repository files except the generated data
+          # Clean repository files
+          git rm -rf . > /dev/null 2>&1 || true
           rm -rf backend frontend docs models tests .github
           mv temp_data/data .
           rm -rf temp_data
           
-          # Commit and force push to prevent main branch bloat
+          # Commit and force push to overwrite remote branch with zero history
           git add -f data/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Deploy cloud news feed and self-learning updates" && git push -f origin data-feed)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Deploy cloud news feed and self-learning updates" && git push -f origin data-feed-temp:data-feed)
