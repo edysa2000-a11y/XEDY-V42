@@ -79,12 +79,14 @@ class MarketEngine(BaseEngine):
                         event_res = await v39["v39_event"].process_news("CPI inflation data exceeds expectations")
                         macro_res = await v39["v39_macro"].calculate_yield_dxy(event_res)
                         
-                        # Use actual OANDA tick volume if available
+                        # Use actual tick volume from MT5 if available
                         tick_vol = 500
-                        if self.data_engine:
-                            df = self.data_engine.get_historical_data("XAUUSD", "M5", 1)
-                            if not df.empty and 'tick_volume' in df.columns:
-                                tick_vol = int(df['tick_volume'].iloc[-1])
+                        try:
+                            rates = mt5.copy_rates_from_pos("XAUUSD", mt5.TIMEFRAME_M5, 0, 1)
+                            if rates is not None and len(rates) > 0:
+                                tick_vol = int(rates[0]['tick_volume'])
+                        except Exception:
+                            pass
                                 
                         flow_res = await v39["v39_flow"].aggregate_flow_channels(0.005, tick_vol)
                         
