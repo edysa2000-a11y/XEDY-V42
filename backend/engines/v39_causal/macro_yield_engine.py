@@ -12,6 +12,12 @@ class MacroYieldEngine(BaseEngine):
     def engine_name(self) -> str:
         return "MacroYieldEngine"
         
+    async def start(self):
+        pass
+        
+    async def stop(self):
+        pass
+
     async def calculate_yield_dxy(self, event_data: dict) -> dict:
         """
         Correlates Event Shock with Rate Expectations, Yield, and DXY.

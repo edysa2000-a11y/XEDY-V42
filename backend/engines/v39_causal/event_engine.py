@@ -13,6 +13,12 @@ class EventShockEngine(BaseEngine):
     def engine_name(self) -> str:
         return "EventShockEngine"
         
+    async def start(self):
+        pass
+        
+    async def stop(self):
+        pass
+
     async def process_news(self, news_text: str) -> dict:
         """
         Process news using Qwen3 Embedding (0.6B equivalent) via Aivene API.

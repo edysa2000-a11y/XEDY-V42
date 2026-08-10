@@ -10,6 +10,12 @@ class ConsensusGateEngine(BaseEngine):
     def engine_name(self) -> str:
         return "ConsensusGateEngine"
         
+    async def start(self):
+        pass
+        
+    async def stop(self):
+        pass
+
     async def final_trade_gate(self, event_data: dict, macro_data: dict, flow_data: dict, div_data: dict, tech_score: float) -> dict:
         """
         Multi-Agent Consensus, Calibration, and Final Trade Gate (Steps 11-15).

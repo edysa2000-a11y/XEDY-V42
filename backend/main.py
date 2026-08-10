@@ -25,11 +25,11 @@ from backend.engines.feature_store import FeatureStore
 from backend.engines.market_engine import MarketEngine
 from backend.engines.data_engine import DataEngine
 from backend.engines.news_engine import HybridNewsEngine
-from backend.engines.v39_causal.1_event_engine import EventShockEngine
-from backend.engines.v39_causal.2_macro_yield_engine import MacroYieldEngine
-from backend.engines.v39_causal.3_money_flow_engine import MoneyFlowEngine
-from backend.engines.v39_causal.4_divergence_engine import DivergenceEngine
-from backend.engines.v39_causal.5_consensus_gate import ConsensusGateEngine
+from backend.engines.v39_causal.event_engine import EventShockEngine
+from backend.engines.v39_causal.macro_yield_engine import MacroYieldEngine
+from backend.engines.v39_causal.money_flow_engine import MoneyFlowEngine
+from backend.engines.v39_causal.divergence_engine import DivergenceEngine
+from backend.engines.v39_causal.consensus_gate import ConsensusGateEngine
 from backend.telegram.bot import TelegramEcosystem
 
 import os

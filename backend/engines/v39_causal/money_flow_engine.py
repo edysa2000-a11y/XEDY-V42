@@ -11,6 +11,12 @@ class MoneyFlowEngine(BaseEngine):
     def engine_name(self) -> str:
         return "MoneyFlowEngine"
         
+    async def start(self):
+        pass
+        
+    async def stop(self):
+        pass
+
     async def aggregate_flow_channels(self, price_volatility: float, tick_volume: int) -> dict:
         """
         Uses proxy data (Tick volume + volatility) to simulate Dark Pool, ETF, and COMEX flow.

@@ -11,6 +11,12 @@ class DivergenceEngine(BaseEngine):
     def engine_name(self) -> str:
         return "DivergenceEngine"
         
+    async def start(self):
+        pass
+        
+    async def stop(self):
+        pass
+
     async def check_divergence(self, price_change: float, flow_data: dict, macro_data: dict) -> dict:
         """
         Advanced Divergence Engine (Safe-Haven Check, Absorption, Distribution).
