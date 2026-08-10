@@ -113,10 +113,12 @@ class DecisionEngine(BaseEngine):
             
         # Log Divergence Risk
         div_risk_pct = divergence_penalty * 100
-        self.logger.info(f"Market State: {self.current_signal} (Raw: {confidence:.4f}, Smth: {self.smoothed_confidence:.4f}, DivRisk: {div_risk_pct:.1f}%, Sideways: {is_sideways})")
+        # self.logger.info(f"Market State: {self.current_signal} (Raw: {confidence:.4f}, Smth: {self.smoothed_confidence:.4f}, DivRisk: {div_risk_pct:.1f}%, Sideways: {is_sideways})")
         
         from backend.api.websocket import ws_manager
         await ws_manager.broadcast_signal(self.smoothed_confidence, self.current_signal)
         
-        if self.current_signal in ["BUY", "SELL"] and self.risk_engine:
-            await self.risk_engine.validate_trade(self.current_signal, price, self.smoothed_confidence)
+        # [V38 DEPRECATED] V38 Decision Engine is no longer allowed to execute trades.
+        # It only calculates the smoothed_confidence for backwards compatibility in the UI.
+        # if self.current_signal in ["BUY", "SELL"] and self.risk_engine:
+        #     await self.risk_engine.validate_trade(self.current_signal, price, self.smoothed_confidence)

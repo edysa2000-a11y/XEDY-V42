@@ -102,6 +102,40 @@ class MarketEngine(BaseEngine):
                         }
                         await ws_manager.broadcast_v39_causal(v39_payload)
                         
+                        # Only trigger Telegram/Execution rarely, to avoid spam, maybe use a cooldown mechanism
+                        # Let's check if trade is allowed and probabilty is high
+                        import time
+                        current_time = time.time()
+                        if not hasattr(self, "last_v39_trade_time"):
+                            self.last_v39_trade_time = 0
+                            
+                        if gate_res.get("trade_allowed") and gate_res.get("calibrated_prob", 0) > 75.0:
+                            # 5-minute cooldown for signals
+                            if current_time - self.last_v39_trade_time > 300:
+                                self.last_v39_trade_time = current_time
+                                action = gate_res.get("direction", "BUY")
+                                
+                                # Send Telegram
+                                from backend.main import app
+                                if hasattr(app.state, "telegram_bot") and app.state.telegram_bot.notifier:
+                                    last_tick = mt5.symbol_info_tick("XAUUSD")
+                                    current_price = last_tick.ask if action == "BUY" else last_tick.bid if last_tick else 0.0
+                                    await app.state.telegram_bot.notifier.notify_v39_consensus(v39_payload, current_price, action)
+                                
+                                # Execute Trade via RiskEngine (To respect Drawdown, Max Positions, Margin limits)
+                                if hasattr(app.state, "risk_engine") and app.state.risk_engine:
+                                    try:
+                                        # V39 Causal Engine sends signal to RiskEngine
+                                        await app.state.risk_engine.validate_trade(
+                                            signal=action, 
+                                            price=current_price, 
+                                            confidence=gate_res.get("calibrated_prob", 0)/100.0
+                                        )
+                                    except Exception as e:
+                                        self.logger.error(f"V39 Execution Error: {e}")
+                                    except Exception as e:
+                                        self.logger.error(f"V39 Execution Error: {e}")
+                        
                 loop_counter += 1
 
                 if is_mt5_ok:
