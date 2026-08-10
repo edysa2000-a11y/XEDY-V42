@@ -221,7 +221,8 @@ async def lifespan(app: FastAPI):
         feature_stores=feature_stores_dict,
         data_engine=app.state.data_engine,
         news_engine=app.state.news_engine,
-        symbols=target_assets
+        symbols=target_assets,
+        v39_engines=app.state.asset_engines
     )
 
     # Start Engines

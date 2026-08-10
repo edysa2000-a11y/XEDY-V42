@@ -83,6 +83,18 @@ class ConnectionManager:
         }
         await self._broadcast_json(payload)
 
+
+    async def broadcast_v39_causal(self, v39_payload: dict):
+        """Broadcast V39 Causal Engine 17-step data"""
+        if not self.active_connections:
+            return
+            
+        payload = {
+            "type": "v39_data",
+            "data": v39_payload
+        }
+        await self._broadcast_json(payload)
+
     async def _broadcast_json(self, data: dict):
         # We must gather all sends to avoid blocking
         text_data = json.dumps(data)

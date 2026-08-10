@@ -13,12 +13,13 @@ class MarketEngine(BaseEngine):
     def engine_name(self) -> str:
         return "MarketEngine"
 
-    def __init__(self, config=None, feature_stores=None, data_engine=None, news_engine=None, symbols=None):
+    def __init__(self, config=None, feature_stores=None, data_engine=None, news_engine=None, symbols=None, v39_engines=None):
         super().__init__(config)
         self.feature_stores = feature_stores or {}
         self.data_engine = data_engine
         self.news_engine = news_engine
         self.symbols = symbols if symbols else ["XAUUSD"]
+        self.v39_engines = v39_engines
         self.last_tick_time_msc = {s: 0 for s in self.symbols}
         self._running = False
 
@@ -61,7 +62,7 @@ class MarketEngine(BaseEngine):
                         ai_status="ACTIVE"
                     )
                     
-                    # Fetch detailed dashboard data if engines exist
+# Fetch detailed dashboard data if engines exist
                     if self.data_engine and self.news_engine:
                         dashboard_payload = {
                             "type": "dashboard_data",
@@ -69,6 +70,35 @@ class MarketEngine(BaseEngine):
                             "news_engine": self.news_engine.get_dashboard_data()
                         }
                         await ws_manager._broadcast_json(dashboard_payload)
+                        
+                    # Broadcast V39 Causal Engine Data
+                    if self.v39_engines and "XAUUSD" in self.v39_engines:
+                        v39 = self.v39_engines["XAUUSD"]
+                        
+                        # Mock triggering for UI broadcast purposes
+                        event_res = await v39["v39_event"].process_news("CPI inflation data exceeds expectations")
+                        macro_res = await v39["v39_macro"].calculate_yield_dxy(event_res)
+                        
+                        # Use actual OANDA tick volume if available
+                        tick_vol = 500
+                        if self.data_engine:
+                            df = self.data_engine.get_historical_data("XAUUSD", "M5", 1)
+                            if not df.empty and 'tick_volume' in df.columns:
+                                tick_vol = int(df['tick_volume'].iloc[-1])
+                                
+                        flow_res = await v39["v39_flow"].aggregate_flow_channels(0.005, tick_vol)
+                        
+                        div_res = await v39["v39_div"].check_divergence(1.5, flow_res, macro_res)
+                        gate_res = await v39["v39_consensus"].final_trade_gate(event_res, macro_res, flow_res, div_res, 81.0)
+                        
+                        v39_payload = {
+                            "event": event_res,
+                            "macro": macro_res,
+                            "flow": flow_res,
+                            "div": div_res,
+                            "gate": gate_res
+                        }
+                        await ws_manager.broadcast_v39_causal(v39_payload)
                         
                 loop_counter += 1
 
