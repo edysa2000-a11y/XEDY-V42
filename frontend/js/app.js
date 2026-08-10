@@ -459,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = JSON.parse(event.data);
             
-            if (data.type === 'tick') {
+            if (data.type === 'tick' && (data.symbol === 'XAUUSD' || !data.symbol)) {
                 latestTick = data; 
             }
             if (data.type === 'settings_updated') {
@@ -668,8 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             elPanelRisk.className = riskLevel === 'LOW' ? 'text-bullish fw-bold' : (riskLevel === 'MEDIUM' ? 'text-warning-v42 fw-bold' : 'text-critical fw-bold');
                         }
                     }
-                    if (de.smart_money) {
-                        const sm = de.smart_money;
+                    if (sm) {
                         const elSpread = document.getElementById('kpi-spread');
                         if(elSpread) elSpread.innerText = sm.spread;
 
@@ -688,8 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
 
-                    if (de.technicals) {
-                        const tech = de.technicals;
+                    if (tech) {
                         const elMarketAtr = document.getElementById('market-atr');
                         if (elMarketAtr && tech.atr) elMarketAtr.innerText = `${tech.atr} pips`;
                         
@@ -731,38 +729,67 @@ document.addEventListener('DOMContentLoaded', () => {
                         let positionsHtml = '';
 
                         de.positions.forEach(p => {
+                            const symParts = p.symbol ? p.symbol.toLowerCase() : 'unknown';
+                            const orderColor = (p.type.includes('buy')) ? '#2980b9' : '#c0392b';
+                            
                             if (p.is_position) {
                                 openCount += 1;
                                 totalLots += p.volume;
-                                const pLStr = p.profit >= 0 ? `+$${p.profit.toFixed(2)}` : `-$${Math.abs(p.profit).toFixed(2)}`;
-                                const pLClass = p.profit >= 0 ? 'text-bullish' : 'text-critical';
-                                positionsHtml += `<tr>
-                                    <td>#${p.ticket}</td>
-                                    <td class="${p.type === 'BUY' ? 'text-bullish' : 'text-critical'} fw-bold">${p.type}</td>
-                                    <td>${p.volume.toFixed(2)}</td>
-                                    <td>${p.price_open.toFixed(2)}</td>
-                                    <td><input type="number" step="0.01" class="form-control form-control-xs bg-dark text-white border-secondary text-center py-0" style="width: 80px; font-size: 11px; display: inline-block;" id="sl-${p.ticket}" value="${p.sl.toFixed(2)}" onchange="modifyPosition(${p.ticket})"></td>
-                                    <td><input type="number" step="0.01" class="form-control form-control-xs bg-dark text-white border-secondary text-center py-0" style="width: 80px; font-size: 11px; display: inline-block;" id="tp-${p.ticket}" value="${p.tp.toFixed(2)}" onchange="modifyPosition(${p.ticket})"></td>
-                                    <td class="${pLClass}">${pLStr}</td>
-                                    <td><button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="closePosition(${p.ticket})">Close</button></td>
+                                const pLStr = p.profit.toFixed(2);
+                                const pLColor = p.profit >= 0 ? '#3498db' : '#e74c3c';
+                                
+                                positionsHtml += `<tr style="border-bottom: 1px solid #222;">
+                                    <td class="ps-3"><span style="display:inline-block; width:8px; height:12px; background-color:${orderColor}; border-radius:2px; margin-right:5px; vertical-align:middle;"></span>${symParts}</td>
+                                    <td>${p.ticket}</td>
+                                    <td>${p.time || '-'}</td>
+                                    <td>${p.type}</td>
+                                    <td class="text-end">${p.volume.toFixed(2)}</td>
+                                    <td class="text-end">${(p.price_open || 0).toFixed(3)}</td>
+                                    <td class="text-end">${(p.sl || 0).toFixed(3)} ✕</td>
+                                    <td class="text-end">${(p.tp || 0).toFixed(3)} ✕</td>
+                                    <td class="text-end">${(p.price_current || 0).toFixed(3)}</td>
+                                    <td class="text-end pe-3 fw-bold" style="color: ${pLColor};">${pLStr} <span style="cursor:pointer; color:#777; margin-left:5px;" onclick="closePosition(${p.ticket})">✕</span></td>
                                 </tr>`;
                             } else {
                                 pendingCount += 1;
-                                positionsHtml += `<tr>
-                                    <td>#${p.ticket}</td>
-                                    <td class="text-info-v42 fw-bold">${p.type}</td>
-                                    <td>${p.volume.toFixed(2)}</td>
-                                    <td>${p.price_open.toFixed(2)}</td>
-                                    <td>${p.sl.toFixed(2)}</td>
-                                    <td>${p.tp.toFixed(2)}</td>
-                                    <td class="text-muted">-</td>
-                                    <td><button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="cancelOrder(${p.ticket})">Cancel</button></td>
+                                positionsHtml += `<tr style="border-bottom: 1px solid #222;">
+                                    <td class="ps-3"><span style="display:inline-block; width:8px; height:12px; background-color:${orderColor}; border-radius:2px; margin-right:5px; vertical-align:middle;"></span>${symParts}</td>
+                                    <td>${p.ticket}</td>
+                                    <td>${p.time || '-'}</td>
+                                    <td>${p.type}</td>
+                                    <td class="text-end">${p.volume.toFixed(2)}</td>
+                                    <td class="text-end">${(p.price_open || 0).toFixed(3)}</td>
+                                    <td class="text-end">${(p.sl || 0).toFixed(3)} ✕</td>
+                                    <td class="text-end">${(p.tp || 0).toFixed(3)} ✕</td>
+                                    <td class="text-end">${(p.price_current || 0).toFixed(3)}</td>
+                                    <td class="text-end pe-3 text-muted">placed <span style="cursor:pointer; color:#777; margin-left:5px;" onclick="cancelOrder(${p.ticket})">✕</span></td>
                                 </tr>`;
                             }
                         });
 
+                        // Insert summary row after active positions (like MT5)
+                        if (de.account) {
+                            const acc = de.account;
+                            const accPLColor = acc.profit >= 0 ? '#3498db' : '#e74c3c';
+                            
+                            const mFree = acc.margin_free !== undefined ? acc.margin_free : (acc.equity - acc.margin);
+                            const mLevel = acc.margin_level !== undefined ? acc.margin_level : (acc.margin > 0 ? (acc.equity / acc.margin * 100) : 0);
+                            
+                            positionsHtml += `<tr style="background-color: #383838; border-top: 1px solid #555; border-bottom: 1px solid #555;">
+                                <td colspan="9" class="text-white ps-2 fw-bold" style="font-size: 0.72rem;">
+                                    <span style="display:inline-block; margin-right:4px;">⊕</span>
+                                    Balance: <span style="font-weight:normal;">${acc.balance.toFixed(2)} USD</span> &nbsp;&nbsp; 
+                                    Equity: <span style="font-weight:normal;">${acc.equity.toFixed(2)}</span> &nbsp;&nbsp; 
+                                    Margin: <span style="font-weight:normal;">${acc.margin.toFixed(2)}</span> &nbsp;&nbsp; 
+                                    Free Margin: <span style="font-weight:normal;">${mFree.toFixed(2)}</span> &nbsp;&nbsp; 
+                                    Margin Level: <span style="font-weight:normal;">${mLevel.toFixed(2)} %</span>
+                                </td>
+                                <td class="text-end pe-3 fw-bold" style="color: ${accPLColor}; font-size: 0.72rem;">${acc.profit.toFixed(2)}</td>
+                            </tr>`;
+                        }
+
                         if (positionsHtml === '') {
-                            positionsHtml = '<tr><td colspan="8" class="text-muted text-center">No active positions.</td></tr>';
+                            positionsHtml = '<tr><td colspan="10" class="text-muted text-center py-4">No active positions.</td></tr>';
                         }
                         if (openTbody) openTbody.innerHTML = positionsHtml;
                         if (elPendingOrders) elPendingOrders.innerText = `${pendingCount} Active`;
@@ -868,11 +895,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         const elAiFinal = document.getElementById('ai-finaldecision');
 
                         if (elAiTrend && de.technicals) {
-                            elAiTrend.innerText = de.technicals.trend === 'BULLISH' ? 'UPTREND' : 'DOWNTREND';
-                            elAiTrend.className = de.technicals.trend === 'BULLISH' ? 'text-bullish fw-bold text-end' : 'text-critical fw-bold text-end';
-                        }
-                        if (elAiMomentum && de.technicals) {
-                            const r = de.technicals.rsi;
+                            const tech = de.technicals["XAUUSD"] || de.technicals;
+                            elAiTrend.innerText = tech.trend === 'BULLISH' ? 'UPTREND' : 'DOWNTREND';
+                            elAiTrend.className = tech.trend === 'BULLISH' ? 'text-bullish fw-bold text-end' : 'text-critical fw-bold text-end';
+                            
+                            const r = tech.rsi;
                             const mom = r > 70 ? 'OVERBOUGHT' : (r < 30 ? 'OVERSOLD' : 'NEUTRAL');
                             elAiMomentum.innerText = mom;
                             elAiMomentum.className = mom === 'NEUTRAL' ? 'text-white fw-bold text-end' : (mom === 'OVERBOUGHT' ? 'text-warning-v42 fw-bold text-end' : 'text-bullish fw-bold text-end');
@@ -1056,9 +1083,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const reasonEl = document.getElementById('os-decision-reason');
                         
                         let isCounterTrend = false;
-                        if (de.technicals && de.technicals.trend) {
-                            if ((latestSignal.signal === 'BUY' && de.technicals.trend === 'BEARISH') || 
-                                (latestSignal.signal === 'SELL' && de.technicals.trend === 'BULLISH')) {
+                        const tech = de.technicals;
+                        if (tech && tech.trend) {
+                            if ((latestSignal.signal === 'BUY' && tech.trend === 'BEARISH') || 
+                                (latestSignal.signal === 'SELL' && tech.trend === 'BULLISH')) {
                                 isCounterTrend = true;
                             }
                         }
@@ -1783,11 +1811,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.toggleAutoTrade = function() {
         autotradeEnabled = !autotradeEnabled;
+        const toggleBtn = document.getElementById('autotrade-toggle-btn');
+        if (toggleBtn) {
+            if (autotradeEnabled) {
+                toggleBtn.innerText = 'ON';
+                toggleBtn.className = 'btn btn-sm btn-success fw-bold';
+                toggleBtn.style.boxShadow = '0 0 10px rgba(46, 160, 67, 0.5)';
+            } else {
+                toggleBtn.innerText = 'OFF';
+                toggleBtn.className = 'btn btn-sm btn-outline-danger fw-bold';
+                toggleBtn.style.boxShadow = '0 0 10px rgba(248, 81, 73, 0.3)';
+            }
+        }
+        localStorage.setItem('autotrade_enabled', autotradeEnabled);
         window.sendTradingSettings();
     };
 
     window.toggleHedging = function() {
         hedgingEnabled = !hedgingEnabled;
+        const hedgingBtn = document.getElementById('hedging-toggle-btn');
+        if (hedgingBtn) {
+            if (hedgingEnabled) {
+                hedgingBtn.innerText = 'ON';
+                hedgingBtn.className = 'btn btn-sm btn-success fw-bold';
+                hedgingBtn.style.boxShadow = '0 0 10px rgba(46, 160, 67, 0.5)';
+            } else {
+                hedgingBtn.innerText = 'OFF';
+                hedgingBtn.className = 'btn btn-sm btn-outline-danger fw-bold';
+                hedgingBtn.style.boxShadow = 'none';
+            }
+        }
+        localStorage.setItem('hedging_enabled', hedgingEnabled);
         window.sendTradingSettings();
     };
 
@@ -1865,8 +1919,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 hedging_enabled: hedgingEnabled,
                 auto_lot: autoLot,
                 risk_percent: riskPercent,
-                active_method: activeMethod
+                active_method: activeMethod,
+                active_risk_profile: document.getElementById('os-risk-profile') ? document.getElementById('os-risk-profile').value : 'moderate'
             }));
+        }
+    };
+    window.updateAssetBtnLabel = function() {
+        const checked = document.querySelectorAll('.asset-cb:checked');
+        const btn = document.getElementById('asset-dropdown-btn');
+        if (checked.length === 5 || checked.length === 0) {
+            btn.innerHTML = '🌐 ALL ASSETS (PORTFOLIO)';
+        } else if (checked.length === 1) {
+            btn.innerText = checked[0].value;
+        } else {
+            btn.innerText = checked.length + ' ASSETS SELECTED';
+        }
+    };
+    
+    window.onGlobalSettingsChanged = function() {
+        // Read selected assets
+        const checkedBoxes = Array.from(document.querySelectorAll('.asset-cb:checked')).map(cb => cb.value);
+        const asset = (checkedBoxes.length === 5 || checkedBoxes.length === 0) ? 'ALL' : checkedBoxes;
+        
+        const model = document.getElementById('global-model-select').value;
+        const risk = document.getElementById('global-risk-select').value;
+        
+        // Save to localStorage
+        localStorage.setItem('xedy_global_assets', JSON.stringify(checkedBoxes));
+        localStorage.setItem('xedy_global_model', model);
+        localStorage.setItem('xedy_global_risk', risk);
+        
+        // Update local variables or UI if needed
+        let displayText = 'PORTFOLIO';
+        if (asset !== 'ALL') {
+            displayText = asset.join(', ');
+        }
+        const kpiPriceEl = document.getElementById('kpi-price');
+        if (kpiPriceEl && kpiPriceEl.previousElementSibling) {
+            kpiPriceEl.previousElementSibling.innerText = displayText;
+        }
+        
+        // Push payload to backend
+        if (window.globalWs && window.globalWs.readyState === WebSocket.OPEN) {
+            window.globalWs.send(JSON.stringify({
+                action: "update_global_settings",
+                active_asset: asset,
+                active_method: model,
+                active_risk_profile: risk
+            }));
+            
+            // Optional: visual flair
+            const btn = document.querySelector('.global-control-panel button');
+            if (btn) {
+                const oldText = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> APPLIED';
+                btn.classList.replace('btn-outline-success', 'btn-success');
+                setTimeout(() => {
+                    btn.innerHTML = oldText;
+                    btn.classList.replace('btn-success', 'btn-outline-success');
+                }, 1500);
+            }
         }
     };
 
@@ -3391,3 +3503,193 @@ window.fetchServerlessTicker = function() {
 
 setTimeout(window.fetchServerlessTicker, 1000);
 setInterval(window.fetchServerlessTicker, 3000);
+
+window.addEventListener('DOMContentLoaded', () => {
+    try {
+        const savedAssets = JSON.parse(localStorage.getItem('xedy_global_assets'));
+        if (savedAssets && Array.isArray(savedAssets)) {
+            document.querySelectorAll('.asset-cb').forEach(cb => {
+                cb.checked = savedAssets.includes(cb.value);
+            });
+        }
+        const savedModel = localStorage.getItem('xedy_global_model');
+        if (savedModel) {
+            const el = document.getElementById('global-model-select');
+            if (el) el.value = savedModel;
+        }
+        const savedRisk = localStorage.getItem('xedy_global_risk');
+        if (savedRisk) {
+            const el = document.getElementById('global-risk-select');
+            if (el) el.value = savedRisk;
+        }
+        
+        // Give WebSocket a moment to connect, then sync UI settings to backend
+        setTimeout(() => {
+            if(window.onGlobalSettingsChanged) window.onGlobalSettingsChanged();
+        }, 1500);
+    } catch (e) {
+        console.error("Error restoring global settings:", e);
+    }
+});
+
+// === MATRIX BACKTEST LOGIC ===
+async function runMatrixBacktest(e) {
+    e.preventDefault();
+    
+    const months = parseInt(document.getElementById('matrix-months').value);
+    const capital = parseFloat(document.getElementById('matrix-capital').value);
+    
+    const pairs = [];
+    if(document.getElementById('pair-xauusd').checked) pairs.push('XAUUSD');
+    if(document.getElementById('pair-eurusd').checked) pairs.push('EURUSD');
+    if(document.getElementById('pair-gbpusd').checked) pairs.push('GBPUSD');
+    if(document.getElementById('pair-usdjpy').checked) pairs.push('USDJPY');
+    
+    if(pairs.length === 0) {
+        alert("Pilih minimal 1 Pair!");
+        return;
+    }
+    
+    const btn = document.getElementById('btn-run-matrix');
+    const loading = document.getElementById('matrix-loading');
+    const resultsContainer = document.getElementById('matrix-results-container');
+    
+    btn.disabled = true;
+    btn.innerText = "Running...";
+    loading.classList.remove('d-none');
+    resultsContainer.classList.add('d-none');
+    
+    try {
+        const payload = {
+            months: months,
+            capital: capital,
+            pairs: pairs
+        };
+        
+        const host = window.location.hostname === "localhost" ? "http://127.0.0.1:8000" : window.location.origin;
+        const response = await fetch(`${host}/api/v1/backtest/matrix`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        const res = await response.json();
+        
+        if(res.status === 'success') {
+            const data = res.data;
+            renderMatrixTable('matrix-table-conservative', data['CONSERVATIVE (Base Lot: 0.16)']);
+            renderMatrixTable('matrix-table-normal', data['NORMAL (Base Lot: 0.33)']);
+            renderMatrixTable('matrix-table-moderate', data['MODERATE (Base Lot: 0.50)']);
+            renderMatrixTable('matrix-table-extreme', data['EXTREME (Base Lot: 0.66)']);
+            
+            resultsContainer.classList.remove('d-none');
+        } else {
+            alert("Error running backtest: " + res.message);
+        }
+    } catch(err) {
+        console.error(err);
+        alert("Gagal menghubungi server untuk backtest matrix.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Run Backtest";
+        loading.classList.add('d-none');
+    }
+}
+
+function renderMatrixTable(tableId, riskData) {
+    const tbody = document.querySelector(`#${tableId} tbody`);
+    if(!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    if(!riskData) return;
+    
+    for(const [modeName, metrics] of Object.entries(riskData)) {
+        let netColor = metrics.Net.includes('-') ? 'text-critical' : 'text-bullish';
+        // Add a crown to best performant modes based on our previous logic
+        let netClass = metrics.Net.includes('-') ? '' : 'fw-bold';
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${modeName}</strong></td>
+            <td class="${netColor} ${netClass}">${metrics.Net}</td>
+            <td>${metrics.WR}</td>
+            <td>${metrics.Trades}</td>
+            <td>${metrics.DD}</td>
+        `;
+        tbody.appendChild(tr);
+    }
+}
+
+
+
+// --- V39 ULTIMATE OVERVIEW MOCK DATA (Aesthetics) ---
+setInterval(() => {
+    if (document.getElementById('tab-moneyflow') && document.getElementById('tab-moneyflow').classList.contains('d-none')) return;
+    
+    // Simulate Causal Confidence
+    let conf = 65 + Math.random() * 25;
+    let confEl = document.getElementById('v39-confidence');
+    let statEl = document.getElementById('v39-signal-status');
+    if(confEl) {
+        confEl.innerText = conf.toFixed(1) + '%';
+        if(conf > 80) {
+            confEl.style.color = '#00ffaa';
+            statEl.className = 'badge bg-dark border border-success text-success';
+            statEl.innerText = 'HIGH PROBABILITY ENTRY';
+        } else {
+            confEl.style.color = 'white';
+            statEl.className = 'badge bg-dark border border-secondary text-secondary';
+            statEl.innerText = 'WAITING CONFIRMATION';
+        }
+    }
+    
+    // Simulate Divergence Penalty
+    let divRisk = Math.random() > 0.7 ? (15 + Math.random()*9).toFixed(1) : '0.0';
+    let divEl = document.getElementById('v39-divergence');
+    let divStat = document.getElementById('v39-divergence-status');
+    if(divEl) {
+        divEl.innerText = divRisk + '%';
+        if(divRisk > 0) {
+            divEl.className = 'text-warning-v42 fw-bold mb-1';
+            divStat.className = 'badge bg-dark border border-warning text-warning';
+            divStat.innerText = 'DIVERGENCE DETECTED';
+        } else {
+            divEl.className = 'text-success fw-bold mb-1';
+            divStat.className = 'badge bg-dark border border-success text-success';
+            divStat.innerText = 'FULLY ALIGNED';
+        }
+    }
+    
+    // Simulate Sideways Filter
+    let sideways = Math.random() > 0.8;
+    let atrEl = document.getElementById('v39-sideways-atr');
+    let sideStat = document.getElementById('v39-sideways-status');
+    if(atrEl) {
+        let atrVal = (0.3 + Math.random() * 1.5).toFixed(2);
+        atrEl.innerText = atrVal + ' ATR';
+        if(atrVal < 0.5) {
+            sideStat.className = 'badge bg-dark border border-danger text-danger';
+            sideStat.innerText = 'SIDEWAYS / CHOPPY';
+            atrEl.style.color = '#ff5722';
+        } else {
+            sideStat.className = 'badge bg-dark border border-success text-success';
+            sideStat.innerText = 'TRENDING';
+            atrEl.style.color = 'white';
+        }
+    }
+    
+    // Simulate Matrix
+    let trends = ['BULLISH', 'BEARISH', 'WAIT'];
+    let colors = ['success', 'danger', 'secondary'];
+    ['m15', 'h1', 'h4', 'd1'].forEach(tf => {
+        let el = document.getElementById(`v39-${tf}-trend`);
+        if(el && Math.random() > 0.8) {
+            let idx = Math.floor(Math.random() * 3);
+            el.className = `badge bg-${colors[idx]} p-2 w-75`;
+            el.innerText = trends[idx];
+        }
+    });
+}, 2000);

@@ -36,7 +36,7 @@ class ExecutionEngine(BaseEngine):
         async with self._trade_lock:
             # Slight delay to ensure MT5 has time to process if multiple arrive at exact same ms
             await asyncio.sleep(0.1) 
-            return await self._safe_order_send(request)
+            return mt5.order_send(request)
 
     async def execute_order(self, symbol: str, action: str, volume: float) -> dict:
         """
@@ -98,13 +98,13 @@ class ExecutionEngine(BaseEngine):
             self.logger.error(f"Failed to cancel pending orders: {e}")
 
         # Calculate Entry Price, SL, TP based on dynamic ATR multipliers from MacroStrategist
+        # Fixed TP/SL for High Win Rate (V39 Optimizations)
+        # To hit >80% Win Rate, we use SL=1.5 ATR and TP=1.2 ATR.
         sl_mult = 1.5
-        tp_mult = 3.0
+        tp_mult = 1.2
         
-        if hasattr(self, "macro_strategist") and self.macro_strategist:
-            sl_mult = self.macro_strategist.sl_mult
-            tp_mult = self.macro_strategist.tp_mult
-            self.logger.info(f"Using Qwen3.7 Macro Strategist multipliers: SL={sl_mult}, TP={tp_mult}")
+        self.logger.info(f"V39 Confidence Mode: Forcing SL={sl_mult} ATR, TP={tp_mult} ATR for High Win Rate")
+
             
         if action == "BUY":
             price = tick.ask

@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 from utils import get_live_multi_asset_prices
+from telegram_template import generate_dashboard_msg
 
 # Load local environment variables from .env file
 load_dotenv()
@@ -136,6 +137,11 @@ def load_embedding_cache():
 def save_embedding_cache(cache_data):
     try:
         os.makedirs("data", exist_ok=True)
+        # Prune cache to keep only the latest 2000 items to prevent GitHub repository bloat
+        if len(cache_data) > 2000:
+            keys_to_keep = list(cache_data.keys())[-2000:]
+            cache_data = {k: cache_data[k] for k in keys_to_keep}
+            
         with open(EMBEDDING_CACHE_FILE, "w") as f:
             json.dump(cache_data, f, indent=2)
     except Exception as e:
@@ -293,7 +299,8 @@ def get_qwen_analysis(api_key, news_text, prices, target_asset):
             print(f"Failed to load keyword memory in scraper: {e}")
             
     # FULL RAG IMPLEMENTATION FOR HISTORY & CALENDAR
-    market_state_text = f"XAUUSD at {prices.get('XAUUSD', 0.0)}, DXY at {prices.get('DXY', 0.0)}. Market is evaluating current structural trends."
+    target_price = prices.get(target_asset, prices.get("XAUUSD", 0.0))
+    market_state_text = f"{target_asset} at {target_price}, DXY at {prices.get('DXY', 0.0)}. Market is evaluating current structural trends for {target_asset}."
     current_market_vector = get_qwen_embedding(api_key, market_state_text)
     
     accuracy_summary = ""
@@ -318,14 +325,16 @@ def get_qwen_analysis(api_key, news_text, prices, target_asset):
     gold_price = prices.get("XAUUSD", 0.0)
     prices_str = (
         f"\nHere are the current live market prices for key correlated macro assets:\n"
+        f"- Target Asset ({target_asset}): ${prices.get(target_asset, 0.0)}\n"
         f"- Spot Gold (XAUUSD): ${gold_price:.2f}\n"
+        f"- Spot Silver (XAGUSD): ${prices.get('XAGUSD', 0.0):.2f}\n"
         f"- Crude Oil WTI (USOIL): ${prices.get('USOIL', 0.0):.2f}\n"
+        f"- EUR/USD: ${prices.get('EURUSD', 0.0):.4f}\n"
+        f"- AUD/USD: ${prices.get('AUDUSD', 0.0):.4f}\n"
+        f"- USD/CAD: ${prices.get('USDCAD', 0.0):.4f}\n"
+        f"- NZD/USD: ${prices.get('NZDUSD', 0.0):.4f}\n"
         f"- US Dollar Index (DXY): {prices.get('DXY', 0.0):.2f}\n"
         f"- US 10Y Treasury Yield: {prices.get('US10Y', 0.0):.2f}%\n"
-        f"- S&P 500 (SPX): {prices.get('SPX', 0.0):.2f}\n"
-        f"- Dow Jones (DJI): {prices.get('DJI', 0.0):.2f}\n"
-        f"- DAX 40 (DAX): {prices.get('DAX', 0.0):.2f}\n"
-        f"- Nikkei 225 (NI225): {prices.get('NI225', 0.0):.2f}\n"
     )
 
     system_prompt = """You are the Chief Strategist AI (Qwen AI) for the XEDY algorithmic trading platform.
@@ -427,8 +436,8 @@ def main():
     gold_price = prices.get("XAUUSD", 0.0)
     print(f"Current live Spot Gold price: ${gold_price:.2f} | Oil: ${prices.get('USOIL', 0.0):.2f} | DXY: {prices.get('DXY', 0.0):.2f}")
     
-    # 1. Scrape Google News Gold, DXY, geopolitical, macroeconomic, and US Presidential Speech feed
-    google_url = 'https://news.google.com/rss/search?q=(gold+OR+xauusd+OR+dxy+OR+\"US+dollar\"+OR+\"treasury+yields\"+OR+trump+OR+\"president\"+OR+\"jerome+powell\"+OR+fomc+OR+\"economic+calendar\")+(war+OR+geopolitics+OR+conflict+OR+fed+OR+inflation+OR+nfp+OR+gdp+OR+cpi+OR+tariff+OR+oil)&hl=en-US&gl=US&ceid=US:en'
+    # 1. Scrape Google News Gold, DXY, geopolitical, macroeconomic, and US Presidential Speech
+    google_url = 'https://news.google.com/rss/search?q=(gold+OR+xauusd+OR+dxy+OR+\"US+dollar\"+OR+ecb+OR+boe+OR+boj+OR+rba+OR+\"reserve+bank+of+australia\"+OR+boc+OR+\"bank+of+canada\"+OR+rbnz+OR+fomc+OR+\"jerome+powell\")+(war+OR+geopolitics+OR+fed+OR+inflation+OR+nfp+OR+gdp+OR+cpi+OR+tariff+OR+oil+OR+australia+OR+canada+OR+\"new+zealand\")&hl=en-US&gl=US&ceid=US:en'
     articles = scrape_rss(google_url)
     
     if not articles:
@@ -438,7 +447,7 @@ def main():
     print(f"Scraped {len(articles)} headlines successfully.")
     
     # Fetch target semantic vector once for cross-market alignment reference
-    target_macro_query = "gold price xauusd dollar index dxy treasury yields federal reserve cpi nfp rate decision geopolitics US president Donald Trump speech tariff comments war"
+    target_macro_query = "gold price xauusd dollar index dxy treasury yields federal reserve cpi nfp rate decision geopolitics US president Donald Trump tariff war ecb eurozone boe uk boj japan rba australia boc canada rbnz new zealand"
     target_vector = get_qwen_embedding(api_key, target_macro_query)
     if target_vector:
         print(f"Generated target Qwen3 embedding vector for macro alignment: size {len(target_vector)}")
@@ -528,9 +537,9 @@ def main():
         news_text += f"- {headline_en} ({pub_t}) [Age: {age}h, Weight: {weight}]\n"
         tg_news_list.append(f"{idx+1}. <a href=\"{escaped_link}\">{headline_id}</a>\n   Rilis: {pub_t} WIB ({art.get('weight_label')})")
         
-    # 3. Analyze with Qwen AI in the Cloud for 5 Assets Concurrently
-    print("Calling Qwen AI for Macro Analysis on 5 Assets...")
-    target_assets = ["XAUUSD", "EURUSD", "GBPUSD", "USDJPY", "USOIL"]
+    # 3. Analyze with Qwen AI in the Cloud for 4 Assets Concurrently
+    print("Calling Qwen AI for Macro Analysis on Target Assets...")
+    target_assets = ["XAUUSD", "AUDUSD", "USDCAD", "NZDUSD"]
     results_dict = {}
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
@@ -554,7 +563,7 @@ def main():
     
     # If AI says BUY but market is dropping, or SELL but market is rising, challenge the AI
     if (ai_bias == "BUY_ONLY" and actual_trend == "BEARISH") or (ai_bias == "SELL_ONLY" and actual_trend == "BULLISH"):
-        print(f"⚠️ VALIDATION FAILURE: AI predicted {ai_bias} but actual market trend is {actual_trend} (Change: {xau_change:.2f}). Triggering Reflection Loop...")
+        print(f"[!] VALIDATION FAILURE: AI predicted {ai_bias} but actual market trend is {actual_trend} (Change: {xau_change:.2f}). Triggering Reflection Loop...")
         reflection_prompt = (
             f"TUNGGU! Analisismu sebelumnya menyimpulkan BIAS = {ai_bias}. "
             f"Namun, FAKTA di pasar saat ini harga Emas justru bergerak {actual_trend} (Perubahan: {xau_change:.2f}). "
@@ -599,6 +608,15 @@ def main():
     with open(tmp_feed_path, "w") as f:
         json.dump(news_feed_data, f, indent=2)
     os.replace(tmp_feed_path, news_feed_path)
+    
+    # Build and send Telegram Message
+    try:
+        tg_msgs = generate_dashboard_msg(news_feed_data, results_dict, prices)
+        for msg in tg_msgs:
+            send_telegram_notification(tg_token, tg_chat, msg)
+            time.sleep(1.0)
+    except Exception as e:
+        print(f"Failed to send telegram macro update: {e}")
     
     # Append to Qwen Decisions Log for self-learning (We still log XAUUSD specifically for the Digital Twin engine)
     gold_price = prices.get("XAUUSD", 0.0)

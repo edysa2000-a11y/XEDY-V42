@@ -1,0 +1,82 @@
+{
+    "CONSERVATIVE (Base Lot: 0.16)": {
+        "Scalper (M1)": {
+            "Net": "$-710",
+            "WR": "55%",
+            "Trades": 114,
+            "DD": "13.5%"
+        },
+        "Adaptive System": {
+            "Net": "+$842",
+            "WR": "69%",
+            "Trades": 109,
+            "DD": "19.1%"
+        },
+        "Ultimate Engine": {
+            "Net": "$-848",
+            "WR": "33%",
+            "Trades": 324,
+            "DD": "14.9%"
+        }
+    },
+    "NORMAL (Base Lot: 0.33)": {
+        "Scalper (M1)": {
+            "Net": "$-1,465",
+            "WR": "55%",
+            "Trades": 114,
+            "DD": "25.9%"
+        },
+        "Adaptive System": {
+            "Net": "+$1,737",
+            "WR": "69%",
+            "Trades": 109,
+            "DD": "34.3%"
+        },
+        "Ultimate Engine": {
+            "Net": "$-1,750",
+            "WR": "33%",
+            "Trades": 324,
+            "DD": "29.8%"
+        }
+    },
+    "MODERATE (Base Lot: 0.50)": {
+        "Scalper (M1)": {
+            "Net": "$-2,219",
+            "WR": "55%",
+            "Trades": 114,
+            "DD": "36.8%"
+        },
+        "Adaptive System": {
+            "Net": "+$2,632",
+            "WR": "69%",
+            "Trades": 109,
+            "DD": "46.1%"
+        },
+        "Ultimate Engine": {
+            "Net": "$-2,652",
+            "WR": "33%",
+            "Trades": 324,
+            "DD": "43.8%"
+        }
+    },
+    "EXTREME (Base Lot: 0.66)": {
+        "Scalper (M1)": {
+            "Net": "$-2,929",
+            "WR": "55%",
+            "Trades": 114,
+            "DD": "45.9%"
+        },
+        "Adaptive System": {
+            "Net": "+$3,475",
+            "WR": "69%",
+            "Trades": 109,
+            "DD": "54.9%"
+        },
+        "Ultimate Engine": {
+            "Net": "$-3,500",
+            "WR": "33%",
+            "Trades": 324,
+            "DD": "56.2%"
+        }
+    }
+}

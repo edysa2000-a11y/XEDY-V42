@@ -3,14 +3,14 @@ import urllib.request
 import urllib.parse
 
 def get_live_multi_asset_prices():
-    prices = {"XAUUSD": 0.0, "USOIL": 0.0, "DXY": 0.0, "US10Y": 0.0, "SPX": 0.0, "DJI": 0.0, "DAX": 0.0, "NI225": 0.0}
+    prices = {"XAUUSD": 0.0, "XAGUSD": 0.0, "USOIL": 0.0, "DXY": 0.0, "US10Y": 0.0, "SPX": 0.0, "DJI": 0.0, "DAX": 0.0, "NI225": 0.0, "VIX": 0.0, "GSR": 0.0}
     
     # 1. Prioritas 1: Ambil dari TradingView CFD Scan untuk semua aset (Batch Request)
     try:
         url_tv = "https://scanner.tradingview.com/cfd/scan"
         payload_tv = {
             "symbols": {
-                "tickers": ["FX_IDC:XAUUSD", "FX:EURUSD", "FX:GBPUSD", "FX:USDJPY", "TVC:USOIL", "TVC:DXY", "TVC:US10Y"],
+                "tickers": ["FX_IDC:XAUUSD", "FX_IDC:XAGUSD", "FX:EURUSD", "FX:GBPUSD", "FX:USDJPY", "TVC:USOIL", "TVC:DXY", "TVC:US10Y", "TVC:VIX"],
                 "query": { "types": [] }
             },
             "columns": ["close", "change", "Recommend.All|1", "Recommend.All|5", "Recommend.All|15", "Recommend.All|30", "Recommend.All|60", "Recommend.All|240", "Recommend.All"]
@@ -29,7 +29,7 @@ def get_live_multi_asset_prices():
                     close_price = float(item["d"][0])
                     change = float(item["d"][1]) if len(item["d"]) > 1 else 0.0
                     
-                    target_assets = ["XAUUSD", "EURUSD", "GBPUSD", "USDJPY", "USOIL"]
+                    target_assets = ["XAUUSD", "XAGUSD", "EURUSD", "GBPUSD", "USDJPY", "USOIL"]
                     for ta in target_assets:
                         if ta in ticker:
                             prices[ta] = close_price
@@ -46,6 +46,11 @@ def get_live_multi_asset_prices():
                                 }
                     if "DXY" in ticker: prices["DXY"] = close_price
                     elif "US10Y" in ticker: prices["US10Y"] = close_price
+                
+                # Calculate Gold/Silver Ratio (GSR)
+                if prices["XAUUSD"] > 0 and prices["XAGUSD"] > 0:
+                    prices["GSR"] = prices["XAUUSD"] / prices["XAGUSD"]
+
                 print(f"Fetched live multi-asset prices from TradingView: {prices}")
                 if prices["XAUUSD"] > 0:
                     return prices
@@ -63,13 +68,6 @@ def get_live_multi_asset_prices():
                 prices["XAUUSD"] = float(data['chart']['result'][0]['meta']['regularMarketPrice'])
                 prev_close = float(data['chart']['result'][0]['meta']['chartPreviousClose'])
                 prices["XAUUSD_CHANGE"] = prices["XAUUSD"] - prev_close
-        # Fallback USOIL via CL=F
-        if prices["USOIL"] == 0.0:
-            url = "https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1m&range=1d"
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=8) as r:
-                data = json.loads(r.read().decode())
-                prices["USOIL"] = float(data['chart']['result'][0]['meta']['regularMarketPrice'])
 
         # Fallback DXY via DX-Y.NYB
         if prices["DXY"] == 0.0:

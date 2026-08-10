@@ -1,0 +1,308 @@
+/* V42 Enterprise CSS - Institutional Terminal Design */
+body {
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    overflow-x: hidden;
+    min-width: 1400px; /* Lock for Desktop */
+}
+
+/* Custom Colors & 3D Glowing Text */
+.text-bullish { color: #3fb950 !important; text-shadow: 0 0 8px rgba(63, 185, 80, 0.4); }
+.text-bearish { color: #ff7b72 !important; text-shadow: 0 0 8px rgba(255, 123, 114, 0.4); }
+.text-sideway { color: #e3a826 !important; text-shadow: 0 0 8px rgba(227, 168, 38, 0.4); }
+.text-info-v42 { color: #79c0ff !important; text-shadow: 0 0 8px rgba(121, 192, 255, 0.4); }
+.text-warning-v42 { color: #ff9a7b !important; }
+.text-critical { color: #da3633 !important; font-weight: bold; }
+.text-muted { color: #a0aab5 !important; } /* Brighter muted text for clarity */
+
+/* 3D Glass/Neumorphic Panels */
+.bg-dark-panel {
+    background: linear-gradient(145deg, #1c2128, #11151a);
+    border-top: 1px solid #30363d;
+    border-left: 1px solid #30363d;
+    border-right: 1px solid #0d1117;
+    border-bottom: 1px solid #0d1117;
+    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.6), -2px -2px 10px rgba(255, 255, 255, 0.03);
+}
+
+/* Layout Dimensions */
+.top-bar {
+    height: 50px;
+    background-color: #010409;
+    border-bottom: 1px solid #30363d;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.bottom-bar {
+    height: 30px;
+    background-color: #010409;
+    border-top: 1px solid #30363d;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 1000;
+    font-size: 0.75rem;
+}
+
+.main-container {
+    display: flex;
+    margin-top: 0px;
+    height: calc(100vh - 110px); /* 100vh - top(50) - globalPanel(approx 60) */
+}
+
+/* 3-Column Widths */
+.col-sidebar {
+    width: 15%;
+    background-color: #0d1117;
+    border-right: 1px solid #30363d;
+    overflow-y: auto;
+}
+
+.col-content {
+    width: 85%;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #010409;
+}
+
+.col-command {
+    display: none;
+}
+
+/* Navigation Pills */
+.nav-pills .nav-link {
+    color: #8b949e;
+    border-radius: 4px;
+    padding: 8px 15px;
+    margin-bottom: 2px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+.nav-pills .nav-link:hover {
+    background-color: #1f2428;
+    color: #c9d1d9;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3);
+}
+.nav-pills .nav-link.active {
+    background: linear-gradient(90deg, #1f6feb, #164696);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(31, 111, 235, 0.4), inset 1px 1px 2px rgba(255,255,255,0.2);
+    border-left: 3px solid #79c0ff;
+}
+
+/* 3D KPI Cards */
+.kpi-card {
+    background: linear-gradient(145deg, #1c2128, #11151a);
+    border-top: 1px solid #30363d;
+    border-left: 1px solid #30363d;
+    border-right: 1px solid #0d1117;
+    border-bottom: 1px solid #0d1117;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5), -1px -1px 6px rgba(255, 255, 255, 0.02);
+}
+.kpi-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #a0aab5;
+    margin-bottom: 5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.kpi-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Tables */
+.table-v42 {
+    color: #c9d1d9;
+    background-color: transparent !important;
+    --bs-table-bg: transparent; /* Fix for Bootstrap 5 */
+    --bs-table-color: #c9d1d9;
+    font-size: 0.8rem;
+}
+.table-v42 th {
+    border-bottom: 2px solid #30363d; /* Thicker for depth */
+    color: #a0aab5; /* Brighter */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background-color: #161b22 !important; /* solid color for sticky header */
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+.table-v42 td {
+    border-bottom: 1px solid #21262d;
+    padding: 10px 8px; /* More breathing room */
+    background-color: transparent !important;
+}
+
+/* 3D Buttons */
+.btn-danger {
+    background: linear-gradient(180deg, #f85149, #b92020);
+    border: none;
+    box-shadow: 0 4px 0 #8a1515, 0 6px 15px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255,255,255,0.3);
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    transition: all 0.1s;
+}
+.btn-danger:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #8a1515, 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(0,0,0,0.4);
+}
+.btn-primary {
+    background: linear-gradient(180deg, #1f6feb, #114294);
+    border: none;
+    box-shadow: 0 4px 0 #0d3170, 0 6px 15px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255,255,255,0.3);
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    transition: all 0.1s;
+}
+.btn-primary:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #0d3170, 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0d1117;
+}
+::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #8b949e;
+}
+
+/* Glowing Top Border Card Style */
+.border-top-glow {
+    border-top: 3px solid var(--glow-color) !important;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4), 0 0 10px rgba(var(--glow-color), 0.15) !important;
+}
+
+/* Money Flow Transmission Flowchart Styles */
+.flow-step-card {
+    background: rgba(25, 30, 36, 0.65);
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+    min-height: 125px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+.flow-step-card:hover {
+    transform: scale(1.03);
+}
+.flow-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+}
+.col-flow-card {
+    width: 17% !important;
+    flex: 0 0 17% !important;
+    max-width: 17% !important;
+}
+.col-flow-arrow {
+    width: 3% !important;
+    flex: 0 0 3% !important;
+    max-width: 3% !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.col-flow-card-output {
+    width: 20% !important;
+    flex: 0 0 20% !important;
+    max-width: 20% !important;
+}
+.bg-purple { background-color: #8e44ad !important; color: #fff; }
+.bg-blue { background-color: #2980b9 !important; color: #fff; }
+.bg-teal { background-color: #16a085 !important; color: #fff; }
+.bg-green { background-color: #27ae60 !important; color: #fff; }
+.bg-orange { background-color: #d35400 !important; color: #fff; }
+.bg-red { background-color: #c0392b !important; color: #fff; }
+.flow-step-card .badge {
+    font-size: 0.6rem;
+    letter-spacing: 0.5px;
+    width: 100%;
+}
+.flow-step-card .time-label {
+    font-size: 0.65rem;
+}
+.flow-step-card .content-text {
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1.3;
+    margin: 4px 0;
+}
+.flow-step-card .status-label {
+    font-size: 0.65rem;
+    font-weight: bold;
+}
+.bg-black-panel {
+    background-color: #080a0d;
+    border: 1px solid #21262d;
+}
+.border-start-glow {
+    border-left: 4px solid var(--glow-color) !important;
+}
+
+/* 3D Glassmorphic Depth Cards */
+.card-3d {
+    background: linear-gradient(135deg, rgba(15, 19, 26, 0.9), rgba(8, 10, 14, 0.98)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.12) !important;
+    transform: translateY(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+.card-3d:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Heatmap Table Customization */
+.table-heatmap {
+    background: transparent !important;
+    border-collapse: separate !important;
+    border-spacing: 2px !important;
+}
+.table-heatmap th {
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: #8b949e !important;
+    font-weight: 600 !important;
+    border: none !important;
+    padding: 6px !important;
+    text-transform: uppercase;
+    font-size: 0.6rem;
+    letter-spacing: 0.5px;
+}
+.table-heatmap td {
+    padding: 6px !important;
+    font-weight: bold !important;
+    border: none !important;
+    border-radius: 3px;
+}

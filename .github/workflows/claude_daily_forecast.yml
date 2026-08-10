@@ -48,6 +48,7 @@ jobs:
           
           mkdir -p temp_data/data
           cp data/news_feed.json temp_data/data/ || true
+          cp data/claude_forecast.json temp_data/data/ || true
           
           git checkout --orphan data-feed-temp
           git rm -rf . > /dev/null 2>&1 || true

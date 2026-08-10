@@ -59,7 +59,7 @@ def get_claude_analysis(api_key, news_text, prices):
     prices_str = (
         f"Gold (XAUUSD): ${gold_price:.2f}\n"
         f"Crude Oil (USOIL): ${prices.get('USOIL', 0.0):.2f}\n"
-        f"DXY Index: {prices.get('DXY', 0.0):.2f}\n"
+        f"US Dollar Index (DXY): {prices.get('DXY', 0.0):.2f}\n"
         f"US 10Y Treasury Yield: {prices.get('US10Y', 0.0):.2f}%\n"
     )
 
@@ -153,7 +153,7 @@ def main():
         
     output_dir = "data"
     os.makedirs(output_dir, exist_ok=True)
-    news_feed_path = os.path.join(output_dir, "news_feed.json")
+    news_feed_path = os.path.join(output_dir, "claude_forecast.json")
     
     local_now = datetime.utcnow() + timedelta(hours=7)
     news_feed_data = {

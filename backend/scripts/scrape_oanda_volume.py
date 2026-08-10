@@ -13,40 +13,40 @@ logger = logging.getLogger(__name__)
 
 def fetch_and_calculate_cvd():
     try:
-        logger.info("Initializing TvDatafeed as guest...")
-        tv = TvDatafeed()
-        
+        cvd = 0.0
+        current_price = 0.0
+        ema_50 = 0.0
+        trend = "UNKNOWN"
         symbol = 'XAUUSD'
         exchange = 'OANDA'
         
-        logger.info(f"Fetching {symbol} data from {exchange} (Interval M5, 60 bars)...")
-        data = tv.get_hist(symbol=symbol, exchange=exchange, interval=Interval.in_5_minute, n_bars=60)
-        
-        if data is None or data.empty:
-            logger.error("Failed to fetch volume data from TradingView. Using fallback.")
-            cvd = 0.0
-            current_price = 0.0
-            ema_50 = 0.0
-            trend = "UNKNOWN"
-        else:
-            # Calculate Delta: if Close >= Open, volume is positive, else negative
-            data['delta'] = np.where(data['close'] >= data['open'], data['volume'], -data['volume'])
+        try:
+            logger.info("Initializing TvDatafeed as guest...")
+            tv = TvDatafeed()
+            logger.info(f"Fetching {symbol} data from {exchange} (Interval M5, 60 bars)...")
+            data = tv.get_hist(symbol=symbol, exchange=exchange, interval=Interval.in_5_minute, n_bars=60)
             
-            # Calculate CVD for the last 20 candles
-            recent_20 = data.tail(20)
-            cvd = float(recent_20['delta'].sum())
-            
-            current_price = float(data['close'].iloc[-1])
-            ema_50 = float(data['close'].ewm(span=50, adjust=False).mean().iloc[-1])
-            
-            trend = "BULLISH"
-            if cvd > 0 and current_price < ema_50:
-                trend = "BULLISH_ABSORPTION"
-            elif cvd < 0 and current_price > ema_50:
-                trend = "BEARISH_EXHAUSTION"
-            elif cvd < 0:
-                trend = "BEARISH"
-            
+            if data is not None and not data.empty:
+                # Calculate Delta: if Close >= Open, volume is positive, else negative
+                data['delta'] = np.where(data['close'] >= data['open'], data['volume'], -data['volume'])
+                
+                # Calculate CVD for the last 20 candles
+                recent_20 = data.tail(20)
+                cvd = float(recent_20['delta'].sum())
+                
+                current_price = float(data['close'].iloc[-1])
+                ema_50 = float(data['close'].ewm(span=50, adjust=False).mean().iloc[-1])
+                
+                trend = "BULLISH"
+                if cvd > 0 and current_price < ema_50:
+                    trend = "BULLISH_ABSORPTION"
+                elif cvd < 0 and current_price > ema_50:
+                    trend = "BEARISH_EXHAUSTION"
+                elif cvd < 0:
+                    trend = "BEARISH"
+        except Exception as tv_e:
+            logger.error(f"Failed to fetch volume data from TradingView (likely IP blocked): {tv_e}. Using fallback.")
+
         # Also Fetch DXY and US10Y for the Ticker Bar
         # Batch Fetch DXY, US10Y, XAUUSD using yfinance for robustness with retries
         tickers = ['GC=F', 'DX-Y.NYB', '^TNX']

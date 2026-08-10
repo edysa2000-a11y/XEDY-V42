@@ -190,6 +190,36 @@ class HybridNewsEngine:
                 self.oanda_cvd_data = await asyncio.to_thread(_fetch_oanda)
             except Exception as e:
                 logger.warning(f"Could not fetch Oanda CVD from cloud: {e}")
+                
+            # Fetch COT Data
+            cot_url = "https://raw.githubusercontent.com/edysa2000-a11y/XEDY-V42/data-feed/data/cot_data.json"
+            cot_req = urllib.request.Request(cot_url, headers=headers)
+            def _fetch_cot():
+                with urllib.request.urlopen(cot_req, timeout=10.0) as r:
+                    return json.loads(r.read().decode('utf-8'))
+            try:
+                cot_data = await asyncio.to_thread(_fetch_cot)
+                # Parse COT into macro data
+                if "GLD_NET_FLOW" in cot_data:
+                    self.latest_macro_data["etf_flow"] = cot_data["GLD_NET_FLOW"].get("change", 5.0)
+                if "COMEX_NET_LONG" in cot_data:
+                    # using raw volume/OI as a proxy for reserves or momentum
+                    self.latest_macro_data["gold_reserve"] = cot_data["COMEX_NET_LONG"].get("change_pct", 40)
+            except Exception as e:
+                logger.warning(f"Could not fetch COT data from cloud: {e}")
+                
+            # Fetch Claude Forecast Data
+            claude_url = "https://raw.githubusercontent.com/edysa2000-a11y/XEDY-V42/data-feed/data/claude_forecast.json"
+            claude_req = urllib.request.Request(claude_url, headers=headers)
+            def _fetch_claude():
+                with urllib.request.urlopen(claude_req, timeout=10.0) as r:
+                    return json.loads(r.read().decode('utf-8'))
+            try:
+                claude_data = await asyncio.to_thread(_fetch_claude)
+                self.claude_forecast_data = claude_data
+                logger.info("Successfully fetched Claude Forecast Data from Cloud!")
+            except Exception as e:
+                logger.warning(f"Could not fetch Claude Forecast from cloud: {e}")
             
             # Map news
             feed_news = data.get("news", [])

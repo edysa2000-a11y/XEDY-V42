@@ -2,6 +2,19 @@ from .base_engine import BaseEngine
 from .claude_tactical_advisor import ClaudeTacticalAdvisor
 from .decision_priority_engine import DecisionPriorityEngine
 import json
+import os
+
+def load_holy_grail_params():
+    filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "holy_grail_params.json")
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            pass
+    return {}
+
+HOLY_GRAIL_PARAMS = load_holy_grail_params()
 
 class RiskEngine(BaseEngine):
     """
@@ -39,28 +52,13 @@ class RiskEngine(BaseEngine):
         self.logger.info("Risk engine online.")
         import asyncio
         self._trailing_task = asyncio.create_task(self._trailing_stop_loop())
-        self._intra_candle_task = asyncio.create_task(self._intra_candle_scalper_loop())
-        self._open_shift_close_task = asyncio.create_task(self._open_shift_close_loop())
-        self._adaptive_task = asyncio.create_task(self._adaptive_portfolio_loop())
-        self._forecast_hlc_task = asyncio.create_task(self._forecast_hlc_bound_loop())
-        self._decision_priority_task = asyncio.create_task(self._decision_priority_loop())
-        self._smart_money_bos_task = asyncio.create_task(self._smart_money_bos_loop())
+        self._confidence_task = asyncio.create_task(self._confidence_method_loop())
 
     async def stop(self):
-        if self._trailing_task:
+        if hasattr(self, "_trailing_task") and self._trailing_task:
             self._trailing_task.cancel()
-        if self._intra_candle_task:
-            self._intra_candle_task.cancel()
-        if self._open_shift_close_task:
-            self._open_shift_close_task.cancel()
-        if hasattr(self, "_adaptive_task") and self._adaptive_task:
-            self._adaptive_task.cancel()
-        if hasattr(self, "_forecast_hlc_task") and self._forecast_hlc_task:
-            self._forecast_hlc_task.cancel()
-        if hasattr(self, "_decision_priority_task") and self._decision_priority_task:
-            self._decision_priority_task.cancel()
-        if hasattr(self, "_smart_money_bos_task") and self._smart_money_bos_task:
-            self._smart_money_bos_task.cancel()
+        if hasattr(self, "_confidence_task") and self._confidence_task:
+            self._confidence_task.cancel()
         self.logger.info("Risk engine offline.")
 
     def _get_daily_profit(self) -> float:
@@ -112,13 +110,7 @@ class RiskEngine(BaseEngine):
             self.logger.info(f"AutoTrade is OFF. Trade request ignored: {signal} at {price}")
             return
             
-        # Block raw DecisionEngine signals if running a loop-based quantitative strategy
-        import os
-        active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
-        if active_method in ["forecast-hlc-bound", "intra-candle-scalper", "intra-candle-scalper-m5", "intra-candle-scalper-m15", "intra-candle-scalper-h1", "intra-candle-scalper-h4", "open-shift-close", "decision-priority-engine"]:
-            self.logger.info(f"DecisionEngine Signal: Raw {signal} trade request ignored because active quantitative method is {active_method}")
-            return
-            
+
         # Debounce Filter (prevent multiple fast consecutive orders within 60 seconds)
         import time
         now = time.time()
@@ -734,1127 +726,131 @@ class RiskEngine(BaseEngine):
         else:
             self.logger.warning(f"Failed to move SL of Position #{ticket} to {sl}: {res.comment}")
 
-    async def _intra_candle_scalper_loop(self):
-        import asyncio
-        import MetaTrader5 as mt5
-        import os
-        import pandas as pd
-        import numpy as np
-        
-        last_bar_time = 0
-        
-        while True:
-            try:
-                active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
-                if active_method in ["intra-candle-scalper", "intra-candle-scalper-m15", "intra-candle-scalper-m5", "intra-candle-scalper-h1", "intra-candle-scalper-h4"] and self.autotrade_enabled:
-                    symbol = self.symbol
-                    if active_method == "intra-candle-scalper-m5":
-                        tf = mt5.TIMEFRAME_M5
-                    elif active_method == "intra-candle-scalper-m15":
-                        tf = mt5.TIMEFRAME_M15
-                    elif active_method == "intra-candle-scalper-h1":
-                        tf = mt5.TIMEFRAME_H1
-                    elif active_method == "intra-candle-scalper-h4":
-                        tf = mt5.TIMEFRAME_H4
-                    else:
-                        tf = mt5.TIMEFRAME_M30
-                    
-                    # 1. Fetch current candle info
-                    rates = mt5.copy_rates_from_pos(symbol, tf, 0, 15)
-                    if rates is not None and len(rates) >= 15:
-                        current_bar = rates[-1]
-                        current_bar_time = int(current_bar[0])
-                        open_price = float(current_bar[1])
-                        
-                        # Calculate ATR (14)
-                        closes = np.array([r[4] for r in rates])
-                        highs = np.array([r[2] for r in rates])
-                        lows = np.array([r[3] for r in rates])
-                        
-                        tr_list = []
-                        for i in range(1, len(rates)):
-                            tr = max(highs[i] - lows[i], max(abs(highs[i] - closes[i-1]), abs(lows[i] - closes[i-1])))
-                            tr_list.append(tr)
-                        atr = float(np.mean(tr_list[-14:]))
-                        
-                        # 2. Check if a new M30 candle has opened!
-                        if current_bar_time > last_bar_time:
-                            last_bar_time = current_bar_time
-                            
-                            # Safety check: limit total active positions
-                            existing_positions = mt5.positions_get(symbol=symbol)
-                            max_pos = int(os.environ.get("AVERAGING_MAX_POSITIONS", "6"))
-                            if existing_positions and len(existing_positions) >= max_pos:
-                                self.logger.info(f"Intra-Candle Scalper: Active positions ({len(existing_positions)}) >= Max allowed ({max_pos}). Skipping new pending orders.")
-                                continue
-                                
-                            # Let active positions run to TP/SL. Do not close them on candle change.
-                            if self.execution_engine:
-                                active_positions = mt5.positions_get(symbol=symbol)
-                                if active_positions:
-                                    self.logger.info(f"Intra-Candle: Keeping {len(active_positions)} active positions open from previous bar to hit TP/SL.")
-                                        
-                            self.logger.info(f"New candle detected at timestamp {current_bar_time}. Executing Intra-Candle Scalper...")
-                            
-                            # Clean up old pending orders from previous bar
-                            orders = mt5.orders_get(symbol=symbol)
-                            if orders:
-                                for o in orders:
-                                    if o.type in [mt5.ORDER_TYPE_BUY_LIMIT, mt5.ORDER_TYPE_SELL_LIMIT]:
-                                        req = {
-                                            "action": mt5.TRADE_ACTION_REMOVE,
-                                            "order": o.ticket
-                                        }
-                                        mt5.order_send(req)
-                                            
-                            # Place new limit orders
-                            lot_size = float(os.environ.get("LOT_SIZE", "0.10"))
-                            buy_limit = open_price - atr * 0.05
-                            buy_tp = buy_limit + atr * 0.08
-                            buy_sl = buy_limit - atr * 1.0
-                            
-                            sell_limit = open_price + atr * 0.05
-                            sell_tp = sell_limit - atr * 0.08
-                            sell_sl = sell_limit + atr * 1.0
-                            
-                            # Send Limit Orders via execution engine
-                            # BUY LIMIT
-                            req_buy = {
-                                "action": mt5.TRADE_ACTION_PENDING,
-                                "symbol": symbol,
-                                "volume": lot_size,
-                                "type": mt5.ORDER_TYPE_BUY_LIMIT,
-                                "price": buy_limit,
-                                "sl": buy_sl,
-                                "tp": buy_tp,
-                                "type_time": mt5.ORDER_TIME_GTC,
-                                "type_filling": mt5.ORDER_FILLING_IOC
-                            }
-                            # SELL LIMIT
-                            req_sell = {
-                                "action": mt5.TRADE_ACTION_PENDING,
-                                "symbol": symbol,
-                                "volume": lot_size,
-                                "type": mt5.ORDER_TYPE_SELL_LIMIT,
-                                "price": sell_limit,
-                                "sl": sell_sl,
-                                "tp": sell_tp,
-                                "type_time": mt5.ORDER_TIME_GTC,
-                                "type_filling": mt5.ORDER_FILLING_IOC
-                            }
-                            
-                            # Let's adjust filling type dynamically for the broker account
-                            acc = mt5.account_info()
-                            filling = mt5.ORDER_FILLING_FOK
-                            if acc and "FXT" in getattr(acc, "company", ""):
-                                filling = mt5.ORDER_FILLING_IOC
-                            
-                            req_buy["type_filling"] = filling
-                            req_sell["type_filling"] = filling
-                            
-                            res1 = mt5.order_send(req_buy)
-                            res2 = mt5.order_send(req_sell)
-                            self.logger.info(f"Placed M30 pending limit orders. Buy Limit={buy_limit:.2f}, Sell Limit={sell_limit:.2f}")
-                            
-            except Exception as e:
-                self.logger.error(f"Error in _intra_candle_scalper_loop: {e}", exc_info=True)
-            await asyncio.sleep(5)
 
-    async def _open_shift_close_loop(self):
+    async def _confidence_method_loop(self):
         import asyncio
-        import MetaTrader5 as mt5
-        import os
-        import pandas as pd
-        import numpy as np
-        
-        last_bar_time = 0
-        
-        while True:
-            try:
-                active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
-                if active_method == "open-shift-close" and self.autotrade_enabled:
-                    symbol = self.symbol
-                    tf = mt5.TIMEFRAME_M30
-                    
-                    # Fetch rates (need at least 50 bars to calculate EMA 25 accurately)
-                    rates = mt5.copy_rates_from_pos(symbol, tf, 0, 50)
-                    if rates is not None and len(rates) >= 30:
-                        current_bar = rates[-1]
-                        current_bar_time = int(current_bar[0])
-                        open_price = float(current_bar[1])
-                        
-                        # Calculate EMA 5 and EMA 15 on past rates (excluding the current uncompleted bar)
-                        closes = np.array([r[4] for r in rates[:-1]])
-                        highs = np.array([r[2] for r in rates[:-1]])
-                        lows = np.array([r[3] for r in rates[:-1]])
-                        
-                        df_temp = pd.DataFrame(rates[:-1])
-                        ema_fast = df_temp[4].ewm(span=5, adjust=False).mean().iloc[-1]
-                        ema_slow = df_temp[4].ewm(span=15, adjust=False).mean().iloc[-1]
-                        
-                        # Calculate ATR (14)
-                        tr_list = []
-                        for i in range(1, len(df_temp)):
-                            tr = max(highs[i] - lows[i], max(abs(highs[i] - closes[i-1]), abs(lows[i] - closes[i-1])))
-                            tr_list.append(tr)
-                        atr = float(np.mean(tr_list[-14:]))
-                        
-                        if current_bar_time > last_bar_time:
-                            last_bar_time = current_bar_time
-                            self.logger.info(f"New M30 candle detected at timestamp {current_bar_time}. Running Open Shift Close (Breakout Stop) strategy...")
-                            
-                            is_bullish_cross = ema_fast > ema_slow
-                            is_bearish_cross = ema_fast < ema_slow
-                            
-                            # Check Qwen AI Macro Bias
-                            qwen_bias = "ANY"
-                            if hasattr(self, "macro_strategist") and self.macro_strategist:
-                                qwen_bias = getattr(self.macro_strategist, "macro_bias", "ANY")
-                            
-                            # Cancel existing pending stop orders on this symbol
-                            orders = mt5.orders_get(symbol=symbol)
-                            if orders:
-                                for o in orders:
-                                    if o.type in [mt5.ORDER_TYPE_BUY_STOP, mt5.ORDER_TYPE_SELL_STOP]:
-                                        cancel_req = {
-                                            "action": mt5.TRADE_ACTION_REMOVE,
-                                            "order": o.ticket
-                                        }
-                                        mt5.order_send(cancel_req)
-                                        self.logger.info(f"Open Shift Close: Cancelled old pending order #{o.ticket}")
-                            
-                            # Check active positions on the symbol
-                            active_positions = mt5.positions_get(symbol=symbol)
-                            
-                            # Shift logic
-                            if active_positions:
-                                for p in active_positions:
-                                    should_close = False
-                                    if p.type == mt5.POSITION_TYPE_BUY:
-                                        if is_bearish_cross or qwen_bias in ["SELL_ONLY", "WAIT"]:
-                                            should_close = True
-                                    elif p.type == mt5.POSITION_TYPE_SELL:
-                                        if is_bullish_cross or qwen_bias in ["BUY_ONLY", "WAIT"]:
-                                            should_close = True
-                                        
-                                    if should_close:
-                                        if p.profit > 0.0:
-                                            self.logger.info(f"Open Shift Close: Trend/AI shift detected and position in profit (${p.profit:.2f}). Closing position #{p.ticket}...")
-                                            await self.execution_engine.close_position(p.ticket)
-                                        else:
-                                            self.logger.info(f"Open Shift Close: Trend/AI shift detected, but position is in floating loss (${p.profit:.2f}). Skipping early exit to allow TP/SL.")
-                                        
-                            # Re-fetch positions after closures
-                            active_positions = mt5.positions_get(symbol=symbol)
-                            
-                            # Open new position if none active
-                            if not active_positions and qwen_bias != "WAIT":
-                                lot_size = float(os.environ.get("LOT_SIZE", "0.20"))
-                                acc = mt5.account_info()
-                                filling = mt5.ORDER_FILLING_FOK
-                                if acc and "FXT" in getattr(acc, "company", ""):
-                                    filling = mt5.ORDER_FILLING_IOC
-                                    
-                                if is_bullish_cross and qwen_bias in ["BUY_ONLY", "ANY"]:
-                                    stop_price = float(current_bar[2]) + atr * 0.05
-                                    tp_price = stop_price + atr * 3.0
-                                    sl_price = stop_price - atr * 2.5
-                                    req = {
-                                        "action": mt5.TRADE_ACTION_PENDING,
-                                        "symbol": symbol,
-                                        "volume": lot_size,
-                                        "type": mt5.ORDER_TYPE_BUY_STOP,
-                                        "price": stop_price,
-                                        "sl": sl_price,
-                                        "tp": tp_price,
-                                        "type_time": mt5.ORDER_TIME_GTC,
-                                        "type_filling": filling
-                                    }
-                                    mt5.order_send(req)
-                                    self.logger.info(f"Open Shift Close: Placed BUY STOP order at {stop_price:.2f} (TP={tp_price:.2f}, SL={sl_price:.2f})")
-                                elif is_bearish_cross and qwen_bias in ["SELL_ONLY", "ANY"]:
-                                    stop_price = float(current_bar[3]) - atr * 0.05
-                                    tp_price = stop_price - atr * 3.0
-                                    sl_price = stop_price + atr * 2.5
-                                    req = {
-                                        "action": mt5.TRADE_ACTION_PENDING,
-                                        "symbol": symbol,
-                                        "volume": lot_size,
-                                        "type": mt5.ORDER_TYPE_SELL_STOP,
-                                        "price": stop_price,
-                                        "sl": sl_price,
-                                        "tp": tp_price,
-                                        "type_time": mt5.ORDER_TIME_GTC,
-                                        "type_filling": filling
-                                    }
-                                    mt5.order_send(req)
-                                    self.logger.info(f"Open Shift Close: Placed SELL STOP order at {stop_price:.2f} (TP={tp_price:.2f}, SL={sl_price:.2f})")
-                                    
-            except Exception as e:
-                self.logger.error(f"Error in _open_shift_close_loop: {e}", exc_info=True)
-            await asyncio.sleep(5)
-
-    async def _adaptive_portfolio_loop(self):
-        import asyncio
+        from backend.main import app
         import os
         import MetaTrader5 as mt5
-        import numpy as np
-        import time
-        
-        while True:
-            try:
-                self.logger.info("Adaptive Portfolio: Running daily strategy optimization based on MAE/MFE/PnL feedback...")
-                
-                # Fetch trade history from MT5 for the last 30 days
-                from_date = time.time() - 30 * 24 * 60 * 60
-                deals = mt5.history_deals_get(from_date, time.time())
-                
-                if deals and len(deals) > 5:
-                    self.logger.info(f"Adaptive Portfolio: Analyzing {len(deals)} recent trade deals...")
-                    
-                    # Export closed trades to data/closed_trades.json for cloud self-learning fallback
-                    raw_trades = []
-                    for d in deals:
-                        if d.entry == 1:
-                            raw_trades.append({
-                                "time": int(d.time),
-                                "profit": float(d.profit),
-                                "symbol": str(d.symbol),
-                                "volume": float(d.volume)
-                            })
-                    os.makedirs("data", exist_ok=True)
-                    with open("data/closed_trades.json", "w") as tf:
-                        json.dump(raw_trades, tf, indent=2)
-                        
-                    # Filter out non-trading deals (like deposits/adjustments) and get profits of out deals
-                    profits = [d.profit for d in deals if d.entry == 1]
-                    if len(profits) > 0:
-                        winrate = sum(1 for p in profits if p > 0) / len(profits)
-                        avg_win = np.mean([p for p in profits if p > 0]) if any(p > 0 for p in profits) else 10.0
-                        avg_loss = abs(np.mean([p for p in profits if p < 0])) if any(p < 0 for p in profits) else 10.0
-                        
-                        payoff = avg_win / avg_loss if avg_loss > 0 else 1.0
-                        f_star = winrate - (1.0 - winrate) / payoff
-                        
-                        # Apply Fractional Kelly Sizing (0.25 multiplier)
-                        optimal_risk = max(0.5, min(4.0, f_star * 0.25 * 100.0))
-                        os.environ["RISK_PERCENT"] = f"{optimal_risk:.2f}"
-                        self.logger.info(f"Adaptive Sizing: Dynamic Kelly Sizing updated to {optimal_risk:.2f}% per trade based on MAE/MFE feedback loop.")
-                        
-                        # Dynamic Regime Selection
-                        if winrate > 0.55:
-                            os.environ["ACTIVE_METHOD"] = "scalping-1-1"
-                            self.logger.info("Adaptive Portfolio: Dynamic regime shifted to 'scalping-1-1' (High Winrate Scalper).")
-                        elif winrate >= 0.42:
-                            os.environ["ACTIVE_METHOD"] = "open-shift-close"
-                            self.logger.info("Adaptive Portfolio: Dynamic regime shifted to 'open-shift-close-breakout' (Stable Breakout).")
-                        else:
-                            os.environ["ACTIVE_METHOD"] = "fixed-micro-scalping"
-                            self.logger.info("Adaptive Portfolio: Dynamic regime shifted to 'fixed-micro-scalping' (Low-Risk Safety Guard).")
-                else:
-                    self.logger.info("Adaptive Portfolio: Insufficient trade history. Defaulting to breakout stop-entry mode.")
-                    os.environ["ACTIVE_METHOD"] = "open-shift-close"
-                    
-            except Exception as e:
-                self.logger.error(f"Error in _adaptive_portfolio_loop: {e}", exc_info=True)
-                
-            await asyncio.sleep(86400)
-
-
-    async def _circuit_breaker_watchdog_loop(self):
-        import asyncio
-        import MetaTrader5 as mt5
-        import time
-        while True:
-            if not getattr(self, "autotrade_enabled", False):
-                await asyncio.sleep(1)
-                continue
-                
-            acc_info = mt5.account_info()
-            if acc_info:
-                curr_equity = acc_info.equity
-                if not hasattr(self, "_peak_equity"):
-                    self._peak_equity = curr_equity
-                elif curr_equity > self._peak_equity:
-                    self._peak_equity = curr_equity
-                    
-                dd_pct = ((self._peak_equity - curr_equity) / self._peak_equity) * 100
-                if dd_pct >= 8.0:
-                    if not hasattr(self, "_circuit_breaker_until") or time.time() > self._circuit_breaker_until:
-                        self.logger.error(f"[{self.symbol}] CIRCUIT BREAKER TRIGGERED! Drawdown {dd_pct:.2f}%. Halting 12 hours.")
-                        self._circuit_breaker_until = time.time() + (12 * 3600)
-            
-            await asyncio.sleep(1)
-
-    async def _forecast_hlc_bound_loop(self):
-        """
-        Background loop for the Forecast HLC Boundary trading method.
-        Runs every 30 seconds to place instant market orders and layered pullback limit orders
-        using dynamic distance scaling, volume weighting, and auto-hedge safety locks.
-        """
-        import asyncio
-        import MetaTrader5 as mt5
-        import os
-        import json
-        
-        while True:
-            try:
-                active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
-                if active_method == "forecast-hlc-bound" and self.autotrade_enabled:
-                    symbol = self.symbol
-                    
-                    import time
-                    if hasattr(self, "_circuit_breaker_until") and time.time() < self._circuit_breaker_until:
-                        await asyncio.sleep(10)
-                        continue
-                        
-                    # --- DYNAMIC MAX OP LIMITER ---
-                    active_profile = os.environ.get("ACTIVE_RISK_PROFILE", "MODERATE").upper()
-                    global_max_op = 3
-                    asset_max_op = 1
-                    
-                    if active_profile == "EXTREME":
-                        global_max_op = 2
-                        asset_max_op = 1
-                    elif active_profile == "MODERATE":
-                        global_max_op = 3
-                        asset_max_op = 1
-                    elif active_profile == "NORMAL":
-                        global_max_op = 4
-                        asset_max_op = 2
-                    elif active_profile == "CONSERVATIVE":
-                        global_max_op = 5
-                        asset_max_op = 2
-                        
-                    all_positions = mt5.positions_get()
-                    if all_positions is not None:
-                        total_global_op = len(all_positions)
-                        asset_op_count = sum(1 for p in all_positions if p.symbol == symbol)
-                        
-                        if total_global_op >= global_max_op or asset_op_count >= asset_max_op:
-                            # Too many positions open, skip entry
-                            self._dynamic_op_blocked = True
-                        else:
-                            self._dynamic_op_blocked = False
-                    else:
-                        self._dynamic_op_blocked = False
-
-                    # --- EQUILIBRIUM RISK SCALER ---
-                    import json
-                    news_feed_path = "data/news_feed.json"
-                    risk_pct = 0.0
-                    if os.path.exists(news_feed_path):
-                        try:
-                            with open(news_feed_path, "r", encoding="utf-8") as nf:
-                                feed_data = json.load(nf)
-                                macro_data = feed_data.get("macro_analysis", {}).get(symbol, {})
-                                conf = float(macro_data.get("causal_confidence", 0.0))
-                                
-                                active_profile = os.environ.get("ACTIVE_RISK_PROFILE", "MODERATE").upper()
-                                if active_profile == "CONSERVATIVE": base_risk = 0.5
-                                elif active_profile == "NORMAL": base_risk = 1.0
-                                elif active_profile == "EXTREME": base_risk = 2.0
-                                else: base_risk = 1.5 # MODERATE
-                                
-                                if conf >= 0.93: risk_pct = base_risk + 4.0
-                                elif conf >= 0.85: risk_pct = base_risk + 3.0
-                                elif conf >= 0.77: risk_pct = base_risk + 2.0
-                                elif conf >= 0.69: risk_pct = base_risk + 1.0
-                                elif conf >= 0.61: risk_pct = base_risk + 0.0
-                                else: risk_pct = 0.0 # Smart Gate Veto
-                        except:
-                            pass
-                            
-                    if risk_pct == 0.0:
-                        await asyncio.sleep(10)
-                        continue # Veto trade due to low confidence (< 61%)
-                        
-                    if getattr(self, "_dynamic_op_blocked", False):
-                        await asyncio.sleep(5)
-                        continue # Veto trade due to Dynamic Max OP Limit
-                        
-                    # Override the environment variable dynamically for this instance's execution flow
-                    os.environ["AUTO_LOT_RISK_PERCENT"] = str(risk_pct)
-                    
-                    # 1. Fetch latest optimized forecasts
-                    cache_path = "data/backtest_cache.json"
-                    pred_high = None
-                    pred_low = None
-                    pred_close = None
-                    
-                    if os.path.exists(cache_path):
-                        try:
-                            with open(cache_path, "r", encoding="utf-8") as f:
-                                bt_cache = json.load(f)
-                                d1_list = bt_cache.get("detail_1d", [])
-                                if d1_list:
-                                    latest = d1_list[-1]
-                                    pred_high = float(latest.get("pred_high"))
-                                    pred_low = float(latest.get("pred_low"))
-                                    pred_close = float(latest.get("pred_close"))
-                        except Exception as e:
-                            self.logger.error(f"Failed to load forecast cache in loop: {e}")
-                            
-                    # 2. If forecast is not loaded, fallback to default ATR bounds
-                    if pred_high is None or pred_low is None or pred_close is None:
-                        tick = mt5.symbol_info_tick(symbol)
-                        if tick:
-                            pred_close = tick.bid
-                            pred_high = tick.bid + 15.0
-                            pred_low = tick.bid - 15.0
-                            
-                    if mt5.initialize() and pred_high and pred_low and pred_close:
-                        tick = mt5.symbol_info_tick(symbol)
-                        if not tick:
-                            continue
-                            
-                        # --- Safety Limits & News Blackout ---
-                        
-                        positions = mt5.positions_get(symbol=symbol)
-                        has_positions = positions is not None and len(positions) > 0
-                        
-                        if not has_positions:
-                            if self._is_news_blackout():
-                                self.logger.warning(f"Safety Lock: News Blackout active. Trading suspended for 30 mins.")
-                                await asyncio.sleep(30)
-                                continue
-                            
-                        # Spread Protection Filter (Max 3.5 USD / 35 pips on Gold)
-                        spread = tick.ask - tick.bid
-                        max_allowed_spread = 3.5
-                        if spread > max_allowed_spread:
-                            self.logger.warning(f"HLC Strategy: Order placement skipped due to high broker spread: {spread:.2f} (Max allowed: {max_allowed_spread})")
-                            await asyncio.sleep(30)
-                            continue
-                            
-                        # RSI Confluence Filter (RSI 14 from M15 data)
-                        import numpy as np
-                        rsi_value = 50.0  # Default neutral
-                        rsi_filter_direction = "ANY"  # ANY = no restriction
-                        try:
-                            rsi_rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M15, 0, 20)
-                            if rsi_rates is not None and len(rsi_rates) >= 15:
-                                rsi_closes = np.array([r[4] for r in rsi_rates])  # close prices
-                                rsi_delta = np.diff(rsi_closes)
-                                rsi_gain = np.where(rsi_delta > 0, rsi_delta, 0)
-                                rsi_loss = np.where(rsi_delta < 0, -rsi_delta, 0)
-                                avg_gain = np.mean(rsi_gain[-14:])
-                                avg_loss = np.mean(rsi_loss[-14:])
-                                if avg_loss > 0:
-                                    rs = avg_gain / avg_loss
-                                    rsi_value = 100.0 - (100.0 / (1.0 + rs))
-                                else:
-                                    rsi_value = 100.0
-                                    
-                                if rsi_value < 35.0:
-                                    rsi_filter_direction = "BUY_ONLY"
-                                    self.logger.info(f"HLC RSI Filter: RSI={rsi_value:.1f} (Oversold) -> BUY_ONLY confluence confirmed.")
-                                elif rsi_value > 65.0:
-                                    rsi_filter_direction = "SELL_ONLY"
-                                    self.logger.info(f"HLC RSI Filter: RSI={rsi_value:.1f} (Overbought) -> SELL_ONLY confluence confirmed.")
-                                else:
-                                    rsi_filter_direction = "ANY"
-                                    self.logger.info(f"HLC RSI Filter: RSI={rsi_value:.1f} (Neutral zone) -> Deferring to AI bias.")
-                        except Exception as rsi_err:
-                            self.logger.warning(f"HLC RSI Filter: Could not calculate RSI: {rsi_err}")
-                            
-                        # 3. Check current positions and pending orders
-                        positions = mt5.positions_get(symbol=symbol)
-                        orders = mt5.orders_get(symbol=symbol)
-                        
-                        has_positions = positions is not None and len(positions) > 0
-                        has_orders = orders is not None and len(orders) > 0
-                        
-                        # 4. Resolve Macro Bias
-                        bias = "ANY"
-                        macro_strat = getattr(self, "macro_strategist", None)
-                        if not macro_strat and hasattr(self, "decision_engine") and self.decision_engine:
-                            macro_strat = getattr(self.decision_engine, "macro_strategist", None)
-                        if macro_strat:
-                            bias = getattr(macro_strat, "macro_bias", "ANY")
-                            
-                        # 5. Calculation parameters
-                        mid = (pred_high + pred_low) / 2.0
-                        grid_range = pred_high - pred_low
-                        grid_dist = grid_range / 3.0
-                        
-                        # Get broker volume constraints dynamically to avoid Error 10014 (Invalid Volume)
-                        sym_info = mt5.symbol_info(symbol)
-                        vol_step = 0.01
-                        vol_min = 0.01
-                        vol_max = 500.0
-                        if sym_info is not None:
-                            vol_step = float(sym_info.volume_step)
-                            vol_min = float(sym_info.volume_min)
-                            vol_max = float(sym_info.volume_max)
-                            
-                        def normalize_vol(v):
-                            v_norm = round(v / vol_step) * vol_step
-                            return max(vol_min, min(vol_max, round(v_norm, 2)))
-                            
-                        base_lot = normalize_vol(float(os.environ.get("LOT_SIZE", "0.10")))
-                        
-                        # 6. Resolve Regime
-                        regime = "NORMAL"
-                        if macro_strat:
-                            regime = getattr(macro_strat, "volatility_regime", "NORMAL")
-                            
-                        # Override bias based on trend regime to prevent counter-trend execution
-                        if regime == "TREND_UP":
-                            bias = "BUY_ONLY"
-                            self.logger.info("HLC Strategy: TREND_UP regime active, overriding bias to BUY_ONLY.")
-                        elif regime == "TREND_DOWN":
-                            bias = "SELL_ONLY"
-                            self.logger.info("HLC Strategy: TREND_DOWN regime active, overriding bias to SELL_ONLY.")
-                            
-                        # 7. RSI Confluence Enforcement
-                        # If RSI disagrees with current bias, tighten bias to prevent counter-momentum entries
-                        if rsi_filter_direction != "ANY":
-                            if bias == "ANY":
-                                # No regime override, let RSI guide direction
-                                bias = rsi_filter_direction
-                                self.logger.info(f"HLC RSI Confluence: RSI overriding neutral bias to {rsi_filter_direction}.")
-                            elif bias != rsi_filter_direction:
-                                # RSI conflicts with regime bias -> block new entries entirely
-                                self.logger.warning(f"HLC RSI Confluence: RSI={rsi_filter_direction} CONFLICTS with Regime bias={bias}. Blocking new entries this cycle.")
-                                if not has_positions:
-                                    continue  # Skip this cycle entirely if no positions open
-                            
-                        # =============================================
-                        # DUAL AI CONSENSUS ENGINE (Claude + Qwen)
-                        # =============================================
-                        claude_instruction = None
-                        claude_tp_primary = None
-                        claude_tp_conservative = None
-                        claude_sl = None
-                        
-                        # Always try to get or use cached Claude instruction
-                        try:
-                            import time as _time
-                            from datetime import datetime, timedelta
-                            
-                            # Try cached instruction first
-                            claude_instruction = self.claude_advisor.get_cached_instruction()
-                            
-                            # If no cached instruction and no positions, request new one
-                            if not claude_instruction and not has_positions:
-                                pos_list = []
-                                if positions:
-                                    for _p in positions:
-                                        pos_list.append({"type": _p.type, "volume": _p.volume, "price_open": _p.price_open, "profit": _p.profit})
-                                closed_today = []
-                                try:
-                                    today_start = datetime.now().replace(hour=0, minute=0, second=0)
-                                    deals = mt5.history_deals_get(today_start, datetime.now() + timedelta(hours=1))
-                                    if deals:
-                                        for d in deals:
-                                            dd = d._asdict()
-                                            if dd.get("entry") == 1:
-                                                closed_today.append({"profit": dd.get("profit", 0) + dd.get("commission", 0) + dd.get("swap", 0)})
-                                except Exception:
-                                    pass
-                                _technicals = {}
-                                _news_text = "No recent headlines."
-                                _macro_strat = getattr(self, "macro_strategist", None)
-                                if not _macro_strat and hasattr(self, "decision_engine") and self.decision_engine:
-                                    _macro_strat = getattr(self.decision_engine, "macro_strategist", None)
-                                if _macro_strat:
-                                    if hasattr(_macro_strat, "data_engine") and _macro_strat.data_engine:
-                                        _technicals = getattr(_macro_strat.data_engine, "technicals", {})
-                                    if hasattr(_macro_strat, "news_engine") and _macro_strat.news_engine:
-                                        _headlines = [n.get("headline", n.get("title", "")) for n in getattr(_macro_strat.news_engine, "news_feed", [])[-5:]]
-                                        if _headlines:
-                                            _news_text = " | ".join(_headlines)
-                                _atr_rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M15, 0, 20)
-                                _atr_val = 9.0
-                                if _atr_rates is not None and len(_atr_rates) >= 15:
-                                    import numpy as _np
-                                    _h = _np.array([r[2] for r in _atr_rates])
-                                    _l = _np.array([r[3] for r in _atr_rates])
-                                    _c = _np.array([r[4] for r in _atr_rates])
-                                    _tr = [max(_h[i]-_l[i], abs(_h[i]-_c[i-1]), abs(_l[i]-_c[i-1])) for i in range(1, len(_atr_rates))]
-                                    _atr_val = float(_np.mean(_tr[-14:]))
-                                
-                                claude_instruction = await self.claude_advisor.get_tactical_instruction(
-                                    _technicals, _news_text, pos_list, closed_today, tick.bid, _atr_val
-                                )
-                            
-                            # Extract Claude's precise TP/SL targets
-                            if claude_instruction and claude_instruction.get("action") in ["BUY", "SELL"]:
-                                claude_tp_primary = claude_instruction.get("tp_primary")
-                                claude_tp_conservative = claude_instruction.get("tp_conservative")
-                                claude_sl = claude_instruction.get("sl_price")
-                                claude_conf = claude_instruction.get("confidence", 0)
-                                claude_action = claude_instruction["action"]
-                                
-                                # =============================================
-                                # DUAL AI CONSENSUS CHECK
-                                # =============================================
-                                # Qwen bias is already set. Check if Claude agrees.
-                                qwen_bias = bias  # Current bias from Qwen/Regime
-                                claude_bias = "BUY_ONLY" if claude_action == "BUY" else "SELL_ONLY"
-                                
-                                if qwen_bias in ["BUY_ONLY", "SELL_ONLY"] and claude_bias == qwen_bias:
-                                    # CONSENSUS: Both AIs agree on direction
-                                    self.logger.info(
-                                        f"DUAL AI CONSENSUS: Qwen({qwen_bias}) + Claude({claude_action}, {claude_conf}%) AGREE. "
-                                        f"High-conviction entry authorized."
-                                    )
-                                    # Boost lot size by 20% on consensus
-                                    lot_market = normalize_vol(base_lot * 0.36)  # 30% -> 36%
-                                    lot_limit1 = normalize_vol(base_lot * 0.60)  # 50% -> 60%
-                                    lot_limit2 = normalize_vol(base_lot * 1.40)  # 120% -> 140%
-                                    
-                                elif qwen_bias == "ANY" and claude_conf >= 70:
-                                    # Qwen neutral, Claude confident -> follow Claude
-                                    bias = claude_bias
-                                    self.logger.info(
-                                        f"DUAL AI: Qwen neutral, Claude({claude_action}, {claude_conf}%) leads. Bias set to {bias}."
-                                    )
-                                    
-                                elif qwen_bias in ["BUY_ONLY", "SELL_ONLY"] and claude_bias != qwen_bias:
-                                    # CONFLICT: AIs disagree on direction
-                                    if claude_conf >= 85:
-                                        # Claude very confident -> follow Claude but reduce lot
-                                        bias = claude_bias
-                                        lot_market = normalize_vol(base_lot * 0.20)  # Reduced
-                                        lot_limit1 = normalize_vol(base_lot * 0.30)
-                                        lot_limit2 = normalize_vol(base_lot * 0.80)
-                                        self.logger.warning(
-                                            f"DUAL AI CONFLICT: Qwen({qwen_bias}) vs Claude({claude_action}, {claude_conf}%). "
-                                            f"Claude overrides with reduced lot size."
-                                        )
-                                    else:
-                                        # Low confidence conflict -> skip entry
-                                        self.logger.warning(
-                                            f"DUAL AI CONFLICT: Qwen({qwen_bias}) vs Claude({claude_action}, {claude_conf}%). "
-                                            f"Skipping entry — no consensus."
-                                        )
-                                        if not has_positions:
-                                            continue
-                                
-                            elif claude_instruction and claude_instruction.get("action") == "HOLD":
-                                self.logger.info(f"Claude Advisor: HOLD instruction. Skipping entry this cycle.")
-                                if not has_positions:
-                                    continue
-                                    
-                        except Exception as claude_err:
-                            self.logger.warning(f"Dual AI Consensus error (non-blocking): {claude_err}")
-                        
-                        # A. Sideways Range Repeater Logic (Repeated buy low / sell high in range)
-                        if regime == "SIDEWAYS" and bias == "ANY":
-                            # Arm BUY Limit at low boundary if no active BUY position/order
-                            buy_positions = [p for p in positions if p.type == 0] if positions else []
-                            buy_orders = [o for o in orders if o.type == mt5.ORDER_TYPE_BUY_LIMIT] if orders else []
-                            if not buy_positions and not buy_orders:
-                                buy_tp = mid
-                                buy_sl = pred_low - 15.0
-                                if self.execution_engine and pred_low < tick.bid:
-                                    self.logger.info(f"Sideways Range Repeater: Arming BUY Limit at Low boundary {pred_low}")
-                                    await self.execution_engine.execute_pending_limit_order(
-                                        symbol, "BUY", pred_low, buy_sl, buy_tp, base_lot
-                                    )
-                                    
-                            # Arm SELL Limit at high boundary if no active SELL position/order
-                            sell_positions = [p for p in positions if p.type == 1] if positions else []
-                            sell_orders = [o for o in orders if o.type == mt5.ORDER_TYPE_SELL_LIMIT] if orders else []
-                            if not sell_positions and not sell_orders:
-                                sell_tp = mid
-                                sell_sl = pred_high + 15.0
-                                if self.execution_engine and pred_high > tick.bid:
-                                    self.logger.info(f"Sideways Range Repeater: Arming SELL Limit at High boundary {pred_high}")
-                                    await self.execution_engine.execute_pending_limit_order(
-                                        symbol, "SELL", pred_high, sell_sl, sell_tp, base_lot
-                                    )
-                                    
-                        # B. Trending / Default Zone Scaling Logic
-                        else:
-                            # Dynamic Lot Weighting:
-                            lot_market = normalize_vol(base_lot * 0.30)
-                            lot_limit1 = normalize_vol(base_lot * 0.50)
-                            lot_limit2 = normalize_vol(base_lot * 1.20)
-                            
-                            # Auto-Reset Grid: If no active positions exist, cancel old leftover limit orders and start fresh
-                            if not has_positions:
-                                if has_orders and orders:
-                                    self.logger.info("HLC Strategy: All active positions closed. Cancelling old pending orders to start a fresh cycle.")
-                                    for o in orders:
-                                        if "LIMIT" in getattr(o, "comment", "") or "HLC" in getattr(o, "comment", ""):
-                                            req = {
-                                                "action": mt5.TRADE_ACTION_REMOVE,
-                                                "order": o.ticket
-                                            }
-                                            mt5.order_send(req)
-                                    # Refresh orders
-                                    orders = mt5.orders_get(symbol=symbol)
-                                    has_orders = orders is not None and len(orders) > 0
-                                    
-                                # Whipsaw Prevention: Add buffer around midpoint to avoid opening trades on tiny fluctuations
-                                mid_buffer = max(1.0, 0.1 * grid_dist)
-                                
-                                # Trigger trade sequence based on bias and mid price with buffer filter
-                                # For range trading (bias ANY): Buy Low (bid <= mid - buffer), Sell High (bid >= mid + buffer)
-                                if bias == "BUY_ONLY" or (bias == "ANY" and tick.bid <= mid - mid_buffer):
-                                    # Use Claude's precise TP if available, otherwise use forecast boundary
-                                    buy_tp = claude_tp_primary if claude_tp_primary and claude_tp_primary > tick.bid else pred_high - 1.0
-                                    buy_tp_safe = claude_tp_conservative if claude_tp_conservative and claude_tp_conservative > tick.bid else mid
-                                    buy_sl = claude_sl if claude_sl and claude_sl < tick.bid else pred_low - 15.0
-                                    
-                                    # A. Instant Market BUY Entry (Lot 30%) — TP = Conservative (high probability)
-                                    if self.execution_engine:
-                                        self.logger.info(f"HLC Strategy: Triggering Market BUY Entry ({lot_market} lot) at {tick.ask} | TP1={buy_tp_safe:.2f} TP2={buy_tp:.2f} SL={buy_sl:.2f}")
-                                        await self.execution_engine.execute_order(symbol, "BUY", lot_market)
-                                        
-                                    # B. Pullback BUY LIMIT 1 (Lot 50%) — TP = Conservative midpoint
-                                    limit_price_1 = mid - 0.5 * grid_dist
-                                    if self.execution_engine and limit_price_1 < tick.bid:
-                                        await self.execution_engine.execute_pending_limit_order(
-                                            symbol, "BUY", limit_price_1, buy_sl, buy_tp_safe, lot_limit1
-                                        )
-                                        
-                                    # C. Pullback BUY LIMIT 2 (Lot 120%) — TP = Primary (max profit)
-                                    if self.execution_engine and pred_low < tick.bid:
-                                        await self.execution_engine.execute_pending_limit_order(
-                                            symbol, "BUY", pred_low, buy_sl, buy_tp, lot_limit2
-                                        )
-                                        
-                                elif bias == "SELL_ONLY" or (bias == "ANY" and tick.bid >= mid + mid_buffer):
-                                    # Use Claude's precise TP if available, otherwise use forecast boundary
-                                    sell_tp = claude_tp_primary if claude_tp_primary and claude_tp_primary < tick.bid else pred_low + 1.0
-                                    sell_tp_safe = claude_tp_conservative if claude_tp_conservative and claude_tp_conservative < tick.bid else mid
-                                    sell_sl = claude_sl if claude_sl and claude_sl > tick.bid else pred_high + 15.0
-                                    
-                                    # A. Instant Market SELL Entry (Lot 30%) — TP = Conservative (high probability)
-                                    if self.execution_engine:
-                                        self.logger.info(f"HLC Strategy: Triggering Market SELL Entry ({lot_market} lot) at {tick.bid} | TP1={sell_tp_safe:.2f} TP2={sell_tp:.2f} SL={sell_sl:.2f}")
-                                        await self.execution_engine.execute_order(symbol, "SELL", lot_market)
-                                        
-                                    # B. Pullback SELL LIMIT 1 (Lot 50%) — TP = Conservative midpoint
-                                    limit_price_1 = mid + 0.5 * grid_dist
-                                    if self.execution_engine and limit_price_1 > tick.bid:
-                                        await self.execution_engine.execute_pending_limit_order(
-                                            symbol, "SELL", limit_price_1, sell_sl, sell_tp_safe, lot_limit1
-                                        )
-                                        
-                                    # C. Pullback SELL LIMIT 2 (Lot 120%) — TP = Primary (max profit)
-                                    if self.execution_engine and pred_high > tick.bid:
-                                        await self.execution_engine.execute_pending_limit_order(
-                                            symbol, "SELL", pred_high, sell_sl, sell_tp, lot_limit2
-                                        )
-                                        
-                            elif has_positions:
-                                # A. Active Position Management: Cancel opposing pending limit orders
-                                active_pos_type = positions[0].type # 0 = BUY, 1 = SELL
-                                if has_orders:
-                                    for o in orders:
-                                        # If active position is BUY, cancel SELL LIMIT pending orders
-                                        if active_pos_type == 0 and o.type == mt5.ORDER_TYPE_SELL_LIMIT:
-                                            cancel_req = {"action": mt5.TRADE_ACTION_REMOVE, "order": o.ticket}
-                                            mt5.order_send(cancel_req)
-                                            self.logger.info(f"HLC Strategy: Cancelled opposing SELL limit order #{o.ticket} because BUY position is active.")
-                                        # If active position is SELL, cancel BUY LIMIT pending orders
-                                        elif active_pos_type == 1 and o.type == mt5.ORDER_TYPE_BUY_LIMIT:
-                                            cancel_req = {"action": mt5.TRADE_ACTION_REMOVE, "order": o.ticket}
-                                            mt5.order_send(cancel_req)
-                                            self.logger.info(f"HLC Strategy: Cancelled opposing BUY limit order #{o.ticket} because SELL position is active.")
-                                            
-                                # B. Disaster Auto-Hedge Lock check
-                                total_vol = sum(p.volume for p in positions)
-                                if active_pos_type == 0 and tick.bid <= (pred_low - 12.0):
-                                    # BUY positions breached: open SELL hedge lock
-                                    if not any(p.type == 1 for p in positions):
-                                        self.logger.warning(f"HLC Strategy Breach: BUY Positions breached extreme low level. Triggering SELL Hedge Lock of {total_vol} lots.")
-                                        if self.execution_engine:
-                                            await self.execution_engine.execute_order(symbol, "SELL", total_vol)
-                                            
-                                elif active_pos_type == 1 and tick.ask >= (pred_high + 12.0):
-                                    # SELL positions breached: open BUY hedge lock
-                                    if not any(p.type == 0 for p in positions):
-                                        self.logger.warning(f"HLC Strategy Breach: SELL Positions breached extreme high level. Triggering BUY Hedge Lock of {total_vol} lots.")
-                                        if self.execution_engine:
-                                            await self.execution_engine.execute_order(symbol, "BUY", total_vol)
-                                            
-                                # C. Claude Recovery Scenario Executor
-                                # When positions are in drawdown, execute Claude's recovery plans
-                                try:
-                                    total_floating = sum(p.profit for p in positions)
-                                    avg_entry = sum(p.price_open * p.volume for p in positions) / total_vol if total_vol > 0 else tick.bid
-                                    
-                                    # Trigger recovery when floating loss exceeds $5 per lot
-                                    loss_threshold = -5.0 * total_vol
-                                    
-                                    if total_floating < loss_threshold and self.execution_engine:
-                                        cached = self.claude_advisor.get_cached_instruction()
-                                        if cached and cached.get("recovery_scenarios"):
-                                            recovery_triggered = getattr(self, "_recovery_triggered", False)
-                                            if not recovery_triggered:
-                                                scenarios = cached["recovery_scenarios"]
-                                                # Execute first applicable recovery scenario
-                                                for scenario in scenarios:
-                                                    s_action = scenario.get("action", "").upper()
-                                                    s_lot = scenario.get("lot_adjustment", 0.5)
-                                                    s_target = scenario.get("target_price", 0)
-                                                    recovery_lot = normalize_vol(base_lot * s_lot)
-                                                    
-                                                    if s_action == "HEDGE":
-                                                        # Open opposite position to lock losses
-                                                        hedge_dir = "SELL" if active_pos_type == 0 else "BUY"
-                                                        if not any(p.type == (1 if active_pos_type == 0 else 0) for p in positions):
-                                                            self.logger.warning(
-                                                                f"Claude Recovery HEDGE: Floating ${total_floating:.2f}. "
-                                                                f"Opening {hedge_dir} {recovery_lot} lot to lock loss. "
-                                                                f"Reason: {scenario.get('explanation', 'N/A')}"
-                                                            )
-                                                            await self.execution_engine.execute_order(symbol, hedge_dir, recovery_lot)
-                                                            self._recovery_triggered = True
-                                                            break
-                                                            
-                                                    elif s_action == "AVERAGE":
-                                                        # Add position at better price to lower breakeven
-                                                        avg_dir = "BUY" if active_pos_type == 0 else "SELL"
-                                                        # Only average if price has moved enough from avg entry
-                                                        price_diff = abs(tick.bid - avg_entry)
-                                                        if price_diff >= grid_dist * 0.5:
-                                                            self.logger.warning(
-                                                                f"Claude Recovery AVERAGE: Floating ${total_floating:.2f}. "
-                                                                f"Adding {avg_dir} {recovery_lot} lot to lower breakeven. "
-                                                                f"Reason: {scenario.get('explanation', 'N/A')}"
-                                                            )
-                                                            await self.execution_engine.execute_order(symbol, avg_dir, recovery_lot)
-                                                            self._recovery_triggered = True
-                                                            break
-                                                            
-                                                    elif s_action in ["BUY", "SELL"]:
-                                                        # Direct reversal - close all and reverse
-                                                        self.logger.warning(
-                                                            f"Claude Recovery REVERSAL: Floating ${total_floating:.2f}. "
-                                                            f"Opening {s_action} {recovery_lot} lot reversal. "
-                                                            f"Reason: {scenario.get('explanation', 'N/A')}"
-                                                        )
-                                                        await self.execution_engine.execute_order(symbol, s_action, recovery_lot)
-                                                        self._recovery_triggered = True
-                                                        break
-                                        else:
-                                            # No Claude instruction cached — use built-in smart averaging
-                                            recovery_triggered = getattr(self, "_recovery_triggered", False)
-                                            if not recovery_triggered:
-                                                avg_dir = "BUY" if active_pos_type == 0 else "SELL"
-                                                price_diff = abs(tick.bid - avg_entry)
-                                                if price_diff >= grid_dist * 0.5:
-                                                    recovery_lot = normalize_vol(base_lot * 0.5)
-                                                    self.logger.warning(
-                                                        f"Built-in Recovery: Floating ${total_floating:.2f}. "
-                                                        f"Smart-averaging {avg_dir} {recovery_lot} lot at better price to lower breakeven."
-                                                    )
-                                                    await self.execution_engine.execute_order(symbol, avg_dir, recovery_lot)
-                                                    self._recovery_triggered = True
-                                    elif total_floating >= 0:
-                                        # Reset recovery flag when back to profit
-                                        self._recovery_triggered = False
-                                except Exception as rec_err:
-                                    self.logger.warning(f"Recovery Executor error (non-blocking): {rec_err}")
-                                            
-            except Exception as e:
-                self.logger.error(f"Error in _forecast_hlc_bound_loop: {e}", exc_info=True)
-                
-            await asyncio.sleep(30)
-
-    async def _decision_priority_loop(self):
-        import asyncio
-        import MetaTrader5 as mt5
-        import os
-        import time
 
         while True:
             try:
-                active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
-                if active_method == "decision-priority-engine" and self.autotrade_enabled:
-                    symbol = self.symbol
-                    
-                    if not mt5.initialize():
-                        await asyncio.sleep(30)
-                        continue
-                        
-                    # Fetch 100 candles for proper indicator calculation
-                    rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M15, 0, 100)
-                    tick = mt5.symbol_info_tick(symbol)
-                    
-                    if rates is not None and len(rates) > 50 and tick is not None:
-                        current_price = tick.ask
-                        
-                        import pandas as pd
-                        import numpy as np
-                        
-                        df = pd.DataFrame(rates)
-                        
-                        # 1. ATR (14) Calculation
-                        df['tr0'] = abs(df['high'] - df['low'])
-                        df['tr1'] = abs(df['high'] - df['close'].shift())
-                        df['tr2'] = abs(df['low'] - df['close'].shift())
-                        df['tr'] = df[['tr0', 'tr1', 'tr2']].max(axis=1)
-                        atr = df['tr'].rolling(14).mean().iloc[-1]
-                        if np.isnan(atr): atr = 9.0
-                        
-                        # 2. RSI (14) Calculation
-                        delta = df['close'].diff()
-                        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-                        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-                        rs = gain / loss
-                        df['rsi'] = 100 - (100 / (1 + rs))
-                        rsi_14 = float(df['rsi'].iloc[-1])
-                        if np.isnan(rsi_14): rsi_14 = 50.0
-                        
-                        # 3. EMA (50) Calculation
-                        df['ema_50'] = df['close'].ewm(span=50, adjust=False).mean()
-                        ema_50 = float(df['ema_50'].iloc[-1])
-                        if np.isnan(ema_50): ema_50 = current_price
-                        
-                        # 4. CVD (Cumulative Volume Delta) - Last 20 candles
-                        # Try to use OANDA CVD from cloud, fallback to local MT5 tick_volume
-                        cvd = 0
-                        trend = "BULLISH"
-                        using_oanda = False
-                        
-                        if self.news_engine and hasattr(self.news_engine, "oanda_cvd_data") and self.news_engine.oanda_cvd_data:
-                            try:
-                                oanda_data = self.news_engine.oanda_cvd_data
-                                cvd = int(oanda_data.get("cvd_20", 0))
-                                trend = oanda_data.get("volume_trend", "BULLISH")
-                                using_oanda = True
-                            except:
-                                pass
-                                
-                        if not using_oanda:
-                            recent_df = df.tail(20).copy()
-                            recent_df['delta'] = np.where(recent_df['close'] >= recent_df['open'], recent_df['tick_volume'], -recent_df['tick_volume'])
-                            cvd = int(recent_df['delta'].sum())
-                            trend = "BULLISH_ABSORPTION" if cvd > 0 and current_price < ema_50 else ("BEARISH_EXHAUSTION" if cvd < 0 and current_price > ema_50 else ("BULLISH" if cvd > 0 else "BEARISH"))
-                        
-                        technicals = {
-                            "RSI_14": round(rsi_14, 2),
-                            "EMA_50": round(ema_50, 2),
-                            "Cumulative_Volume_Delta_20": cvd,
-                            "Volume_Trend": trend,
-                            "CVD_Source": "OANDA_CLOUD" if using_oanda else "LOCAL_MT5"
-                        }
-                        
-                        news_text = "No major news."
-                        if self.news_engine and hasattr(self.news_engine, "news_feed"):
-                            news_text = str([n.get("headline") for n in self.news_engine.news_feed[:3]])
-                            
-                        # Evaluate market using the new Engine
-                        decision_data = await self.decision_priority_engine.evaluate_market(
-                            technicals=technicals,
-                            news_text=news_text,
-                            current_price=current_price,
-                            atr=atr
-                        )
-                        
-                        decision = decision_data.get("decision", "WAIT")
-                        ues = decision_data.get("unified_edge_score", 0)
-                        
-                        # Only execute if score >= 90
-                        if decision in ["MARKET_BUY", "MARKET_SELL", "LIMIT_BUY", "LIMIT_SELL"] and ues >= 90:
-                            action = "BUY" if "BUY" in decision else "SELL"
-                            lot_size = float(os.environ.get("LOT_SIZE", "0.10"))
-                            
-                            self.logger.info(f"Decision Priority Engine Trigger: {decision} (UES: {ues}). Executing {action} {lot_size} lot.")
-                            if self.execution_engine:
-                                await self.execution_engine.execute_order(symbol, action, lot_size)
-                                
-            except Exception as e:
-                self.logger.error(f"Error in _decision_priority_loop: {e}")
-                
-            # Loop every 15 minutes (900 seconds) since it's a heavy evaluation
-            await asyncio.sleep(900)
+                # Get autotrade status
+                autotrade_enabled = os.environ.get("AUTOTRADE_ENABLED", "False").lower() == "true"
+                if not autotrade_enabled:
+                    await asyncio.sleep(1)
+                    continue
 
-    async def _smart_money_bos_loop(self):
-        """
-        Autotrade Method: Smart Money BOS (Break of Structure).
-        Detects Swing High/Low on H1 using Fractals, executes on M15 close breakout.
-        """
-        import MetaTrader5 as mt5
-        import os
-        import time
-        import pandas as pd
-        
-        last_executed_time = 0
-        
-        while True:
-            try:
-                active_method = os.environ.get("ACTIVE_METHOD", "intra-candle-scalper")
-                if active_method == "smart-money-bos" and self.autotrade_enabled:
-                    symbol = self.symbol
-                    
-                    if not mt5.initialize():
-                        await asyncio.sleep(10)
-                        continue
-                        
-                    # 1. Fetch H1 rates for Fractal calculation
-                    h1_rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_H1, 0, 100)
-                    if h1_rates is None or len(h1_rates) < 5:
-                        await asyncio.sleep(10)
-                        continue
-                        
-                    df_h1 = pd.DataFrame(h1_rates)
-                    
-                    # Calculate Fractals (Bill Williams)
-                    # Swing High: 2 lower highs left, 2 lower highs right
-                    swing_highs = []
-                    swing_lows = []
-                    
-                    for i in range(2, len(df_h1) - 2):
-                        if (df_h1['high'].iloc[i] > df_h1['high'].iloc[i-1] and 
-                            df_h1['high'].iloc[i] > df_h1['high'].iloc[i-2] and 
-                            df_h1['high'].iloc[i] > df_h1['high'].iloc[i+1] and 
-                            df_h1['high'].iloc[i] > df_h1['high'].iloc[i+2]):
-                            swing_highs.append({'price': df_h1['high'].iloc[i], 'time': df_h1['time'].iloc[i]})
-                            
-                        if (df_h1['low'].iloc[i] < df_h1['low'].iloc[i-1] and 
-                            df_h1['low'].iloc[i] < df_h1['low'].iloc[i-2] and 
-                            df_h1['low'].iloc[i] < df_h1['low'].iloc[i+1] and 
-                            df_h1['low'].iloc[i] < df_h1['low'].iloc[i+2]):
-                            swing_lows.append({'price': df_h1['low'].iloc[i], 'time': df_h1['time'].iloc[i]})
-                            
-                    if not swing_highs or not swing_lows:
-                        await asyncio.sleep(60)
-                        continue
-                        
-                    recent_swing_high = swing_highs[-1]['price']
-                    recent_swing_low = swing_lows[-1]['price']
-                    
-                    # 2. Fetch M15 rates for execution confirmation
-                    m15_rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M15, 0, 3)
-                    if m15_rates is None or len(m15_rates) < 2:
-                        await asyncio.sleep(10)
-                        continue
-                        
-                    # We check the most recently CLOSED M15 candle
-                    last_closed_m15 = m15_rates[-2]
-                    close_price = last_closed_m15[4]
-                    candle_time = last_closed_m15[0]
-                    
-                    if candle_time > last_executed_time:
-                        action = None
-                        
-                        # Bullish BOS: M15 closes above H1 Swing High
-                        if close_price > recent_swing_high:
-                            action = "BUY"
-                            
-                        # Bearish BOS: M15 closes below H1 Swing Low
-                        elif close_price < recent_swing_low:
-                            action = "SELL"
-                            
-                        if action:
-                            lot_size = float(os.environ.get("LOT_SIZE", "0.10"))
-                            self.logger.info(f"BOS Detected: M15 Close ({close_price}) broke H1 Swing (High: {recent_swing_high}, Low: {recent_swing_low}). Executing {action} {lot_size} lot.")
-                            
-                            if self.execution_engine:
-                                await self.execution_engine.execute_order(symbol, action, lot_size)
-                                last_executed_time = candle_time
-                                
-            except Exception as e:
-                self.logger.error(f"Error in _smart_money_bos_loop: {e}")
+                if not getattr(self, 'execution_engine', None):
+                    await asyncio.sleep(1)
+                    continue
+
+                # Ensure MT5 is connected
+                if not mt5.terminal_info():
+                    await asyncio.sleep(1)
+                    continue
+
+                # 1. Fetch Decision Engine Smoothed Confidence & Action
+                de = getattr(app.state, 'decision_engine', None)
+                if not de:
+                    await asyncio.sleep(1)
+                    continue
                 
-            # Loop every 30 seconds to catch M15 closes relatively quickly
-            await asyncio.sleep(30)
+                # We expect decision engine to give a smoothed confidence and signal
+                confidence = de.smoothed_confidence
+                raw_signal = de.current_signal
+
+                if confidence < 0.65 or raw_signal not in ["BUY", "SELL"]:
+                    await asyncio.sleep(1)
+                    continue
+
+                # 2. Fetch Technical Indicators from Data Engine
+                data_e = getattr(app.state, 'data_engine', None)
+                if not data_e or not getattr(data_e, 'technicals', None):
+                    await asyncio.sleep(1)
+                    continue
+                    
+                techs = data_e.technicals.get(self.symbol)
+                if not techs:
+                    await asyncio.sleep(1)
+                    continue
+
+                rsi = techs.get("rsi", 50)
+                macd = techs.get("macd", 0)
+                macd_signal = techs.get("macd_signal", 0)
+                atr = techs.get("atr", 0.0010) # Safe default if missing
+
+                # 3. Technical Confirmation Filter
+                # Buy confirmed if MACD > Signal and RSI < 70 (not overbought)
+                # Sell confirmed if MACD < Signal and RSI > 30 (not oversold)
+                is_confirmed = False
+                if raw_signal == "BUY" and macd > macd_signal and rsi < 70:
+                    is_confirmed = True
+                elif raw_signal == "SELL" and macd < macd_signal and rsi > 30:
+                    is_confirmed = True
+                    
+                if not is_confirmed:
+                    await asyncio.sleep(1)
+                    continue
+
+                # 4. Check Open Positions (Avoid stacking)
+                positions = mt5.positions_get(symbol=self.symbol)
+                num_positions = len(positions) if positions else 0
+                max_pos = int(os.environ.get("AVERAGING_MAX_POSITIONS", "3"))
+                
+                if num_positions >= max_pos:
+                    await asyncio.sleep(1)
+                    continue
+
+                # 5. Calculate Dynamic Risk (1% to 5%)
+                # Confidence 0.65 -> 1.0% Risk
+                # Confidence 1.00 -> 5.0% Risk
+                capped_conf = min(max(confidence, 0.65), 1.0)
+                risk_pct = 1.0 + ((capped_conf - 0.65) / 0.35) * 4.0
+                
+                # Fetch Balance
+                acc = mt5.account_info()
+                if not acc:
+                    await asyncio.sleep(1)
+                    continue
+                    
+                balance = acc.balance
+                risk_amount = balance * (risk_pct / 100.0)
+                
+                # Point value logic (Standard Lot $10/pip or custom based on symbol)
+                # Just scale using SL (ATR) if possible, but for simplicity we will rely on 
+                # a base lot multiplier logic or standard os.environ LOT_SIZE if dynamic is too risky.
+                # However, user explicitly requested "Risk 1 - 5%".
+                
+                sl_distance = atr * 1.5 # We use 1.5 ATR for SL
+                
+                # Convert SL distance to dollars
+                multiplier = 100000.0
+                if "XAU" in self.symbol: multiplier = 100.0
+                if "JPY" in self.symbol: multiplier = 1000.0
+                
+                pip_value_per_lot = multiplier # Approximate
+                
+                # Lot = Risk Amount / (SL Distance * Pip Value per lot)
+                calculated_lot = risk_amount / (sl_distance * pip_value_per_lot)
+                
+                # Clamp lot
+                min_lot = 0.01
+                max_lot = 5.0
+                final_lot = max(min_lot, min(max_lot, round(calculated_lot, 2)))
+
+                # 6. Execute Order
+                self.logger.info(f"[Confidence Method] {raw_signal} on {self.symbol} | Conf: {confidence:.2f} | Risk: {risk_pct:.1f}% (${risk_amount:.2f}) | Lot: {final_lot}")
+                
+                res = await self.execution_engine.execute_order(
+                    symbol=self.symbol,
+                    action=raw_signal,
+                    lot_size=final_lot
+                )
+                
+                # Prevent spamming
+                await asyncio.sleep(60)
+
+            except Exception as e:
+                self.logger.error(f"Error in _confidence_method_loop: {e}")
+                await asyncio.sleep(5)

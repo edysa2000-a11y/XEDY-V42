@@ -25,6 +25,11 @@ from backend.engines.feature_store import FeatureStore
 from backend.engines.market_engine import MarketEngine
 from backend.engines.data_engine import DataEngine
 from backend.engines.news_engine import HybridNewsEngine
+from backend.engines.v39_causal.1_event_engine import EventShockEngine
+from backend.engines.v39_causal.2_macro_yield_engine import MacroYieldEngine
+from backend.engines.v39_causal.3_money_flow_engine import MoneyFlowEngine
+from backend.engines.v39_causal.4_divergence_engine import DivergenceEngine
+from backend.engines.v39_causal.5_consensus_gate import ConsensusGateEngine
 from backend.telegram.bot import TelegramEcosystem
 
 import os
@@ -137,7 +142,6 @@ async def lifespan(app: FastAPI):
     init_confidence = float(os.getenv("CONFIDENCE_THRESHOLD", "0.60"))
     init_max_positions = int(os.getenv("AVERAGING_MAX_POSITIONS", "3"))
     init_hedging = os.getenv("HEDGING_ENABLED", "True").lower() == "true"
-    init_active_method = os.getenv("ACTIVE_METHOD", "intra-candle-scalper")
     init_auto_lot = os.getenv("AUTO_LOT_ENABLED", "False").lower() == "true"
     init_risk_percent = float(os.getenv("RISK_PERCENT", "1.0"))
     
@@ -149,12 +153,11 @@ async def lifespan(app: FastAPI):
     os.environ["HEDGING_ENABLED"] = str(init_hedging)
     os.environ["AUTO_LOT_ENABLED"] = str(init_auto_lot)
     os.environ["RISK_PERCENT"] = f"{init_risk_percent:.1f}"
-    os.environ["ACTIVE_METHOD"] = init_active_method
     
-    # Create multiple RiskEngines for Multi-Asset Trading
-    app.state.risk_engines = []
-    target_assets = ["XAUUSD", "EURUSD", "GBPUSD", "USDJPY", "USOIL"]
+    target_assets = ["XAUUSD", "AUDUSD", "USDCAD", "NZDUSD"]
+    app.state.data_engine = DataEngine(symbols=target_assets)
     
+    app.state.asset_engines = {}
     for symbol in target_assets:
         re_instance = RiskEngine(execution_engine=app.state.execution_engine)
         re_instance.symbol = symbol
@@ -162,20 +165,43 @@ async def lifespan(app: FastAPI):
         re_instance.config["lot_size"] = init_lot
         re_instance.max_positions = init_max_positions
         re_instance.hedging_enabled = init_hedging
-        re_instance.active_method = init_active_method
-        app.state.risk_engines.append(re_instance)
         
-    # Alias the primary one (XAUUSD) for the UI and legacy endpoints
-    app.state.risk_engine = app.state.risk_engines[0]
-    
-    app.state.decision_engine = DecisionEngine(risk_engine=app.state.risk_engine)
-    app.state.decision_engine.confidence_threshold = init_confidence
-    
-    app.state.ml_engine = MLEngine(decision_engine=app.state.decision_engine)
-    app.state.feature_store = FeatureStore(ml_engine=app.state.ml_engine)
-    app.state.data_engine = DataEngine(symbol="XAUUSD")
+        de_instance = DecisionEngine(risk_engine=re_instance)
+        de_instance.confidence_threshold = init_confidence
+        
+
+        ml_instance = MLEngine(decision_engine=de_instance)
+        fs_instance = FeatureStore(ml_engine=ml_instance)
+        
+        # Initialize V39 Causal Scaffolding
+        event_engine = EventShockEngine()
+        macro_yield = MacroYieldEngine()
+        money_flow = MoneyFlowEngine()
+        divergence = DivergenceEngine()
+        consensus = ConsensusGateEngine()
+        
+        app.state.asset_engines[symbol] = {
+            "risk_engine": re_instance,
+            "decision_engine": de_instance,
+            "ml_engine": ml_instance,
+            "feature_store": fs_instance,
+            "v39_event": event_engine,
+            "v39_macro": macro_yield,
+            "v39_flow": money_flow,
+            "v39_div": divergence,
+            "v39_consensus": consensus
+        }
+
+        
     app.state.news_engine = HybridNewsEngine()
     app.state.news_engine.data_engine = app.state.data_engine
+
+    # Alias XAUUSD as primary for legacy endpoints
+    primary = app.state.asset_engines["XAUUSD"]
+    app.state.risk_engine = primary["risk_engine"]
+    app.state.decision_engine = primary["decision_engine"]
+    app.state.ml_engine = primary["ml_engine"]
+    app.state.feature_store = primary["feature_store"]
     
     # Initialize Qwen3.7 Macro Strategist
     from backend.engines.macro_strategist import MacroStrategistEngine
@@ -184,14 +210,18 @@ async def lifespan(app: FastAPI):
         news_engine=app.state.news_engine,
         decision_engine=app.state.decision_engine
     )
-    app.state.risk_engine.macro_strategist = app.state.macro_strategist
-    app.state.execution_engine.macro_strategist = app.state.macro_strategist
-    app.state.risk_engine.news_engine = app.state.news_engine
     
+    for symbol, engines in app.state.asset_engines.items():
+        engines["risk_engine"].macro_strategist = app.state.macro_strategist
+        engines["risk_engine"].news_engine = app.state.news_engine
+    app.state.execution_engine.macro_strategist = app.state.macro_strategist
+    
+    feature_stores_dict = {sym: app.state.asset_engines[sym]["feature_store"] for sym in target_assets}
     app.state.market_engine = MarketEngine(
-        feature_store=app.state.feature_store,
+        feature_stores=feature_stores_dict,
         data_engine=app.state.data_engine,
-        news_engine=app.state.news_engine
+        news_engine=app.state.news_engine,
+        symbols=target_assets
     )
 
     # Start Engines
@@ -200,24 +230,20 @@ async def lifespan(app: FastAPI):
         app.state.news_engine.notifier = app.state.telegram_bot.notifier
         app.state.execution_engine.notifier = app.state.telegram_bot.notifier
     await app.state.execution_engine.start()
-    if hasattr(app.state, "risk_engines"):
-        for re in app.state.risk_engines:
-            re.news_engine = app.state.news_engine
-            re.macro_strategist = app.state.macro_strategist
-            await re.start()
-    else:
-        app.state.risk_engine.news_engine = app.state.news_engine
-        await app.state.risk_engine.start()
-    await app.state.decision_engine.start()
-    await app.state.ml_engine.start()
-    await app.state.feature_store.start()
+    
+    for symbol, engines in app.state.asset_engines.items():
+        await engines["risk_engine"].start()
+        await engines["decision_engine"].start()
+        await engines["ml_engine"].start()
+        await engines["feature_store"].start()
+
     await app.state.data_engine.start()
     await app.state.news_engine.start()
     await app.state.macro_strategist.start()
     await app.state.market_engine.start()
     
     if hasattr(app.state.telegram_bot, "notifier") and app.state.telegram_bot.notifier:
-        await app.state.telegram_bot.notifier.notify_system_status("🚀 XEDY Core Server <b>BERHASIL DIBOOT</b>.\nSemua mesin AI <i>online</i> dan siap memantau pergerakan pasar.")
+        await app.state.telegram_bot.notifier.notify_system_status("🚀 XEDY Core Server <b>BERHASIL DIBOOT</b>.\nSemua mesin AI <i>online</i> dan siap memantau pergerakan pasar (Multi-Asset).")
 
     yield
     
@@ -226,10 +252,11 @@ async def lifespan(app: FastAPI):
     await app.state.macro_strategist.stop()
     await app.state.news_engine.stop()
     await app.state.data_engine.stop()
-    await app.state.feature_store.stop()
-    await app.state.ml_engine.stop()
-    await app.state.decision_engine.stop()
-    await app.state.risk_engine.stop()
+    for symbol, engines in app.state.asset_engines.items():
+        await engines["feature_store"].stop()
+        await engines["ml_engine"].stop()
+        await engines["decision_engine"].stop()
+        await engines["risk_engine"].stop()
     await app.state.execution_engine.stop()
     await app.state.telegram_bot.stop()
     mt5.shutdown()
@@ -274,6 +301,31 @@ async def health_check():
         "mt5": "DISCONNECTED",
         "ai": "STANDBY"
     }
+
+from pydantic import BaseModel
+from typing import List
+
+class MatrixBacktestRequest(BaseModel):
+    months: int
+    capital: float
+    pairs: List[str]
+
+@app.post("/api/v1/backtest/matrix")
+async def run_matrix_api(request: MatrixBacktestRequest):
+    from backend.scripts.matrix_backtest import run_matrix_simulation
+    import asyncio
+    loop = asyncio.get_running_loop()
+    try:
+        results = await loop.run_in_executor(
+            None, 
+            run_matrix_simulation, 
+            request.months, 
+            request.capital, 
+            request.pairs
+        )
+        return {"status": "success", "data": results}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 @app.get("/api/v1/health/pipeline")
 async def health_pipeline():
@@ -1290,6 +1342,9 @@ async def websocket_endpoint(websocket: WebSocket):
                         auto_lot = bool(payload.get("auto_lot", False))
                         risk_percent = float(payload.get("risk_percent", 1.0))
                         active_method = payload.get("active_method", "intra-candle-scalper")
+                        active_risk_profile = payload.get("active_risk_profile", "moderate").upper()
+                        
+                        os.environ["ACTIVE_RISK_PROFILE"] = active_risk_profile
                         
                         # Persist settings to .env file
                         save_settings_to_env(autotrade, lot_size, confidence, sniper_score, sniper_lot, max_positions, hedging_enabled, auto_lot, risk_percent, active_method)
@@ -1301,6 +1356,37 @@ async def websocket_endpoint(websocket: WebSocket):
                                 re.max_positions = max_positions
                                 re.hedging_enabled = hedging_enabled
                                 re.active_method = active_method
+                                
+                    elif payload.get("action") == "update_global_settings":
+                        active_asset = payload.get("active_asset", "ALL")
+                        active_method = payload.get("active_method", "decision-priority-engine")
+                        active_risk_profile = payload.get("active_risk_profile", "moderate").upper()
+                        
+                        os.environ["ACTIVE_RISK_PROFILE"] = active_risk_profile
+                        os.environ["ACTIVE_AUTOTRADE_MODEL"] = active_method
+                        
+                        # Apply to risk engines
+                        if hasattr(app.state, "risk_engines"):
+                            for re in app.state.risk_engines:
+                                # Apply risk changes universally since they govern money management
+                                re.risk_profile = active_risk_profile
+                                
+                                # If an asset is specifically chosen, we might want to pause others? 
+                                # Or just apply the method to all. Let's apply the method to all engines for now.
+                                re.config["active_method"] = active_method
+                                
+                                # If active_asset != "ALL", toggle autotrade/focus based on the list
+                                if active_asset != "ALL":
+                                    if isinstance(active_asset, list):
+                                        if re.symbol not in active_asset:
+                                            re.autotrade_enabled = False
+                                    else:
+                                        if re.symbol != active_asset:
+                                            re.autotrade_enabled = False
+                                else:
+                                    # If ALL, do nothing to autotrade flags. Let them manage it per asset if needed.
+                                    pass
+                                    
                         if hasattr(app.state, "decision_engine"):
                             app.state.decision_engine.confidence_threshold = confidence
                         logger.info(f"Settings updated via UI: autotrade={autotrade}, lot_size={lot_size}, confidence={confidence}, max_positions={max_positions}, hedging={hedging_enabled}, auto_lot={auto_lot}, risk_percent={risk_percent}, active_method={active_method}")

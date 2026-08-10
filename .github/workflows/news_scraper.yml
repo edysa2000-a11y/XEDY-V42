@@ -51,10 +51,9 @@ jobs:
         run: |
           python backend/scripts/scrape_news.py
           python backend/scripts/scrape_oanda_volume.py || echo "Oanda volume scraper failed, skipping..."
+          python backend/scripts/scrape_cot.py || echo "COT scraper failed, skipping..."
 
-      - name: Run Cloud Self-Learning Feedback Loop
-        run: |
-          python backend/scripts/adaptive_self_learning.py
+
 
       - name: Deploy data updates to data-feed branch
         run: |
@@ -64,6 +63,7 @@ jobs:
           # Create a separate temporary folder for generated data
           mkdir -p temp_data/data
           cp data/news_feed.json temp_data/data/ || true
+          cp data/claude_forecast.json temp_data/data/ || true
           cp data/qwen_decisions_log.jsonl temp_data/data/ || true
           cp data/self_learning_feedback.json temp_data/data/ || true
           cp data/closed_trades.json temp_data/data/ || true
@@ -72,6 +72,7 @@ jobs:
           cp data/oanda_cvd.json temp_data/data/ || true
           cp data/market_ticker.json temp_data/data/ || true
           cp data/embedding_cache.json temp_data/data/ || true
+          cp data/cot_data.json temp_data/data/ || true
           
           # Switch to an orphan branch (No History) to prevent git bloat
           git checkout --orphan data-feed-temp
