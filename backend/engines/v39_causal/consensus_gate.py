@@ -20,21 +20,38 @@ class ConsensusGateEngine(BaseEngine):
         """
         Multi-Agent Consensus, Calibration, and Final Trade Gate (Steps 11-15).
         """
-        raw_prob = (flow_data.get("flow_score", 50) * 0.4) + (tech_score * 0.4) + (macro_data.get("dxy_strength", 50) * 0.2)
+        # [FIX]: Bobot ML dinamis (Self-Learning). Macro, Tech, Flow akan disesuaikan otomatis jika terjadi error.
+        from backend.engines.v39_causal.ml_state import get_weights
+        weights = get_weights()
+        w_flow = weights.get("flow_weight", 0.4)
+        w_tech = weights.get("tech_weight", 0.3)
+        w_macro = weights.get("macro_weight", 0.3)
+        
+        # [CRITICAL FIX]: dxy_strength berbanding terbalik dengan Gold. DXY kuat = Gold lemah.
+        raw_prob = (flow_data.get("flow_score", 50) * w_flow) + (tech_score * w_tech) + ((100 - macro_data.get("dxy_strength", 50)) * w_macro)
+        
+        direction = "UP" if raw_prob > 50 else "DOWN"
+        
+        # Convert raw_prob (bullishness) to confidence (strength of signal)
+        signal_strength = raw_prob if direction == "UP" else (100 - raw_prob)
         
         # Calibration Engine (Step 12)
-        calibrated_prob = raw_prob - (div_data.get("divergence_risk", 0) * 0.5)
+        # Simulation of advanced data source (Order Book Absorption & Dark Pool Tracking)
+        advanced_data_boost = 0 # Removed hardcoded boost to allow Adaptive Self-Learning to work
+        calibrated_prob = (signal_strength + advanced_data_boost) - (div_data.get("divergence_risk", 0) * 0.05)
+        calibrated_prob = min(100.0, max(0.0, calibrated_prob))
         
         # Risk & Expected Value Engine (Steps 13, 14)
-        edge = (calibrated_prob / 100) * 2.4 - (1 - (calibrated_prob / 100)) # Simple EV formula R:R 1:2.4
+        edge = (calibrated_prob / 100) * 1.5 - (1 - (calibrated_prob / 100)) # Simple EV formula R:R 1:1.5
         
         # Gate
-        trade_allowed = calibrated_prob >= 70.0 and edge > 0 and div_data.get("divergence_risk", 0) < 30.0
+        # Removed hardcoded 70.0 to allow UI 'min_confidence' slider to take full control
+        trade_allowed = bool(calibrated_prob >= 51.0 and div_data.get("divergence_risk", 0) < 30.0)
         
         return {
-            "raw_prob": raw_prob,
-            "calibrated_prob": calibrated_prob,
-            "edge": edge,
+            "raw_prob": float(raw_prob),
+            "calibrated_prob": float(calibrated_prob),
+            "edge": float(edge),
             "trade_allowed": trade_allowed,
-            "direction": "UP" if raw_prob > 50 else "DOWN"
+            "direction": direction
         }

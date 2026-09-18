@@ -1,0 +1,24 @@
+            <!-- TICK PRO SUB-TAB -->
+            <div id="tab-tick-pro" class="spa-tab d-none h-100 w-100" style="padding: 0; background: #000000; overflow: hidden;">
+                <iframe src="tick_dashboard.html" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+
+            <!-- NARASI AI SUB-TAB -->
+            <div id="tab-narasi" class="spa-tab d-none h-100 w-100" style="padding: 1.5rem; background: #0b0f19; overflow-y: auto;">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-dark">
+                    <h4 class="m-0 text-white" style="font-weight: 700; letter-spacing: 1px;"><i class="bi bi-robot me-2" style="color: #00ffcc;"></i>AI MARKET NARRATIVE</h4>
+                    <button class="btn btn-sm btn-outline-info" onclick="if(window.requestAiveneNarrativeUpdate) window.requestAiveneNarrativeUpdate()"><i class="bi bi-arrow-clockwise"></i> Generate New</button>
+                </div>
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="card bg-dark text-white border-0" style="box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-radius: 12px; overflow: hidden;">
+                            <div class="card-header border-bottom border-secondary d-flex gap-2" style="background: linear-gradient(90deg, #1a2333 0%, #253147 100%); padding: 15px 20px;">
+                                <h6 class="m-0 fw-bold" style="color: #00ffcc;">Laporan Analisa Fundamental & Teknikal</h6>
+                            </div>
+                            <div class="card-body p-4" style="background: #111827;">
+                                <div id="narasi-content" style="white-space: pre-wrap; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.95rem; color: #a0aec0; line-height: 1.6;">Memuat narasi AI terbaru...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>

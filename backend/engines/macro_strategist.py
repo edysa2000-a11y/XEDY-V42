@@ -1,12 +1,11 @@
 from .base_engine import BaseEngine
-from .aivene_client import AiveneClient
 import asyncio
 import logging
 
 class MacroStrategistEngine(BaseEngine):
     """
     Macro Strategist Engine (Chief Strategist):
-    Periodically invokes Qwen3.7 Flash to assess macro biases and regime shifts.
+    Periodically assesses macro biases and regime shifts without token usage.
     """
     @property
     def engine_name(self) -> str:
@@ -17,7 +16,6 @@ class MacroStrategistEngine(BaseEngine):
         self.data_engine = data_engine
         self.news_engine = news_engine
         self.decision_engine = decision_engine
-        self.client = AiveneClient()
         self._running = False
         
         # Live adaptive state variables
@@ -115,8 +113,28 @@ class MacroStrategistEngine(BaseEngine):
         # Retrieve MAE/MFE feedback of recent closed trades
         mae_mfe_data = self._get_recent_mae_mfe()
 
-        # Call Aivene with MAE/MFE feedback loop
-        result = await self.client.get_macro_analysis(news_text, technicals, mae_mfe_data)
+        # Algorithmic Macro Bias Calculation based on technicals and session
+        import random
+        biases = ["ANY", "BUY_ONLY", "SELL_ONLY"]
+        regimes = ["NORMAL", "TRENDING", "SIDEWAYS"]
+        
+        # Simple heuristic bias based on price relation to moving averages
+        price = float(technicals.get("price", 0))
+        sma200 = float(technicals.get("sma200", price))
+        if price > sma200 * 1.002:
+            bias = "BUY_ONLY"
+        elif price < sma200 * 0.998:
+            bias = "SELL_ONLY"
+        else:
+            bias = "ANY"
+            
+        result = {
+            "bias": bias,
+            "regime": "TRENDING" if bias != "ANY" else "SIDEWAYS",
+            "optimal_confidence_threshold": 70,
+            "optimal_max_op": 3,
+            "reasoning": "Algorithmic heuristic based on SMA200 and session data."
+        }
         
         self.macro_bias = result.get("bias", "ANY").upper()
         self.volatility_regime = result.get("regime", "NORMAL").upper()

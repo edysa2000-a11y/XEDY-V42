@@ -25,7 +25,7 @@ class MoneyFlowEngine(BaseEngine):
         velocity = min(100, price_volatility * 100)
         
         self.flow_score = (strength * 0.6) + (velocity * 0.4)
-        regime = "ACCUMULATION" if self.flow_score > 70 else "DISTRIBUTION" if self.flow_score < 30 else "NEUTRAL"
+        regime = "ACCUMULATION" if self.flow_score > 75 else "DISTRIBUTION" if self.flow_score < 25 else "NEUTRAL"
         
         return {
             "flow_strength": strength,

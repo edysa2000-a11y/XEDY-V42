@@ -27,6 +27,15 @@ body {
     box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.6), -2px -2px 10px rgba(255, 255, 255, 0.03);
 }
 
+/* General Layout Elements */
+#narasi-content pre, #narasi-content code {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-x: hidden !important;
+    background-color: transparent !important;
+    border: none !important;
+}
+
 /* Layout Dimensions */
 .top-bar {
     height: 50px;

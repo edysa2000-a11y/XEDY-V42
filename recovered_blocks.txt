@@ -1,0 +1,652 @@
+=== RECOVERED CHUNK ===
+- [x] Add `tick_streamer` asyncio task to `backend/main.py`
+- [ ] Add TICK sub-tab to `index.html` navigation
+- [ ] Add `#tab-tick` layout with Canvas and Metrics to `index.html`
+- [ ] Update `frontend/js/app.js` to handle `tick_data` websocket message
+- [ ] Implement Velocity logic and Chart.js rendering in `app.js`
+- [ ] Verify functionality
+=== RECOVERED CHUNK ===
+                                <li class="nav-item"><a class="nav-link" data-target="tab-moneyflow" href="#" style="color: #00ffaa;">💸 Money Flow V39</a></li>
+                                <li class="nav-item"><a class="nav-link" data-target="tab-moneyflow-v40" href="#" style="color: #00ffaa;">💸 Money V40</a></li>
+                                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-tick" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;">↳ TICK</a></li>
+=== RECOVERED CHUNK ===
+            <!-- TICK SUB-TAB -->
+            <div id="tab-tick" class="spa-tab d-none h-100 w-100" style="padding: 1rem; background: #050b14; overflow-y: auto;">
+                <h5 class="text-info mb-3">XAUUSD Live Tick Velocity Analyzer</h5>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-2">
+                        <div class="bg-dark-panel p-2 rounded text-center h-100" style="border: 1px solid #334455;">
+                            <div style="font-size: 0.7rem; color: #aaa;">SPREAD</div>
+                            <div id="tick-spread" class="fw-bold fs-4 text-white">0</div>
+                            <div style="font-size: 0.6rem; color: #888;">POINTS</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="bg-dark-panel p-2 rounded text-center h-100" style="border: 1px solid #334455;">
+                            <div style="font-size: 0.7rem; color: #aaa;">UP VELOCITY</div>
+                            <div id="tick-up-vel" class="fw-bold fs-4 text-bullish">0</div>
+                            <div style="font-size: 0.6rem; color: #888;">TICKS / MIN</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="bg-dark-panel p-2 rounded text-center h-100" style="border: 1px solid #334455;">
+                            <div style="font-size: 0.7rem; color: #aaa;">DOWN VELOCITY</div>
+                            <div id="tick-down-vel" class="fw-bold fs-4 text-bearish">0</div>
+                            <div style="font-size: 0.6rem; color: #888;">TICKS / MIN</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-2 rounded text-center h-100" style="border: 1px solid #334455; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 0.7rem; color: #aaa;">MICRO TREND</div>
+                            <div id="tick-trend" class="fw-bold fs-3 text-white">NEUTRAL</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-2 rounded text-center h-100" style="border: 1px solid #334455; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 0.7rem; color: #aaa;">STRENGTH</div>
+                            <div id="tick-strength" class="fw-bold fs-3 text-white">50%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-dark-panel p-3 rounded" style="border: 1px solid #334455; height: 500px;">
+                    <canvas id="tickChart"></canvas>
+                </div>
+            </div>
+
+            <!-- MONEY V40 SUB-TAB -->
+=== RECOVERED CHUNK ===
+- [x] Add `tick_streamer` asyncio task to `backend/main.py`
+- [x] Add TICK sub-tab to `index.html` navigation
+- [x] Add `#tab-tick` layout with Canvas and Metrics to `index.html`
+- [ ] Update `frontend/js/app.js` to handle `tick_data` websocket message
+- [ ] Implement Velocity logic and Chart.js rendering in `app.js`
+- [ ] Verify functionality
+=== RECOVERED CHUNK ===
+    // 1. Clock functionality
+    const timeDisplay = document.getElementById('sys-time');
+    setInterval(() => {
+        const now = new Date();
+        timeDisplay.innerText = now.toISOString().split('T')[1].split('.')[0] + " UTC";
+    }, 1000);
+
+    // --- TICK ANALYZER STATE ---
+    window.tickHistory = [];
+    window.tickChartObj = null;
+    
+    function initTickChart() {
+        const ctx = document.getElementById('tickChart');
+        if (!ctx) return;
+        window.tickChartObj = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Bid',
+                        data: [],
+                        borderColor: '#00ffaa',
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        tension: 0
+                    },
+                    {
+                        label: 'Ask',
+                        data: [],
+                        borderColor: '#ff0055',
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        tension: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { display: false },
+                    y: { display: true, position: 'right', grid: { color: '#334455' } }
+                },
+                plugins: {
+                    legend: { display: true, labels: { color: '#fff' } }
+                }
+            }
+        });
+    }
+    
+    // Call init when tab is clicked for the first time
+    document.querySelector('[data-target="tab-tick"]').addEventListener('click', () => {
+        if (!window.tickChartObj) {
+            setTimeout(initTickChart, 100);
+        }
+    });
+    // ---------------------------
+
+=== RECOVERED CHUNK ===
+                        <!-- Money Flow Sub-menu -->
+                        <ul class="nav flex-column ms-3 mb-2" style="border-left: 1px solid #334455; padding-left: 10px;">
+                            <li class="nav-item">
+                                <a class="nav-link tab-link py-1 text-muted" href="#" data-target="tab-moneyflow-v40" style="font-size: 0.8rem;">
+                                    <i class="bi bi-arrow-return-right me-2"></i>Money Flow V40
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link tab-link py-1 text-muted" href="#" data-target="tab-tick-pro" style="font-size: 0.8rem;">
+                                    <i class="bi bi-arrow-return-right me-2"></i>Live Tick Analyzer
+                                </a>
+                            </li>
+                        </ul>
+=== RECOVERED CHUNK ===
+            <!-- MONEY V40 SUB-TAB -->
+            <div id="tab-moneyflow-v40" class="spa-tab d-none h-100 w-100" style="padding: 0; background: #05070b; overflow: hidden;">
+                <iframe src="v40.html" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+
+            <!-- TICK PRO SUB-TAB -->
+            <div id="tab-tick-pro" class="spa-tab d-none h-100 w-100" style="padding: 0; background: #000000; overflow: hidden;">
+                <iframe src="tick_pro.html" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+=== RECOVERED CHUNK ===
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-moneyflow-engine" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;">↳ Engine V39 Console</a></li>
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-tick-pro" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;">↳ TICK ANALYZER PRO</a></li>
+=== RECOVERED CHUNK ===
+            <!-- TICK PRO SUB-TAB -->
+            <div id="tab-tick-pro" class="spa-tab d-none h-100 w-100" style="padding: 0; background: #000000; overflow: hidden;">
+                <iframe src="tick_pro.html" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+
+            <!-- MONEY FLOW ENGINE V39 SUB-TAB -->
+            <div id="tab-moneyflow-engine" class="spa-tab d-none h-100 w-100" style="padding: 1rem; background: #050b14; overflow-y: auto;">
+=== RECOVERED CHUNK ===
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-tick-pro" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-tick-pro').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-tick-pro');">↳ TICK ANALYZER PRO</a></li>
+=== RECOVERED CHUNK ===
+    // Call init when tab is clicked for the first time
+    const tabTickEl = document.querySelector('[data-target="tab-tick"]');
+    if (tabTickEl) {
+        tabTickEl.addEventListener('click', () => {
+            if (!window.tickChartObj) {
+                setTimeout(initTickChart, 100);
+            }
+        });
+    }
+=== RECOVERED CHUNK ===
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-moneyflow-engine" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;">↳ Engine V39 Console</a></li>
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-tick" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;">↳ TICK (Legacy)</a></li>
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-tick-pro" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-tick-pro').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-tick-pro');">↳ TICK ANALYZER PRO</a></li>
+=== RECOVERED CHUNK ===
+            <!-- TICK (LEGACY) SUB-TAB -->
+            <div id="tab-tick" class="spa-tab d-none h-100 w-100" style="padding: 1rem; background: #050b14; overflow-y: auto;">
+                <h5 class="text-white mb-3">Live Tick Analyzer (Legacy)</h5>
+                <div class="bg-dark-panel p-3 rounded border border-secondary" style="height: 500px; width: 100%;">
+                    <canvas id="tickChart"></canvas>
+                </div>
+            </div>
+
+            <!-- TICK PRO SUB-TAB -->
+            <div id="tab-tick-pro" class="spa-tab d-none h-100 w-100" style="padding: 0; background: #000000; overflow: hidden;">
+=== RECOVERED CHUNK ===
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-tick-pro" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-tick-pro').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-tick-pro');">↳ TICK VELOCITY V3.0 PRO</a></li>
+=== RECOVERED CHUNK ===
+            <!-- TICK PRO SUB-TAB -->
+            <div id="tab-tick-pro" class="spa-tab d-none h-100 w-100" style="padding: 0; background: #000000; overflow: hidden;">
+                <iframe src="tick_dashboard.html" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+=== RECOVERED CHUNK ===
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-moneyflow-engine" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-moneyflow-engine').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-moneyflow-engine');">↳ Engine V39 Console</a></li>
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-tick" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-tick').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-tick');">↳ TICK (Legacy)</a></li>
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-tick-pro" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-tick-pro').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-tick-pro');">↳ TICK VELOCITY V3.0 PRO</a></li>
+=== RECOVERED CHUNK ===
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-tick-pro" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-tick-pro').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-tick-pro');">↳ TICK VELOCITY V3.0 PRO</a></li>
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-narasi" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-narasi').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-narasi');">↳ AI Market Narrative</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-forecast" href="#">🎯 Forecast</a></li>
+=== RECOVERED CHUNK ===
+            <!-- TICK PRO SUB-TAB -->
+            <div id="tab-tick-pro" class="spa-tab d-none h-100 w-100" style="padding: 0; background: #000000; overflow: hidden;">
+                <iframe src="tick_dashboard.html" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+
+            <!-- NARASI AI SUB-TAB -->
+            <div id="tab-narasi" class="spa-tab d-none h-100 w-100" style="padding: 1.5rem; background: #0b0f19; overflow-y: auto;">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-dark">
+                    <h4 class="m-0 text-white" style="font-weight: 700; letter-spacing: 1px;"><i class="bi bi-robot me-2" style="color: #00ffcc;"></i>AI MARKET NARRATIVE</h4>
+                    <button class="btn btn-sm btn-outline-info" onclick="if(window.requestAiveneNarrativeUpdate) window.requestAiveneNarrativeUpdate()"><i class="bi bi-arrow-clockwise"></i> Generate New</button>
+                </div>
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="card bg-dark text-white border-0" style="box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-radius: 12px; overflow: hidden;">
+                            <div class="card-header border-bottom border-secondary d-flex gap-2" style="background: linear-gradient(90deg, #1a2333 0%, #253147 100%); padding: 15px 20px;">
+                                <h6 class="m-0 fw-bold" style="color: #00ffcc;">Laporan Analisa Fundamental & Teknikal</h6>
+                            </div>
+                            <div class="card-body p-4" style="background: #111827;">
+                                <div id="narasi-content" style="white-space: pre-wrap; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.95rem; color: #a0aec0; line-height: 1.6;">Memuat narasi AI terbaru...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+=== RECOVERED CHUNK ===
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-tick-pro" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-tick-pro').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-tick-pro');">↳ TICK VELOCITY V3.0 PRO</a></li>
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-narasi" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-narasi').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-narasi');">↳ AI Market Narrative</a></li>
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-autotrade" href="#" style="color: #ff3366; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0; font-weight: bold;" onclick="event.preventDefault(); document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active')); this.classList.add('active'); document.querySelectorAll('.spa-tab').forEach(t=>t.classList.add('d-none')); document.getElementById('tab-autotrade').classList.remove('d-none'); localStorage.setItem('activeTab', 'tab-autotrade');">↳ ⚡ Autotrade Engine</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-forecast" href="#">🎯 Forecast</a></li>
+=== RECOVERED CHUNK ===
+- [x] 1. Backend: Tambahkan endpoint `/api/manual/execute`, `/api/manual/close`, dan `/api/manual/status` di `main.py` dengan Magic `777777` dan SL/TP 0.
+- [/] 2. Frontend: Rombak struktur HTML di dalam tab `tab-tick` (`index.html`) menjadi _Scalper's Terminal_.
+- [ ] 3. Frontend: Tambahkan logika Javascript di `app.js` untuk kalkulasi *rolling window* 30 detik (Tick Naik, Turun, Total, Velocity).
+- [ ] 4. Frontend: Tambahkan Javascript untuk menangani klik tombol eksekusi dan memuat _Live Trade Table_ dan riwayat.
+=== RECOVERED CHUNK ===
+            <!-- TICK (LEGACY) SUB-TAB -> SCALPER'S TERMINAL -->
+            <div id="tab-tick" class="spa-tab d-none h-100 w-100" style="padding: 1.5rem; background: #050b14; overflow-y: auto;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="text-white m-0"><i class="fas fa-bolt text-warning me-2"></i>Scalper's Terminal (Manual)</h4>
+                    <span class="badge bg-danger">Manual Trade Active</span>
+                </div>
+                
+                <div class="row mb-4">
+                    <!-- Real-time Price Info -->
+                    <div class="col-md-12 mb-3">
+                        <div class="card bg-dark-panel border-secondary">
+                            <div class="card-body d-flex justify-content-around text-center">
+                                <div>
+                                    <div class="text-muted small fw-bold text-uppercase mb-1">XAUUSD BID</div>
+                                    <h3 class="m-0 text-danger" id="scalp-bid">0.00</h3>
+                                </div>
+                                <div>
+                                    <div class="text-muted small fw-bold text-uppercase mb-1">XAUUSD ASK</div>
+                                    <h3 class="m-0 text-success" id="scalp-ask">0.00</h3>
+                                </div>
+                                <div>
+                                    <div class="text-muted small fw-bold text-uppercase mb-1">SPREAD</div>
+                                    <h3 class="m-0 text-warning" id="scalp-spread">0</h3>
+                                </div>
+                                <div>
+                                    <div class="text-muted small fw-bold text-uppercase mb-1">TICK VOL (30s)</div>
+                                    <h3 class="m-0 text-info" id="scalp-total-tick">0</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tick Analysis 30s Window -->
+                    <div class="col-md-7">
+                        <div class="card bg-dark-panel border-secondary h-100">
+                            <div class="card-header border-secondary text-white fw-bold">
+                                <i class="fas fa-chart-line text-info me-2"></i>Tick Velocity (30s Rolling)
+                            </div>
+                            <div class="card-body d-flex flex-column justify-content-center">
+                                <div class="row text-center mb-3">
+                                    <div class="col-6">
+                                        <div class="text-muted small text-uppercase">Tick Up (Naik)</div>
+                                        <h2 class="text-success m-0" id="scalp-tick-up">0</h2>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-muted small text-uppercase">Tick Down (Turun)</div>
+                                        <h2 class="text-danger m-0" id="scalp-tick-down">0</h2>
+                                    </div>
+                                </div>
+                                <div class="progress" style="height: 25px; background: #330000;">
+                                    <div id="scalp-velocity-bar" class="progress-bar bg-success" role="progressbar" style="width: 50%;"></div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <span class="text-muted small">Momentum Velocity: <span id="scalp-velocity-text" class="text-white fw-bold">Neutral</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Execution Panel -->
+                    <div class="col-md-5">
+                        <div class="card bg-dark-panel border-secondary h-100">
+                            <div class="card-header border-secondary text-white fw-bold">
+                                <i class="fas fa-crosshairs text-danger me-2"></i>Manual Execution
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-4">
+                                    <label class="form-label text-muted small fw-bold">LOT SIZE</label>
+                                    <input type="number" id="scalp-lot" class="form-control form-control-lg bg-dark text-white border-secondary text-center fw-bold" value="0.01" step="0.01" min="0.01">
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-lg btn-danger w-100 fw-bold" onclick="executeScalping('SELL')">SELL</button>
+                                    <button class="btn btn-lg btn-success w-100 fw-bold" onclick="executeScalping('BUY')">BUY</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Trade & History Tables -->
+                <div class="row">
+                    <div class="col-md-12 mb-4">
+                        <div class="card bg-dark-panel border-secondary">
+                            <div class="card-header border-secondary d-flex justify-content-between align-items-center">
+                                <span class="text-white fw-bold"><i class="fas fa-briefcase text-primary me-2"></i>Live Trades (Manual)</span>
+                                <button class="btn btn-sm btn-outline-danger" onclick="closeAllManual()">Close All</button>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-sm table-borderless m-0 text-center">
+                                        <thead style="border-bottom: 1px solid #334;">
+                                            <tr>
+                                                <th>Ticket</th>
+                                                <th>Type</th>
+                                                <th>Lot</th>
+                                                <th>Open</th>
+                                                <th>Current</th>
+                                                <th>Profit</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="scalp-live-table">
+                                            <tr><td colspan="7" class="text-muted py-3">No active manual trades</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <div class="card bg-dark-panel border-secondary">
+                            <div class="card-header border-secondary text-white fw-bold">
+                                <i class="fas fa-history text-secondary me-2"></i>Trade History (Manual)
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-sm table-borderless m-0 text-center">
+                                        <thead style="border-bottom: 1px solid #334;">
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Ticket</th>
+                                                <th>Type</th>
+                                                <th>Lot</th>
+                                                <th>Close Price</th>
+                                                <th>Profit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="scalp-history-table">
+                                            <tr><td colspan="6" class="text-muted py-3">No trade history</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+=== RECOVERED CHUNK ===
+            if (data.type === 'tick' && (data.symbol === 'XAUUSD' || !data.symbol)) {
+                latestTick = data; 
+                
+                // Manual Scalping Tick Logic (30s Rolling)
+                if (!window.scalpTickHistory) window.scalpTickHistory = [];
+                const now = Date.now();
+                window.scalpTickHistory.push({ bid: data.bid, ask: data.ask, time: now });
+                
+                // Filter ticks older than 30s
+                window.scalpTickHistory = window.scalpTickHistory.filter(t => (now - t.time) <= 30000);
+                
+                // Calculate Scalp Metrics
+                let tickUp = 0;
+                let tickDown = 0;
+                for (let i = 1; i < window.scalpTickHistory.length; i++) {
+                    const diff = window.scalpTickHistory[i].bid - window.scalpTickHistory[i-1].bid;
+                    if (diff > 0) tickUp++;
+                    else if (diff < 0) tickDown++;
+                }
+                
+                const scalpBidEl = document.getElementById('scalp-bid');
+                if (scalpBidEl) {
+                    scalpBidEl.innerText = data.bid.toFixed(2);
+                    document.getElementById('scalp-ask').innerText = data.ask.toFixed(2);
+                    const spread = Math.round((data.ask - data.bid) * 100);
+                    document.getElementById('scalp-spread').innerText = spread;
+                    document.getElementById('scalp-total-tick').innerText = window.scalpTickHistory.length;
+                    
+                    document.getElementById('scalp-tick-up').innerText = tickUp;
+                    document.getElementById('scalp-tick-down').innerText = tickDown;
+                    
+                    const totalMov = tickUp + tickDown;
+                    let velPct = 50;
+                    if (totalMov > 0) velPct = Math.round((tickUp / totalMov) * 100);
+                    
+                    const bar = document.getElementById('scalp-velocity-bar');
+                    bar.style.width = velPct + '%';
+                    
+                    const vText = document.getElementById('scalp-velocity-text');
+                    if (velPct > 60) {
+                        vText.innerText = "BULLISH (" + velPct + "%)";
+                        vText.className = "text-success fw-bold";
+                        bar.className = "progress-bar bg-success";
+                    } else if (velPct < 40) {
+                        vText.innerText = "BEARISH (" + (100 - velPct) + "%)";
+                        vText.className = "text-danger fw-bold";
+                        bar.className = "progress-bar bg-danger";
+                    } else {
+                        vText.innerText = "NEUTRAL";
+                        vText.className = "text-warning fw-bold";
+                        bar.className = "progress-bar bg-warning";
+                    }
+                }
+            }
+=== RECOVERED CHUNK ===
+                previousTickets = currentTickets;
+            }
+        } catch (e) {
+            console.error('Error fetching autotrade status:', e);
+        }
+    }
+}, 2000);
+
+// --- MANUAL SCALPING LOGIC ---
+window.executeScalping = async function(action) {
+    const lotInput = document.getElementById('scalp-lot');
+    if (!lotInput) return;
+    
+    const volume = parseFloat(lotInput.value);
+    if (isNaN(volume) || volume <= 0) {
+        showToast('Lot size tidak valid', 'error');
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/manual/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action, volume: volume })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            showToast(`Sukses Eksekusi ${action} ${volume} Lot! (Ticket: ${data.ticket})`, 'success');
+        } else {
+            showToast(data.message, 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Error executing order', 'error');
+    }
+};
+
+window.closeManualTrade = async function(ticket) {
+    try {
+        const res = await fetch('/api/manual/close', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticket: parseInt(ticket) })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            showToast(data.message, 'success');
+        } else {
+            showToast(data.message, 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Error closing order', 'error');
+    }
+};
+
+window.closeAllManual = async function() {
+    // For simplicity, we can fetch status first, then close them sequentially
+    try {
+        const res = await fetch('/api/manual/status');
+        const data = await res.json();
+        if (data.status === 'success' && data.active_positions.length > 0) {
+            for (let p of data.active_positions) {
+                await window.closeManualTrade(p.ticket);
+            }
+            showToast('Semua posisi manual ditutup!', 'success');
+        } else {
+            showToast('Tidak ada posisi manual untuk ditutup', 'warning');
+        }
+    } catch(e) {
+        console.error(e);
+    }
+};
+
+setInterval(async () => {
+    if (!document.getElementById('tab-tick').classList.contains('d-none')) {
+        try {
+            const res = await fetch('/api/manual/status');
+            const data = await res.json();
+            if (data.status === 'success') {
+                const liveTbody = document.getElementById('scalp-live-table');
+                if (data.active_positions.length === 0) {
+                    liveTbody.innerHTML = `<tr><td colspan="7" class="text-muted py-3">No active manual trades</td></tr>`;
+                } else {
+                    liveTbody.innerHTML = data.active_positions.map(p => {
+                        const typeColor = p.type === 'BUY' ? 'text-success' : 'text-danger';
+                        const profitColor = p.profit >= 0 ? 'text-success' : 'text-danger';
+                        return `
+                            <tr>
+                                <td>#${p.ticket}</td>
+                                <td class="fw-bold ${typeColor}">${p.type}</td>
+                                <td>${p.volume}</td>
+                                <td>${p.price_open}</td>
+                                <td>${p.price_current}</td>
+                                <td class="fw-bold ${profitColor}">$${p.profit.toFixed(2)}</td>
+                                <td><button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="closeManualTrade(${p.ticket})">Close</button></td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+                
+                const histTbody = document.getElementById('scalp-history-table');
+                if (data.history.length === 0) {
+                    histTbody.innerHTML = `<tr><td colspan="6" class="text-muted py-3">No trade history</td></tr>`;
+                } else {
+                    histTbody.innerHTML = data.history.slice(0, 15).map(h => { // Only show last 15
+                        const typeColor = h.type === 'BUY' ? 'text-success' : 'text-danger';
+                        const profitColor = h.profit >= 0 ? 'text-success' : 'text-danger';
+                        return `
+                            <tr>
+                                <td>${h.time}</td>
+                                <td>#${h.ticket}</td>
+                                <td class="fw-bold ${typeColor}">${h.type}</td>
+                                <td>${h.volume}</td>
+                                <td>${h.price}</td>
+                                <td class="fw-bold ${profitColor}">$${h.profit.toFixed(2)}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            }
+        } catch (e) {}
+    }
+}, 1500);
+
+=== RECOVERED CHUNK ===
+- [x] 2. Frontend: Rombak struktur HTML di dalam tab `tab-tick` (`index.html`) menjadi _Scalper's Terminal_.
+- [x] 3. Frontend: Tambahkan logika Javascript di `app.js` untuk kalkulasi *rolling window* 30 detik (Tick Naik, Turun, Total, Velocity).
+- [x] 4. Frontend: Tambahkan Javascript untuk menangani klik tombol eksekusi dan memuat _Live Trade Table_ dan riwayat.
+=== RECOVERED CHUNK ===
+                    const vText = document.getElementById('scalp-velocity-text');
+                    if (velPct > 60) {
+                        vText.innerText = "BULLISH (" + velPct + "%)";
+                        vText.className = "text-success fw-bold";
+                        bar.className = "progress-bar bg-success";
+                    } else if (velPct < 40) {
+                        vText.innerText = "BEARISH (" + (100 - velPct) + "%)";
+                        vText.className = "text-danger fw-bold";
+                        bar.className = "progress-bar bg-danger";
+                    } else {
+                        vText.innerText = "NEUTRAL";
+                        vText.className = "text-warning fw-bold";
+                        bar.className = "progress-bar bg-warning";
+                    }
+                    
+                    // --- AUTO SCALPER LOGIC ---
+                    if (window.autoScalpEnabled && window.scalpTickHistory.length > 40) {
+                        const now = Date.now();
+                        if (!window.lastAutoScalpTime || (now - window.lastAutoScalpTime > 3000)) { // 3s cooldown
+                            // Check max 1 position
+                            if (window.scalpActivePositions && window.scalpActivePositions.length === 0) {
+                                if (velPct >= 85) {
+                                    window.lastAutoScalpTime = now;
+                                    window.executeScalping('BUY');
+                                } else if (velPct <= 15) {
+                                    window.lastAutoScalpTime = now;
+                                    window.executeScalping('SELL');
+                                }
+                            }
+                        }
+                    }
+                    
+                    // --- DYNAMIC EXIT LOGIC ---
+                    if (window.autoScalpEnabled && window.scalpActivePositions && window.scalpActivePositions.length > 0) {
+                        const pos = window.scalpActivePositions[0]; // Hanya 1 posisi
+                        // Trailing Exit: Jika profit positif walau cuma sedikit dan momentum berbalik arah
+                        if (pos.profit > 0.05) { // profit > 0.05 (minimal untuk cover spread jika belum tercatat)
+                            if (pos.type === 'BUY' && velPct < 50) {
+                                // Momentum buyer melemah jadi bearish/netral, close!
+                                window.closeManualTrade(pos.ticket);
+                            } else if (pos.type === 'SELL' && velPct > 50) {
+                                // Momentum seller melemah jadi bullish/netral, close!
+                                window.closeManualTrade(pos.ticket);
+                            }
+                        }
+                    }
+                }
+            }
+=== RECOVERED CHUNK ===
+                    // --- AUTO SCALPER LOGIC ---
+                    // Syarat: Minimal 40 tick (likuiditas cukup), Maksimal 80 tick (hindari news spike/manipulasi bandar)
+                    if (window.autoScalpEnabled && window.scalpTickHistory.length > 40 && window.scalpTickHistory.length <= 80) {
+                        const now = Date.now();
+                        if (!window.lastAutoScalpTime || (now - window.lastAutoScalpTime > 3000)) { // 3s cooldown
+=== RECOVERED CHUNK ===
+                    // --- ADAPTIVE AI LEARNING INIT ---
+                    if (!window.scalperLearning) {
+                        try {
+                            window.scalperLearning = JSON.parse(localStorage.getItem('scalperLearning')) || {
+                                history: [],
+                                optimalMin: 40,
+                                optimalMax: 80,
+                                winrate: 0
+                            };
+                        } catch(e) {
+                            window.scalperLearning = { history: [], optimalMin: 40, optimalMax: 80, winrate: 0 };
+                        }
+                    }
+                    
+                    const elAiStatus = document.getElementById('scalp-ai-learning-status');
+                    if (elAiStatus) {
+                        elAiStatus.innerText = `🤖 AI Adaptive Range: [${window.scalperLearning.optimalMin} - ${window.scalperLearning.optimalMax} Ticks] (Winrate: ${window.scalperLearning.winrate}%)`;
+                    }
+                    
+                    // --- AUTO SCALPER LOGIC ---
+                    if (window.autoScalpEnabled && window.scalpTickHistory.length >= window.scalperLearning.optimalMin && window.scalpTickHistory.length <= window.scalperLearning.optimalMax) {
+                        const now = Date.now();
+                        if (!window.lastAutoScalpTime || (now - window.lastAutoScalpTime > 3000)) { // 3s cooldown
+=== RECOVERED CHUNK ===
+                                if (velPct >= 85) {
+                                    window.lastAutoScalpTime = now;
+                                    window.currentEntryTickVol = window.scalpTickHistory.length;
+                                    window.executeScalping('BUY');
+                                } else if (velPct <= 15) {
+                                    window.lastAutoScalpTime = now;
+                                    window.currentEntryTickVol = window.scalpTickHistory.length;
+                                    window.executeScalping('SELL');
+                                }

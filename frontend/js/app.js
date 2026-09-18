@@ -461,6 +461,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             
             if (data.type === 'v39_data') {
+
+                // Auto Update Narrative Dashboard
+                if (v39.narrative) {
+                    const narasiContentEl = document.getElementById('narasi-content');
+                    if (narasiContentEl) {
+                        narasiContentEl.innerText = v39.narrative;
+                    }
+                }
                 const v39 = data.data;
                 // Panel 1: Causal Chain
                 const elEvent = document.getElementById('v39_event_type');
@@ -550,8 +558,253 @@ document.addEventListener('DOMContentLoaded', () => {
 
             }
 
-            if (data.type === 'tick' && (data.symbol === 'XAUUSD' || !data.symbol)) {
+
+
+            if (data.type === 'tick_data' || data.type === 'tick') {
                 latestTick = data; 
+                
+                // Smart DOM Updater to prevent flicker (using textContent to avoid layout thrashing)
+                const updateTxt = (id, txt) => {
+                    const el = document.getElementById(id);
+                    if (el && el.textContent !== String(txt)) el.textContent = txt;
+                };
+                const updateCls = (id, cls) => {
+                    const el = document.getElementById(id);
+                    if (el && el.className !== cls) el.className = cls;
+                };
+                
+                
+                // --- ⚡ TAB SCALPING ENGINE LOGIC (60s Rolling & Market Structure) ---
+                if (!window.scalp60sHistory) window.scalp60sHistory = [];
+                if (!window.scalpSpreadHistory) window.scalpSpreadHistory = [];
+                
+                window.scalp60sHistory.push({ bid: data.bid, ask: data.ask, time: now });
+                window.scalp60sHistory = window.scalp60sHistory.filter(t => (now - t.time) <= 60000);
+
+                const currentSpreadPts = Math.round((data.ask - data.bid) * 100);
+                window.scalpSpreadHistory.push({ spread: currentSpreadPts, time: now });
+                window.scalpSpreadHistory = window.scalpSpreadHistory.filter(s => (now - s.time) <= 300000);
+
+                let minSpreadPts = currentSpreadPts;
+                let maxSpreadPts = currentSpreadPts;
+                for (let s of window.scalpSpreadHistory) {
+                    if (s.spread < minSpreadPts) minSpreadPts = s.spread;
+                    if (s.spread > maxSpreadPts) maxSpreadPts = s.spread;
+                }
+
+                let buyTicks60s = 0;
+                let sellTicks60s = 0;
+                for (let i = 1; i < window.scalp60sHistory.length; i++) {
+                    const diff = window.scalp60sHistory[i].bid - window.scalp60sHistory[i-1].bid;
+                    if (diff > 0) buyTicks60s++;
+                    else if (diff < 0) sellTicks60s++;
+                }
+
+                const totalTicks60s = window.scalp60sHistory.length;
+                const netTickDelta = buyTicks60s - sellTicks60s;
+                const totalTickMov = buyTicks60s + sellTicks60s;
+                const buyPct60s = totalTickMov > 0 ? Math.round((buyTicks60s / totalTickMov) * 100) : 50;
+
+                let maxBid60s = data.bid;
+                let minBid60s = data.bid;
+                let maxTime60s = now;
+                let minTime60s = now;
+
+                for (let t of window.scalp60sHistory) {
+                    if (t.bid > maxBid60s) { maxBid60s = t.bid; maxTime60s = t.time; }
+                    if (t.bid < minBid60s) { minBid60s = t.bid; minTime60s = t.time; }
+                }
+
+                if (!window.prevStructureHigh || maxBid60s > window.prevStructureHigh.bid) {
+                    window.prevStructureHigh = { bid: maxBid60s, time: maxTime60s };
+                }
+                if (!window.prevStructureLow || minBid60s < window.prevStructureLow.bid) {
+                    window.prevStructureLow = { bid: minBid60s, time: minTime60s };
+                }
+
+                let hhVal = maxBid60s;
+                let llVal = minBid60s;
+                let hlVal = window.prevStructureLow ? (minBid60s > window.prevStructureLow.bid ? minBid60s : window.prevStructureLow.bid) : minBid60s;
+                let lhVal = window.prevStructureHigh ? (maxBid60s < window.prevStructureHigh.bid ? maxBid60s : window.prevStructureHigh.bid) : maxBid60s;
+
+                if (shouldUpdateDom) {
+                    updateTxt('scalp-eng-bid', data.bid.toFixed(2));
+                    updateTxt('scalp-eng-ask', data.ask.toFixed(2));
+                    updateTxt('scalp-eng-spread-live', currentSpreadPts + " pts");
+                    updateTxt('scalp-eng-spread-pips', "(" + (currentSpreadPts / 10).toFixed(1) + " pips)");
+                    updateTxt('scalp-eng-spread-range', minSpreadPts + " / " + maxSpreadPts + " pts");
+                    updateTxt('scalp-eng-total-ticks-min', totalTicks60s);
+                    
+                    updateTxt('scalp-eng-buy-min', buyTicks60s);
+                    updateTxt('scalp-eng-sell-min', sellTicks60s);
+                    
+                    const buyBar = document.getElementById('scalp-eng-buy-bar');
+                    const sellBar = document.getElementById('scalp-eng-sell-bar');
+                    if (buyBar) { buyBar.style.width = buyPct60s + '%'; buyBar.innerText = buyPct60s + '%'; }
+                    if (sellBar) { sellBar.style.width = (100 - buyPct60s) + '%'; sellBar.innerText = (100 - buyPct60s) + '%'; }
+                    
+                    updateTxt('scalp-eng-net-delta', (netTickDelta >= 0 ? "+" : "") + netTickDelta);
+                    updateTxt('scalp-eng-buy-pct', buyPct60s + "%");
+                    
+                    const titleEl = document.getElementById('scalp-eng-trend-title');
+                    const subEl = document.getElementById('scalp-eng-trend-sub');
+                    const badgeEl = document.getElementById('scalp-eng-trend-badge');
+                    
+                    if (buyPct60s >= 60) {
+                        if (titleEl) { titleEl.innerText = "BULLISH SCALP"; titleEl.style.color = "#00ffcc"; }
+                        if (subEl) subEl.innerText = "Strong Buyer Pressure (Momentum: " + buyPct60s + "%)";
+                        if (badgeEl) { badgeEl.innerText = "BULLISH"; badgeEl.className = "badge bg-success"; }
+                    } else if (buyPct60s <= 40) {
+                        if (titleEl) { titleEl.innerText = "BEARISH SCALP"; titleEl.style.color = "#ff3366"; }
+                        if (subEl) subEl.innerText = "Strong Seller Pressure (Momentum: " + (100 - buyPct60s) + "%)";
+                        if (badgeEl) { badgeEl.innerText = "BEARISH"; badgeEl.className = "badge bg-danger"; }
+                    } else {
+                        if (titleEl) { titleEl.innerText = "SIDEWAYS RANGE"; titleEl.style.color = "#ffcc00"; }
+                        if (subEl) subEl.innerText = "Balanced Order Flow (Momentum: " + buyPct60s + "%)";
+                        if (badgeEl) { badgeEl.innerText = "NEUTRAL"; badgeEl.className = "badge bg-warning text-dark"; }
+                    }
+                    
+                    const fmtTime = (t) => new Date(t).toLocaleTimeString();
+                    updateTxt('scalp-eng-hh', hhVal.toFixed(2));
+                    updateTxt('scalp-eng-hh-time', fmtTime(maxTime60s));
+                    updateTxt('scalp-eng-ll', llVal.toFixed(2));
+                    updateTxt('scalp-eng-ll-time', fmtTime(minTime60s));
+                    updateTxt('scalp-eng-hl', hlVal.toFixed(2));
+                    updateTxt('scalp-eng-lh', lhVal.toFixed(2));
+                    
+                    const descEl = document.getElementById('scalp-eng-struct-desc');
+                    const stateEl = document.getElementById('scalp-eng-struct-state');
+                    
+                    if (data.bid >= maxBid60s && buyPct60s > 55) {
+                        if (descEl) { descEl.innerText = "🟢 HIGHER HIGH BROKEN (BULLISH BREAKOUT)"; descEl.style.color = "#00ffcc"; }
+                        if (stateEl) { stateEl.innerText = "BULLISH BREAKOUT"; stateEl.className = "badge bg-success"; }
+                    } else if (data.bid <= minBid60s && buyPct60s < 45) {
+                        if (descEl) { descEl.innerText = "🔴 LOWER LOW BROKEN (BEARISH BREAKOUT)"; descEl.style.color = "#ff3366"; }
+                        if (stateEl) { stateEl.innerText = "BEARISH BREAKOUT"; stateEl.className = "badge bg-danger"; }
+                    } else {
+                        if (descEl) { descEl.innerText = "🟢 HIGHER HIGH & HIGHER LOW (BULLISH STRUCTURE)"; descEl.style.color = "#00ffcc"; }
+                        if (stateEl) { stateEl.innerText = "STRUCTURE OK"; stateEl.className = "badge bg-secondary"; }
+                    }
+                }
+
+                // Manual Scalping Tick Logic (30s Rolling)
+                if (!window.scalpTickHistory) window.scalpTickHistory = [];
+                const now = Date.now();
+                
+                // Throttle DOM updates to max 5 times per second (200ms) for visual stability
+                if (!window.lastTickDomUpdate) window.lastTickDomUpdate = 0;
+                const shouldUpdateDom = (now - window.lastTickDomUpdate) > 200;
+                window.scalpTickHistory.push({ bid: data.bid, ask: data.ask, time: now });
+                
+                // Filter ticks older than 30s
+                window.scalpTickHistory = window.scalpTickHistory.filter(t => (now - t.time) <= 30000);
+                
+                // Calculate Scalp Metrics
+                let tickUp = 0;
+                let tickDown = 0;
+                for (let i = 1; i < window.scalpTickHistory.length; i++) {
+                    const diff = window.scalpTickHistory[i].bid - window.scalpTickHistory[i-1].bid;
+                    if (diff > 0) tickUp++;
+                    else if (diff < 0) tickDown++;
+                }
+                
+                const totalMov = tickUp + tickDown;
+                let velPct = 50;
+                if (totalMov > 0) velPct = Math.round((tickUp / totalMov) * 100);
+                
+                if (shouldUpdateDom) {
+                    window.lastTickDomUpdate = now;
+                    updateTxt('scalp-bid', data.bid.toFixed(2));
+                    updateTxt('scalp-ask', data.ask.toFixed(2));
+                    
+                    const spread = Math.round((data.ask - data.bid) * 100);
+                    updateTxt('scalp-spread', spread);
+                    updateTxt('scalp-total-tick', window.scalpTickHistory.length);
+                    
+                    updateTxt('scalp-tick-up', tickUp);
+                    updateTxt('scalp-tick-down', tickDown);
+                    
+                    const bar = document.getElementById('scalp-velocity-bar');
+                    if (bar) {
+                        const newWidth = velPct + '%';
+                        if (bar.style.width !== newWidth) bar.style.width = newWidth;
+                    }
+                    
+                    if (velPct > 60) {
+                        updateTxt('scalp-velocity-text', "BULLISH (" + velPct + "%)");
+                        updateCls('scalp-velocity-text', "text-success fw-bold");
+                        updateCls('scalp-velocity-bar', "progress-bar bg-success");
+                    } else if (velPct < 40) {
+                        updateTxt('scalp-velocity-text', "BEARISH (" + (100 - velPct) + "%)");
+                        updateCls('scalp-velocity-text', "text-danger fw-bold");
+                        updateCls('scalp-velocity-bar', "progress-bar bg-danger");
+                    } else {
+                        updateTxt('scalp-velocity-text', "NEUTRAL");
+                        updateCls('scalp-velocity-text', "text-warning fw-bold");
+                        updateCls('scalp-velocity-bar', "progress-bar bg-warning");
+                    }
+                }
+                
+                // --- ADAPTIVE AI LEARNING INIT ---
+                if (!window.scalperLearning) {
+                    try {
+                        window.scalperLearning = JSON.parse(localStorage.getItem('scalperLearning')) || {
+                            history: [],
+                            optimalMin: 40,
+                            optimalMax: 80,
+                            winrate: 0
+                        };
+                    } catch(e) {
+                        window.scalperLearning = { history: [], optimalMin: 40, optimalMax: 80, winrate: 0 };
+                    }
+                }
+                
+                if (window.autoScalpEnabled) {
+                    updateTxt('scalp-ai-learning-status', `🧠 AI Adaptive Range: [${window.scalperLearning.optimalMin} - ${window.scalperLearning.optimalMax} Ticks] (Winrate: ${window.scalperLearning.winrate}%)`);
+                }
+                
+                // --- AUTO SCALPER LOGIC ---
+                if (window.autoScalpEnabled && window.scalpTickHistory.length >= window.scalperLearning.optimalMin && window.scalpTickHistory.length <= window.scalperLearning.optimalMax) {
+                    if (!window.lastAutoScalpTime || (now - window.lastAutoScalpTime > 3000)) { // 3s cooldown
+                        // Check max 1 position
+                        if (window.scalpActivePositions && window.scalpActivePositions.length === 0) {
+                            if (velPct >= 85) {
+                                window.lastAutoScalpTime = now;
+                                window.currentEntryTickVol = window.scalpTickHistory.length;
+                                if(typeof window.executeScalping === 'function') window.executeScalping('BUY');
+                            } else if (velPct <= 15) {
+                                window.lastAutoScalpTime = now;
+                                window.currentEntryTickVol = window.scalpTickHistory.length;
+                                if(typeof window.executeScalping === 'function') window.executeScalping('SELL');
+                            }
+                        }
+                    }
+                }
+                
+                // --- DYNAMIC EXIT LOGIC ---
+                if (window.autoScalpEnabled && window.scalpActivePositions && window.scalpActivePositions.length > 0) {
+                    const pos = window.scalpActivePositions[0]; // Hanya 1 posisi
+                    const currentProfit = pos.profit || 0;
+                    
+                    if (currentProfit > 0) {
+                        if (pos.type === 'BUY' && velPct < 50) {
+                            if(typeof window.closeScalping === 'function') window.closeScalping(pos.ticket);
+                        } else if (pos.type === 'SELL' && velPct > 50) {
+                            if(typeof window.closeScalping === 'function') window.closeScalping(pos.ticket);
+                        } else if (currentProfit >= 2.0) { // Small TP target .00 / 20 pips
+                            if(typeof window.closeScalping === 'function') window.closeScalping(pos.ticket);
+                        }
+                    } else if (currentProfit <= -2.0) { // 20 pips hard SL
+                        if(typeof window.closeScalping === 'function') window.closeScalping(pos.ticket);
+                    } else {
+                        // Momentum cut-loss
+                        if (pos.type === 'BUY' && velPct < 20) {
+                            if(typeof window.closeScalping === 'function') window.closeScalping(pos.ticket);
+                        } else if (pos.type === 'SELL' && velPct > 80) {
+                            if(typeof window.closeScalping === 'function') window.closeScalping(pos.ticket);
+                        }
+                    }
+                }
             }
             if (data.type === 'settings_updated') {
                 autotradeEnabled = data.autotrade;
@@ -882,7 +1135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (positionsHtml === '') {
                             positionsHtml = '<tr><td colspan="10" class="text-muted text-center py-4">No active positions.</td></tr>';
                         }
-                        if (openTbody) openTbody.innerHTML = positionsHtml;
+                        if (openTbody && openTbody.innerHTML !== positionsHtml) openTbody.innerHTML = positionsHtml;
                         if (elPendingOrders) elPendingOrders.innerText = `${pendingCount} Active`;
                         if (elPosSizing) elPosSizing.innerText = `${totalLots.toFixed(2)} Lots`;
                         if (elPanelOpenPos) elPanelOpenPos.innerText = openCount;
@@ -933,7 +1186,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (historyHtml === '') {
                             historyHtml = '<tr><td colspan="6" class="text-muted text-center">No recent history.</td></tr>';
                         }
-                        if (historyTbody) historyTbody.innerHTML = historyHtml;
+                        if (historyTbody && historyTbody.innerHTML !== historyHtml) historyTbody.innerHTML = historyHtml;
                     }
 
                     if (de.smart_money) {
@@ -951,7 +1204,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <td><span class="${statusClass}">${item.status}</span></td>
                                 </tr>`;
                             });
-                            smcObTbody.innerHTML = obHtml;
+                            if (smcObTbody.innerHTML !== obHtml) smcObTbody.innerHTML = obHtml;
                         }
                         
                         const elH1 = document.getElementById('smc-structure-h1');
@@ -1385,7 +1638,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (newsHtml === '') {
                             newsHtml = '<tr><td colspan="9" class="text-muted text-center">No news processed.</td></tr>';
                         }
-                        if (newsTbody) newsTbody.innerHTML = newsHtml;
+                        if (newsTbody && newsTbody.innerHTML !== newsHtml) newsTbody.innerHTML = newsHtml;
                     }
                     
                     if (ne.sentiment) {
@@ -3714,5 +3967,133 @@ function renderMatrixTable(tableId, riskData) {
     }
 }
 
+window.autoScalpEnabled = false;
+window.toggleAutoScalp = function(el) {
+    window.autoScalpEnabled = el.checked;
+    const badge = document.getElementById('scalp-ai-learning-status');
+    if (el.checked) {
+        badge.innerHTML = "🧠 AI Adaptive Range Active";
+        badge.classList.remove('text-muted');
+        badge.classList.add('text-success');
+    } else {
+        if (window.scalperLearning) {
+            badge.innerHTML = `🧠 AI Adaptive Range: [${window.scalperLearning.optimalMin} - ${window.scalperLearning.optimalMax} Ticks] (Winrate: ${window.scalperLearning.winrate}%)`;
+        } else {
+            badge.innerHTML = "Auto Scalping Disabled";
+        }
+        badge.classList.remove('text-success');
+        badge.classList.add('text-muted');
+    }
+}
 
 
+// --- MANUAL SCALPING LOGIC ---
+window.scalpActivePositions = [];
+window.scalpHistoryPositions = [];
+window.scalpTicketCounter = 1000;
+
+window.executeScalping = function(type) {
+    const lotInput = document.getElementById('scalp-lot');
+    let lot = 0.01;
+    if (lotInput) lot = parseFloat(lotInput.value);
+    
+    const bidEl = document.getElementById('scalp-bid');
+    const askEl = document.getElementById('scalp-ask');
+    let currentPrice = 0;
+    if (type === 'BUY' && askEl) currentPrice = parseFloat(askEl.innerText);
+    else if (type === 'SELL' && bidEl) currentPrice = parseFloat(bidEl.innerText);
+    
+    if (currentPrice === 0) return; // No price yet
+    
+    const ticket = window.scalpTicketCounter++;
+    window.scalpActivePositions.push({
+        ticket: ticket,
+        type: type,
+        lot: lot,
+        open: currentPrice,
+        current: currentPrice,
+        profit: 0 - (Math.round((parseFloat(askEl.innerText) - parseFloat(bidEl.innerText)) * 100) * 0.1) // Initial spread cost approx
+    });
+    
+    window.updateScalpTables();
+};
+
+window.closeScalping = function(ticket) {
+    const idx = window.scalpActivePositions.findIndex(p => p.ticket === ticket);
+    if (idx !== -1) {
+        const pos = window.scalpActivePositions[idx];
+        window.scalpActivePositions.splice(idx, 1);
+        
+        // Add to history
+        window.scalpHistoryPositions.unshift({
+            time: new Date().toLocaleTimeString(),
+            ticket: pos.ticket,
+            type: pos.type,
+            lot: pos.lot,
+            closePrice: pos.current,
+            profit: pos.profit
+        });
+        
+        // Keep history at 50 max
+        if (window.scalpHistoryPositions.length > 50) window.scalpHistoryPositions.pop();
+        
+        window.updateScalpTables();
+    }
+};
+
+window.closeAllManual = function() {
+    const active = [...window.scalpActivePositions];
+    for (let pos of active) {
+        window.closeScalping(pos.ticket);
+    }
+};
+
+window.updateScalpTables = function() {
+    const liveTbody = document.getElementById('scalp-live-table');
+    const histTbody = document.getElementById('scalp-history-table');
+    
+    if (liveTbody) {
+        if (!window.scalpActivePositions || window.scalpActivePositions.length === 0) {
+            if (liveTbody.innerHTML !== '<tr><td colspan="7" class="text-muted py-3">No active manual trades</td></tr>') {
+                liveTbody.innerHTML = '<tr><td colspan="7" class="text-muted py-3">No active manual trades</td></tr>';
+            }
+        } else {
+            let html = '';
+            for (let p of window.scalpActivePositions) {
+                const color = p.profit >= 0 ? 'text-success' : 'text-danger';
+                html += `<tr>
+                    <td>#${p.ticket || 0}</td>
+                    <td class="${color} fw-bold">${p.action || 'BUY'}</td>
+                    <td>${p.volume || 0.01}</td>
+                    <td>${p.openPrice ? p.openPrice.toFixed(2) : '0.00'}</td>
+                    <td>${p.currentPrice ? p.currentPrice.toFixed(2) : '0.00'}</td>
+                    <td class="${color} fw-bold">$${p.profit ? p.profit.toFixed(2) : '0.00'}</td>
+                    <td><button class="btn btn-sm btn-outline-danger py-0" onclick="if(typeof window.closeScalping==='function') window.closeScalping(${p.ticket})">X</button></td>
+                </tr>`;
+            }
+            if (liveTbody.innerHTML !== html) liveTbody.innerHTML = html;
+        }
+    }
+    
+    if (histTbody) {
+        if (!window.scalpHistoryPositions || window.scalpHistoryPositions.length === 0) {
+            if (histTbody.innerHTML !== '<tr><td colspan="6" class="text-muted py-3">No trade history</td></tr>') {
+                histTbody.innerHTML = '<tr><td colspan="6" class="text-muted py-3">No trade history</td></tr>';
+            }
+        } else {
+            let html = '';
+            for (let p of window.scalpHistoryPositions) {
+                const color = p.profit >= 0 ? 'text-success' : 'text-danger';
+                html += `<tr>
+                    <td>${p.time || ''}</td>
+                    <td>#${p.ticket || 0}</td>
+                    <td class="${color} fw-bold">${p.action || 'BUY'}</td>
+                    <td>${p.volume || 0.01}</td>
+                    <td>${p.closePrice ? p.closePrice.toFixed(2) : '0.00'}</td>
+                    <td class="${color} fw-bold">$${p.profit ? p.profit.toFixed(2) : '0.00'}</td>
+                </tr>`;
+            }
+            if (histTbody.innerHTML !== html) histTbody.innerHTML = html;
+        }
+    }
+};

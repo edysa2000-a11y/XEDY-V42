@@ -188,6 +188,9 @@ class HybridNewsEngine:
                     return json.loads(r.read().decode('utf-8'))
             try:
                 self.oanda_cvd_data = await asyncio.to_thread(_fetch_oanda)
+            except urllib.error.HTTPError as e:
+                if e.code != 404:
+                    logger.warning(f"Could not fetch Oanda CVD from cloud: {e}")
             except Exception as e:
                 logger.warning(f"Could not fetch Oanda CVD from cloud: {e}")
                 
@@ -205,6 +208,9 @@ class HybridNewsEngine:
                 if "COMEX_NET_LONG" in cot_data:
                     # using raw volume/OI as a proxy for reserves or momentum
                     self.latest_macro_data["gold_reserve"] = cot_data["COMEX_NET_LONG"].get("change_pct", 40)
+            except urllib.error.HTTPError as e:
+                if e.code != 404:
+                    logger.warning(f"Could not fetch COT data from cloud: {e}")
             except Exception as e:
                 logger.warning(f"Could not fetch COT data from cloud: {e}")
                 
@@ -218,6 +224,9 @@ class HybridNewsEngine:
                 claude_data = await asyncio.to_thread(_fetch_claude)
                 self.claude_forecast_data = claude_data
                 logger.info("Successfully fetched Claude Forecast Data from Cloud!")
+            except urllib.error.HTTPError as e:
+                if e.code != 404:
+                    logger.warning(f"Could not fetch Claude Forecast from cloud: {e}")
             except Exception as e:
                 logger.warning(f"Could not fetch Claude Forecast from cloud: {e}")
             
@@ -243,18 +252,43 @@ class HybridNewsEngine:
                     except Exception:
                         ts = t_now
                         
+                # Dynamic heuristic scoring based on keywords
+                text_lower = headline.lower()
+                bull_words = ['war', 'tariff', 'tension', 'conflict', 'crisis', 'fear', 'attack', 'cut', 'dovish', 'weak', 'drop', 'fire', 'removal', 'missile', 'strike']
+                bear_words = ['hike', 'hawkish', 'peace', 'resolve', 'strong', 'better', 'resilient', 'agreement', 'growth']
+                
+                bull_count = sum(1 for w in bull_words if w in text_lower)
+                bear_count = sum(1 for w in bear_words if w in text_lower)
+                
+                if bull_count > bear_count:
+                    sent = 70.0 + (bull_count * 5.0)
+                    impact = "BULLISH"
+                    conf = 75.0 + (bull_count * 2.0)
+                elif bear_count > bull_count:
+                    sent = 30.0 - (bear_count * 5.0)
+                    impact = "BEARISH"
+                    conf = 75.0 + (bear_count * 2.0)
+                else:
+                    sent = 50.0
+                    impact = "NEUTRAL"
+                    conf = 75.0
+                    
+                # Cap scores
+                sent = max(10.0, min(90.0, sent))
+                conf = max(60.0, min(95.0, conf))
+
                 formatted_news.append({
                     "headline": headline,
                     "source": "Google News (Cloud)",
                     "timestamp": ts,
                     "time_str": pub_date_str,
                     "relevancy": 95,
-                    "sentiment_score": 50.0,
-                    "gold_impact": "NEUTRAL",
-                    "confidence": 75.0,
+                    "sentiment_score": sent,
+                    "gold_impact": impact,
+                    "confidence": conf,
                     "duration": "24h",
-                    "regime": "Normal",
-                    "final_score": 50.0,
+                    "regime": "Volatile" if (bull_count > 0 or bear_count > 0) else "Normal",
+                    "final_score": sent,
                     "source_weight": 0.95
                 })
             if formatted_news:

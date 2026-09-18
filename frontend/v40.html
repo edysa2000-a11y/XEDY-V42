@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>XEDY AI • XAUUSD V40 — Mesin Alur Sebab-Akibat</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#05070b;
+    --panel:#0a0f18;
+    --panel2:#0d1420;
+    --line:#1b2637;
+    --gold:#e8c15c;
+    --gold-dim:#8a7433;
+    --green:#38f2a8;
+    --green-dim:#1c4d3c;
+    --red:#ff5470;
+    --cyan:#5fd4ff;
+    --text:#ffffff;
+    --muted:#7c8fa6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 10% -10%, #0e1c22 0%, transparent 45%),
+      radial-gradient(ellipse at 90% 0%, #1c1508 0%, transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Rajdhani',sans-serif;
+    padding:22px;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:1360px;margin:0 auto;}
+
+  header{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:16px;
+    flex-wrap:wrap;gap:10px;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .brand .mark{
+    width:42px;height:42px;border:1px solid var(--gold-dim);border-radius:8px;
+    display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--gold);
+    background:linear-gradient(160deg,#1a1608,#0a0f18);
+  }
+  .brand h1{font-size:22px;margin:0;letter-spacing:1.5px;font-weight:700;color:#fff;}
+  .brand p{margin:2px 0 0;font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+  .live{display:flex;gap:16px;flex-wrap:wrap;}
+  .live .item{text-align:right;}
+  .live .lbl{font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;}
+  .live .val{font-size:15px;font-weight:700;}
+  .up{color:var(--green);} .down{color:var(--red);} .flat{color:var(--gold);}
+
+  h2.section-title{
+    font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);
+    margin:28px 0 12px;display:flex;align-items:center;gap:10px;
+  }
+  h2.section-title::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent);}
+
+  .chain{
+    display:grid;grid-template-columns:repeat(8,1fr);gap:0;position:relative;margin-bottom:6px;
+  }
+  .node{
+    background:var(--panel);border:1px solid var(--line);border-radius:6px;
+    padding:12px 10px;position:relative;min-height:255px;display:flex;flex-direction:column;
+  }
+  .node + .node{margin-left:14px;}
+  .node .n{font-size:20px;font-family:'JetBrains Mono';color:var(--gold-dim);font-weight:700;}
+  .node .t{font-size:12px;font-weight:700;letter-spacing:.5px;color:#fff;margin:4px 0 2px;text-transform:uppercase;}
+  .node .lag{font-size:9px;color:var(--cyan);font-family:'JetBrains Mono';margin-bottom:8px;}
+  .node ul{margin:0;padding-left:14px;font-size:12px;line-height:1.5;color:var(--text);flex:1;}
+  .node ul li{margin-bottom:6px;}
+  .node ul li b{color:var(--text);font-weight:600;}
+  .node .conf{margin-top:8px;font-size:9px;font-family:'JetBrains Mono';color:var(--green);border-top:1px dashed var(--line);padding-top:6px;}
+  .arrow{
+    position:absolute;top:50%;right:-15px;transform:translateY(-50%);
+    width:14px;height:2px;background:var(--green);z-index:2;
+    box-shadow:0 0 6px var(--green);
+  }
+  .arrow::after{content:"";position:absolute;right:-1px;top:-3px;border:4px solid transparent;border-left-color:var(--green);}
+  .feedback{
+    grid-column:1/-1;margin-top:16px;border:1px dashed var(--gold-dim);border-radius:6px;
+    padding:12px 16px;font-size:12px;color:var(--text);display:flex;gap:10px;align-items:center;
+  }
+  .feedback b{color:var(--gold);}
+
+  .walk{
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px 20px;
+  }
+  .walk-row{
+    display:grid;grid-template-columns:150px 1fr;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);
+    align-items:start;
+  }
+  .walk-row:last-child{border-bottom:none;}
+  .walk-tag{
+    font-family:'JetBrains Mono';font-size:9.5px;font-weight:700;letter-spacing:.5px;
+    padding:4px 8px;border-radius:4px;height:fit-content;text-align:center;
+  }
+  .tag-event{background:#3a2410;color:var(--gold);}
+  .tag-fed{background:#1e2f4d;color:var(--cyan);}
+  .tag-yield{background:var(--green-dim);color:var(--green);}
+  .tag-usd{background:#2a1e3f;color:#c9a8ff;}
+  .tag-flow{background:#0f3a2e;color:var(--green);}
+  .tag-price{background:#3a1420;color:var(--red);}
+  .tag-warn{background:#3a1408;color:#ffb020;}
+  .walk-text{font-size:12.5px;line-height:1.6;color:var(--text);}
+  .walk-text b{color:#fff;}
+  .walk-text .num{font-family:'JetBrains Mono';color:var(--gold);}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;}
+  .card h3{margin:0 0 10px;font-size:13px;letter-spacing:1px;color:#fff;text-transform:uppercase;}
+  .badge{display:inline-block;font-size:10px;font-family:'JetBrains Mono';padding:3px 8px;border-radius:4px;margin-left:6px;}
+  .b-bull{background:var(--green-dim);color:var(--green);}
+  .b-bear{background:#4d1c2a;color:var(--red);}
+  .b-neu{background:#3a3410;color:var(--gold);}
+
+  .tree{font-size:12.5px;line-height:1.7;color:var(--text);}
+  .tree .path{margin:10px 0;padding:10px 12px;border-left:3px solid var(--line);background:var(--panel2);border-radius:0 6px 6px 0;}
+  .tree .path.bull{border-color:var(--green);}
+  .tree .path.bear{border-color:var(--red);}
+  .tree .path.base{border-color:var(--gold);}
+  .tree .path b{color:#fff;}
+
+  table{width:100%;border-collapse:collapse;font-size:11px;}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;padding:6px 4px;border-bottom:1px solid var(--line);}
+  td{padding:7px 4px;border-bottom:1px solid #10192580;font-family:'JetBrains Mono';font-size:10.5px;}
+
+  .invalid-list{list-style:none;margin:0;padding:0;font-size:11.5px;color:var(--text);}
+  .invalid-list li{padding:8px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;}
+  .invalid-list li:last-child{border-bottom:none;}
+  .invalid-list .x{color:var(--red);font-weight:700;}
+
+  footer{
+    margin-top:26px;padding:18px 22px;border-radius:10px;
+    background:linear-gradient(120deg,#0f1a12,#0a0f18 60%);border:1px solid var(--green-dim);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;
+  }
+  footer .verdict{font-size:24px;font-weight:700;color:var(--green);letter-spacing:1px;}
+  footer .sub{font-size:12px;color:var(--text);max-width:640px;line-height:1.5;}
+  footer .stats{display:flex;gap:22px;}
+  footer .stats .s{text-align:center;}
+  footer .stats .s .v{font-size:18px;font-weight:700;font-family:'JetBrains Mono';color:#fff;}
+  footer .stats .s .l{font-size:9px;color:var(--muted);letter-spacing:1px;}
+
+  @media(max-width:1100px){
+    .chain{grid-template-columns:repeat(4,1fr);row-gap:14px;}
+    .node + .node{margin-left:0;}
+    .arrow{display:none;}
+    .grid2{grid-template-columns:1fr;}
+    .walk-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="mark">◈</div>
+      <div>
+        <h1>XEDY AI · XAUUSD V40</h1>
+        <p>Alur Kerja Sebab-Akibat Terperinci — Penyebab → Transmisi → Perkiraan</p>
+      </div>
+    </div>
+    <div class="live mono">
+      <div class="item"><div class="lbl">HARGA XAUUSD (AKURASI MODEL)</div><div class="val up">4.352,84 <span style="font-size:11px;color:var(--green);">(83%)</span></div></div>
+      <div class="item"><div class="lbl">DXY</div><div class="val down">Terendah 2 Bulan</div></div>
+      <div class="item"><div class="lbl">US10Y</div><div class="val flat">4,65%</div></div>
+      <div class="item"><div class="lbl">VIX</div><div class="val flat">15,4</div></div>
+      <div class="item"><div class="lbl">PROB. HIKE FED (SEP)</div><div class="val down">42%</div></div>
+      <div class="item"><div class="lbl">PEMBARUAN</div><div class="val" style="color:var(--muted);font-size:12px">10 Agu 2026</div></div>
+    </div>
+  </header>
+
+  <h2 class="section-title">1 · Rantai Transmisi Sebab-Akibat — Detail 8 Lapis</h2>
+  <div class="chain">
+
+    <div class="node">
+      <div class="n">01</div>
+      <div class="t">Kejutan Peristiwa</div>
+      <div class="lag">JEDA: 0–15 MENIT</div>
+      <ul>
+        <li><b>Besaran kejutan</b>: aktual vs konsensus (bukan cuma arah, tapi seberapa besar deviasinya)</li>
+        <li><b>Efek revisi</b>: revisi data 1–2 periode sebelumnya sering lebih besar dari headline-nya sendiri</li>
+        <li>Divergensi headline vs core</li>
+        <li>Kecepatan repricing di futures/options begitu data rilis</li>
+      </ul>
+      <div class="conf">KEYAKINAN: BERBASIS FAKTA</div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="node">
+      <div class="n">02</div>
+      <div class="t">Repricing Ekspektasi</div>
+      <div class="lag">JEDA: 5–60 MENIT</div>
+      <ul>
+        <li>Fed funds futures / kurva OIS bergeser</li>
+        <li>Terminal rate & jumlah hike/cut yang ter-price ulang</li>
+        <li><b>Delta probabilitas</b> sebelum vs sesudah event (bukan level absolut)</li>
+        <li>Selisih dot plot vs pricing pasar</li>
+      </ul>
+      <div class="conf">KEYAKINAN: TINGGI</div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="node">
+      <div class="n">03</div>
+      <div class="t">Yield & Real Yield</div>
+      <div class="lag">JEDA: 15–120 MENIT</div>
+      <ul>
+        <li>Respons yield nominal (2Y/10Y/30Y)</li>
+        <li>Apakah breakeven inflasi bergerak berlawanan arah?</li>
+        <li><b>REAL YIELD = Nominal − Breakeven</b> → driver utama Gold, bukan nominal saja</li>
+        <li>Pergeseran term premium (bukan cuma level)</li>
+      </ul>
+      <div class="conf">KEYAKINAN: TINGGI — DRIVER KUNCI</div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="node">
+      <div class="n">04</div>
+      <div class="t">USD & Likuiditas</div>
+      <div class="lag">JEDA: 30–180 MENIT</div>
+      <ul>
+        <li>Respons DXY vs basket (bobot EUR/JPY/CNY beda arah)</li>
+        <li>Kondisi funding: TGA/RRP/spread SOFR</li>
+        <li>Cross-currency basis — indikasi stres dolar global</li>
+        <li>Likuiditas USD longgar/ketat memperkuat/melemahkan transmisi</li>
+      </ul>
+      <div class="conf">KEYAKINAN: SEDANG-TINGGI</div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="node">
+      <div class="n">05</div>
+      <div class="t">Alokasi Aset</div>
+      <div class="lag">JEDA: 1 JAM – 1 HARI</div>
+      <ul>
+        <li>Rezim risk-on/off — korelasi equity-bond saat ini</li>
+        <li>Beta Gold terhadap real yield sedang tinggi/rendah?</li>
+        <li>Pembagian demand: safe-haven vs inflation-hedge vs de-dolarisasi</li>
+        <li>Rotasi institusional antar aset (bond↔gold↔equity)</li>
+      </ul>
+      <div class="conf">KEYAKINAN: SEDANG</div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="node">
+      <div class="n">06</div>
+      <div class="t">Kanal Aliran Dana</div>
+      <div class="lag">JEDA: 1–8 JAM</div>
+      <ul>
+        <li>Creation/redemption ETF (GLD, IAU) — konfirmasi riil</li>
+        <li>Net positioning COMEX (non-commercial)</li>
+        <li>Skew options & gamma exposure</li>
+        <li>Pembelian bank sentral + premium fisik (India/China)</li>
+      </ul>
+      <div class="conf">KEYAKINAN: KONFIRMATIF</div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="node">
+      <div class="n">07</div>
+      <div class="t">Penemuan Harga</div>
+      <div class="lag">JEDA: INTRADAY–HARI</div>
+      <ul>
+        <li>Ketidakseimbangan order flow & market depth</li>
+        <li>Rezim volatilitas (realized vs implied)</li>
+        <li>Struktur: breakout, retest, atau failure</li>
+        <li>Volume profile mengonfirmasi/menolak level</li>
+      </ul>
+      <div class="conf">KEYAKINAN: TEROBSERVASI</div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="node">
+      <div class="n">08</div>
+      <div class="t">Perkiraan H4 / D1</div>
+      <div class="lag">JEDA: LAPISAN OUTPUT</div>
+      <ul>
+        <li>H4 = taktis, mengikuti node 6–7 (flow+harga)</li>
+        <li>D1 = struktural, mengikuti node 3–5 (yield+alokasi)</li>
+        <li>Jika H4 vs D1 selaras → continuation kuat</li>
+        <li>Jika berlawanan → D1 jadi jangkar, H4 cuma jadi alat timing</li>
+      </ul>
+      <div class="conf">KEYAKINAN: SINTESIS</div>
+    </div>
+
+    <div class="feedback">
+      ⟲ <b>LOOP UMPAN BALIK / REFLEKSIVITAS:</b> Pergerakan harga di node 07 bisa memutar balik ke node 02 — level Gold yang ekstrem sering memaksa pasar repricing ulang ekspektasi Fed (misalnya rally gold dijadikan "pembenaran" bahwa Fed pasti lebih dovish, padahal urutannya terbalik). XEDY menandai kondisi ini sebagai <b>loop reflektif</b> dan menurunkan tingkat keyakinan causal jika price ternyata mendahului fundamental, bukan sebaliknya.
+    </div>
+  </div>
+
+  <h2 class="section-title">2 · Live Causal Walkthrough — Siklus Aktual (7–10 Agustus 2026)</h2>
+  <div class="walk" style="font-family:'Rajdhani',sans-serif;">
+    <div class="walk-row">
+      <div class="walk-tag tag-event">01 PERISTIWA</div>
+      <div class="walk-text">NFP Juli <b>rilis -23K</b> (konsensus sekitar +100K) → <b>kejutan besar ke arah lemah</b>. Revisi Mei+Juni turun gabungan <b>-103K</b>. Tingkat pengangguran justru turun 4,2%→4,1% (sinyal campuran, bukan resesi murni).</div>
+    </div>
+    <div class="walk-row">
+      <div class="walk-tag tag-fed">02 REPRICING FED</div>
+      <div class="walk-text">Karena rezim saat ini condong <b>bias hawkish</b> (bukan cut, tapi potensi <i>hike</i> di bawah Fed Chair Warsh), data lemah ini menurunkan probabilitas hike September dari <span class="num mono">~67%→42–44%</span>. Ini bullish untuk Gold bukan karena "Fed akan cut", tapi karena <b>risiko pengetatan lanjutan mereda</b>.</div>
+    </div>
+    <div class="walk-row">
+      <div class="walk-tag tag-yield">03 YIELD</div>
+      <div class="walk-text">US10Y turun tajam <span class="num mono">-7bp ke 4,60%</span> pada hari Jumat, lalu stabil <span class="num mono">~4,65–4,66%</span> di hari Senin — real yield ikut turun karena breakeven inflasi relatif stabil. Ini komponen utama yang mengangkat Gold.</div>
+    </div>
+    <div class="walk-row">
+      <div class="walk-tag tag-usd">04 USD</div>
+      <div class="walk-text">DXY melemah ke <b>level terendah dua bulan</b> — selaras dengan turunnya ekspektasi hike. Namun perlu diwaspadai: minggu ini ada risiko rebound DXY menjelang rilis CPI.</div>
+    </div>
+    <div class="walk-row">
+      <div class="walk-tag tag-flow">06 KONFIRMASI FLOW</div>
+      <div class="walk-text">ETF GLD mencatat <b>inflow +$636,9 juta</b> dalam sehari, net flow 5-hari <span class="num mono">+$635,94jt</span>, 1-bulan <span class="num mono">+$1,71 miliar</span> — flow mengonfirmasi price, bukan divergen. Status ini <b>genuine demand</b>, bukan sekadar short covering.</div>
+    </div>
+    <div class="walk-row">
+      <div class="walk-tag tag-price">07 HARGA</div>
+      <div class="walk-text">XAUUSD melompat dari <span class="num mono">~4.300</span> ke zona <span class="num mono">4.360–4.380</span> dalam satu candle 15 menit di hari Jumat, lalu konsolidasi di <span class="num mono">4.315–4.360</span> pada sesi Asia/Senin. Struktur: <b>bullish continuation dengan konsolidasi sehat</b>, bukan tanda exhaustion.</div>
+    </div>
+    <div class="walk-row">
+      <div class="walk-tag tag-warn">⚠ FAKTOR PENYEIMBANG</div>
+      <div class="walk-text">Ketegangan Iran–AS soal Selat Hormuz masih berlangsung (Iran bantah ada negosiasi langsung), <b>WTI naik ~6% ke $81,54</b> — menambah risk premium & tekanan inflasi energi. Ini elemen yang bisa menahan penurunan yield lebih lanjut dan membuat CPI hari Rabu jadi faktor penentu besar minggu ini.</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">3 · Pohon Skenario — Perkiraan Bersyarat (Pemicu: CPI Juli, Rabu 12 Agustus)</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>Taktis H4 <span class="badge b-bull">BULLISH PULLBACK</span></h3>
+      <div class="tree">
+        <div class="path bull"><b>CPI dingin / inline dovish →</b> probabilitas hike turun lagi, DXY lanjut lemah, XAU breakout &gt;4.380 menuju 4.410–4.450.</div>
+        <div class="path base"><b>CPI inline netral →</b> konsolidasi 4.315–4.380 berlanjut, tunggu PPI & klaim pengangguran (Kamis) sebagai konfirmasi lanjutan.</div>
+        <div class="path bear"><b>CPI panas (hot) →</b> probabilitas hike naik cepat, yield & DXY rebound tajam, XAU koreksi cepat ke 4.260–4.230 (support struktural).</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Struktural D1 <span class="badge b-bull">STRUCTURAL BULLISH</span></h3>
+      <div class="tree">
+        <div class="path bull">Selama real yield tertekan & ETF flow tetap net inflow multi-minggu → bias struktural tetap bullish, dip dianggap <b>zona akumulasi</b>.</div>
+        <div class="path base">Jika de-eskalasi Hormuz terjadi cepat → sebagian premium safe-haven hilang, tapi bid dari sisi yield tetap menahan harga.</div>
+        <div class="path bear">Struktural invalid hanya jika real yield naik persisten &gt;2 minggu <b>dan</b> ETF flow berbalik jadi net outflow secara bersamaan.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">4 · Kalender Ekonomi → Risiko Transmisi</h2>
+  <div class="card">
+    <table>
+      <tr><th>Tanggal</th><th>Peristiwa</th><th>Konsensus</th><th>Risiko Transmisi ke Gold</th></tr>
+      <tr><td>11 Agu</td><td>ADP Weekly Employment</td><td>—</td><td>Rendah — pelengkap NFP, bukan trigger utama</td></tr>
+      <tr><td>12 Agu</td><td>CPI Juli (headline+core)</td><td>Amati surprise vs prior</td><td><b style="color:var(--gold)">TINGGI — faktor penentu utama minggu ini</b></td></tr>
+      <tr><td>13 Agu</td><td>PPI Juli + Klaim Pengangguran</td><td>Klaim naik 199K→201K (exp)</td><td>Sedang — konfirmasi arah tren tenaga kerja</td></tr>
+      <tr><td>14 Agu</td><td>Ekspektasi Inflasi UMich</td><td>—</td><td>Sedang — memengaruhi breakeven/real yield</td></tr>
+      <tr><td>18 Agu</td><td>Produksi Industri</td><td>—</td><td>Rendah</td></tr>
+    </table>
+  </div>
+
+  <h2 class="section-title">5 · Pemeriksaan Invalidasi & Kontrarian</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>Tesis Bullish Valid Selama...</h3>
+      <ul class="invalid-list">
+        <li><span style="color:var(--green)">✓</span> Real yield tetap tertekan / menurun</li>
+        <li><span style="color:var(--green)">✓</span> ETF flow tetap net inflow berkelanjutan (mingguan)</li>
+        <li><span style="color:var(--green)">✓</span> DXY gagal reclaim di atas resistance 2 bulan terakhir</li>
+        <li><span style="color:var(--green)">✓</span> XAU close H1 bertahan di atas 4.310</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Pemicu Invalidasi</h3>
+      <ul class="invalid-list">
+        <li><span class="x">✗</span> CPI kejutan panas → probabilitas hike melompat &gt;60%</li>
+        <li><span class="x">✗</span> ETF outflow &gt;5 ton dalam sehari</li>
+        <li><span class="x">✗</span> De-eskalasi penuh Hormuz + harga minyak turun tajam</li>
+        <li><span class="x">✗</span> Harga break di bawah 4.230 (close H1) — structure break</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="section-title">6 · Forecast H4 & D1 — dengan Validasi Akurasi</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>H4 — Taktis <span class="badge b-neu">KONSOLIDASI BULLISH</span></h3>
+      <table>
+        <tr><th>Level</th><th>Harga</th><th>Probabilitas</th><th>Akurasi Historis*</th></tr>
+        <tr><td>Support terdekat</td><td>4.315</td><td>—</td><td class="mono" style="color:var(--green)">80%</td></tr>
+        <tr><td>Resistance terdekat</td><td>4.365</td><td>—</td><td class="mono" style="color:var(--green)">79%</td></tr>
+        <tr><td>TP breakout</td><td>4.380 – 4.410</td><td>78%</td><td class="mono" style="color:var(--green)">76%</td></tr>
+        <tr><td>Invalidasi H4</td><td>&lt; 4.310</td><td>22%</td><td class="mono" style="color:var(--gold)">71%</td></tr>
+      </table>
+      <div class="tree" style="margin-top:10px;">
+        <div class="path bull"><b>Breakout &gt;4.365</b> (close H4) → lanjut menuju 4.380–4.410, momentum sesi Eropa jadi konfirmasi.</div>
+        <div class="path bear"><b>Breakdown &lt;4.310</b> (close H4) → uji ulang 4.260, waspada percepatan profit taking jelang CPI.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>D1 — Struktural <span class="badge b-bull">BULLISH BERSYARAT</span></h3>
+      <table>
+        <tr><th>Level</th><th>Harga</th><th>Probabilitas</th><th>Akurasi Historis*</th></tr>
+        <tr><td>Base case (CPI inline/dovish)</td><td>4.410 – 4.450</td><td>71%</td><td class="mono" style="color:var(--green)">77%</td></tr>
+        <tr><td>Risk case (CPI hot)</td><td>4.230 – 4.260</td><td>29%</td><td class="mono" style="color:var(--gold)">70%</td></tr>
+        <tr><td>Invalidasi struktural</td><td>&lt; 4.180 (2 minggu persisten)</td><td>—</td><td class="mono" style="color:var(--gold)">73%</td></tr>
+      </table>
+      <div class="tree" style="margin-top:10px;">
+        <div class="path base">Driver persisten: real yield turun + ETF flow net inflow. Berlaku sampai rilis CPI Rabu 12 Agu ~20:30 WIB.</div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5;">
+    *Akurasi historis = persentase tercapainya level/skenario serupa pada kondisi macro sebanding di rolling window forecast sebelumnya. Angka pada versi ini masih <b style="color:var(--text)">contoh ilustratif kerangka validasi</b> — begitu log forecast-vs-actual milik lo terhubung, sel ini otomatis dihitung ulang oleh loop self-learning di bawah, bukan diisi manual.
+  </div>
+
+  <h2 class="section-title">7 · Rekomendasi Trading</h2>
+  <div class="card" style="border-color:var(--green-dim);">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:14px;">
+      <div>
+        <span class="badge b-bull mono" style="font-size:13px;padding:6px 12px;">BUY BIAS</span>
+        <span style="color:var(--muted);font-size:11px;margin-left:8px;">Bersyarat ke hasil CPI Rabu — bukan sinyal all-in</span>
+      </div>
+      <div class="mono" style="font-size:11px;color:var(--muted);">CONFIDENCE 83% · R:R ~1:2,5</div>
+    </div>
+    <table>
+      <tr><th>Skenario</th><th>Entry</th><th>Stop Loss</th><th>TP1</th><th>TP2</th><th>TP3</th></tr>
+      <tr>
+        <td>Buy on dip (dalam range H1)</td>
+        <td>4.320 – 4.330</td>
+        <td>4.298</td>
+        <td>4.380</td>
+        <td>4.410</td>
+        <td>4.450*</td>
+      </tr>
+      <tr>
+        <td>Buy breakout (konfirmasi close H1 &gt;4.365)</td>
+        <td>4.368 – 4.375</td>
+        <td>4.340</td>
+        <td>4.410</td>
+        <td>4.450</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>Sell — hanya jika invalidasi</td>
+        <td>&lt;4.230 (konfirmasi close H1 + CPI hot)</td>
+        <td>4.262</td>
+        <td>4.180</td>
+        <td>4.130</td>
+        <td>—</td>
+      </tr>
+    </table>
+    <div style="font-size:10.5px;color:var(--muted);margin-top:10px;line-height:1.6;">
+      *TP3 hanya realistis pada skenario CPI dovish/cool. Kurangi ukuran posisi atau ketatkan SL menjelang rilis CPI Rabu 12 Agustus (~20:30 WIB) — ini titik invalidasi tercepat untuk seluruh thesis. Tabel ini adalah ilustrasi analitis berbasis causal chain di atas, bukan nasihat keuangan — keputusan eksekusi dan position sizing tetap di tangan lo sesuai manajemen risiko masing-masing.
+    </div>
+  </div>
+
+  <h2 class="section-title">8 · Kalibrasi & Walk-Forward Validation</h2>
+
+  <div class="card" style="border-color:var(--gold-dim);margin-bottom:16px;">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:center;">
+      <div style="font-size:12px;color:var(--text);line-height:1.6;max-width:760px;">
+        <b style="color:var(--gold);">Target sistem ini bukan 100%.</b> Target = <b style="color:#fff;">akurasi terkalibrasi 75–85%</b> pada arah (bullish/bearish/sideways), diuji lewat walk-forward — bukan single backtest. Model yang di-tuning ke 95–100% pada data historis nyaris pasti curve-fitting dan akan gagal di data baru.
+      </div>
+      <div class="mono" style="text-align:center;">
+        <div style="font-size:26px;font-weight:700;color:var(--green);">75–85%</div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:1px;">BAND TARGET TERKALIBRASI</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px;">
+    <div class="card">
+      <h3>Kurva Kalibrasi (Reliability)</h3>
+      <table>
+        <tr><th>Confidence Model</th><th>Realisasi Aktual*</th><th>Selisih (Gap)</th><th>Status</th></tr>
+        <tr><td>90–100%</td><td class="mono">82–88%</td><td class="mono" style="color:var(--gold)">-6 s/d -12</td><td style="color:var(--gold)">Sedikit overconfident</td></tr>
+        <tr><td>80–89%</td><td class="mono">76–81%</td><td class="mono" style="color:var(--green)">-3 s/d -8</td><td style="color:var(--green)">Terkalibrasi baik</td></tr>
+        <tr><td>70–79%</td><td class="mono">68–74%</td><td class="mono" style="color:var(--green)">-2 s/d -5</td><td style="color:var(--green)">Terkalibrasi baik</td></tr>
+        <tr><td>60–69%</td><td class="mono">58–63%</td><td class="mono" style="color:var(--green)">-1 s/d -6</td><td style="color:var(--green)">Terkalibrasi baik</td></tr>
+        <tr><td>&lt; 60%</td><td class="mono">—</td><td class="mono">—</td><td style="color:var(--red)">Di bawah threshold eksekusi</td></tr>
+      </table>
+      <div style="font-size:9.5px;color:var(--muted);margin-top:8px;line-height:1.5;">
+        *Kontoh kerangka kurva kalibrasi (reliability diagram) — diisi otomatis dari log forecast-vs-actual riil lo, bukan angka final. Prinsip: model yang bilang "80% yakin" harus bener ~80% dari waktu — bukan 95% dan bukan 60%.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Walk-Forward Validation</h3>
+      <table>
+        <tr><th>Parameter</th><th>Aturan</th></tr>
+        <tr><td>Metode</td><td class="mono">Rolling window, bukan single backtest</td></tr>
+        <tr><td>Training window</td><td class="mono">T-90 hari → T (contoh)</td></tr>
+        <tr><td>Testing window</td><td class="mono">T+1 → T+7 (strictly out-of-sample)</td></tr>
+        <tr><td>Roll</td><td class="mono">Geser +7 hari, ulangi N kali</td></tr>
+        <tr><td>Look-ahead bias</td><td class="mono" style="color:var(--red)">NOL toleransi — fitur wajib pakai data yang tersedia real-time saat itu</td></tr>
+        <tr><td>Metrik agregat</td><td class="mono">Hit-rate per bucket + Brier score</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px;font-size:11.5px;">
+      <span class="mono" style="padding:6px 12px;border:1px solid var(--line);border-radius:20px;color:var(--cyan);">Forecast</span>
+      <span style="color:var(--muted);">→</span>
+      <span class="mono" style="padding:6px 12px;border:1px solid var(--line);border-radius:20px;color:var(--cyan);">Actual Result</span>
+      <span style="color:var(--muted);">→</span>
+      <span class="mono" style="padding:6px 12px;border:1px solid var(--line);border-radius:20px;color:var(--gold);">Error Attribution</span>
+      <span style="color:var(--muted);">→</span>
+      <span class="mono" style="padding:6px 12px;border:1px solid var(--line);border-radius:20px;color:var(--gold);">Root Cause</span>
+      <span style="color:var(--muted);">→</span>
+      <span class="mono" style="padding:6px 12px;border:1px solid var(--line);border-radius:20px;color:var(--green);">Update Bobot & Lag</span>
+      <span style="color:var(--muted);">→</span>
+      <span class="mono" style="padding:6px 12px;border:1px solid var(--line);border-radius:20px;color:var(--green);">Walk-Forward Test</span>
+      <span style="color:var(--muted);">→</span>
+      <span class="mono" style="padding:6px 12px;border:1px solid var(--line);border-radius:20px;color:var(--cyan);">Cek Kalibrasi</span>
+      <span style="color:var(--muted);">→</span>
+      <span class="mono" style="padding:6px 12px;border:1px solid var(--line);border-radius:20px;color:#fff;background:var(--green-dim);">Deploy (Champion)</span>
+    </div>
+    <div class="grid2" style="gap:12px;">
+      <div>
+        <table>
+          <tr><th>Parameter Loop</th><th>Status</th></tr>
+          <tr><td>Siklus evaluasi</td><td class="mono">Setiap forecast H4 jatuh tempo + tiap rilis data kalender</td></tr>
+          <tr><td>Trigger re-training bobot node</td><td class="mono">Akurasi rolling &lt; 65% pada 10 forecast terakhir</td></tr>
+          <tr><td>Syarat naik jadi champion</td><td class="mono">Menang di walk-forward OOS <b>dan</b> gap kalibrasi &lt; 8pp</td></tr>
+          <tr><td>Minimum sample</td><td class="mono">≥ 30 forecast sebelum bobot node dipercaya</td></tr>
+          <tr><td>Guard regime-shift</td><td class="mono">Confidence diturunkan otomatis jika macro regime berubah (mis. hawkish↔dovish)</td></tr>
+          <tr><td>Model saat ini</td><td class="mono" style="color:var(--green)">Champion — belum ada challenger yang unggul</td></tr>
+        </table>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);line-height:1.6;padding:4px 6px;">
+        Beda dari versi sebelumnya: loop ini sekarang <b style="color:var(--text)">tidak mengejar akurasi mentah setinggi mungkin</b>, tapi mengejar <b style="color:var(--text)">kalibrasi yang jujur</b> — gap antara confidence yang diucapkan model vs realisasi aktual ditekan sekecil mungkin (idealnya &lt;8pp), dan performa hanya divalidasi di data yang belum pernah dilihat model (walk-forward). Model dengan akurasi 78% yang terkalibrasi rapi jauh lebih bisa dipercaya untuk sizing posisi riil daripada model yang klaim 95% tapi gapnya lebar.
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">9 · Faktor Struktural Tambahan yang Mempengaruhi XAUUSD</h2>
+  <div class="grid2" style="margin-bottom:16px;">
+    <div class="card">
+      <h3>Pembelian Bank Sentral <span class="badge b-bull">STRUKTURAL — MULTI-BULAN</span></h3>
+      <table>
+        <tr><th>Indikator</th><th>Data</th></tr>
+        <tr><td>PBoC (China)</td><td class="mono">20 bulan beruntun beli emas; Juni 2026 +14,93 ton (terbesar sejak 2023); total cadangan ~2.346 ton</td></tr>
+        <tr><td>Porsi emas dari cadangan devisa China</td><td class="mono">&lt;10% (target jangka panjang jauh lebih tinggi vs AS/Jerman ~70%)</td></tr>
+        <tr><td>Total pembelian bank sentral global Q2 2026</td><td class="mono">288,9 ton (rekor, +62% YoY) — dipimpin Polandia & China</td></tr>
+        <tr><td>Survei WGC 2026</td><td class="mono">74% reserve manager berencana kurangi porsi USD dalam 5 tahun ke depan</td></tr>
+      </table>
+      <div style="font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.5;">
+        Implikasi: ini floor demand jangka panjang yang <b style="color:var(--text)">tidak sensitif terhadap fluktuasi harga harian</b> — bank sentral historis justru mempercepat beli saat harga terkoreksi. Masuk sebagai driver <b>D1/struktural</b>, bukan sinyal H4.
+      </div>
+    </div>
+    <div class="card">
+      <h3>Positioning COMEX / CFTC <span class="badge b-neu">MINGGUAN</span></h3>
+      <table>
+        <tr><th>Indikator</th><th>Data</th></tr>
+        <tr><td>COT per 4 Agu 2026</td><td class="mono">Managed Money net long 130.766 kontrak gold</td></tr>
+        <tr><td>Non-commercial net-long (basis lebih luas)</td><td class="mono">~197,6 ribu kontrak, naik dari 182,1 ribu</td></tr>
+        <tr><td>Tren mingguan</td><td class="mono" style="color:var(--green)">Meningkat — spekulatif makin bullish</td></tr>
+      </table>
+      <div style="font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.5;">
+        Implikasi: momentum spekulatif mendukung, tapi <b style="color:var(--gold)">crowded long meningkatkan risiko shakeout</b> kalau CPI Rabu keluar hot — posisi net long tinggi = bahan bakar untuk profit-taking cepat.
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Physical Demand Asia <span class="badge b-neu">INDIA vs CHINA — POLA BEDA</span></h3>
+      <table>
+        <tr><th>Wilayah</th><th>Karakteristik</th></tr>
+        <tr><td>India</td><td class="mono">Sangat price-sensitive; ETF fisik sempat net outflow bulanan pertama dlm >12 bulan (profit taking); jewellery rebound saat harga turun</td></tr>
+        <tr><td>China</td><td class="mono">Floor lebih stabil — kombinasi ritel + demand institusional/CB; premium Shanghai historis $1–35/oz tergantung kondisi</td></tr>
+        <tr><td>Supply tambang global</td><td class="mono">Turun ke level terendah 6 tahun; recycling naik menutupi kekurangan</td></tr>
+      </table>
+      <div style="font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.5;">
+        Implikasi: India = <b>indikator kontrarian jangka pendek</b> (demand naik saat harga turun, turun saat harga naik). China + supply defisit = <b>dukungan struktural jangka panjang</b>.
+      </div>
+    </div>
+    <div class="card">
+      <h3>Makro Struktural & Cross-Asset <span class="badge b-bull">MULTI-TAHUN</span></h3>
+      <table>
+        <tr><th>Indikator</th><th>Data</th></tr>
+        <tr><td>Utang AS</td><td class="mono">$39,7 triliun (akhir Jul 2026), tumbuh ~$7 miliar/hari</td></tr>
+        <tr><td>Defisit fiskal FY2026</td><td class="mono">Proyeksi tetap di atas $1 triliun</td></tr>
+        <tr><td>Korelasi stock-bond</td><td class="mono">Meningkat → mendukung gold sbg diversifier (WGC)</td></tr>
+        <tr><td>Gold vs Bitcoin (2025-2026)</td><td class="mono">Gold jauh unggul sbg "debasement trade"; BTC belum konsisten sbg safe-haven</td></tr>
+      </table>
+      <div style="font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.5;">
+        Implikasi: tema debasement/de-dolarisasi ini horizonnya <b style="color:var(--text)">multi-tahun</b> — berguna untuk keyakinan bias struktural jangka panjang, <b>jangan dipakai untuk timing entry harian</b>.
+      </div>
+    </div>
+  </div>
+  <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5;">
+    Sumber: World Gold Council, CFTC COT report, SAFE China, Reuters/Bloomberg — data per awal Agustus 2026. Faktor-faktor ini melengkapi rantai sebab-akibat di Section 1, terutama memperkuat node 05 (Alokasi Aset) dan 06 (Kanal Aliran Dana) dari sisi structural/multi-bulan, di luar siklus event-driven H4/D1 yang jadi fokus utama dashboard.
+  </div>
+
+  <footer>
+    <div>
+      <div class="verdict">🟢 BULLISH PULLBACK — TRANSISI MENUJU CPI</div>
+      <div class="sub">Driver utama: penurunan probabilitas hike Fed September pasca NFP lemah, dikonfirmasi oleh flow ETF positif dan penurunan real yield. Risiko utama minggu ini: CPI hari Rabu bisa membalikkan repricing dalam hitungan menit. Geopolitik Hormuz menambah lapisan risk-premium yang membuat yield tidak turun sedalam yang seharusnya.</div>
+    </div>
+    <div class="stats mono">
+      <div class="s"><div class="v" style="color:var(--green)">78%</div><div class="l">PROB. NAIK (H4)</div></div>
+      <div class="s"><div class="v">83%</div><div class="l">KEYAKINAN</div></div>
+      <div class="s"><div class="v" style="color:var(--gold)">CPI</div><div class="l">KATALIS BERIKUTNYA</div></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

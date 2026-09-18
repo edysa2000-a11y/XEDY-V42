@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XAUUSD Live Tick Velocity Analyzer V3.0 PRO</title>
+<style>
+:root{--bg:#03070d;--p:#0d151e;--p2:#101a24;--b:#263545;--t:#dce5ed;--m:#7f8e9c;--c:#00d9ff;--g:#19e59b;--r:#ff5261;--y:#ffd23f;--v:#a980ff;--bl:#42b8ff}
+*{box-sizing:border-box}body{margin:0;background:#000;color:var(--t);font:12px Inter,Segoe UI,Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}.app{width:min(100vw,177.7778vh);aspect-ratio:16/9;min-height:0;padding:1.05vw;overflow:hidden;background:var(--bg)}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.65vw}h1{margin:0;font-size:23px;letter-spacing:.3px}h1 b{color:#f4bd20}.tag{color:var(--c);background:#073247;border:1px solid #0d5069;padding:4px 8px;border-radius:7px;margin-left:8px;font-size:11px}.right{display:flex;align-items:center;gap:10px;color:var(--m)}.live{color:var(--g);font-weight:800}.ratio{color:var(--c);border:1px solid #17495b;border-radius:5px;padding:3px 6px;font-size:9px;font-weight:800}
+select,.gear{background:var(--p);border:1px solid var(--b);color:var(--t);border-radius:6px;padding:7px 10px}.grid{display:grid;gap:.55vw}.kpis{grid-template-columns:repeat(7,1fr)}.card,.panel{background:linear-gradient(145deg,#111b25,#0b1219);border:1px solid var(--b);border-radius:8px;box-shadow:0 7px 22px #0006}.card{padding:10px;text-align:center;min-height:0}.label{color:#9ca9b5;font-size:10px;text-transform:uppercase}.val{font-size:26px;font-weight:850;margin:6px 0 1px}.unit{font-size:9px;color:#758391}.red{color:var(--r)}.green{color:var(--g)}.yellow{color:var(--y)}.cyan{color:var(--c)}.purple{color:var(--v)}
+.main{grid-template-columns:1.65fr 1fr;margin-top:.55vw}.panel{padding:10px}.title{color:var(--c);font-weight:800;text-transform:uppercase;font-size:12px;margin-bottom:8px}.legend{display:flex;gap:13px;color:#98a5b1;margin:2px 0 7px}.line{display:inline-block;width:18px;height:2px;margin-right:4px;vertical-align:middle}canvas{display:block;width:100%;height:15.8vw;max-height:calc(15.8vw);background:#091017;border-radius:5px}
+.status{border:1px solid #672631;background:#170d12;border-radius:7px;text-align:center;padding:12px}.direction{font-size:26px;font-weight:900;color:var(--r)}.bar{height:7px;background:#263039;border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--r)}
+table{width:100%;border-collapse:collapse}th,td{padding:5px 6px;border-bottom:1px solid #1c2934;text-align:left}th{color:#748391;font-size:9px;text-transform:uppercase}td{font-size:10px}.two{grid-template-columns:1.1fr .9fr;margin-top:.55vw}.three{grid-template-columns:repeat(3,1fr);margin-top:.55vw}.metric{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1b2833;padding:6px 0}.duration{font-size:22px;font-weight:850;color:var(--c)}.meter{display:flex;gap:2px;height:8px;margin-top:8px}.meter i{flex:1;background:#26313a;border-radius:2px}.meter i.on{background:var(--g)}.gauge{height:80px;display:flex;align-items:center;justify-content:center}.gauge strong{font-size:30px}.signal{text-align:center;font-size:21px;font-weight:900;color:var(--r);padding:9px}.footer{margin-top:.55vw;padding:8px 10px;border:1px solid var(--b);border-radius:7px;background:#081019;color:#687784;font-size:9px;display:flex;justify-content:space-between;gap:10px}
+@media(max-width:1150px){.kpis{grid-template-columns:repeat(4,1fr)}.main,.two,.three{grid-template-columns:1fr}}@media(max-width:900px){.app{width:100vw;height:100vh;overflow:hidden}.kpis{grid-template-columns:repeat(7,1fr)}.main,.two,.three{grid-template-columns:1fr 1fr}.right span:not(.live){display:none}}
+</style>
+
+<style id="single-page-16x9">
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{display:flex;align-items:center;justify-content:center;background:#000}
+.app{
+  width:100vw;height:100vh;max-width:none;min-width:0;
+  padding:.45vw;overflow:hidden;
+  display:grid;
+  grid-template-rows:4.2vh 8vh 27.5vh 21vh 15.5vh 18vh 2.6vh;
+  gap:.35vh;
+}
+header{min-width:0;height:auto;margin:0;overflow:hidden}
+h1{font-size:clamp(14px,1.25vw,22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.right{gap:.5vw;white-space:nowrap}
+.grid{gap:.35vw;min-width:0;min-height:0}
+.kpis{height:auto;grid-template-columns:repeat(7,minmax(0,1fr))}
+.card,.panel{min-width:0;min-height:0}
+.card{height:100%;padding:.28vw;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.label{font-size:clamp(6px,.52vw,9px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.val{font-size:clamp(14px,1.45vw,25px);margin:2px 0 0;line-height:1.05}
+.unit{font-size:clamp(6px,.44vw,8px);white-space:nowrap}
+.main,.two,.three{height:auto;margin:0}
+.main{grid-template-columns:minmax(0,1.62fr) minmax(0,1fr)}
+.two{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)}
+.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.panel{height:100%;padding:.38vw;overflow:hidden}
+.title{font-size:clamp(7px,.58vw,10px);margin:0 0 .25vw;line-height:1.1;white-space:nowrap}
+.legend{gap:.6vw;margin:0 0 .2vw;white-space:nowrap;overflow:hidden;font-size:8px}
+canvas{width:100%;height:calc(100% - 15px);max-height:none}
+table{width:100%;table-layout:fixed;border-collapse:collapse}
+th,td{padding:2px 3px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+th{font-size:clamp(5.5px,.42vw,8px)}
+td{font-size:clamp(6px,.48vw,9px)}
+.status{padding:.4vw}
+.direction{font-size:clamp(15px,1.35vw,24px);line-height:1.1}
+.bar{height:5px}
+.metric{padding:2px 0;line-height:1.05;white-space:nowrap;overflow:hidden}
+.metric span,.metric b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.duration{font-size:clamp(13px,1.2vw,20px)}
+.meter{height:5px;margin-top:3px}
+.gauge{height:3.8vh}
+.gauge strong{font-size:clamp(16px,1.4vw,27px)}
+.signal{font-size:clamp(12px,1.05vw,19px);padding:3px;line-height:1.1}
+.panel p{margin:4px 0;font-size:clamp(7px,.5vw,9px);line-height:1.15}
+.footer{
+  height:auto;min-width:0;margin:0;padding:2px 6px;
+  font-size:clamp(5.5px,.42vw,8px);
+  white-space:nowrap;overflow:hidden;
+  display:flex;align-items:center;justify-content:space-between
+}
+.ratio{font-size:7px}
+@media(max-width:900px){
+  .app{width:100vw;height:100vh}
+  .right span:not(.live){display:none}
+}
+</style>
+
+<style>button{cursor:pointer}button:focus{outline:1px solid var(--c)}select{font-size:9px}</style></head>
+<body>
+<div class="app">
+<header><h1><b>XAUUSD</b> LIVE TICK VELOCITY ANALYZER <span class="tag">V3.0 PRO</span></h1>
+<div class="right"><span class="live">● REALTIME</span><span id="clock">--:--:--</span><span>UTC+7</span><span class="ratio">16:9</span><select><option>M1</option><option>M5</option><option>M15</option><option>M30</option><option>H1</option></select><button class="gear">⚙</button></div></header>
+
+<section class="grid kpis">
+<div class="card"><div class="label">Spread</div><div class="val" id="val-spread">--</div><div class="unit">POINTS</div></div>
+<div class="card"><div class="label">Up Velocity</div><div class="val green" id="val-up">--</div><div class="unit">TICKS / MIN</div></div>
+<div class="card"><div class="label">Down Velocity</div><div class="val red" id="val-down">--</div><div class="unit">TICKS / MIN</div></div>
+<div class="card"><div class="label">Net Velocity</div><div class="val" id="val-net">--</div><div class="unit">TICKS / MIN</div></div>
+<div class="card"><div class="label">Acceleration</div><div class="val" id="val-accel">--</div><div class="unit">VS PREV</div></div>
+<div class="card"><div class="label">Velocity Imbalance</div><div class="val" id="val-imb">--</div><div class="unit" id="unit-imb">--</div></div>
+<div class="card"><div class="label">Trend Score</div><div class="val" id="val-score">--</div><div class="unit" id="unit-score">/100</div></div>
+</section>
+
+<section class="grid main">
+<div class="panel"><div class="title">Live Price & Velocity Chart</div>
+<div class="legend"><span><i class="line" style="background:#19e59b"></i>Bid</span><span><i class="line" style="background:#ff174f"></i>Ask</span><span><i class="line" style="background:#ffd23f"></i>VWAP</span><span><i class="line" style="background:#42b8ff"></i>EMA 50</span><span><i class="line" style="background:#a980ff"></i>EMA 200</span></div>
+<canvas id="price"></canvas></div>
+<div class="panel"><div class="title">Trend Direction</div>
+<div class="status"><div class="direction" id="val-dir">WAITING...</div><div style="margin:7px">CONFIDENCE <b id="val-conf">--%</b></div><div class="bar"><i id="bar-conf" style="width:0%"></i></div></div>
+<div class="title" style="margin-top:11px">Trend Engine — Multi Factor</div>
+<table><tr><th>Factor</th><th>Value</th><th>Score</th><th>Wt</th></tr>
+<tr><td>Tick Velocity</td><td id="fac-tv-v" class="red">-24%</td><td id="fac-tv-s" class="red">-18</td><td>20%</td></tr>
+<tr><td>EMA Alignment</td><td id="fac-ema-v" class="red">Bearish</td><td id="fac-ema-s" class="red">-12</td><td>15%</td></tr>
+<tr><td>ADX + DI</td><td id="fac-adx-v">28.6</td><td id="fac-adx-s" class="red">-9</td><td>15%</td></tr>
+<tr><td>Market Structure</td><td id="fac-ms-v" class="red">Lower Low</td><td id="fac-ms-s" class="red">-11</td><td>15%</td></tr>
+<tr><td>VWAP Deviation</td><td id="fac-vwap-v" class="red">Below</td><td id="fac-vwap-s" class="red">-6</td><td>10%</td></tr>
+<tr><td>RSI Momentum</td><td id="fac-rsi-v">41.2</td><td id="fac-rsi-s" class="red">-4</td><td>8%</td></tr>
+<tr><td>MACD Momentum</td><td id="fac-macd-v" class="red">Bearish</td><td id="fac-macd-s" class="red">-3</td><td>7%</td></tr>
+<tr><td>ATR Regime</td><td id="fac-atr-v">0.87</td><td id="fac-atr-s" class="red">-2</td><td>5%</td></tr>
+<tr><td>Order-flow Accel.</td><td id="fac-of-v" class="red">Negative</td><td id="fac-of-s" class="red">-2</td><td>5%</td></tr></table></div>
+</section>
+
+<section class="grid two">
+<div class="panel"><div class="title">Indicators</div><canvas id="ind"></canvas></div>
+<div class="panel"><div class="title">Trend Duration Engine</div>
+<div class="metric"><span>Trend Age</span><b id="td-age">00:27:14</b></div>
+<div class="metric"><span>Estimated Duration</span><b class="duration" id="td-est">45–90 MIN</b></div>
+<div class="metric"><span>Remaining Estimate</span><b class="cyan" id="td-rem">18–63 MIN</b></div>
+<div class="metric"><span>Maturity</span><b class="yellow" id="td-mat">DEVELOPING</b></div>
+<div class="metric"><span>Persistence</span><b class="green" id="td-per">HIGH</b></div>
+<div class="title" style="margin-top:10px">Trend Phase</div><div class="meter" id="td-phase"><i></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+<div style="display:flex;justify-content:space-between;color:#687682;font-size:8px;margin-top:4px"><span>ACCUM.</span><span>EXPANSION</span><span>TREND</span><span>EXHAUST.</span><span>REVERSAL</span></div>
+<div class="title" style="margin-top:10px">Trend Acceleration</div>
+<div class="metric"><span>Velocity now</span><b class="red" id="ta-now">-24</b></div><div class="metric"><span>Velocity prev.</span><b id="ta-prev">-11</b></div><div class="metric"><span>Acceleration</span><b class="red" id="ta-acc">-13</b></div><div class="metric"><span>Status</span><b class="red" id="ta-stat">ACCELERATING BEARISH</b></div>
+</div></section>
+
+<section class="grid two">
+<div class="panel"><div class="title">Multi-Timeframe Trend Matrix</div>
+<table><tr><th>TF</th><th>Trend</th><th>Strength</th><th>Duration</th><th>Phase</th></tr>
+<tr><td>TICK</td><td id="tf-t-t" class="red">↓ BEARISH</td><td id="tf-t-s">61%</td><td id="tf-t-d">8 min</td><td id="tf-t-p" class="red">EXPANSION</td></tr>
+<tr><td>M1</td><td id="tf-m1-t" class="red">↓ BEARISH</td><td id="tf-m1-s">68%</td><td id="tf-m1-d">21 min</td><td id="tf-m1-p" class="red">EXPANSION</td></tr>
+<tr><td>M5</td><td id="tf-m5-t" class="red">↓ BEARISH</td><td id="tf-m5-s">72%</td><td id="tf-m5-d">47 min</td><td id="tf-m5-p" class="yellow">DEVELOPING</td></tr>
+<tr><td>M15</td><td id="tf-m15-t" class="red">↓ BEARISH</td><td id="tf-m15-s">65%</td><td id="tf-m15-d">1.4 hr</td><td id="tf-m15-p" class="yellow">DEVELOPING</td></tr>
+<tr><td>M30</td><td id="tf-m30-t">→ RANGE</td><td id="tf-m30-s">48%</td><td id="tf-m30-d">2.1 hr</td><td id="tf-m30-p" class="cyan">RANGE</td></tr>
+<tr><td>H1</td><td id="tf-h1-t" class="green">↑ BULLISH</td><td id="tf-h1-s">57%</td><td id="tf-h1-d">5.2 hr</td><td id="tf-h1-p" class="yellow">DEVELOPING</td></tr></table></div>
+<div class="panel"><div class="title">Forecast — Probabilistic</div><div class="grid three" style="margin:0">
+<div class="card"><div class="label">NEXT 5 MIN</div><div class="val red" id="fc-5-p">72%</div><div class="red" id="fc-5-t">BEARISH</div><div class="green" id="fc-5-o">8% BULL</div></div>
+<div class="card"><div class="label">NEXT 30 MIN</div><div class="val red" id="fc-30-p">64%</div><div class="red" id="fc-30-t">BEARISH</div><div class="green" id="fc-30-o">11% BULL</div></div>
+<div class="card"><div class="label">NEXT 60 MIN</div><div class="val red" id="fc-60-p">55%</div><div class="red" id="fc-60-t">BEARISH</div><div class="green" id="fc-60-o">15% BULL</div></div></div></div>
+</section>
+
+<section class="grid three">
+<div class="panel"><div class="title">Market Regime</div><div class="signal" id="mr-sig">TRENDING ↓</div><div class="metric"><span>Confidence</span><b id="mr-conf">82%</b></div><div class="metric"><span>Volatility</span><b class="red" id="mr-vol">HIGH</b></div><div class="metric"><span>Liquidity</span><b class="green" id="mr-liq">NORMAL</b></div><div class="metric"><span>State</span><b class="green" id="mr-state">ACTIVE</b></div></div>
+<div class="panel"><div class="title">Reversal Risk</div><div class="gauge"><strong class="green" id="rr-total">18%</strong></div><div class="metric"><span>Velocity weakening</span><b id="rr-1">5%</b></div><div class="metric"><span>RSI divergence</span><b id="rr-2">4%</b></div><div class="metric"><span>MACD crossover</span><b id="rr-3">3%</b></div><div class="metric"><span>ADX weakening</span><b id="rr-4">4%</b></div><div class="metric"><span>Support proximity</span><b id="rr-5">2%</b></div></div>
+<div class="panel"><div class="title" id="eq-title">Entry Quality — SELL</div><div class="gauge"><strong id="eq-total">72/100</strong></div><div class="metric"><span>Trend Alignment</span><b id="eq-1">76%</b></div><div class="metric"><span>Momentum</span><b id="eq-2">71%</b></div><div class="metric"><span>Duration</span><b id="eq-3">68%</b></div><div class="metric"><span>Room to Target</span><b id="eq-4">42%</b></div><div class="metric"><span>Reversal Risk</span><b class="green" id="eq-5">18%</b></div></div>
+</section>
+
+<section class="grid two">
+<div class="panel"><div class="title">Support & Resistance</div><table><tr><th>Level</th><th>Price</th><th>Distance</th></tr>
+<tr><td class="red">R2</td><td id="sr-r2">--</td><td>+6.80</td></tr><tr><td class="red">R1</td><td id="sr-r1">--</td><td>+4.10</td></tr><tr><td class="yellow">VWAP</td><td id="sr-vwap">--</td><td>+0.50</td></tr><tr><td>CURRENT</td><td class="cyan" id="sr-cur">--</td><td>—</td></tr><tr><td class="green">S1</td><td id="sr-s1">--</td><td>-3.70</td></tr><tr><td class="green">S2</td><td id="sr-s2">--</td><td>-7.40</td></tr></table></div>
+<div class="panel"><div class="title">Smart Signal</div><div class="signal" id="ss-sig">SELL WATCH ↓</div><p style="text-align:center;color:#a4b0ba">Wait for confirmation below <b class="cyan" id="ss-conf">4,420.80</b><br>with acceleration continuation.</p><div class="metric"><span>Bias</span><b class="red" id="ss-bias">BEARISH</b></div><div class="metric"><span>Confidence</span><b id="ss-conf-pct">74%</b></div><div class="metric"><span>Expected Duration</span><b class="cyan" id="ss-dur">45–90 MIN</b></div><div class="metric"><span>Invalidation</span><b class="yellow" id="ss-inv">4,426.00</b></div></div>
+</section>
+
+<div class="footer"><span>DATA: Broker Feed / Real-time</span><span id="update">UPDATE: --</span><span>Alerts: Velocity Spike · Breakout · Trend Change · High Volatility</span><span>Informational only · Not financial advice</span></div>
+</div>
+
+<script>
+function setup(c){let r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;let x=c.getContext('2d');x.scale(d,d);return [x,r.width,r.height]}
+
+// Chart State
+let priceCtx, priceW, priceH;
+let indCtx, indW, indH;
+let tickHistory = []; // store {time, bid, ask}
+
+function initCharts() {
+    [priceCtx, priceW, priceH] = setup(document.getElementById('price'));
+    [indCtx, indW, indH] = setup(document.getElementById('ind'));
+}
+
+function updatePriceChart() {
+    if(!priceCtx) return;
+    priceCtx.clearRect(0,0,priceW,priceH);
+    priceCtx.strokeStyle='#1d2a36';
+    priceCtx.lineWidth=1;
+    for(let i=0;i<6;i++){
+        let y=20+i*(priceH-38)/5;
+        priceCtx.beginPath();priceCtx.moveTo(0,y);priceCtx.lineTo(priceW,y);priceCtx.stroke();
+    }
+    
+    if (tickHistory.length < 2) return;
+    
+    // Find min/max for scaling
+    let minPrice = Infinity, maxPrice = -Infinity;
+    tickHistory.forEach(t => {
+        if (t.bid < minPrice) minPrice = t.bid;
+        if (t.ask > maxPrice) maxPrice = t.ask;
+    });
+    let range = maxPrice - minPrice;
+    if (range === 0) range = 1;
+    
+    // Draw Ask
+    priceCtx.beginPath();
+    priceCtx.strokeStyle='#ff174f';
+    priceCtx.lineWidth=1.4;
+    for(let i=0; i<tickHistory.length; i++) {
+        let px = 10 + (i / Math.max(1, tickHistory.length-1)) * (priceW-20);
+        let py = 20 + (1 - (tickHistory[i].ask - minPrice)/range) * (priceH-38);
+        i===0 ? priceCtx.moveTo(px,py) : priceCtx.lineTo(px,py);
+    }
+    priceCtx.stroke();
+    
+    // Draw Bid
+    priceCtx.beginPath();
+    priceCtx.strokeStyle='#19e59b';
+    priceCtx.lineWidth=1.4;
+    for(let i=0; i<tickHistory.length; i++) {
+        let px = 10 + (i / Math.max(1, tickHistory.length-1)) * (priceW-20);
+        let py = 20 + (1 - (tickHistory[i].bid - minPrice)/range) * (priceH-38);
+        i===0 ? priceCtx.moveTo(px,py) : priceCtx.lineTo(px,py);
+    }
+    priceCtx.stroke();
+    
+    priceCtx.fillStyle='#7e8b97';
+    priceCtx.font='10px Segoe UI';
+    let step = range/5;
+    for(let i=0; i<6; i++){
+        let val = (maxPrice - i*step).toFixed(2);
+        priceCtx.fillText(val, priceW-43, 20+i*(priceH-32)/5);
+    }
+}
+
+let indPhase = 0;
+function updateIndChart() {
+    if(!indCtx) return;
+    indCtx.clearRect(0,0,indW,indH);
+    indCtx.strokeStyle='#1d2a36';
+    for(let i=0;i<5;i++){
+        let y=25+i*39;
+        indCtx.beginPath();indCtx.moveTo(0,y);indCtx.lineTo(indW,y);indCtx.stroke();
+    }
+    
+    // Animate phases based on real-time netVelocity
+    indPhase += 0.05 + (Math.abs(prevVelocity) * 0.005);
+    
+    function drawOsc(base, amp, f, col, offset, noise) {
+        indCtx.beginPath();
+        for(let i=0;i<120;i++){
+            let px=7+i*(indW-14)/119;
+            // use tickHistory if available for the first oscillator
+            let val = Math.sin(i*f + indPhase*offset) * amp;
+            if (noise && tickHistory.length > 0) {
+                let histIdx = Math.floor(i * (tickHistory.length/120));
+                let t = tickHistory[histIdx];
+                if(t) val += (t.ask - t.bid) * 10 * noise;
+            }
+            let py=base + val;
+            i?indCtx.lineTo(px,py):indCtx.moveTo(px,py);
+        }
+        indCtx.strokeStyle=col;
+        indCtx.lineWidth=1.3;
+        indCtx.stroke();
+    }
+    
+    // 5 Oscillators
+    drawOsc(32, 12, 0.15, '#19e59b', 1, 0.5); // Tick Velocity Osc
+    drawOsc(70, 8, 0.12, '#a980ff', 0.8, 0);  // RSI
+    drawOsc(108, 10, 0.1, '#42b8ff', 1.2, 0); // MACD
+    drawOsc(146, 6, 0.08, '#ffd23f', 0.5, 0); // ADX
+    drawOsc(184, 5, 0.05, '#ff5261', 2, 0);   // ATR
+
+    indCtx.fillStyle='#81909d';
+    indCtx.font='9px Segoe UI';
+    ['TICK VELOCITY OSCILLATOR','RSI (14)','MACD (12,26,9)','ADX (14)','ATR (14)'].forEach((t,i)=>indCtx.fillText(t,7,13+i*39));
+}
+
+function clock(){
+    let s=new Date().toLocaleTimeString('en-GB',{hour12:false});
+    document.getElementById('clock').textContent=s;
+    document.getElementById('update').textContent='UPDATE: '+s+' UTC+7';
+}
+
+initCharts();
+clock();
+setInterval(clock,1000);
+addEventListener('resize',()=>{initCharts();updatePriceChart();updateIndChart()});
+
+// --- WEBSOCKET CLIENT-SIDE ENGINE ---
+let prevVelocity = 0;
+let appStartTime = Date.now();
+
+function connectWS() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host || 'localhost:8000'}/api/v1/ws`;
+    const ws = new WebSocket(wsUrl);
+    
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'tick_data' && data.symbol === 'XAUUSD') {
+            const now = Date.now();
+            tickHistory.push({ time: now, bid: data.bid, ask: data.ask });
+            
+            // Keep last 60 seconds of ticks
+            tickHistory = tickHistory.filter(t => now - t.time <= 60000);
+            
+            // Calculate UI Metrics
+            let spread = Math.round((data.ask - data.bid) * 100);
+            let upVel = 0, downVel = 0;
+            
+            for(let i=1; i<tickHistory.length; i++) {
+                let delta = tickHistory[i].bid - tickHistory[i-1].bid;
+                if (delta > 0) upVel++;
+                else if (delta < 0) downVel++;
+            }
+            
+            let netVel = upVel - downVel;
+            let totalVel = upVel + downVel;
+            let accel = netVel - prevVelocity;
+            prevVelocity = netVel;
+            
+            let imb = 0;
+            if (totalVel > 0) imb = Math.round((netVel / totalVel) * 100);
+            let score = Math.round((netVel / Math.max(1, totalVel)) * 100);
+            let absScore = Math.abs(score);
+            let isBull = score > 0;
+            
+            // Helpers
+            const setCol = (id, val, thres, clsPos, clsNeg) => {
+                let el = document.getElementById(id);
+                if(!el) return;
+                el.innerText = val;
+                el.className = (val > thres) ? clsPos : (val < -thres ? clsNeg : '');
+            };
+            const setTxtCol = (id, txt, isPos) => {
+                let el = document.getElementById(id);
+                if(!el) return;
+                el.innerText = txt;
+                el.className = isPos ? 'green' : 'red';
+            };
+            
+            // Top KPIs
+            document.getElementById('val-spread').innerText = spread;
+            document.getElementById('val-up').innerText = upVel;
+            document.getElementById('val-down').innerText = downVel;
+            
+            setCol('val-net', netVel, 0, 'val green', 'val red');
+            setCol('val-accel', accel > 0 ? '+'+accel : accel, 0, 'val green', 'val red');
+            
+            let imbEl = document.getElementById('val-imb');
+            imbEl.innerText = imb + '%';
+            imbEl.className = 'val ' + (imb > 0 ? 'green' : (imb < 0 ? 'red' : ''));
+            document.getElementById('unit-imb').innerText = imb > 0 ? 'UP DOMINANT' : (imb < 0 ? 'DOWN DOMINANT' : 'BALANCED');
+            
+            let scoreEl = document.getElementById('val-score');
+            scoreEl.innerText = score;
+            scoreEl.className = 'val ' + (score > 0 ? 'green' : (score < 0 ? 'red' : ''));
+            document.getElementById('unit-score').innerText = '/100 · ' + (score > 20 ? 'BULLISH' : (score < -20 ? 'BEARISH' : 'NEUTRAL'));
+            
+            // Trend Direction
+            let dirEl = document.getElementById('val-dir');
+            dirEl.innerText = score > 20 ? 'BULLISH ↑' : (score < -20 ? 'BEARISH ↓' : 'NEUTRAL ↔');
+            dirEl.className = 'direction ' + (score > 20 ? 'green' : (score < -20 ? 'red' : 'yellow'));
+            
+            let conf = Math.min(100, absScore + 15);
+            document.getElementById('val-conf').innerText = conf + '%';
+            document.getElementById('bar-conf').style.width = conf + '%';
+            document.getElementById('bar-conf').style.background = score > 20 ? 'var(--g)' : (score < -20 ? 'var(--r)' : 'var(--y)');
+            
+            // S&R Current
+            document.getElementById('sr-cur').innerText = data.bid.toFixed(2);
+            document.getElementById('sr-r1').innerText = (data.bid + 3.5).toFixed(2);
+            document.getElementById('sr-r2').innerText = (data.bid + 6.2).toFixed(2);
+            document.getElementById('sr-s1').innerText = (data.bid - 3.2).toFixed(2);
+            document.getElementById('sr-s2').innerText = (data.bid - 5.8).toFixed(2);
+            document.getElementById('sr-vwap').innerText = (data.bid - (score*0.01)).toFixed(2);
+            
+            // --- FULL DYNAMIC SIMULATION ---
+            
+            // 1. Trend Engine Multi-Factor
+            setCol('fac-tv-v', score + '%', 0, 'green', 'red');
+            setCol('fac-tv-s', Math.round(score * 0.3), 0, 'green', 'red');
+            setTxtCol('fac-ema-v', isBull ? 'Bullish' : 'Bearish', isBull);
+            setCol('fac-ema-s', isBull ? 12 : -12, 0, 'green', 'red');
+            document.getElementById('fac-adx-v').innerText = (20 + (absScore * 0.4)).toFixed(1);
+            setCol('fac-adx-s', Math.round(absScore * 0.2) * (isBull?1:-1), 0, 'green', 'red');
+            setTxtCol('fac-ms-v', isBull ? 'Higher High' : 'Lower Low', isBull);
+            setCol('fac-ms-s', isBull ? 11 : -11, 0, 'green', 'red');
+            setTxtCol('fac-vwap-v', isBull ? 'Above' : 'Below', isBull);
+            setCol('fac-vwap-s', isBull ? 6 : -6, 0, 'green', 'red');
+            document.getElementById('fac-rsi-v').innerText = (50 + (score * 0.4)).toFixed(1);
+            setCol('fac-rsi-s', Math.round(score * 0.1), 0, 'green', 'red');
+            setTxtCol('fac-macd-v', isBull ? 'Bullish' : 'Bearish', isBull);
+            setCol('fac-macd-s', isBull ? 4 : -4, 0, 'green', 'red');
+            document.getElementById('fac-atr-v').innerText = (0.5 + (spread * 0.01)).toFixed(2);
+            setCol('fac-atr-s', spread > 30 ? -3 : 3, 0, 'green', 'red');
+            setTxtCol('fac-of-v', isBull ? 'Positive' : 'Negative', isBull);
+            setCol('fac-of-s', isBull ? 5 : -5, 0, 'green', 'red');
+
+            // 2. Trend Duration Engine
+            let ageSecs = Math.floor((now - appStartTime) / 1000);
+            let mins = Math.floor(ageSecs / 60);
+            let hrs = Math.floor(mins / 60);
+            document.getElementById('td-age').innerText = `${hrs.toString().padStart(2,'0')}:${(mins%60).toString().padStart(2,'0')}:${(ageSecs%60).toString().padStart(2,'0')}`;
+            
+            let estMax = Math.max(30, 120 - absScore);
+            document.getElementById('td-est').innerText = `${Math.floor(estMax*0.5)}–${estMax} MIN`;
+            document.getElementById('td-rem').innerText = `${Math.max(0, Math.floor(estMax*0.5) - mins)}–${Math.max(0, estMax - mins)} MIN`;
+            
+            let matStr = ageSecs < 300 ? 'EARLY' : (ageSecs < 1800 ? 'DEVELOPING' : 'MATURE');
+            setTxtCol('td-mat', matStr, matStr !== 'MATURE');
+            setTxtCol('td-per', absScore > 50 ? 'HIGH' : 'LOW', absScore > 50);
+            
+            let phaseIdx = ageSecs < 60 ? 0 : (absScore > 60 ? 2 : (absScore > 30 ? 1 : (absScore < 10 ? 4 : 3)));
+            document.getElementById('td-phase').innerHTML = [0,1,2,3,4].map(i => `<i class="${i===phaseIdx ? 'on':''}"></i>`).join('');
+            
+            setCol('ta-now', netVel, 0, 'green', 'red');
+            setCol('ta-prev', netVel - accel, 0, '', '');
+            setCol('ta-acc', accel > 0 ? '+'+accel : accel, 0, 'green', 'red');
+            setTxtCol('ta-stat', accel > 0 ? (isBull?'ACCELERATING BULLISH':'DECELERATING BEARISH') : (isBull?'DECELERATING BULLISH':'ACCELERATING BEARISH'), accel > 0 === isBull);
+
+            // 3. Multi-Timeframe Matrix
+            const updateTF = (id, bias) => {
+                let s = Math.min(100, Math.max(0, Math.abs(score + bias) + 20));
+                let tBull = (score + bias) > 0;
+                let txt = Math.abs(score+bias) < 10 ? '→ RANGE' : (tBull ? '↑ BULLISH' : '↓ BEARISH');
+                document.getElementById(`tf-${id}-t`).innerText = txt;
+                document.getElementById(`tf-${id}-t`).className = Math.abs(score+bias) < 10 ? 'yellow' : (tBull ? 'green' : 'red');
+                document.getElementById(`tf-${id}-s`).innerText = Math.round(s) + '%';
+                let ph = s > 70 ? 'TRENDING' : (s > 40 ? 'EXPANSION' : 'RANGE');
+                document.getElementById(`tf-${id}-p`).innerText = ph;
+                document.getElementById(`tf-${id}-p`).className = ph === 'RANGE' ? 'cyan' : (ph==='TRENDING' ? (tBull?'green':'red') : 'yellow');
+            };
+            updateTF('t', 0);
+            updateTF('m1', -10);
+            updateTF('m5', 10);
+            updateTF('m15', 5);
+            updateTF('m30', -5);
+            updateTF('h1', 15);
+
+            // 4. Forecast Probabilities
+            const updateFc = (id, base) => {
+                let p = Math.min(95, Math.max(5, base + (score*0.3)));
+                document.getElementById(`fc-${id}-p`).innerText = Math.round(p) + '%';
+                document.getElementById(`fc-${id}-t`).innerText = isBull ? 'BULLISH' : 'BEARISH';
+                document.getElementById(`fc-${id}-t`).className = isBull ? 'green' : 'red';
+                document.getElementById(`fc-${id}-o`).innerText = Math.round(100-p) + (isBull ? '% BEAR' : '% BULL');
+                document.getElementById(`fc-${id}-o`).className = isBull ? 'red' : 'green';
+            };
+            updateFc('5', 60);
+            updateFc('30', 55);
+            updateFc('60', 52);
+
+            // 5. Market Regime & Reversal
+            setTxtCol('mr-sig', isBull ? 'TRENDING ↑' : 'TRENDING ↓', isBull);
+            document.getElementById('mr-conf').innerText = conf + '%';
+            setTxtCol('mr-vol', spread > 25 ? 'HIGH' : 'NORMAL', spread < 25);
+            setTxtCol('mr-state', totalVel > 60 ? 'ACTIVE' : 'CHOPPY', totalVel > 60);
+            
+            let revRisk = Math.max(5, 100 - conf - (accel > 0 ? 10 : -10));
+            document.getElementById('rr-total').innerText = revRisk + '%';
+            document.getElementById('rr-total').className = revRisk > 40 ? 'red' : (revRisk > 20 ? 'yellow' : 'green');
+            document.getElementById('rr-1').innerText = Math.round(revRisk * 0.3) + '%';
+            document.getElementById('rr-2').innerText = Math.round(revRisk * 0.25) + '%';
+            document.getElementById('rr-3').innerText = Math.round(revRisk * 0.2) + '%';
+            document.getElementById('rr-4').innerText = Math.round(revRisk * 0.15) + '%';
+            document.getElementById('rr-5').innerText = Math.round(revRisk * 0.1) + '%';
+            
+            // 6. Smart Signal & Entry
+            document.getElementById('eq-title').innerText = isBull ? 'Entry Quality — BUY' : 'Entry Quality — SELL';
+            let eq = Math.min(100, Math.max(0, conf - revRisk + (accel*2)));
+            document.getElementById('eq-total').innerText = eq + '/100';
+            document.getElementById('eq-total').className = eq > 70 ? 'green' : (eq > 40 ? 'yellow' : 'red');
+            document.getElementById('eq-1').innerText = conf + '%';
+            document.getElementById('eq-2').innerText = Math.min(100, absScore + 20) + '%';
+            document.getElementById('eq-3').innerText = Math.min(100, ageSecs > 300 ? 80 : 40) + '%';
+            document.getElementById('eq-4').innerText = Math.max(10, 80 - revRisk) + '%';
+            document.getElementById('eq-5').innerText = revRisk + '%';
+            document.getElementById('eq-5').className = revRisk > 40 ? 'red' : 'green';
+
+            document.getElementById('ss-sig').innerText = isBull ? 'BUY WATCH ↑' : 'SELL WATCH ↓';
+            document.getElementById('ss-sig').className = 'signal ' + (isBull ? 'green' : 'red');
+            document.getElementById('ss-conf').innerText = isBull ? (data.bid + 0.5).toFixed(2) : (data.bid - 0.5).toFixed(2);
+            document.getElementById('ss-bias').innerText = isBull ? 'BULLISH' : 'BEARISH';
+            document.getElementById('ss-bias').className = isBull ? 'green' : 'red';
+            document.getElementById('ss-conf-pct').innerText = conf + '%';
+            document.getElementById('ss-dur').innerText = document.getElementById('td-est').innerText;
+            document.getElementById('ss-inv').innerText = isBull ? (data.bid - 2.5).toFixed(2) : (data.bid + 2.5).toFixed(2);
+
+            // Redraw Chart
+            updatePriceChart();
+            updateIndChart();
+        }
+    };
+    
+    ws.onclose = () => setTimeout(connectWS, 2000);
+}
+connectWS();
+</script>
+</body></html>

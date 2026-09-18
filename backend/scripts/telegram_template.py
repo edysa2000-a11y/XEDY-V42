@@ -45,11 +45,11 @@ def generate_dashboard_msg(news_feed_data, results_dict, prices):
 
     # --- PART 1 ---
     msg1 = f"""<pre>╔══════════════════════════════════════════════╗
-║        🧠 XEDY AI • XAUUSD V38.5           ║
+║        🧠 XEDY AI • XAUUSD V39             ║
 ╠══════════════════════════════════════════════╣
 ║ PRICE       {price:,.2f}                     ║
 ║ CURRENT     {direction_emoji} {bias_word.ljust(26)}║
-║ MODEL       V38.5                        ║
+║ MODEL       V39                          ║
 ║ STATUS      🟢 ADAPTIVE INTELLIGENCE        ║
 ╚══════════════════════════════════════════════╝
 
@@ -170,7 +170,7 @@ Suggested Risk: 2.0% per trade
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {inval_str}
 
-🤖 XEDY V38.5
+🤖 XEDY V39
 PREDICT → COMPARE → ATTRIBUTE → LEARN
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</pre>
 <b>💱 FOREX MACRO RADAR:</b>

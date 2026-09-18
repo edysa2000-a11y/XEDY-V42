@@ -195,7 +195,7 @@ def execute_mt5_order(symbol, bias, analysis_data):
         "sl": sl_price,
         "tp": tp_price,
         "deviation": 20,
-        "magic": 999111,
+        "magic": int(os.environ.get("AUTOTRADE_MAGIC", "999111")),
         "comment": "XEDY Cloud Bridge",
         "type_time": mt5.ORDER_TIME_GTC,
         "type_filling": filling_mode,
@@ -246,7 +246,7 @@ def main():
         positions = mt5.positions_get()
         if positions:
             for p in positions:
-                if p.magic == 999111: # Only track our bot's trades
+                if p.magic == int(os.environ.get("AUTOTRADE_MAGIC", "999111")): # Only track our bot's trades
                     ACTIVE_TICKETS.add(p.ticket)
             if ACTIVE_TICKETS:
                 print(f"🔍 Ditemukan {len(ACTIVE_TICKETS)} posisi aktif milik bot. Mulai memantau...")

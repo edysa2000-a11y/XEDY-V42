@@ -125,6 +125,8 @@ class RiskEngine(BaseEngine):
         
         if mt5.initialize():
             positions = mt5.positions_get(symbol=symbol)
+            if positions:
+                positions = [p for p in positions if getattr(p, 'magic', 0) == int(os.environ.get("AUTOTRADE_MAGIC", "999111"))]
             has_positions = positions is not None and len(positions) > 0
             
             if not has_positions:
@@ -197,6 +199,8 @@ class RiskEngine(BaseEngine):
 
         # Check if there is already an active position or pending order for the symbol to prevent multiple entries
         positions = mt5.positions_get(symbol=symbol)
+        if positions:
+            positions = [p for p in positions if getattr(p, 'magic', 0) == int(os.environ.get("AUTOTRADE_MAGIC", "999111"))]
         orders = mt5.orders_get(symbol=symbol)
         
         # Check if averaging is enabled
@@ -284,6 +288,11 @@ class RiskEngine(BaseEngine):
                     
                 required_distance = atr * avg_mult
                 
+                # [FIX]: OPTIMASI GRID - Cegah jarak yang terlalu dekat (clustering) akibat ATR yang sangat kecil di sesi Asia.
+                # Terapkan batas absolut minimal jarak antar grid sebesar 3.00 (30 Pips / $3 pergerakan emas).
+                if required_distance < 3.00:
+                    required_distance = 3.00
+                
                 # Get the last opened position of the same type
                 last_pos = max(same_type_positions, key=lambda p: p.time)
                 last_entry = float(last_pos.price_open)
@@ -324,9 +333,10 @@ class RiskEngine(BaseEngine):
         if self.news_engine:
             gsi_score = self.news_engine.current_sentiment_score
             
-        # Calculate base volume based on Auto Lot settings and Risk Percent
-        auto_lot = os.environ.get("AUTO_LOT_ENABLED", "False").lower() == "true"
-        if auto_lot:
+        # Calculate base volume based on Lot Mode (fixed, dynamic, martingale)
+        lot_mode = os.environ.get("AUTOTRADE_LOT_MODE", "dynamic").lower()
+        
+        if lot_mode in ["dynamic", "martingale"]:
             acc = mt5.account_info()
             equity = acc.equity if acc else 10000.0
             risk_percent = float(os.environ.get("RISK_PERCENT", "1.0"))
@@ -366,7 +376,7 @@ class RiskEngine(BaseEngine):
             base_volume = round(max(0.01, base_volume), 2)
             self.logger.info(f"Dynamic Auto LOT: Equity=${equity:.2f}, Risk={risk_percent}%, SL Distance={sl_distance:.2f} USD. Calculated Base Volume={base_volume} Lot")
         else:
-            base_volume = float(os.environ.get("LOT_SIZE", "0.10"))
+            base_volume = float(os.environ.get("LOT_SIZE", "0.01"))
         
         # 2. Confidence-Based Sizing & Sniper Override
         sniper_lot = float(os.environ.get("SNIPER_LOT_SIZE", "0.0"))
@@ -406,8 +416,16 @@ class RiskEngine(BaseEngine):
                 volume = scaled_volume
             
         if is_averaging and first_position_volume is not None:
-            volume = first_position_volume
-            self.logger.info(f"Grid Averaging Match: Overriding dynamic lot size with oldest grid position volume: {volume} Lot to maintain grid balance.")
+            if lot_mode == "martingale":
+                depth = len(same_type_positions)
+                if depth > 3:
+                    self.logger.warning(f"Martingale Blocked: Max depth of 3 reached. Not opening grid level {depth+1}")
+                    return
+                volume = round(first_position_volume * (1.5 ** depth), 2)
+                self.logger.info(f"Martingale Grid Level {depth}: Scaling lot from {first_position_volume} to {volume} (1.5x multiplier)")
+            else:
+                volume = first_position_volume
+                self.logger.info(f"Grid Averaging Match: Overriding dynamic lot size with oldest grid position volume: {volume} Lot to maintain grid balance.")
             
         self.logger.info(f"Risk Approved: {signal} {volume} Lot at {price}")
         if self.execution_engine:
@@ -443,6 +461,8 @@ class RiskEngine(BaseEngine):
                 if mt5.initialize():
                     symbol = self.symbol
                     positions = mt5.positions_get(symbol=symbol)
+                    if positions:
+                        positions = [p for p in positions if getattr(p, 'magic', 0) == int(os.environ.get("AUTOTRADE_MAGIC", "999111"))]
                     
                     # 5. AI Review Loop (15 minutes after hedge lock)
                     now_time = time.time()
@@ -492,8 +512,19 @@ class RiskEngine(BaseEngine):
                         combined_profit = sum(float(p.profit) for p in positions)
                         total_volume = sum(float(p.volume) for p in positions)
                         
-                        # Scale target profit: $15.00 for every 0.10 lot size (e.g. 1.0 lot targets $150.00)
-                        dynamic_target = (total_volume / 0.10) * 15.00
+                        # Scale target profit based on ATR dynamically: (ATR * 1.5) for every 0.10 lot size
+                        avg_tf_name_for_tp = os.environ.get("AVERAGING_TIMEFRAME", "M30")
+                        tf_tp_map = {"M15": mt5.TIMEFRAME_M15, "M30": mt5.TIMEFRAME_M30, "H1": mt5.TIMEFRAME_H1}
+                        rates_tp = mt5.copy_rates_from_pos(symbol, tf_tp_map.get(avg_tf_name_for_tp, mt5.TIMEFRAME_M30), 0, 15)
+                        atr_for_tp = 9.09
+                        if rates_tp is not None and len(rates_tp) >= 15:
+                            tr_list_tp = []
+                            for i in range(1, len(rates_tp)):
+                                tr = max(rates_tp[i]['high'] - rates_tp[i]['low'], abs(rates_tp[i]['high'] - rates_tp[i-1]['close']), abs(rates_tp[i]['low'] - rates_tp[i-1]['close']))
+                                tr_list_tp.append(tr)
+                            atr_for_tp = float(np.mean(tr_list_tp[-14:]))
+                        
+                        dynamic_target = (total_volume / 0.10) * (atr_for_tp * 1.5)
                         
                         # Adjust target based on current market session
                         import datetime
@@ -550,10 +581,10 @@ class RiskEngine(BaseEngine):
                                 weighted_sum = sum(p.price_open * p.volume for p in dir_positions)
                                 avg_entry = weighted_sum / total_vol
                                 
-                                # Dynamic SL Compression: Tighten SL multiplier as grid size grows
+                                # Dynamic SL Compression: Tighten SL multiplier as grid size grows (Min DD)
                                 grid_size = len(dir_positions)
-                                sl_tightener = 1.0 if grid_size < 2 else (0.50 if grid_size == 2 else 0.35)
-                                tightened_sl_mult = min(1.0, sl_mult) * sl_tightener
+                                sl_tightener = 1.0 if grid_size < 2 else (0.50 if grid_size == 2 else 0.25)
+                                tightened_sl_mult = sl_mult * sl_tightener
                                 
                                 if direction == 0: # BUY
                                     logical_sl = round(avg_entry - (tightened_sl_mult * atr), 2)
@@ -583,11 +614,11 @@ class RiskEngine(BaseEngine):
                             # Handle standalone target logical SL & disaster SL
                             if same_dir_count == 1:
                                 if p_type == 0: # BUY
-                                    logical_sl = round(entry_price - (min(1.0, sl_mult) * atr), 2)
-                                    disaster_sl = round(entry_price - (min(1.0, sl_mult) * atr * 1.5), 2)
+                                    logical_sl = round(entry_price - (sl_mult * atr), 2)
+                                    disaster_sl = round(entry_price - (sl_mult * atr * 1.5), 2)
                                 else: # SELL
-                                    logical_sl = round(entry_price + (min(1.0, sl_mult) * atr), 2)
-                                    disaster_sl = round(entry_price + (min(1.0, sl_mult) * atr * 1.5), 2)
+                                    logical_sl = round(entry_price + (sl_mult * atr), 2)
+                                    disaster_sl = round(entry_price + (sl_mult * atr * 1.5), 2)
                                     
                                 self._logical_sls[ticket] = logical_sl
                                 if abs(current_sl - disaster_sl) > 0.05:
@@ -607,7 +638,7 @@ class RiskEngine(BaseEngine):
                                     self.logger.warning(f"Logical SL hit at {logical_sl} for Position #{ticket}. Triggering Hedge Lock: {opp_action} {p.volume} Lot.")
                                     
                                     if self.execution_engine:
-                                        res = await self.execution_engine.execute_order(symbol, opp_action, p.volume)
+                                        res = await self.execution_engine.execute_order(symbol, opp_action, p.volume, is_hedge=True)
                                         if res.get("status") == "success":
                                             opp_ticket = int(res.get("ticket"))
                                             self._hedge_locks[ticket] = {
@@ -616,6 +647,17 @@ class RiskEngine(BaseEngine):
                                                 "volume": p.volume,
                                                 "type": p_type
                                             }
+                                            
+                                            # FIX: Lepas sabuk pengaman (SL/TP) dari posisi orisinal agar tidak tersentuh broker!
+                                            import MetaTrader5 as mt5
+                                            req_sltp = {
+                                                "action": mt5.TRADE_ACTION_SLTP,
+                                                "position": ticket,
+                                                "symbol": symbol,
+                                                "sl": 0.0,
+                                                "tp": 0.0
+                                            }
+                                            mt5.order_send(req_sltp)
                                             
                                             # Send Telegram notification
                                             if hasattr(self.execution_engine, "notifier") and self.execution_engine.notifier:
@@ -671,26 +713,28 @@ class RiskEngine(BaseEngine):
                                     ts_distance = 7.00    # Trail by 70 pips (Kebal guncangan NFP)
                                     tier_str = "Tier 4 (Macro Badai/NFP)"
                                 elif latest_confidence < 0.75:
-                                    ts_activation = 1.50 # +$1.50 Gold movement (15 pips)
-                                    ts_distance = 1.00   # Trail by 10 pips
+                                    ts_activation = 1.20 # +$1.20 Gold movement (12 pips)
+                                    ts_distance = 0.50   # Trail by 5 pips (very tight)
                                     tier_str = "Tier 1 (Ragu)"
                                 elif latest_confidence < 0.85:
-                                    ts_activation = 2.50 # +$2.50 Gold movement (25 pips)
-                                    ts_distance = 1.50   # Trail by 15 pips
+                                    ts_activation = 2.00 # +$2.00 Gold movement (20 pips)
+                                    ts_distance = 1.00   # Trail by 10 pips (tighter)
                                     tier_str = "Tier 2 (Normal)"
                                 else:
                                     ts_activation = 4.00 # +$4.00 Gold movement (40 pips)
                                     ts_distance = 2.50   # Trail by 25 pips
                                     tier_str = "Tier 3 (Yakin Penuh)"
                                 
-                                # 1. Dynamic Confidence-Based Trailing Stop Lock-in
-                                if peak_pips >= ts_activation and pips < (peak_pips - ts_distance):
+                                # 1. Fast Break-Even (BE) Lock-in
+                                # Jika harga bergerak +25 pips ($2.50), dan berbalik turun menyentuh +2 pips ($0.20), exit untuk proteksi.
+                                if peak_pips >= 2.50 and pips <= 0.20:
+                                    should_exit = True
+                                    exit_reason = f"Fast Break-Even Lock (Peak: +{peak_pips:.2f} Pips, dropped to +{pips:.2f} Pips)"
+
+                                # 2. Dynamic Confidence-Based Trailing Stop Lock-in
+                                elif peak_pips >= ts_activation and pips < (peak_pips - ts_distance):
                                     should_exit = True
                                     exit_reason = f"Dynamic Trailing Stop [{tier_str} - Conf: {latest_confidence*100:.0f}%] (Peak: +{peak_pips:.2f} Pips, Current: +{pips:.2f} Pips)"
-                                # 2. Dynamic Break-Even ($30 trigger, exit at $0.00 or reversal)
-                                elif peak_prof >= 30.0 and usd_profit <= 0.0:
-                                    should_exit = True
-                                    exit_reason = f"Break-Even Protection (Peak: ${peak_prof:.2f}, Current: ${usd_profit:.2f})"
                                      
                                 if should_exit and self.execution_engine:
                                     self.logger.info(f"AI Exit Triggered for Position #{ticket}: {exit_reason}. Closing position!")
@@ -795,6 +839,8 @@ class RiskEngine(BaseEngine):
 
                 # 4. Check Open Positions (Avoid stacking)
                 positions = mt5.positions_get(symbol=self.symbol)
+                if positions:
+                    positions = [p for p in positions if getattr(p, 'magic', 0) == int(os.environ.get("AUTOTRADE_MAGIC", "999111"))]
                 num_positions = len(positions) if positions else 0
                 max_pos = int(os.environ.get("AVERAGING_MAX_POSITIONS", "3"))
                 

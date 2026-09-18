@@ -1,0 +1,2364 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XEDY V42 ENTERPRISE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar d-flex align-items-center px-3 justify-content-between">
+        <div class="d-flex align-items-center">
+            <span class="fw-bold text-info-v42 me-4 fs-5">XEDY V42</span>
+            <span class="me-4 text-muted">Price: <span id="top-price" class="text-white fw-bold">$4,325.81</span></span>
+            <span class="me-4 text-muted">Market: <span class="text-bullish fw-bold">OPEN</span></span>
+            <span class="badge bg-secondary me-2" id="status-broker">Broker: DISCONNECTED</span>
+            <span class="badge bg-secondary me-2" id="status-mt5">MT5: DISCONNECTED</span>
+            <button class="btn btn-sm btn-outline-primary me-2 py-0 px-2" style="font-size: 0.65rem; font-weight: 700; height: 20px;" id="btn-connect-mt5">≡ƒöî CONNECT MT5</button>
+            <span class="badge bg-secondary me-2" id="status-ai">AI: STANDBY</span>
+        </div>
+        <div class="d-flex align-items-center">
+            <span class="me-3 text-muted">CPU: <span class="text-white" id="sys-cpu">12%</span></span>
+            <span class="me-3 text-muted">RAM: <span class="text-white" id="sys-ram">4GB</span></span>
+            <span class="me-3 text-muted">Latency: <span class="text-bullish" id="sys-latency">2ms</span></span>
+            <span class="me-4" style="cursor: pointer;">≡ƒöö <span class="badge bg-danger rounded-pill" style="font-size:0.5rem; position:absolute; margin-left:-8px; margin-top:-2px;">3</span></span>
+            <span class="me-4 text-white" style="cursor: pointer;">≡ƒæñ Admin</span>
+            <span class="text-white fw-bold" id="sys-time">00:00:00</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        
+        <!-- Sidebar (15%) -->
+        <div class="col-sidebar p-3">
+            <h6 class="text-muted mb-3" style="font-size: 0.7rem; letter-spacing: 1px;">NAVIGATION</h6>
+            <ul class="nav flex-column nav-pills" id="sidebar-nav">
+                <li class="nav-item"><a class="nav-link active" data-target="tab-executive" href="#">≡ƒÅá Executive Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-xau-os" href="#">≡ƒñû XAU AI GOLD OS</a></li>
+                <li class="nav-item d-none"><a class="nav-link" data-target="tab-market" href="#">≡ƒôê Market Intelligence</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-macro" href="#">≡ƒîì Macro Intelligence</a></li>
+                                <li class="nav-item"><a class="nav-link" data-target="tab-moneyflow" href="#" style="color: #00ffaa;">≡ƒÆ╕ Money Flow V39</a></li>
+                <li class="nav-item ms-3"><a class="nav-link" data-target="tab-moneyflow-engine" href="#" style="color: #00ccaa; font-size: 0.8rem; border-left: 1px solid #334455; border-radius: 0;">Γå│ Engine V39 Console</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-forecast" href="#">≡ƒÄ» Forecast</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-backtest" href="#">≡ƒôè Backtest Validasi</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-technical" href="#">≡ƒôÉ Technical</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-smartmoney" href="#">≡ƒÅ¢∩╕Å Smart Money</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-ai" href="#">≡ƒºá AI Decision Center</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-news" href="#">≡ƒô░ News Intelligence</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-analytics" href="#">≡ƒôè Analytics</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-replay" href="#">Γû╢ Replay & Backtest</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-telegram" href="#">≡ƒô▒ Telegram Center</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-sysops" href="#">≡ƒûÑ System Operations</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-admin" href="#">ΓÜÖ Administration</a></li>
+                <li class="nav-item"><a class="nav-link" data-target="tab-logs" href="#">≡ƒô¥ Log Monitor</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area (65%) -->
+        <div class="col-content" id="main-content">
+            
+            <!-- TAB 1: EXECUTIVE COMMAND CENTER -->
+            <div id="tab-executive" class="spa-tab">
+                <!-- 7 Top KPI Cards -->
+                <div class="row g-2 mb-3">
+                    <div class="col">
+                        <div class="kpi-card p-2 mb-0">
+                            <div class="kpi-title" style="font-size:0.65rem;">XAUUSD</div>
+                            <div class="kpi-value text-white fs-5 font-monospace" id="kpi-price">$4,325.81</div>
+                            <div class="text-bullish small font-monospace">+18.35 (+0.79%)</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="kpi-card p-2 mb-0">
+                            <div class="kpi-title" style="font-size:0.65rem;">DXY</div>
+                            <div class="kpi-value text-white fs-5 font-monospace" id="kpi-dxy-price">104.31</div>
+                            <div class="text-bearish small font-monospace">-0.28 (-0.27%)</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="kpi-card p-2 mb-0">
+                            <div class="kpi-title" style="font-size:0.65rem;">US 10Y Yield</div>
+                            <div class="kpi-value text-white fs-5 font-monospace" id="kpi-us10y-price">4.28%</div>
+                            <div class="text-bearish small font-monospace">-0.07 (-1.61%)</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="kpi-card p-2 mb-0">
+                            <div class="kpi-title" style="font-size:0.65rem;">Real Yield (10Y)</div>
+                            <div class="kpi-value text-white fs-5 font-monospace" id="kpi-realyield-price">1.78%</div>
+                            <div class="text-bearish small font-monospace">-0.09 (-4.81%)</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="kpi-card p-2 mb-0">
+                            <div class="kpi-title" style="font-size:0.65rem;">GLD Net Flow</div>
+                            <div class="kpi-value text-bullish fs-5 font-monospace" id="kpi-gld-flow">+2.85 Ton</div>
+                            <div class="text-bullish small font-monospace">1D Bullish</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="kpi-card p-2 mb-0">
+                            <div class="kpi-title" style="font-size:0.65rem;">COMEX Net Long</div>
+                            <div class="kpi-value text-white fs-5 font-monospace" id="kpi-comex-long">186,742</div>
+                            <div class="text-bullish small font-monospace">+7,892 (+4.41%)</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="kpi-card p-2 mb-0 border-top-glow" style="--glow-color: #ff7b72;">
+                            <div class="kpi-title" style="font-size:0.65rem;">Risk Sentiment</div>
+                            <div class="kpi-value text-bearish fs-5 fw-bold" id="kpi-risk-sentiment">RISK OFF</div>
+                            <div class="text-muted small">Safe Haven Demand</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Row: Money Flow Transmission Chain & XAUUSD Chart & AI Outlook -->
+                <div class="row g-3 mb-3">
+                    <!-- Column 1: Money Flow Transmission Chain (Left) -->
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">≡ƒöù MONEY FLOW TRANSMISSION CHAIN</h6>
+                            
+                            <!-- Flow Grid -->
+                            <div class="flow-container p-2" style="font-family: 'Inter', sans-serif;">
+                                <!-- Row 1: Steps 1 to 5 -->
+                                <div class="flow-row mb-2">
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #9b59b6; box-shadow: 0 0 10px rgba(155, 89, 182, 0.25);">
+                                            <div class="badge bg-purple mb-1">1. EVENT</div>
+                                            <div class="time-label text-muted">0-30 min</div>
+                                            <div class="content-text text-white">CPI <i class="bi bi-arrow-down" style="color: #ff7b72;"></i><br>FOMC<br>Geopolitik<br>NFP</div>
+                                            <div class="status-label" style="color: #ff7b72;">Impact High</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #2980b9; box-shadow: 0 0 10px rgba(41, 128, 185, 0.25);">
+                                            <div class="badge bg-blue mb-1">2. RATE EXPECTATION</div>
+                                            <div class="time-label text-muted">5-60 min</div>
+                                            <div class="content-text text-white">Fed Funds Futures<br>SOFR Futures<br>Rate Cut Prob <i class="bi bi-arrow-up text-bullish"></i></div>
+                                            <div class="status-label text-bullish">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #16a085; box-shadow: 0 0 10px rgba(22, 160, 133, 0.25);">
+                                            <div class="badge bg-teal mb-1">3. BOND YIELD</div>
+                                            <div class="time-label text-muted">15-120 min</div>
+                                            <div class="content-text text-white">US 2Y Yield <i class="bi bi-arrow-down text-bullish"></i><br>US 10Y Yield <i class="bi bi-arrow-down text-bullish"></i><br>US 30Y Yield <i class="bi bi-arrow-down text-bullish"></i></div>
+                                            <div class="status-label text-bullish">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #27ae60; box-shadow: 0 0 10px rgba(39, 174, 96, 0.25);">
+                                            <div class="badge bg-green mb-1">4. USD (DXY)</div>
+                                            <div class="time-label text-muted">30-180 min</div>
+                                            <div class="content-text text-white">DXY Melemah<br>USD Selling<br>Capital Outflow</div>
+                                            <div class="status-label text-bullish">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.25);">
+                                            <div class="badge mb-1" style="background-color: #f1c40f; color: #000;">5. ASSET ALLOCATION</div>
+                                            <div class="time-label text-muted">1-8 jam</div>
+                                            <div class="content-text text-white">Risk Off<br>Rotasi ke<br>Gold Assets</div>
+                                            <div class="status-label" style="color: #f1c40f;">Bullish</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Downward Connection to Step 6 (directly under Step 1) -->
+                                <div class="d-flex justify-content-start mb-2" style="padding-left: 35px;">
+                                    <div style="color: #f1c40f; font-size: 1.5rem; font-weight: bold; line-height: 1; margin-left: 20px;">Γåô</div>
+                                </div>
+
+                                <!-- Row 2: Steps 6 to 8 + Output -->
+                                <div class="flow-row">
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #d35400; box-shadow: 0 0 10px rgba(211, 84, 0, 0.25);">
+                                            <div class="badge bg-orange mb-1">6. ETF FLOW</div>
+                                            <div class="time-label text-muted">4-24 jam</div>
+                                            <div class="content-text text-white">GLD / IAU<br>Net Inflow <i class="bi bi-arrow-up text-bullish"></i><br>Demand Naik</div>
+                                            <div class="status-label" style="color: #d35400;">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #e67e22; box-shadow: 0 0 10px rgba(230, 126, 34, 0.25);">
+                                            <div class="badge mb-1" style="background-color: #e67e22; color: #fff;">7. COMEX POSITION</div>
+                                            <div class="time-label text-muted">1-5 hari</div>
+                                            <div class="content-text text-white">Net Long <i class="bi bi-arrow-up text-bullish"></i><br>Managed Money<br>Accumulation</div>
+                                            <div class="status-label" style="color: #e67e22;">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card">
+                                        <div class="flow-step-card" style="border-color: #ff4a80; box-shadow: 0 0 10px rgba(255, 74, 128, 0.25);">
+                                            <div class="badge mb-1" style="background-color: #ff4a80; color: #fff;">8. PHYSICAL MARKET</div>
+                                            <div class="time-label text-muted">2-10 hari</div>
+                                            <div class="content-text text-white">Central Bank Buy<br>India & China Demand<br>Supply Ketat</div>
+                                            <div class="status-label" style="color: #ff4a80;">Bullish</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-flow-arrow text-center"><i class="bi bi-arrow-right text-muted fs-5"></i></div>
+                                    <div class="col-flow-card-output">
+                                        <div class="flow-output-card text-center p-2 rounded" style="background: linear-gradient(135deg, #11151a, #0d1117); border: 2px solid #ff9a7b; box-shadow: 0 0 15px rgba(255, 154, 123, 0.25);">
+                                            <div class="text-warning-v42 fw-bold small uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">XAUUSD PRICE</div>
+                                            <h6 class="text-warning-v42 font-monospace my-1" style="font-size: 0.8rem; font-weight: bold; text-shadow: 0 0 8px rgba(255, 154, 123, 0.4);">TREND UP</h6>
+                                            <div class="my-1">
+                                                <img src="frontend/img/gold_bars_3d.jpg" alt="Gold Standard" style="height: 52px; width: 52px; object-fit: contain; filter: drop-shadow(0 0 5px rgba(255,154,123,0.35)); border-radius: 4px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Timeline -->
+                                <div class="mt-3 pt-2 border-top border-secondary">
+                                    <div class="text-muted small mb-1">Total Transmission Time</div>
+                                    <div class="d-flex align-items-center justify-content-between text-white small font-monospace">
+                                        <span class="text-warning-v42 fw-bold">2 Jam</span>
+                                        <span class="flex-grow-1 mx-2" style="border-bottom: 2px solid #e67e22; position: relative;"></span>
+                                        <span class="text-warning-v42 fw-bold">1 Hari</span>
+                                        <span class="flex-grow-1 mx-2" style="border-bottom: 2px solid #e67e22; position: relative;"></span>
+                                        <span class="text-warning-v42 fw-bold">1 Minggu+</span>
+                                        <span class="text-warning-v42 mx-1">Γ₧í∩╕Å</span>
+                                        <span class="text-warning-v42 fw-bold">Trend Terbentuk</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: XAUUSD Chart & AI Outlook (Right) -->
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-3 rounded h-100 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-muted mb-0">≡ƒôê XAUUSD CHART & AI OUTLOOK</h6>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary active">1H</button>
+                                    <button type="button" class="btn btn-outline-secondary">4H</button>
+                                    <button type="button" class="btn btn-outline-secondary">1D</button>
+                                    <button type="button" class="btn btn-outline-secondary">1W</button>
+                                </div>
+                            </div>
+                            
+                            <!-- TradingView Embed Chart (Exact 1:1 spot gold ticker) -->
+                            <div class="flex-grow-1 mb-3" style="min-height: 320px;">
+                                <div class="tradingview-widget-container" style="height:100%;width:100%">
+                                  <div id="tradingview_xau_exec" style="height:100%;width:100%"></div>
+                                  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                                  <script type="text/javascript">
+                                  new TradingView.widget({
+                                    "width": "100%",
+                                    "height": "100%",
+                                    "symbol": "OANDA:XAUUSD",
+                                    "interval": "60",
+                                    "timezone": "Etc/UTC",
+                                    "theme": "dark",
+                                    "style": "1",
+                                    "locale": "en",
+                                    "toolbar_bg": "#f1f3f6",
+                                    "enable_publishing": false,
+                                    "hide_side_toolbar": false,
+                                    "allow_symbol_change": true,
+                                    "container_id": "tradingview_xau_exec"
+                                  });
+                                  </script>
+                                </div>
+                            </div>
+                            
+                            <!-- AI Outlook Panel -->
+                            <div class="bg-black-panel p-3 rounded border-start-glow" style="--glow-color: #3fb950;">
+                                <h6 class="text-muted mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">AI OUTLOOK (Next 24-72 Hours)</h6>
+                                <div class="row align-items-center">
+                                    <div class="col-md-6 border-end border-secondary">
+                                        <h2 class="text-bullish fw-bold mb-0" id="exec-ai-bias">BULLISH</h2>
+                                        <div class="text-muted small" id="exec-ai-prob">Probabilitas <span class="text-white fw-bold">78%</span></div>
+                                    </div>
+                                    <div class="col-md-6 ps-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-muted small">Target 1:</span>
+                                            <span class="text-white font-monospace fw-bold" id="exec-target-1">$2,365.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-muted small">Target 2:</span>
+                                            <span class="text-white font-monospace fw-bold" id="exec-target-2">$2,385.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted small">Invalidation:</span>
+                                            <span class="text-critical font-monospace fw-bold" id="exec-invalidation">$2,325.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-muted small" id="exec-ai-reasoning" style="line-height: 1.5;">
+                                    AI memprediksi peluang kenaikan XAUUSD dalam 24-72 jam berdasarkan analisis aliran dana institusi (Money Flow) dan kondisi makroekonomi saat ini.
+                                </div>
+
+                                <!-- 10-Day Price Forecast Chart -->
+                                <div class="mt-3 pt-3 border-top border-secondary">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted" style="font-size:0.68rem; letter-spacing:0.8px;">≡ƒôè PROYEKSI HARGA 10 HARI KE DEPAN (XAUUSD)</span>
+                                        <span class="badge" style="font-size:0.6rem; background:rgba(63,185,80,0.2); color:#3fb950; border:1px solid rgba(63,185,80,0.3);">Qwen AI Model</span>
+                                    </div>
+
+                                    <!-- SVG Chart Container -->
+                                    <div style="position:relative; height:110px; width:100%;">
+                                        <svg id="exec-forecast-svg" viewBox="0 0 340 90" width="100%" height="100%" preserveAspectRatio="none" style="overflow:visible;">
+                                            <defs>
+                                                <linearGradient id="fcGradUp" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stop-color="#3fb950" stop-opacity="0.35"/>
+                                                    <stop offset="100%" stop-color="#3fb950" stop-opacity="0.02"/>
+                                                </linearGradient>
+                                                <linearGradient id="fcGradBand" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stop-color="#f1c40f" stop-opacity="0.12"/>
+                                                    <stop offset="100%" stop-color="#f1c40f" stop-opacity="0.03"/>
+                                                </linearGradient>
+                                                <filter id="fcGlow">
+                                                    <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                                                    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                                                </filter>
+                                            </defs>
+                                            <!-- High band area -->
+                                            <path id="exec-fc-band" fill="url(#fcGradBand)" d=""/>
+                                            <!-- Area fill under main line -->
+                                            <path id="exec-fc-area" fill="url(#fcGradUp)" d=""/>
+                                            <!-- Main forecast line -->
+                                            <path id="exec-fc-line" fill="none" stroke="#3fb950" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#fcGlow)" d=""/>
+                                            <!-- Day dot markers -->
+                                            <g id="exec-fc-dots"></g>
+                                            <!-- Current price horizontal dashed line -->
+                                            <line id="exec-fc-now-line" x1="0" y1="50" x2="340" y2="50" stroke="#f1c40f" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.5"/>
+                                            <!-- Today marker circle -->
+                                            <circle id="exec-fc-now-dot" cx="17" cy="50" r="3.5" fill="#f1c40f" filter="url(#fcGlow)"/>
+                                        </svg>
+
+                                        <!-- Day labels row (bottom) -->
+                                        <div id="exec-fc-labels" class="d-flex justify-content-between px-1" style="position:absolute;bottom:0;left:0;right:0;font-size:0.52rem;color:#555;pointer-events:none;"></div>
+                                        <!-- Price labels (right axis) -->
+                                        <div id="exec-fc-price-max" style="position:absolute;top:2px;right:2px;font-size:0.58rem;color:#3fb950;font-family:monospace;"></div>
+                                        <div id="exec-fc-price-min" style="position:absolute;bottom:14px;right:2px;font-size:0.58rem;color:#e74c3c;font-family:monospace;"></div>
+                                        <div id="exec-fc-price-now" style="position:absolute;right:2px;font-size:0.58rem;color:#f1c40f;font-family:monospace;" id="exec-fc-price-now"></div>
+                                    </div>
+
+                                    <!-- 10-day mini table -->
+                                    <div id="exec-fc-table" class="mt-2 d-flex gap-1 overflow-auto pb-1" style="scrollbar-width:thin;">
+                                        <!-- Populated by JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: 3 Charts + Heatmap -->
+                <div class="row g-3 mb-3">
+                    <!-- Chart 1: Real Yield & Gold Correlation -->
+                    <div class="col-md-3">
+                        <div class="card-3d p-3 h-100">
+                            <h6 class="text-muted mb-2" style="font-size:0.7rem;">REAL YIELD & GOLD CORRELATION</h6>
+                            <div class="d-flex justify-content-between text-muted small mb-2">
+                                <span style="color:#f1c40f;">ΓùÅ XAUUSD</span>
+                                <span style="color:#3498db;">ΓùÅ Real Yield (10Y)</span>
+                            </div>
+                            <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
+                                <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="gold3d" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#ffd700" />
+                                            <stop offset="50%" stop-color="#ffb700" />
+                                            <stop offset="100%" stop-color="#ffa500" />
+                                        </linearGradient>
+                                        <linearGradient id="yield3d" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#3498db" />
+                                            <stop offset="50%" stop-color="#2980b9" />
+                                            <stop offset="100%" stop-color="#1f618d" />
+                                        </linearGradient>
+                                        <filter id="glow3d" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="1.2" result="blur" />
+                                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                        </filter>
+                                    </defs>
+                                    <path d="M0,35 Q20,38 40,25 T80,15 T100,5" fill="none" stroke="url(#gold3d)" stroke-width="2.5" filter="url(#glow3d)"></path>
+                                    <path d="M0,5 Q20,2 40,15 T80,25 T100,32" fill="none" stroke="url(#yield3d)" stroke-width="2.5" filter="url(#glow3d)"></path>
+                                </svg>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small mt-2">
+                                <span>Korelasi (90D): <strong class="text-bearish">-0.78</strong></span>
+                                <span class="text-bearish">Strong Negative</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Gold ETF Net Flow -->
+                    <div class="col-md-3">
+                        <div class="card-3d p-3 h-100">
+                            <h6 class="text-muted mb-2" style="font-size:0.7rem;">GOLD ETF NET FLOW</h6>
+                            <div class="d-flex justify-content-between text-muted small mb-2">
+                                <span style="color:#2ecc71;">Γûá Daily Net Flow</span>
+                                <span style="color:#e67e22;">ΓùÅ Cumulative</span>
+                            </div>
+                            <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
+                                <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="green3d" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#2ecc71" />
+                                            <stop offset="40%" stop-color="#a3e4d7" />
+                                            <stop offset="70%" stop-color="#27ae60" />
+                                            <stop offset="100%" stop-color="#1e8449" />
+                                        </linearGradient>
+                                        <linearGradient id="red3d" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#e74c3c" />
+                                            <stop offset="40%" stop-color="#f5b7b1" />
+                                            <stop offset="70%" stop-color="#c0392b" />
+                                            <stop offset="100%" stop-color="#922b21" />
+                                        </linearGradient>
+                                        <linearGradient id="cum3d" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#f39c12" />
+                                            <stop offset="100%" stop-color="#d35400" />
+                                        </linearGradient>
+                                    </defs>
+                                    <rect x="5" y="25" width="4" height="15" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="15" y="28" width="4" height="12" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="25" y="32" width="4" height="8" fill="url(#red3d)" rx="1.5"></rect>
+                                    <rect x="35" y="20" width="4" height="20" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="45" y="15" width="4" height="25" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="55" y="22" width="4" height="18" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="65" y="10" width="4" height="30" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="75" y="5" width="4" height="35" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="85" y="18" width="4" height="22" fill="url(#green3d)" rx="1.5"></rect>
+                                    <rect x="95" y="8" width="4" height="32" fill="url(#green3d)" rx="1.5"></rect>
+                                    <path d="M7,30 L17,25 L27,27 L37,20 L47,15 L57,12 L67,8 L77,4 L87,6 L97,3" fill="none" stroke="url(#cum3d)" stroke-width="2" filter="url(#glow3d)"></path>
+                                </svg>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small mt-2">
+                                <span>1D Net Flow: <strong class="text-bullish">+2.85 Ton</strong></span>
+                                <span>Cumulative: <strong class="text-bullish">+186.40 Ton</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 3: COMEX Net Position -->
+                    <div class="col-md-3">
+                        <div class="card-3d p-3 h-100">
+                            <h6 class="text-muted mb-2" style="font-size:0.7rem;">COMEX NET POSITION (Managed Money)</h6>
+                            <div class="d-flex justify-content-between text-muted small mb-2">
+                                <span style="color:#2ecc71;">ΓùÅ Net Long</span>
+                                <span style="color:#e74c3c;">ΓùÅ Net Short</span>
+                            </div>
+                            <div style="height: 130px;" class="d-flex align-items-end justify-content-center">
+                                <svg viewBox="0 0 100 40" width="100%" height="100%" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="areaGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="rgba(46, 204, 113, 0.4)" />
+                                            <stop offset="100%" stop-color="rgba(46, 204, 113, 0.0)" />
+                                        </linearGradient>
+                                        <linearGradient id="areaRed" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="rgba(231, 76, 60, 0.3)" />
+                                            <stop offset="100%" stop-color="rgba(231, 76, 60, 0.0)" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M0,40 L10,32 L20,35 L30,28 L40,20 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2 L100,40 Z" fill="url(#areaGreen)"></path>
+                                    <path d="M0,40 L10,32 L20,35 L30,28 L40,20 L50,15 L60,10 L70,8 L80,12 L90,5 L100,2" fill="none" stroke="#2ecc71" stroke-width="2" filter="url(#glow3d)"></path>
+                                    <path d="M0,40 L10,38 L20,36 L30,37 L40,38 L50,39 L60,38 L70,39 L80,38 L90,39 L100,39 L100,40 Z" fill="url(#areaRed)"></path>
+                                    <path d="M0,40 L10,38 L20,36 L30,37 L40,38 L50,39 L60,38 L70,39 L80,38 L90,39 L100,39" fill="none" stroke="#e74c3c" stroke-width="1.5"></path>
+                                </svg>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small mt-2">
+                                <span>Net Long: <strong class="text-bullish">186,742</strong></span>
+                                <span>Perubahan: <strong class="text-bullish">Γû▓ 7,892 (+4.41%)</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 4: Intermarket Heatmap -->
+                    <div class="col-md-3">
+                        <div class="card-3d p-3 h-100 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="text-muted mb-0" style="font-size:0.7rem;">INTERMARKET HEATMAP (Correlation)</h6>
+                                <span class="badge bg-secondary" style="font-size:0.6rem;">30D</span>
+                            </div>
+                            <div class="flex-grow-1 table-responsive" style="font-size: 0.65rem; line-height: 1.1;">
+                                <table class="table table-borderless table-heatmap text-center text-white mb-0" style="table-layout: fixed; width: 100%;">
+                                    <thead>
+                                        <tr class="text-muted">
+                                            <th>Symbol</th>
+                                            <th>GOLD</th>
+                                            <th>DXY</th>
+                                            <th>US10Y</th>
+                                            <th>SPX500</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-muted text-start fw-bold">XAUUSD</td>
+                                            <td style="background-color: rgba(46,204,113,0.22)">1.00</td>
+                                            <td style="background-color: rgba(231,76,60,0.18)" class="text-bearish">-0.72</td>
+                                            <td style="background-color: rgba(231,76,60,0.22)" class="text-bearish">-0.79</td>
+                                            <td style="background-color: rgba(231,76,60,0.12)">-0.45</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted text-start fw-bold">DXY</td>
+                                            <td style="background-color: rgba(231,76,60,0.18)" class="text-bearish">-0.72</td>
+                                            <td style="background-color: rgba(46,204,113,0.22)">1.00</td>
+                                            <td style="background-color: rgba(46,204,113,0.15)">0.69</td>
+                                            <td style="background-color: rgba(46,204,113,0.1)">0.41</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted text-start fw-bold">US10Y</td>
+                                            <td style="background-color: rgba(231,76,60,0.22)" class="text-bearish">-0.79</td>
+                                            <td style="background-color: rgba(46,204,113,0.15)">0.69</td>
+                                            <td style="background-color: rgba(46,204,113,0.22)">1.00</td>
+                                            <td style="background-color: rgba(46,204,113,0.05)">0.36</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted text-start fw-bold">OIL</td>
+                                            <td style="background-color: rgba(46,204,113,0.05)">0.28</td>
+                                            <td style="background-color: rgba(231,76,60,0.05)">-0.17</td>
+                                            <td style="background-color: rgba(231,76,60,0.08)">-0.24</td>
+                                            <td style="background-color: rgba(46,204,113,0.12)">0.53</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lowest Row: Events, News, and Alerts -->
+                <div class="row g-3">
+                    <!-- Events Table -->
+                    <div class="col-md-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3" style="font-size:0.7rem;">≡ƒôà UPCOMING HIGH IMPACT EVENTS</h6>
+                            <table class="table table-v42 mb-0" style="font-size: 0.72rem;">
+                                <thead>
+                                    <tr><th>Waktu</th><th>Mata Acara</th><th>Impact</th><th>Forecast</th><th>Prev</th></tr>
+                                </thead>
+                                <tbody id="events-tbody">
+                                    <tr><td colspan="5" class="text-muted text-center">Loading data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- News Table -->
+                    <div class="col-md-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3" style="font-size:0.7rem;">≡ƒô░ LATEST MACRO NEWS</h6>
+                            <table class="table table-v42 mb-0" style="font-size: 0.72rem;">
+                                <tbody id="macro-news-tbody">
+                                    <tr><td colspan="3" class="text-muted text-center">Loading news...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Smart Alerts -->
+                    <div class="col-md-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3" style="font-size:0.7rem;">≡ƒöö SMART ALERTS</h6>
+                            <table class="table table-v42 mb-0" style="font-size: 0.72rem;">
+                                <tbody id="smart-alerts-tbody">
+                                    <tr><td colspan="3" class="text-muted text-center">Waiting for signals...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 1A: XAU AI GOLD OS -->
+            <div id="tab-xau-os" class="spa-tab d-none">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="mb-1 text-warning"><i class="fas fa-robot"></i> XAU AI GOLD OS</h4>
+                        <p class="text-muted small mb-0">Institutional-Grade Autonomous Quantitative Intelligence System</p>
+                    </div>
+                </div>
+                
+                <!-- Serverless Ticker Bar -->
+                <div class="d-flex flex-nowrap overflow-auto mb-4 pb-2 ticker-container" style="gap: 15px; scrollbar-width: none;">
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px; border-top: 2px solid #2ecc71;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">XAUUSD</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-xau-price">----.--</div>
+                        <div class="small fw-bold" id="ticker-xau-change">--- (---%)</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">DXY</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-dxy-price">---.--</div>
+                        <div class="small fw-bold" id="ticker-dxy-change">--- (---%)</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">US 10Y YIELD</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-us10y-price">-.--%</div>
+                        <div class="small fw-bold" id="ticker-us10y-change">--- (---%)</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">REAL YIELD (10Y)</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-real-price">-.--%</div>
+                        <div class="small fw-bold" id="ticker-real-change">--- (---%)</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">GLD NET FLOW</div>
+                        <div class="fw-bold fs-4 text-bullish" id="ticker-gld-price">+-.-- Ton</div>
+                        <div class="small fw-bold text-bullish" id="ticker-gld-change">-- Bullish</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">COMEX NET LONG</div>
+                        <div class="fw-bold fs-4 text-white" id="ticker-comex-price">---,---</div>
+                        <div class="small fw-bold text-bullish" id="ticker-comex-change">+--- (+--%)</div>
+                    </div>
+                    <div class="glass-panel p-3 flex-shrink-0" style="min-width: 160px; border-right: 3px solid #e74c3c;">
+                        <div class="text-muted" style="font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;">RISK SENTIMENT</div>
+                        <div class="fw-bold fs-4 text-bearish" id="ticker-risk-status">---- ---</div>
+                        <div class="small text-muted" id="ticker-risk-desc">---</div>
+                    </div>
+                </div>
+                
+                <div class="row g-4 mb-4">
+                    <!-- Unified Edge Score -->
+                    <div class="col-md-4">
+                        <div class="glass-panel p-4 h-100 text-center" style="border-top: 3px solid #f39c12;">
+                            <h6 class="text-muted mb-3">UNIFIED EDGE SCORE</h6>
+                            <h1 class="display-3 mb-0 text-success fw-bold" id="os-ues-score">87</h1>
+                            <span class="badge bg-warning text-dark mb-3">Eligible (Watchlist)</span>
+                            <div class="text-start small">
+                                <div class="d-flex justify-content-between mb-1"><span>Trend (20%)</span><span class="text-white">18/20</span></div>
+                                <div class="d-flex justify-content-between mb-1"><span>Liquidity (20%)</span><span class="text-white">19/20</span></div>
+                                <div class="d-flex justify-content-between mb-1"><span>Orderflow (15%)</span><span class="text-white">12/15</span></div>
+                                <div class="d-flex justify-content-between mb-1"><span>Macro (15%)</span><span class="text-white">14/15</span></div>
+                                <div class="d-flex justify-content-between mb-1"><span>Sentiment (10%)</span><span class="text-white">8/10</span></div>
+                                <div class="d-flex justify-content-between mb-1"><span>Execution (10%)</span><span class="text-white">9/10</span></div>
+                                <div class="d-flex justify-content-between"><span>Risk (10%)</span><span class="text-white">7/10</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Market State & Forecast -->
+                    <div class="col-md-8">
+                        <div class="row g-4 h-100">
+                            <div class="col-sm-6">
+                                <div class="glass-panel p-3 h-100">
+                                    <h6 class="text-warning border-bottom border-secondary pb-2 mb-3">Market State</h6>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Regime</span>
+                                        <span class="text-white fw-bold" id="os-regime">TREND_UP (Expansion)</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Trend</span>
+                                        <span class="text-success fw-bold" id="os-trend">Bullish</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Volatility</span>
+                                        <span class="text-danger fw-bold" id="os-volatility">High (ATR 25.4)</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Macro Bias</span>
+                                        <span class="text-success fw-bold" id="os-macro">Dovish Fed / Buy Gold</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">Inst. Bias</span>
+                                        <span class="text-warning fw-bold" id="os-inst">Accumulation</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="glass-panel p-3 h-100">
+                                    <h6 class="text-info border-bottom border-secondary pb-2 mb-3">Probabilistic Forecast</h6>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span>Bull Probability</span>
+                                            <span class="text-success" id="os-prob-bull-txt">65%</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-success" id="os-prob-bull-bar" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span>Bear Probability</span>
+                                            <span class="text-danger" id="os-prob-bear-txt">15%</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-danger" id="os-prob-bear-bar" style="width: 15%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span>Sideways Probability</span>
+                                            <span class="text-warning" id="os-prob-side-txt">20%</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-warning" id="os-prob-side-bar" style="width: 20%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-top border-secondary small text-muted">
+                                        Forecast Horizon: <strong>H4 / Intra-week</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <!-- Trading Plan & Execution -->
+                    <div class="col-md-7">
+                        <div class="glass-panel p-4 h-100">
+                            <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-3">
+                                <h6 class="text-primary mb-0">Optimal Execution Plan</h6>
+                                <select id="os-risk-profile" class="form-select form-select-sm bg-dark text-white border-secondary" style="width: auto; font-size: 0.8rem;" onchange="window.forceRiskUpdate()">
+                                    <option value="conservative">Risk: Conservative</option>
+                                    <option value="standard" selected>Risk: Standard</option>
+                                    <option value="moderate">Risk: Moderate</option>
+                                    <option value="extreme">Risk: Extreme</option>
+                                </select>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-dark table-borderless text-white mb-0">
+                                    <tbody>
+                                        <tr><td class="text-muted">Direction</td><td class="text-success fw-bold" id="os-plan-dir">BUY (LONG)</td></tr>
+                                        <tr><td class="text-muted">Optimal Entry Zone</td><td id="os-plan-entry">2425.50 - 2430.00</td></tr>
+                                        <tr><td class="text-muted">Stop Loss (Hard)</td><td class="text-danger" id="os-plan-sl">2415.00</td></tr>
+                                        <tr><td class="text-muted">TP1 (Partial Exit 50%)</td><td class="text-success" id="os-plan-tp1">2445.00</td></tr>
+                                        <tr><td class="text-muted">TP2 (Swing Target)</td><td class="text-success" id="os-plan-tp2">2460.00</td></tr>
+                                        <tr><td class="text-muted">Expected MAE</td><td id="os-plan-mae">$2.50 (Adverse Excursion)</td></tr>
+                                        <tr><td class="text-muted">Risk/Reward</td><td id="os-plan-rr">1 : 2.8</td></tr>
+                                        <tr><td class="text-muted">Dynamic Risk</td><td id="os-plan-risk">1.5% of Equity</td></tr>
+                                        <tr><td class="text-muted">Position Management</td><td id="os-plan-mgmt">Move SL to BE at TP1. Trail 20 pips.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Decision & Self-Evaluation -->
+                    <div class="col-md-5">
+                        <div class="row g-4 h-100">
+                            <div class="col-12" style="flex: 1 1 auto; padding-bottom: 0.5rem;">
+                                <div class="glass-panel p-3 h-100" style="border-left: 3px solid #0dcaf0;">
+                                    <h6 class="text-info mb-2">Final Decision Engine</h6>
+                                    <h4 class="text-white mb-2">STATUS: <span class="text-warning" id="os-decision-status">WAITING FOR PULLBACK</span></h4>
+                                    <p class="small text-muted mb-0" id="os-decision-reason">Primary Reason: UES is 87 (Watchlist). Price is currently overextended. Waiting for liquidity sweep at 2430 before institutional execution. Rejecting immediate market order due to poor R:R.</p>
+                                </div>
+                            </div>
+                            <div class="col-12" style="flex: 1 1 auto; padding-bottom: 0.5rem;">
+                                <div class="glass-panel p-3 h-100" style="border-left: 3px solid #6c757d;">
+                                    <h6 class="text-secondary mb-2">Evaluasi Mandiri & Ketidakpastian (Self-Evaluation)</h6>
+                                    <p class="small text-muted mb-0">
+                                        <strong>Kalibrasi:</strong> Konfidensi tinggi pada tren, tingkat menengah pada penentuan waktu masuk <i>(entry timing)</i>.<br>
+                                        <strong>Batasan:</strong> Data NFP besok menambah risiko <i>tail risk</i> yang sangat besar. Ketidakpastian model meningkat drastis setelah 24 jam.<br>
+                                        <strong>Asumsi:</strong> Mengasumsikan DXY tetap berada di bawah level 104.50.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-12" style="flex: 1 1 auto;">
+                                <div class="glass-panel p-3 h-100" style="border-left: 3px solid #ffc107;">
+                                    <h6 class="text-warning mb-2">Legend Kuantitatif: % Skor vs % Winrate ≡ƒôè</h6>
+                                    <table class="table table-sm table-dark table-borderless text-white mb-1">
+                                        <tbody>
+                                            <tr><td class="text-muted"><span class="badge bg-warning">Skor 80 - 90</span></td><td class="text-end fw-bold" id="stat-wr-80">--% Winrate</td></tr>
+                                            <tr><td class="text-muted"><span class="badge bg-success">Skor > 90</span></td><td class="text-end fw-bold text-success" id="stat-wr-90">--% Winrate</td></tr>
+                                        </tbody>
+                                    </table>
+                                    <p class="small text-muted mb-0" id="stat-daily-freq">
+                                        Peluang Hari Ini: <span class="text-white">Menunggu kalkulasi backtest...</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: MARKET INTELLIGENCE -->
+            <div id="tab-market" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Market Intelligence</h5>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Live Chart & Volume</h6>
+                            <div class="tradingview-widget-container" style="height: 450px; width: 100%; border: 1px solid #30363d; border-radius: 4px; overflow: hidden; background-color: #1c2128;">
+                                <div id="tradingview_chart" style="height: 100%; width: 100%;"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                                <script type="text/javascript">
+                                    document.addEventListener("DOMContentLoaded", function() {
+                                        new TradingView.widget({
+                                            "autosize": true,
+                                            "symbol": "OANDA:XAUUSD",
+                                            "interval": "60",
+                                            "timezone": "Etc/UTC",
+                                            "theme": "dark",
+                                            "style": "1",
+                                            "locale": "en",
+                                            "enable_publishing": false,
+                                            "hide_side_toolbar": false,
+                                            "allow_symbol_change": true,
+                                            "container_id": "tradingview_chart"
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Market Metrics</h6>
+                            <table class="table table-v42">
+                                <tbody>
+                                    <tr><td>ATR (14)</td><td class="text-white text-end" id="market-atr">12.5 pips</td></tr>
+                                    <tr><td>Spread</td><td class="text-bullish text-end" id="market-spread">0.8 pips</td></tr>
+                                    <tr><td>Session</td><td class="text-info-v42 text-end" id="market-session">New York</td></tr>
+                                    <tr><td>Liquidity</td><td class="text-white text-end" id="market-liquidity">High</td></tr>
+                                    <tr><td>Volatility</td><td class="text-warning-v42 text-end" id="market-volatility">Elevated</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: MACRO INTELLIGENCE -->
+            <div id="tab-macro" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Macro Intelligence</h5>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3"><div class="kpi-card text-center border-primary"><div class="kpi-title">Macro Score</div><div class="kpi-value text-bullish" id="macro-score">BULLISH</div></div></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Internal AI Sentiment Drivers</h6>
+                            <table class="table table-v42">
+                                <thead><tr><th>Metric</th><th>Current</th><th>Impact</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Fed Rate</td><td class="text-white" id="macro-fed-rate">5.50%</td><td id="macro-fed-rate-impact"><span class="text-bearish">HAWKISH</span></td></tr>
+                                    <tr><td>US CPI (YoY)</td><td class="text-white" id="macro-cpi">3.2%</td><td id="macro-cpi-impact"><span class="text-warning-v42">ELEVATED</span></td></tr>
+                                    <tr><td>US PPI (YoY)</td><td class="text-white" id="macro-ppi">1.8%</td><td id="macro-ppi-impact"><span class="text-info-v42">STABLE</span></td></tr>
+                                    <tr><td>US PCE (YoY)</td><td class="text-white" id="macro-pce">2.6%</td><td id="macro-pce-impact"><span class="text-bullish">COOLING</span></td></tr>
+                                    <tr><td>US GDP (QoQ)</td><td class="text-white" id="macro-gdp">2.4%</td><td id="macro-gdp-impact"><span class="text-bullish">GROWING</span></td></tr>
+                                    <tr><td>NFP (Payroll)</td><td class="text-white" id="macro-nfp">190K</td><td id="macro-nfp-impact"><span class="text-bearish">MISS</span></td></tr>
+                                    <tr><td>Retail Sales</td><td class="text-white" id="macro-retail-sales">0.3%</td><td id="macro-retail-sales-impact"><span class="text-info-v42">STABLE</span></td></tr>
+                                    <tr><td>Gold ETF Flow</td><td class="text-white" id="macro-etf-flow">+$5B</td><td id="macro-etf-flow-impact"><span class="text-bullish">INFLOW</span></td></tr>
+                                    <tr><td>Central Bank Gold Reserve</td><td class="text-white" id="macro-gold-reserve">+40 Tons</td><td id="macro-gold-reserve-impact"><span class="text-bullish">ACCUMULATION</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Live Economic Calendar (Real-Time Feed)</h6>
+                            <div class="tradingview-widget-container" style="height: 380px;">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                                {
+                                  "colorTheme": "dark",
+                                  "isMaximized": true,
+                                  "width": "100%",
+                                  "height": "100%",
+                                  "locale": "en",
+                                  "importanceFilter": "0,1"
+                                }
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: MONEY FLOW TRANSMISSION -->
+            <!-- V39 13-PANEL MEGA DASHBOARD (FULLSCREEN NO-SCROLL) -->
+            
+            
+            <!-- V39 EXACT REPLICA DASHBOARD (TAB-MONEYFLOW) -->
+            <div id="tab-moneyflow" class="spa-tab d-none h-100 w-100" style="overflow: hidden; padding: 0.5rem; background: #050b14; color: #a0b0c0; font-family: 'Consolas', 'Courier New', monospace;">
+                
+                <!-- HEADER -->
+                <div class="d-flex justify-content-between align-items-center mb-2 border-bottom border-secondary pb-2" style="height: 4%; padding-left: 0.5rem;">
+                    <div style="color: #00ffcc; font-size: 1rem; font-weight: bold; letter-spacing: 1px;">
+                        <span style="color: #ff9900;">ΓÜí XEDY AI</span> ΓÇó XAUUSD ΓÇó MONEY FLOW ENGINE V39
+                    </div>
+                    <div style="font-size: 0.85rem;">
+                        <span style="color: #555;">STATUS: </span><span style="color: #00ffcc;">LIVE MODE</span>
+                    </div>
+                </div>
+
+                <!-- MAIN GRID: 4 columns, 4 rows -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 25% 25% 25% 23%; gap: 0.5rem; height: 94%; padding: 0.25rem;">
+                    
+                    <!-- PANEL 1: CAUSAL TRANSMISSION CHAIN (Col 1-2, Row 1) -->
+                    <div style="grid-column: 1 / 3; grid-row: 1 / 2; border: 1px solid #1a2b3c; background: #08101a; padding: 0.6rem; position: relative;">
+                        <div style="color: #00ffcc; font-size: 0.75rem; font-weight:bold; letter-spacing: 1px; margin-bottom: 0.5rem;">1. CAUSAL TRANSMISSION CHAIN</div>
+                        <div class="d-flex justify-content-between h-75 text-center align-items-center" style="font-size: 0.75rem;">
+                            <div style="border: 1px solid #334455; padding: 0.4rem; border-top: 3px solid #ff3366; width: 15%;">EVENT<br><span id="v39_event_type" style="color:#ff3366; font-weight:bold;">CPI/PCE</span><br><span id="v39_event_impact" style="color:#667788; font-size:0.65rem">Impact High</span></div>
+                            <div style="color: #00ffcc;">ΓåÆ</div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; border-top: 3px solid #00ffcc; width: 15%;">EXPECTATION<br><span id="v39_exp_dir" style="color:#00ffcc; font-weight:bold;">Bullish</span><br><span id="v39_exp_desc" style="color:#667788; font-size:0.65rem">Rate Cut Prob</span></div>
+                            <div style="color: #00ffcc;">ΓåÆ</div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; border-top: 3px solid #00ffcc; width: 15%;">BOND YIELD<br><span id="v39_yield_dir" style="color:#00ffcc; font-weight:bold;">Bullish</span><br><span id="v39_yield_desc" style="color:#667788; font-size:0.65rem">US 10Y Down</span></div>
+                            <div style="color: #00ffcc;">ΓåÆ</div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; border-top: 3px solid #00ffcc; width: 15%;">USD (DXY)<br><span id="v39_dxy_dir" style="color:#00ffcc; font-weight:bold;">Bullish</span><br><span id="v39_dxy_desc" style="color:#667788; font-size:0.65rem">DXY Melemah</span></div>
+                            <div style="color: #00ffcc;">ΓåÆ</div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; border-top: 3px solid #ffcc00; width: 15%;">ASSET ALLOC<br><span id="v39_alloc_dir" style="color:#ffcc00; font-weight:bold;">Bullish</span><br><span id="v39_alloc_desc" style="color:#667788; font-size:0.65rem">Risk Off</span></div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 2: MONEY FLOW CHANNELS (Col 1-2, Row 2) -->
+                    <div style="grid-column: 1 / 3; grid-row: 2 / 3; border: 1px solid #1a2b3c; background: #08101a; padding: 0.6rem;">
+                        <div style="color: #00ffcc; font-size: 0.75rem; font-weight:bold; letter-spacing: 1px; margin-bottom: 0.5rem;">2. MONEY FLOW CHANNELS (PARALLEL CONFIRMATION)</div>
+                        <div class="d-flex flex-wrap gap-2 justify-content-between h-75 align-items-center" style="font-size: 0.75rem; text-align: center;">
+                            <div style="border: 1px solid #334455; padding: 0.4rem; width: 23%; border-left: 3px solid #ff9900;">ETF FLOW<br><span style="color:#00ffcc; font-weight:bold;">+3.25T</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; width: 23%; border-left: 3px solid #ff9900;">COMEX POS<br><span style="color:#00ffcc; font-weight:bold;">+124K</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; width: 23%; border-left: 3px solid #ff9900;">PHYSICAL<br><span style="color:#00ffcc; font-weight:bold;">Strong</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; width: 23%; border-left: 3px solid #ff3366;">OPTIONS<br><span style="color:#ff3366; font-weight:bold;">Bearish</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; width: 23%; border-left: 3px solid #00ffcc;">EQUITY<br><span style="color:#00ffcc; font-weight:bold;">Risk Off</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; width: 23%; border-left: 3px solid #00ffcc;">CENTRAL BANK<br><span style="color:#00ffcc; font-weight:bold;">Buy</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; width: 23%; border-left: 3px solid #00ffcc;">LIQUIDITY<br><span style="color:#00ffcc; font-weight:bold;">Exp</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.4rem; width: 23%; border-left: 3px solid #555;">OTC<br><span style="color:#555; font-weight:bold;">Neutral</span></div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 3: FLOW SCORECARD (Col 3-4, Row 1-2) -->
+                    <div style="grid-column: 3 / 5; grid-row: 1 / 3; border: 1px solid #1a2b3c; background: #08101a; padding: 0.8rem; display: flex; flex-direction: column;">
+                        <div style="color: #00ffcc; font-size: 0.8rem; font-weight:bold; letter-spacing: 1px; margin-bottom: 0.5rem;">3. FLOW SCORECARD</div>
+                        <div class="d-flex flex-column justify-content-around flex-fill" style="font-size: 0.85rem;">
+                            <div class="d-flex justify-content-between"><span>Real Yield</span><span style="color:#00ffcc">+24</span></div>
+                            <div class="progress bg-dark mb-2" style="height: 5px;"><div id="v39_bar_1" class="progress-bar" style="width: 80%; background: #00ffcc; transition: width 0.5s;"></div></div>
+                            <div class="d-flex justify-content-between"><span>DXY</span><span style="color:#00ffcc">+18</span></div>
+                            <div class="progress bg-dark mb-2" style="height: 5px;"><div id="v39_bar_2" class="progress-bar" style="width: 70%; background: #00ffcc; transition: width 0.5s;"></div></div>
+                            <div class="d-flex justify-content-between"><span>Futures</span><span style="color:#00ffcc">+10</span></div>
+                            <div class="progress bg-dark mb-2" style="height: 5px;"><div id="v39_bar_3" class="progress-bar" style="width: 40%; background: #00ffcc; transition: width 0.5s;"></div></div>
+                            <div class="d-flex justify-content-between"><span>ETF Flow</span><span style="color:#00ffcc">+12</span></div>
+                            <div class="progress bg-dark mb-2" style="height: 5px;"><div id="v39_bar_4" class="progress-bar" style="width: 50%; background: #00ffcc; transition: width 0.5s;"></div></div>
+                            
+                            <hr style="border-color: #334455; margin: 0.6rem 0;">
+                            <div class="d-flex justify-content-between fw-bold" style="font-size: 1rem;">
+                                <span>FLOW SCORE</span><span id="v39_flow_score_txt" style="color:#00ffcc">88/100</span>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold" style="font-size: 1rem;">
+                                <span>FLOW CONFIDENCE</span><span id="v39_flow_conf" style="color:#00ffcc">91%</span>
+                            </div>
+                            <div class="d-flex justify-content-between" style="color: #ff9900; font-size: 0.85rem;">
+                                <span>DIVERGENCE RISK</span><span id="v39_div_risk">18%</span>
+                            </div>
+                            <div class="text-center mt-3 p-2 fw-bold rounded" style="background: rgba(0, 255, 204, 0.1); color: #00ffcc; border: 1px solid #00ffcc; font-size: 0.9rem;">
+                                <span id="v39_flow_regime_txt">ACCUMULATION PHASE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 4: FLOW DYNAMICS (Col 1-2, Row 3) -->
+                    <div style="grid-column: 1 / 3; grid-row: 3 / 4; border: 1px solid #1a2b3c; background: #08101a; padding: 0.6rem;">
+                        <div style="color: #00ffcc; font-size: 0.75rem; font-weight:bold; letter-spacing: 1px; margin-bottom: 0.5rem;">4. FLOW DYNAMICS</div>
+                        <div class="d-flex justify-content-around text-center h-75 align-items-center">
+                            <div>
+                                <svg viewBox="0 0 100 50" width="80" height="40">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#223" stroke-width="12"/>
+                                    <path id="v39_svg_str" d="M 10 50 A 40 40 0 0 1 80 20" fill="none" stroke="#00ffcc" stroke-width="12" style="transition: all 0.5s;"/>
+                                </svg>
+                                <div style="font-size:0.75rem; margin-top:0.2rem;">Strength: <span id="v39_g_str" style="color:#00ffcc; font-weight:bold;">88</span></div>
+                            </div>
+                            <div>
+                                <svg viewBox="0 0 100 50" width="80" height="40">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#223" stroke-width="12"/>
+                                    <path id="v39_svg_vel" d="M 10 50 A 40 40 0 0 1 85 25" fill="none" stroke="#00ffcc" stroke-width="12" style="transition: all 0.5s;"/>
+                                </svg>
+                                <div style="font-size:0.75rem; margin-top:0.2rem;">Velocity: <span id="v39_g_vel" style="color:#00ffcc; font-weight:bold;">94</span></div>
+                            </div>
+                            <div>
+                                <svg viewBox="0 0 100 50" width="80" height="40">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#223" stroke-width="12"/>
+                                    <path id="v39_svg_per" d="M 10 50 A 40 40 0 0 1 60 15" fill="none" stroke="#ff9900" stroke-width="12" style="transition: all 0.5s;"/>
+                                </svg>
+                                <div style="font-size:0.75rem; margin-top:0.2rem;">Persist: <span id="v39_g_per" style="color:#ff9900; font-weight:bold;">72</span></div>
+                            </div>
+                            <div>
+                                <svg viewBox="0 0 100 50" width="80" height="40">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#223" stroke-width="12"/>
+                                    <path id="v39_svg_ali" d="M 10 50 A 40 40 0 0 1 70 15" fill="none" stroke="#00ffcc" stroke-width="12" style="transition: all 0.5s;"/>
+                                </svg>
+                                <div style="font-size:0.75rem; margin-top:0.2rem;">Align: <span id="v39_g_ali" style="color:#00ffcc; font-weight:bold;">85</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 5: TRANSMISSION LAG (Col 3, Row 3) -->
+                    <div style="grid-column: 3 / 4; grid-row: 3 / 4; border: 1px solid #1a2b3c; background: #08101a; padding: 0.6rem;">
+                        <div style="color: #00ffcc; font-size: 0.75rem; font-weight:bold; letter-spacing: 1px; margin-bottom: 0.5rem;">5. TRANSMISSION LAG</div>
+                        <table style="width: 100%; font-size: 0.75rem; line-height: 1.8;">
+                            <tr><td>Event ΓåÆ Exp</td><td>10m</td><td style="color:#00ffcc; font-weight:bold;">4m</td></tr>
+                            <tr><td>Yield ΓåÆ DXY</td><td>20m</td><td style="color:#00ffcc; font-weight:bold;">9m</td></tr>
+                            <tr><td>Flow ΓåÆ Price</td><td>30m</td><td style="color:#ff9900; font-weight:bold;">21m</td></tr>
+                            <tr><td>Price ΓåÆ Close</td><td>60m</td><td style="color:#00ffcc; font-weight:bold;">45m</td></tr>
+                        </table>
+                    </div>
+
+                    <!-- PANEL 6: FLOW STRUCTURE (Col 4, Row 3) -->
+                    <div style="grid-column: 4 / 5; grid-row: 3 / 4; border: 1px solid #1a2b3c; background: #08101a; padding: 0.6rem;">
+                        <div style="color: #00ffcc; font-size: 0.75rem; font-weight:bold; letter-spacing: 1px; margin-bottom: 0.5rem;">6. FLOW STRUCTURE</div>
+                        <div class="d-flex flex-column justify-content-around h-75" style="font-size: 0.75rem;">
+                            <div class="d-flex justify-content-between"><span style="color:#00ffcc; font-weight:bold;">FAST (HFT)</span><span>Score 85</span></div>
+                            <div class="d-flex justify-content-between"><span style="color:#ffcc00; font-weight:bold;">MED (Swing)</span><span>Score 82</span></div>
+                            <div class="d-flex justify-content-between"><span style="color:#ff3366; font-weight:bold;">SLOW (Inst)</span><span>Score 75</span></div>
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM ROW (Row 4): Panels 7 to 13 -->
+                    <!-- PANEL 7: PRICE RESPONSE -->
+                    <div style="grid-column: 1 / 2; grid-row: 4 / 5; border: 1px solid #1a2b3c; background: #08101a; padding: 0.6rem;">
+                        <div style="color: #00ffcc; font-size: 0.75rem; font-weight:bold; letter-spacing: 1px; margin-bottom: 0.5rem;">7. PRICE RESPONSE</div>
+                        <div class="d-flex flex-column gap-2" style="font-size: 0.7rem; text-align: center;">
+                            <div style="background: #112211; color: #00ffcc; border: 1px solid #00ffcc; border-radius: 3px; padding: 0.1rem;">Trend: UP</div>
+                            <div style="background: #112211; color: #00ffcc; border: 1px solid #00ffcc; border-radius: 3px; padding: 0.1rem;">Mom: STRONG</div>
+                            <div style="background: #221100; color: #ff9900; border: 1px solid #ff9900; border-radius: 3px; padding: 0.1rem;">Vol: ELEVATED</div>
+                        </div>
+                    </div>
+                    
+                    <!-- PANEL 8: CONSENSUS -->
+                    <div style="grid-column: 2 / 3; grid-row: 4 / 5; border: 1px solid #1a2b3c; background: #08101a; padding: 0.6rem;">
+                        <div style="color: #00ffcc; font-size: 0.75rem; font-weight:bold; letter-spacing: 1px; margin-bottom: 0.5rem;">8. CONSENSUS MATRIX</div>
+                        <div class="d-flex flex-column justify-content-around h-75">
+                            <div class="d-flex justify-content-between" style="font-size: 0.75rem;"><span>Flow</span><span style="font-weight:bold;">88 (30%)</span></div>
+                            <div class="d-flex justify-content-between" style="font-size: 0.75rem;"><span>Macro</span><span style="font-weight:bold;">84 (25%)</span></div>
+                            <div class="d-flex justify-content-between" style="font-size: 0.75rem;"><span>Tech</span><span style="font-weight:bold;">81 (20%)</span></div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 9: PROBABILITY & 10: RISK -->
+                    <div style="grid-column: 3 / 4; grid-row: 4 / 5; display: flex; gap: 0.5rem;">
+                        <div style="flex: 1; border: 1px solid #1a2b3c; background: #08101a; padding: 0.6rem; text-align: center;">
+                            <div style="color: #00ffcc; font-size: 0.75rem; margin-bottom: 0.5rem;">9. PROB</div>
+                            <div id="v39_prob_txt" style="color: #00ffcc; font-size: 1.5rem; font-weight: bold;">78%</div>
+                        </div>
+                        <div style="flex: 1; border: 1px solid #1a2b3c; background: #08101a; padding: 0.6rem;">
+                            <div style="color: #00ffcc; font-size: 0.75rem; margin-bottom: 0.5rem;">10. RISK</div>
+                            <div style="font-size: 0.7rem; color:#00ffcc; margin-bottom:0.2rem;">Cont: LOW</div>
+                            <div style="font-size: 0.7rem; color:#ff9900;">Event: MOD</div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 11, 12, 13 -->
+                    <div style="grid-column: 4 / 5; grid-row: 4 / 5; display: flex; gap: 0.5rem;">
+                        <div style="flex: 1; border: 1px solid #1a2b3c; background: #08101a; padding: 0.6rem;">
+                            <div style="color: #00ffcc; font-size: 0.75rem; margin-bottom: 0.5rem;">11/12. LOGIC</div>
+                            <div style="font-size: 0.65rem; color: #ff3366; margin-bottom:0.2rem;">Inv: DXY>106</div>
+                            <div style="font-size: 0.65rem; color: #00ffcc;">OOS: PASS</div>
+                        </div>
+                        <div style="flex: 1.2; border: 1px solid #00ffcc; background: rgba(0,255,204,0.05); padding: 0.6rem; text-align: center; box-shadow: 0 0 15px rgba(0,255,204,0.2);">
+                            <div style="color: #00ffcc; font-size: 0.75rem; font-weight: bold; margin-bottom: 0.3rem;">13. GATE</div>
+                            <div id="v39_gate_txt" style="color: #00ffcc; font-size: 0.9rem; font-weight: bold; margin-bottom: 0.3rem;">TRADE<br>ALLOWED</div>
+                            <div id="v39_gate_rr" style="font-size: 0.7rem; font-weight:bold;">UP | RR 1:2.4</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+<div id="tab-moneyflow" class="spa-tab d-none h-100 w-100" style="overflow: hidden; padding: 0.2rem; background: #050b14; color: #a0b0c0; font-family: 'Consolas', 'Courier New', monospace;">
+                
+                <!-- HEADER -->
+                <div class="d-flex justify-content-between align-items-center mb-1 border-bottom border-secondary pb-1" style="height: 3%; padding-left: 0.5rem;">
+                    <div style="color: #00ffcc; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px;">
+                        <span style="color: #ff9900;">ΓÜí XEDY AI</span> ΓÇó XAUUSD ΓÇó MONEY FLOW ENGINE V39
+                    </div>
+                    <div style="font-size: 0.65rem;">
+                        <span style="color: #555;">STATUS: </span><span style="color: #00ffcc;">LIVE MODE</span>
+                    </div>
+                </div>
+
+                <!-- MAIN GRID: 4 columns, 4 rows -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 25% 25% 25% 22%; gap: 0.25rem; height: 95%; padding: 0.25rem;">
+                    
+                    <!-- PANEL 1: CAUSAL TRANSMISSION CHAIN (Col 1-2, Row 1) -->
+                    <div style="grid-column: 1 / 3; grid-row: 1 / 2; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem; position: relative;">
+                        <div style="color: #00ffcc; font-size: 0.55rem; letter-spacing: 1px; margin-bottom: 0.4rem;">1. CAUSAL TRANSMISSION CHAIN</div>
+                        <div class="d-flex justify-content-between h-75 text-center align-items-center" style="font-size: 0.55rem;">
+                            <div style="border: 1px solid #334455; padding: 0.3rem; border-top: 2px solid #ff3366; width: 15%;">EVENT<br><span style="color:#ff3366">CPI/PCE</span><br><span style="color:#445566; font-size:0.45rem">Impact High</span></div>
+                            <div style="color: #00ffcc;">ΓåÆ</div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; border-top: 2px solid #00ffcc; width: 15%;">EXPECTATION<br><span style="color:#00ffcc">Bullish</span><br><span style="color:#445566; font-size:0.45rem">Rate Cut Prob</span></div>
+                            <div style="color: #00ffcc;">ΓåÆ</div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; border-top: 2px solid #00ffcc; width: 15%;">BOND YIELD<br><span style="color:#00ffcc">Bullish</span><br><span style="color:#445566; font-size:0.45rem">US 10Y Down</span></div>
+                            <div style="color: #00ffcc;">ΓåÆ</div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; border-top: 2px solid #00ffcc; width: 15%;">USD (DXY)<br><span style="color:#00ffcc">Bullish</span><br><span style="color:#445566; font-size:0.45rem">DXY Welemah</span></div>
+                            <div style="color: #00ffcc;">ΓåÆ</div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; border-top: 2px solid #ffcc00; width: 15%;">ASSET ALLOC<br><span style="color:#ffcc00">Bullish</span><br><span style="color:#445566; font-size:0.45rem">Risk Off</span></div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 2: MONEY FLOW CHANNELS (Col 1-2, Row 2) -->
+                    <div style="grid-column: 1 / 3; grid-row: 2 / 3; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem;">
+                        <div style="color: #00ffcc; font-size: 0.55rem; letter-spacing: 1px; margin-bottom: 0.4rem;">2. MONEY FLOW CHANNELS (PARALLEL CONFIRMATION)</div>
+                        <div class="d-flex flex-wrap gap-1 justify-content-between h-75 align-items-center" style="font-size: 0.55rem; text-align: center;">
+                            <div style="border: 1px solid #334455; padding: 0.3rem; width: 23%; border-left: 2px solid #ff9900;">ETF FLOW<br><span style="color:#00ffcc">+3.25T</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; width: 23%; border-left: 2px solid #ff9900;">COMEX POS<br><span style="color:#00ffcc">+124K</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; width: 23%; border-left: 2px solid #ff9900;">PHYSICAL<br><span style="color:#00ffcc">Strong</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; width: 23%; border-left: 2px solid #ff3366;">OPTIONS<br><span style="color:#ff3366">Bearish</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; width: 23%; border-left: 2px solid #00ffcc;">EQUITY<br><span style="color:#00ffcc">Risk Off</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; width: 23%; border-left: 2px solid #00ffcc;">CENTRAL BANK<br><span style="color:#00ffcc">Buy</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; width: 23%; border-left: 2px solid #00ffcc;">LIQUIDITY<br><span style="color:#00ffcc">Exp</span></div>
+                            <div style="border: 1px solid #334455; padding: 0.3rem; width: 23%; border-left: 2px solid #555;">OTC<br><span style="color:#555">Neutral</span></div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 3: FLOW SCORECARD (Col 3-4, Row 1-2) -->
+                    <div style="grid-column: 3 / 5; grid-row: 1 / 3; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem; display: flex; flex-direction: column;">
+                        <div style="color: #00ffcc; font-size: 0.55rem; letter-spacing: 1px; margin-bottom: 0.4rem;">3. FLOW SCORECARD</div>
+                        <div class="d-flex flex-column justify-content-around flex-fill" style="font-size: 0.6rem;">
+                            <div class="d-flex justify-content-between"><span>Real Yield</span><span style="color:#00ffcc">+24</span></div>
+                            <div class="progress bg-dark mb-1" style="height: 3px;"><div id="v39_bar_1" class="progress-bar" style="width: 80%; background: #00ffcc; transition: width 0.5s;"></div></div>
+                            <div class="d-flex justify-content-between"><span>DXY</span><span style="color:#00ffcc">+18</span></div>
+                            <div class="progress bg-dark mb-1" style="height: 3px;"><div id="v39_bar_2" class="progress-bar" style="width: 70%; background: #00ffcc; transition: width 0.5s;"></div></div>
+                            <div class="d-flex justify-content-between"><span>Futures</span><span style="color:#00ffcc">+10</span></div>
+                            <div class="progress bg-dark mb-1" style="height: 3px;"><div id="v39_bar_3" class="progress-bar" style="width: 40%; background: #00ffcc; transition: width 0.5s;"></div></div>
+                            <div class="d-flex justify-content-between"><span>ETF Flow</span><span style="color:#00ffcc">+12</span></div>
+                            <div class="progress bg-dark mb-1" style="height: 3px;"><div id="v39_bar_4" class="progress-bar" style="width: 50%; background: #00ffcc; transition: width 0.5s;"></div></div>
+                            
+                            <hr style="border-color: #334455; margin: 0.4rem 0;">
+                            <div class="d-flex justify-content-between fw-bold" style="font-size: 0.75rem;">
+                                <span>FLOW SCORE</span><span id="v39_flow_score_txt" style="color:#00ffcc">88/100</span>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold" style="font-size: 0.75rem;">
+                                <span>FLOW CONFIDENCE</span><span id="v39_flow_conf" style="color:#00ffcc">91%</span>
+                            </div>
+                            <div class="d-flex justify-content-between" style="color: #ff9900; font-size: 0.65rem;">
+                                <span>DIVERGENCE RISK</span><span id="v39_div_risk">18%</span>
+                            </div>
+                            <div class="text-center mt-2 p-1 fw-bold rounded" style="background: rgba(0, 255, 204, 0.1); color: #00ffcc; border: 1px solid #00ffcc;">
+                                <span id="v39_flow_regime_txt">ACCUMULATION PHASE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 4: FLOW DYNAMICS (Col 1-2, Row 3) -->
+                    <div style="grid-column: 1 / 3; grid-row: 3 / 4; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem;">
+                        <div style="color: #00ffcc; font-size: 0.55rem; letter-spacing: 1px; margin-bottom: 0.4rem;">4. FLOW DYNAMICS</div>
+                        <div class="d-flex justify-content-around text-center h-75 align-items-center">
+                            <!-- SVG Gauges -->
+                            <div>
+                                <svg viewBox="0 0 100 50" width="60" height="30">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#223" stroke-width="10"/>
+                                    <path d="M 10 50 A 40 40 0 0 1 80 20" fill="none" stroke="#00ffcc" stroke-width="10"/>
+                                </svg>
+                                <div style="font-size:0.55rem;">Strength: <span style="color:#00ffcc">88</span></div>
+                            </div>
+                            <div>
+                                <svg viewBox="0 0 100 50" width="60" height="30">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#223" stroke-width="10"/>
+                                    <path d="M 10 50 A 40 40 0 0 1 85 25" fill="none" stroke="#00ffcc" stroke-width="10"/>
+                                </svg>
+                                <div style="font-size:0.55rem;">Velocity: <span style="color:#00ffcc">94</span></div>
+                            </div>
+                            <div>
+                                <svg viewBox="0 0 100 50" width="60" height="30">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#223" stroke-width="10"/>
+                                    <path d="M 10 50 A 40 40 0 0 1 60 15" fill="none" stroke="#ff9900" stroke-width="10"/>
+                                </svg>
+                                <div style="font-size:0.55rem;">Persist: <span style="color:#ff9900">72</span></div>
+                            </div>
+                            <div>
+                                <svg viewBox="0 0 100 50" width="60" height="30">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#223" stroke-width="10"/>
+                                    <path d="M 10 50 A 40 40 0 0 1 70 15" fill="none" stroke="#00ffcc" stroke-width="10"/>
+                                </svg>
+                                <div style="font-size:0.55rem;">Align: <span style="color:#00ffcc">85</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 5: TRANSMISSION LAG (Col 3, Row 3) -->
+                    <div style="grid-column: 3 / 4; grid-row: 3 / 4; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem;">
+                        <div style="color: #00ffcc; font-size: 0.55rem; letter-spacing: 1px; margin-bottom: 0.4rem;">5. TRANSMISSION LAG</div>
+                        <table style="width: 100%; font-size: 0.55rem; line-height: 1.5;">
+                            <tr><td>Event ΓåÆ Exp</td><td>10m</td><td style="color:#00ffcc">4m</td></tr>
+                            <tr><td>Yield ΓåÆ DXY</td><td>20m</td><td style="color:#00ffcc">9m</td></tr>
+                            <tr><td>Flow ΓåÆ Price</td><td>30m</td><td style="color:#ff9900">21m</td></tr>
+                            <tr><td>Price ΓåÆ Close</td><td>60m</td><td style="color:#00ffcc">45m</td></tr>
+                        </table>
+                    </div>
+
+                    <!-- PANEL 6: FLOW STRUCTURE (Col 4, Row 3) -->
+                    <div style="grid-column: 4 / 5; grid-row: 3 / 4; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem;">
+                        <div style="color: #00ffcc; font-size: 0.55rem; letter-spacing: 1px; margin-bottom: 0.4rem;">6. FLOW STRUCTURE</div>
+                        <div class="d-flex flex-column justify-content-around h-75" style="font-size: 0.55rem;">
+                            <div class="d-flex justify-content-between"><span style="color:#00ffcc">FAST (HFT)</span><span>Score 85</span></div>
+                            <div class="d-flex justify-content-between"><span style="color:#ffcc00">MED (Swing)</span><span>Score 82</span></div>
+                            <div class="d-flex justify-content-between"><span style="color:#ff3366">SLOW (Inst)</span><span>Score 75</span></div>
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM ROW (Row 4): Panels 7 to 13 -->
+                    <!-- PANEL 7: PRICE RESPONSE -->
+                    <div style="grid-column: 1 / 2; grid-row: 4 / 5; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem;">
+                        <div style="color: #00ffcc; font-size: 0.55rem; letter-spacing: 1px; margin-bottom: 0.4rem;">7. PRICE RESPONSE</div>
+                        <div class="d-flex flex-column gap-1" style="font-size: 0.5rem; text-align: center;">
+                            <div style="background: #112211; color: #00ffcc; border: 1px solid #00ffcc; border-radius: 2px;">Trend: UP</div>
+                            <div style="background: #112211; color: #00ffcc; border: 1px solid #00ffcc; border-radius: 2px;">Mom: STRONG</div>
+                            <div style="background: #221100; color: #ff9900; border: 1px solid #ff9900; border-radius: 2px;">Vol: ELEVATED</div>
+                        </div>
+                    </div>
+                    
+                    <!-- PANEL 8: CONSENSUS -->
+                    <div style="grid-column: 2 / 3; grid-row: 4 / 5; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem;">
+                        <div style="color: #00ffcc; font-size: 0.55rem; letter-spacing: 1px; margin-bottom: 0.4rem;">8. CONSENSUS MATRIX</div>
+                        <div class="d-flex justify-content-between" style="font-size: 0.55rem;"><span>Flow</span><span>88 (30%)</span></div>
+                        <div class="d-flex justify-content-between" style="font-size: 0.55rem;"><span>Macro</span><span>84 (25%)</span></div>
+                        <div class="d-flex justify-content-between" style="font-size: 0.55rem;"><span>Tech</span><span>81 (20%)</span></div>
+                    </div>
+
+                    <!-- PANEL 9: PROBABILITY & 10: RISK -->
+                    <div style="grid-column: 3 / 4; grid-row: 4 / 5; display: flex; gap: 0.25rem;">
+                        <div style="flex: 1; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem; text-align: center;">
+                            <div style="color: #00ffcc; font-size: 0.5rem; margin-bottom: 0.4rem;">9. PROB</div>
+                            <div style="color: #00ffcc; font-size: 1.2rem; font-weight: bold;">78%</div>
+                        </div>
+                        <div style="flex: 1; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem;">
+                            <div style="color: #00ffcc; font-size: 0.5rem; margin-bottom: 0.4rem;">10. RISK</div>
+                            <div style="font-size: 0.5rem; color:#00ffcc;">Cont: LOW</div>
+                            <div style="font-size: 0.5rem; color:#ff9900;">Event: MOD</div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL 11, 12, 13 -->
+                    <div style="grid-column: 4 / 5; grid-row: 4 / 5; display: flex; gap: 0.25rem;">
+                        <div style="flex: 1; border: 1px solid #1a2b3c; background: #08101a; padding: 0.4rem;">
+                            <div style="color: #00ffcc; font-size: 0.5rem; margin-bottom: 0.4rem;">11/12. LOGIC</div>
+                            <div style="font-size: 0.45rem; color: #ff3366;">Inv: DXY>106</div>
+                            <div style="font-size: 0.45rem; color: #00ffcc;">OOS: PASS</div>
+                        </div>
+                        <div style="flex: 1.2; border: 1px solid #00ffcc; background: rgba(0,255,204,0.05); padding: 0.4rem; text-align: center; box-shadow: 0 0 10px rgba(0,255,204,0.2);">
+                            <div style="color: #00ffcc; font-size: 0.55rem; font-weight: bold; margin-bottom: 0.2rem;">13. GATE</div>
+                            <div style="color: #00ffcc; font-size: 0.65rem; font-weight: bold;">TRADE<br>ALLOWED</div>
+                            <div style="font-size: 0.5rem;">UP | RR 1:2.4</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- MONEY FLOW ENGINE V39 SUB-TAB -->
+            <div id="tab-moneyflow-engine" class="spa-tab d-none h-100 w-100" style="padding: 1rem; background: #050b14; overflow-y: auto;">
+                <div class="bg-dark-panel p-3 rounded border border-success" style="box-shadow: 0 0 15px rgba(0,255,204,0.1);">
+                    <pre style="color: #00ffcc; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9rem; line-height: 1.3; white-space: pre-wrap; width: 100%; margin: 0;">
+ΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù
+Γòæ              ≡ƒºá XEDY AI ΓÇó XAUUSD MONEY FLOW ENGINE V39                       Γòæ
+Γòæ       EVENT ΓåÆ EXPECTATION ΓåÆ YIELD ΓåÆ LIQUIDITY ΓåÆ FLOW ΓåÆ PRICE ΓåÆ DECISION      Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæá ΓÜí EVENT SHOCK                                                               Γòæ
+Γòæ                                                                              Γòæ
+Γòæ CPI/PCE Γöé FOMC Γöé Fed Speech Γöé NFP Γöé GDP/ISM Γöé Tariff Γöé Geopolitics           Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Impact Score Γöé Surprise vs Consensus Γöé Event Severity Γöé Historical Analog    Γòæ
+Γòæ                         Γåô                                                    Γòæ
+Γòæ                 EVENT SHOCK SCORE                    <span id="v39_asc_shock">30.0</span>                    Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæí ≡ƒºá RATE EXPECTATION ENGINE                                                   Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Fed Funds Γöé SOFR Γöé OIS Γöé Rate Cut/Hike Probability Γöé Forward Guidance        Γòæ
+Γòæ                                                                              Γòæ
+Γòæ ╬ö EXPECTATION ΓåÆ ╬ö YIELD ΓåÆ ╬ö USD ΓåÆ ╬ö GOLD                                     Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Expected Direction Γöé Expected Magnitude Γöé Expected Transmission Lag          Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæó ≡ƒôè YIELD & REAL-YIELD ENGINE                                                 Γòæ
+Γòæ                                                                              Γòæ
+Γòæ US2Y Γöé US10Y Γöé US30Y Γöé TIPS Γöé Breakeven Inflation                            Γòæ
+Γòæ                                                                              Γòæ
+Γòæ                 REAL YIELD = NOMINAL YIELD ΓêÆ INFLATION                       Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Real Yield Direction Γöé Velocity Γöé Acceleration Γöé Gold Sensitivity            Γòæ
+Γòæ        <span id="v39_asc_ry_dir">Bullish</span>     Γöé  <span id="v39_asc_ry_vel">Low</span>     Γöé    <span id="v39_asc_ry_acc">Low</span>       Γöé       <span id="v39_asc_ry_gs">High</span>                  Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæú ≡ƒÆ╡ USD + GLOBAL LIQUIDITY                                                    Γòæ
+Γòæ                                                                              Γòæ
+Γòæ DXY Γöé USD Strength Γöé Fed Balance Sheet Γöé TGA Γöé RRP Γöé M2 Γöé Credit             Γòæ
+Γòæ Treasury Liquidity Γöé Money Market Γöé VIX/MOVE Γöé Cross-Currency Flow           Γòæ
+Γòæ                                                                              Γòæ
+Γòæ              LIQUIDITY REGIME ΓåÆ RISK APPETITE ΓåÆ GOLD                         Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæñ ≡ƒÆ░ PARALLEL MONEY-FLOW CHANNELS                                              Γòæ
+Γòæ                                                                              Γòæ
+Γòæ ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ                  Γòæ
+Γòæ Γöé ETF        Γöé Γöé FUTURES    Γöé Γöé OPTIONS    Γöé Γöé EQUITY     Γöé                  Γòæ
+Γòæ Γöé GLD / IAU  Γöé Γöé COMEX/COT  Γöé Γöé IV/SKEW    Γöé Γöé S&P/NQ     Γöé                  Γòæ
+Γòæ Γöé In/Outflow Γöé Γöé OI/CTA     Γöé Γöé Gamma      Γöé Γöé Risk Flow  Γöé                  Γòæ
+Γòæ ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ                  Γòæ
+Γòæ                                                                              Γòæ
+Γòæ ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ                                 Γòæ
+Γòæ Γöé CENTRAL    Γöé Γöé PHYSICAL   Γöé Γöé LIQUIDITY  Γöé                                 Γòæ
+Γòæ Γöé BANK       Γöé Γöé MARKET     Γöé Γöé FLOW       Γöé                                 Γòæ
+Γòæ Γöé Structural Γöé Γöé India/ChinaΓöé Γöé Global M2  Γöé                                 Γòæ
+Γòæ ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ                                 Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ ΓæÑ ≡ƒö¼ FLOW INTELLIGENCE                                                         Γòæ
+Γòæ                                                                              Γòæ
+Γòæ FLOW STRENGTH       ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûæΓûæ  <span id="v39_asc_flow_str">88/100</span>                             Γòæ
+Γòæ FLOW VELOCITY       ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûæ  <span id="v39_asc_flow_vel">94/100</span>                             Γòæ
+Γòæ FLOW PERSISTENCE    ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûæΓûæΓûæΓûæΓûæΓûæ  72/100                             Γòæ
+Γòæ FLOW/PRICE ALIGN    ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûæΓûæΓûæ  87/100                             Γòæ
+Γòæ CAUSAL CONFIDENCE   ΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûêΓûæΓûæ  <span id="v39_asc_conf">89%</span>                                Γòæ
+Γòæ                                                                              Γòæ
+Γòæ FLOW REGIME         <span id="v39_asc_regime">≡ƒƒó ACCUMULATION</span>                                          Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæª ΓÜö∩╕Å DIVERGENCE ENGINE                                                         Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Gold Γåæ / DXY Γåæ                  ΓåÆ SAFE-HAVEN CHECK                           Γòæ
+Γòæ Gold Γåæ / Real Yield Γåæ           ΓåÆ STRUCTURAL FLOW CHECK                      Γòæ
+Γòæ ETF Γåô / Price Γåæ                 ΓåÆ ABSORPTION CHECK                           Γòæ
+Γòæ COMEX Short Γåæ / Price Γåæ         ΓåÆ SHORT-COVERING CHECK                       Γòæ
+Γòæ Flow Γåæ / Price Γåô                ΓåÆ DISTRIBUTION WARNING                       Γòæ
+Γòæ                                                                              Γòæ
+Γòæ DIVERGENCE RISK                         <span id="v39_asc_div_risk">≡ƒƒó 18%</span>                               Γòæ
+Γòæ FLOW / PRICE STATUS                     <span id="v39_asc_status">≡ƒƒó ALIGNED</span>                           Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæº ΓÅ▒∩╕Å TRANSMISSION-LAG INTELLIGENCE                                            Γòæ
+Γòæ                                                                              Γòæ
+Γòæ EVENT ΓåÆ EXPECTATION       Expected 0ΓÇô10m    Actual 4m    ≡ƒƒó                  Γòæ
+Γòæ EXPECTATION ΓåÆ YIELD       Expected 5ΓÇô20m    Actual 8m    ≡ƒƒó                  Γòæ
+Γòæ YIELD ΓåÆ DXY               Expected 5ΓÇô20m    Actual 9m    ≡ƒƒó                  Γòæ
+Γòæ DXY ΓåÆ FUTURES             Expected 10ΓÇô30m   Actual 17m   ≡ƒƒó                  Γòæ
+Γòæ FLOW ΓåÆ GOLD               Expected 10ΓÇô30m   Actual 21m   ≡ƒƒó                  Γòæ
+Γòæ                                                                              Γòæ
+Γòæ DYNAMIC LAG LEARNING ΓåÆ ENABLED                                               Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæ¿ ≡ƒôê PRICE DISCOVERY ENGINE                                                    Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Order Flow Γöé Liquidity Sweep Γöé Volume Profile Γöé Market Structure             Γòæ
+Γòæ Momentum Γöé Volatility Γöé S/R Γöé Breakout Γöé Rejection Γöé SNR                     Γòæ
+Γòæ                                                                              Γòæ
+Γòæ PRICE RESPONSE                         ≡ƒƒó CONFIRMED                          Γòæ
+Γòæ TREND                                  ≡ƒƒó UP                                 Γòæ
+Γòæ MOMENTUM                               ≡ƒƒó STRONG                             Γòæ
+Γòæ STRUCTURE                              ≡ƒƒó BULLISH                            Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæ⌐ ≡ƒº¼ REGIME-ADAPTIVE WEIGHTING                                                 Γòæ
+Γòæ                                                                              Γòæ
+Γòæ TREND Γöé RANGE Γöé HIGH VOL Γöé EVENT SHOCK Γöé SAFE-HAVEN Γöé LIQUIDITY SHOCK        Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Current Regime: <span id="v39_asc_macro_regime">≡ƒƒó BULL TREND</span>                                                Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Bobot otomatis berubah berdasarkan regime ΓÇö bukan fixed weighting.           Γòæ
+Γòæ Causal clustering mencegah FED ΓåÆ Yield ΓåÆ DXY dihitung sebagai 3x evidence.   Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæ¬ ≡ƒºá CAUSAL + MULTI-AGENT CONSENSUS                                            Γòæ
+Γòæ                                                                              Γòæ
+Γòæ MACRO          ≡ƒƒó 84/100                                                     Γòæ
+Γòæ MONEY FLOW     ≡ƒƒó 88/100                                                     Γòæ
+Γòæ TECHNICAL      ≡ƒƒó 81/100                                                     Γòæ
+Γòæ INTERMARKET    ≡ƒƒó 87/100                                                     Γòæ
+Γòæ REGIME         ≡ƒƒó 90/100                                                     Γòæ
+Γòæ                                                                              Γòæ
+Γòæ CAUSAL CHAIN                                                                 Γòæ
+Γòæ Fed ΓåÆ Rate Expectation ΓåÆ Real Yield ΓåÆ DXY ΓåÆ Flow ΓåÆ XAUUSD                    Γòæ
+Γòæ                                                                              Γòæ
+Γòæ CONSENSUS SCORE                         <span id="v39_asc_consensus">≡ƒƒó 85.7/100</span>                          Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæ½ ≡ƒÄ» CONFIDENCE CALIBRATION ENGINE                                             Γòæ
+Γòæ                                                                              Γòæ
+Γòæ RAW CONFIDENCE                         91%                                   Γòæ
+Γòæ        Γåô                                                                     Γòæ
+Γòæ Divergence Adjustment                 -7%                                    Γòæ
+Γòæ Regime Adjustment                     -3%                                    Γòæ
+Γòæ Historical Calibration                -5%                                    Γòæ
+Γòæ        Γåô                                                                     Γòæ
+Γòæ CALIBRATED PROBABILITY                <span id="v39_asc_cal_prob">≡ƒƒó 76%</span>                                 Γòæ
+Γòæ                                                                              Γòæ
+Γòæ ΓÜá∩╕Å RAW CONFIDENCE Γëá TRUE TRADE PROBABILITY                                   Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæ¼ ≡ƒÆÄ EXPECTED VALUE ENGINE                                                     Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Direction Probability                  76%                                   Γòæ
+Γòæ Expected R:R                           1 : 2.4                               Γòæ
+Γòæ Expected Value                         <span id="v39_asc_ev">≡ƒƒó +0.82R</span>                             Γòæ
+Γòæ Expected Move                          +$25 ΓÇô $45                            Γòæ
+Γòæ Expected Duration                      4 ΓÇô 12 HOURS                          Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæ¡ ≡ƒ¢í∩╕Å RISK + CONTRARIAN ENGINE                                                  Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Event Risk             ≡ƒƒí 22%                                                Γòæ
+Γòæ Contrarian Risk        ≡ƒƒó 18%                                                Γòæ
+Γòæ Liquidity Risk         ≡ƒƒó LOW                                                Γòæ
+Γòæ Positioning Risk       ≡ƒƒó LOW                                                Γòæ
+Γòæ Gap Risk               ≡ƒƒó LOW                                                Γòæ
+Γòæ                                                                              Γòæ
+Γòæ BEAR CASE: DXY Γåæ + Real Yield Γåæ + Hawkish Fed + Flow Reversal                Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæ« ≡ƒÜ¬ FINAL TRADE GATE                                                          Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Trend Probability       ΓëÑ70%              ≡ƒƒó PASS                            Γòæ
+Γòæ Calibrated Probability  ΓëÑ70%              ≡ƒƒó 76%                             Γòæ
+Γòæ Data Quality            ΓëÑ90%              ≡ƒƒó PASS                            Γòæ
+Γòæ Statistical Edge        >0                ≡ƒƒó +0.82R                          Γòæ
+Γòæ Divergence Risk         <30%              ≡ƒƒó 18%                             Γòæ
+Γòæ Event Risk              Acceptable        ≡ƒƒó PASS                            Γòæ
+Γòæ Flow/Price Alignment    ΓëÑ70%              ≡ƒƒó 87%                             Γòæ
+Γòæ                                                                              Γòæ
+Γòæ                       <span id="v39_asc_gate">≡ƒƒó TRADE ALLOWED</span>                                       Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæ» ≡ƒÆ╝ DYNAMIC TRADE MANAGEMENT                                                  Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Position Size = Probability ├ù Edge ├ù Volatility ├ù Event Risk                 Γòæ
+Γòæ                                                                              Γòæ
+Γòæ ENTRY              4380.00                                                   Γòæ
+Γòæ SL                 4310.00                                                   Γòæ
+Γòæ TP1                4395.00                                                   Γòæ
+Γòæ TP2                4410.00                                                   Γòæ
+Γòæ DURATION           4ΓÇô12 H                                                    Γòæ
+Γòæ                                                                              Γòæ
+Γòæ Confidence Γåô ΓåÆ Size Γåô / Exit                                                 Γòæ
+Γòæ Event Risk Γåæ  ΓåÆ Size Γåô                                                       Γòæ
+Γòæ Regime Change ΓåÆ Recalculate                                                  Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ Γæ░ ≡ƒöä SELF-LEARNING ENGINE                                                      Γòæ
+Γòæ                                                                              Γòæ
+Γòæ FORECAST ΓåÆ ACTUAL ΓåÆ DIRECTION ERROR ΓåÆ TIMING ERROR ΓåÆ MAGNITUDE ERROR         Γòæ
+Γòæ                         Γåô                                                    Γòæ
+Γòæ ROOT CAUSE ΓåÆ FLOW ERROR ΓåÆ CAUSAL ERROR ΓåÆ LAG ERROR                           Γòæ
+Γòæ                         Γåô                                                    Γòæ
+Γòæ WEIGHT OPTIMIZATION ΓåÆ LAG OPTIMIZATION ΓåÆ REGIME LEARNING                     Γòæ
+Γòæ                         Γåô                                                    Γòæ
+Γòæ BACKTEST ΓåÆ WALK-FORWARD ΓåÆ OOS ΓåÆ CHAMPION / CHALLENGER                        Γòæ
+ΓòáΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòú
+Γòæ                         ≡ƒÅå FINAL OUTPUT                                      Γòæ
+Γòæ                                                                              Γòæ
+Γòæ              ≡ƒƒó XAUUSD BULLISH / BUY CONTINUATION                            Γòæ
+Γòæ                                                                              Γòæ
+Γòæ FLOW SCORE              88/100                                               Γòæ
+Γòæ FLOW CONFIDENCE         91%                                                  Γòæ
+Γòæ CALIBRATED PROBABILITY  76%                                                  Γòæ
+Γòæ CONSENSUS SCORE         85.7/100                                             Γòæ
+Γòæ EXPECTED VALUE          +0.82R                                               Γòæ
+Γòæ DIVERGENCE RISK         18%                                                  Γòæ
+Γòæ                                                                              Γòæ
+Γòæ       PREDICT ΓåÆ COMPARE ΓåÆ ATTRIBUTE ΓåÆ LEARN ΓåÆ VALIDATE ΓåÆ DEPLOY              Γòæ
+ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
+                    </pre>
+                </div>
+            </div>
+<div id="tab-forecast" class="spa-tab d-none">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h5 class="mb-0 text-white">XAUUSD Forecast & Accuracy Analysis</h5>
+                    <button class="btn btn-sm btn-warning fw-bold px-3" id="btn-force-forecast" onclick="triggerManualForecast()" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                        ΓÜí FORCE RUN FORECAST (BYPASS CLAUDE)
+                    </button>
+                </div>
+                
+                <!-- Multi-timeframe Forecasts (1d, 1w, 2w) with HLC in Single Row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-lg-12">
+                        <div class="bg-dark-panel p-4 rounded border border-secondary" style="border-left: 4px solid #00bc8c !important;">
+                            <h6 class="text-white mb-4 fw-bold" style="letter-spacing: 0.5px;">≡ƒÄ» PROYEKSI HARGA HLC MULTI-TIMEFRAME (QWEN AI)</h6>
+                            <div class="row g-3">
+                                <!-- 1 Hari -->
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="p-3 bg-black rounded border border-secondary h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <span class="badge bg-primary text-dark fw-bold px-3 py-1 mb-3">1 HARI (24 JAM)</span>
+                                            <div class="row text-center my-2">
+                                                <div class="col-4"><div class="text-muted small" style="font-size: 0.65rem;">HIGH</div><h5 class="text-bullish mb-0 fw-bold" id="fc-1d-high" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">LOW</div><h5 class="text-critical mb-0 fw-bold" id="fc-1d-low" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">CLOSE</div><h5 class="text-warning-v42 mb-0 fw-bold" id="fc-1d-close" style="font-size: 1.1rem;">$0.00</h5></div>
+                                            </div>
+                                        </div>
+                                        <div class="text-muted small mt-3" id="fc-1d-reasoning" style="font-size: 0.75rem; line-height: 1.4; border-top: 1px solid #2d2d2d; padding-top: 8px;">
+                                            Memuat analisis...
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 1 Minggu -->
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="p-3 bg-black rounded border border-secondary h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <span class="badge bg-info text-dark fw-bold px-3 py-1 mb-3">1 MINGGU (7 HARI)</span>
+                                            <div class="row text-center my-2">
+                                                <div class="col-4"><div class="text-muted small" style="font-size: 0.65rem;">HIGH</div><h5 class="text-bullish mb-0 fw-bold" id="fc-1w-high" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">LOW</div><h5 class="text-critical mb-0 fw-bold" id="fc-1w-low" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">CLOSE</div><h5 class="text-warning-v42 mb-0 fw-bold" id="fc-1w-close" style="font-size: 1.1rem;">$0.00</h5></div>
+                                            </div>
+                                        </div>
+                                        <div class="text-muted small mt-3" id="fc-1w-reasoning" style="font-size: 0.75rem; line-height: 1.4; border-top: 1px solid #2d2d2d; padding-top: 8px;">
+                                            Memuat analisis...
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2 Minggu -->
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="p-3 bg-black rounded border border-secondary h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <span class="badge bg-warning text-dark fw-bold px-3 py-1 mb-3">2 MINGGU (14 HARI)</span>
+                                            <div class="row text-center my-2">
+                                                <div class="col-4"><div class="text-muted small" style="font-size: 0.65rem;">HIGH</div><h5 class="text-bullish mb-0 fw-bold" id="fc-2w-high" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">LOW</div><h5 class="text-critical mb-0 fw-bold" id="fc-2w-low" style="font-size: 1.1rem;">$0.00</h5></div>
+                                                <div class="col-4" style="border-left: 1px solid #2d2d2d;"><div class="text-muted small" style="font-size: 0.65rem;">CLOSE</div><h5 class="text-warning-v42 mb-0 fw-bold" id="fc-2w-close" style="font-size: 1.1rem;">$0.00</h5></div>
+                                            </div>
+                                        </div>
+                                        <div class="text-muted small mt-3" id="fc-2w-reasoning" style="font-size: 0.75rem; line-height: 1.4; border-top: 1px solid #2d2d2d; padding-top: 8px;">
+                                            Memuat analisis...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <div class="kpi-card text-center border-primary">
+                            <div class="kpi-title">Average Accuracy</div>
+                            <div class="kpi-value text-bullish" id="forecast-avg-accuracy">0.0%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card text-center border-primary">
+                            <div class="kpi-title">Total Predictions</div>
+                            <div class="kpi-value text-white" id="forecast-total-preds">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card text-center border-primary">
+                            <div class="kpi-title">Successful Hits</div>
+                            <div class="kpi-value text-bullish" id="forecast-success-hits">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card text-center border-primary">
+                            <div class="kpi-title">Accuracy Rate</div>
+                            <div class="kpi-value text-info-v42" id="forecast-accuracy-rate">0.0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-lg-12">
+                        <div class="bg-dark-panel p-3 rounded">
+                            <h6 class="text-muted mb-3">Historical Forecast Predictions & Target Runs</h6>
+                            <table class="table table-v42">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Start Price</th>
+                                        <th>Target Price</th>
+                                        <th>Actual Close</th>
+                                        <th>Error %</th>
+                                        <th>Accuracy</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="forecast-history-tbody">
+                                    <tr><td colspan="7" class="text-muted text-center">Loading forecast records...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: BACKTEST VALIDASI -->
+            <div id="tab-backtest" class="spa-tab d-none">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <div>
+                        <h5 class="mb-0 text-white">≡ƒôè Backtest Validasi Forecast HLC</h5>
+                        <small class="text-muted">Walk-Forward Paper Backtest ΓÇó Sumber Data: MetaTrader 5 ΓÇó XAUUSD</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary px-3" id="btn-backtest-load" onclick="loadBacktest(false)" style="font-size:0.75rem;">
+                            ΓÜí Load Cache
+                        </button>
+                        <button class="btn btn-sm btn-warning fw-bold px-3" id="btn-backtest-refresh" onclick="loadBacktest(true)" style="font-size:0.75rem;">
+                            ≡ƒöä Run Full Backtest (MT5 + AI)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="backtest-loading" class="d-none text-center py-5">
+                    <div class="spinner-border text-warning mb-3" role="status" style="width:3rem;height:3rem;"></div>
+                    <p class="text-muted">Mengambil data MT5 & menjalankan retroactive AI forecast...<br><small>Proses ini membutuhkan 2ΓÇô5 menit untuk 30 hari data.</small></p>
+                </div>
+
+                <!-- Error State -->
+                <div id="backtest-error" class="d-none alert alert-danger" role="alert"></div>
+
+                <!-- Content (hidden until data loaded) -->
+                <div id="backtest-content" class="d-none">
+                    <!-- Period Info -->
+                    <div class="mb-3">
+                        <span class="badge bg-secondary me-2" id="bt-period-label">ΓÇö</span>
+                        <span class="badge bg-dark border border-secondary" id="bt-cached-label">ΓÇö</span>
+                    </div>
+
+                    <!-- Timeframe Selector -->
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-sm btn-warning fw-bold" id="bt-tab-1d" onclick="switchBtTab('1d')">1 Hari (D1)</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="bt-tab-1w" onclick="switchBtTab('1w')">1 Minggu (W1)</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="bt-tab-2w" onclick="switchBtTab('2w')">2 Minggu</button>
+                    </div>
+
+                    <!-- Metric Summary Cards -->
+                    <div class="row g-3 mb-4" id="bt-metric-cards">
+                        <div class="col-6 col-md-3">
+                            <div class="bg-dark-panel p-3 rounded border border-secondary text-center">
+                                <div class="text-muted mb-1" style="font-size:0.7rem;letter-spacing:1px;">MAE CLOSE</div>
+                                <div class="text-warning fw-bold fs-4" id="bt-mae-close">ΓÇö</div>
+                                <div class="text-muted" style="font-size:0.65rem;">rata-rata eror harga</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="bg-dark-panel p-3 rounded border border-secondary text-center">
+                                <div class="text-muted mb-1" style="font-size:0.7rem;letter-spacing:1px;">MAPE</div>
+                                <div class="text-info fw-bold fs-4" id="bt-mape">ΓÇö</div>
+                                <div class="text-muted" style="font-size:0.65rem;">eror persentase rata-rata</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="bg-dark-panel p-3 rounded border border-secondary text-center">
+                                <div class="text-muted mb-1" style="font-size:0.7rem;letter-spacing:1px;">HIT RATE ┬▒1%</div>
+                                <div class="text-success fw-bold fs-4" id="bt-hitrate">ΓÇö</div>
+                                <div class="text-muted" style="font-size:0.65rem;">presisi dalam ┬▒1%</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="bg-dark-panel p-3 rounded border border-secondary text-center">
+                                <div class="text-muted mb-1" style="font-size:0.7rem;letter-spacing:1px;">DIRECTION ACC.</div>
+                                <div class="text-primary fw-bold fs-4" id="bt-direction">ΓÇö</div>
+                                <div class="text-muted" style="font-size:0.65rem;">akurasi arah naik/turun</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="bg-dark-panel p-3 rounded border border-secondary mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <h6 class="text-white m-0" style="font-size:0.8rem;letter-spacing:0.5px;" id="bt-chart-title">≡ƒôê CLOSE: AKTUAL vs PREDIKSI (D1)</h6>
+                            <div class="btn-group btn-group-sm" role="group" aria-label="Metric Selection" id="bt-metric-buttons">
+                                <button type="button" class="btn btn-warning btn-xs fw-bold px-3 py-1 btn-chart-metric active" data-metric="close" onclick="switchBtMetric('close')" style="font-size: 0.7rem;">Close</button>
+                                <button type="button" class="btn btn-outline-secondary btn-xs text-white px-3 py-1 btn-chart-metric" data-metric="high" onclick="switchBtMetric('high')" style="font-size: 0.7rem;">High</button>
+                                <button type="button" class="btn btn-outline-secondary btn-xs text-white px-3 py-1 btn-chart-metric" data-metric="low" onclick="switchBtMetric('low')" style="font-size: 0.7rem;">Low</button>
+                            </div>
+                        </div>
+                        <canvas id="bt-chart" height="100"></canvas>
+                    </div>
+
+                    <!-- Detail Table -->
+                    <div class="bg-dark-panel p-3 rounded border border-secondary">
+                        <h6 class="text-white mb-3" style="font-size:0.8rem;letter-spacing:0.5px;" id="bt-table-title">≡ƒôï DETAIL BACKTEST</h6>
+                        <div class="table-responsive" style="max-height:420px;overflow-y:auto;">
+                            <table class="table table-dark table-sm table-hover" style="font-size:0.75rem;">
+                                <thead class="sticky-top" style="background:#1a1a2e;">
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Open</th>
+                                        <th>Pred High</th>
+                                        <th>Pred Low</th>
+                                        <th>Pred Close</th>
+                                        <th>Act High</th>
+                                        <th>Act Low</th>
+                                        <th>Act Close</th>
+                                        <th>Err %</th>
+                                        <th>Arah</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bt-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div><!-- /backtest-content -->
+            </div><!-- /tab-backtest -->
+
+            <!-- TAB 3A: TECHNICAL -->
+            <div id="tab-technical" class="spa-tab d-none">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <div class="bg-dark-panel p-3 rounded">
+                                    <h6 class="text-muted mb-3">Moving Averages (MA)</h6>
+                                    <table class="table table-v42">
+                                        <thead><tr><th>Period</th><th>Simple</th><th>Exponential</th><th>Signal</th></tr></thead>
+                                        <tbody>
+                                            <tr><td>MA 20</td><td id="ma20-simple">2045.50</td><td id="ma20-exponential">2046.10</td><td id="ma20-signal"><span class="text-bullish">BUY</span></td></tr>
+                                            <tr><td>MA 50</td><td id="ma50-simple">2038.20</td><td id="ma50-exponential">2040.50</td><td id="ma50-signal"><span class="text-bullish">BUY</span></td></tr>
+                                            <tr><td>MA 200</td><td id="ma200-simple">1995.00</td><td id="ma200-exponential">2010.80</td><td id="ma200-signal"><span class="text-bullish">BUY</span></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mt-3">
+                                <div class="bg-dark-panel p-3 rounded">
+                                    <h6 class="text-muted mb-3">Oscillators</h6>
+                                    <table class="table table-v42">
+                                        <tbody>
+                                            <tr><td>RSI (14)</td><td class="text-white text-end" id="osc-rsi-val">68.5</td><td id="osc-rsi-sig"><span class="text-warning-v42">Overbought</span></td></tr>
+                                            <tr><td>MACD</td><td class="text-white text-end" id="osc-macd-val">+2.45</td><td id="osc-macd-sig"><span class="text-bullish">Bullish</span></td></tr>
+                                            <tr><td>Stochastic</td><td class="text-white text-end" id="osc-stoch-val">82.1</td><td id="osc-stoch-sig"><span class="text-warning-v42">Overbought</span></td></tr>
+                                            <tr><td>ATR (14)</td><td class="text-white text-end" id="osc-atr-val">12.5</td><td id="osc-atr-sig"><span class="text-muted">Normal</span></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-4" style="font-size: 0.7rem; letter-spacing: 1px;">AI COMMAND PANEL</h6>
+                            
+                            <div class="kpi-card text-center mb-4 border-primary">
+                                <div class="kpi-title mb-2">AI DIRECTION</div>
+                                <h1 class="text-sideway fw-bold mb-0" id="ai-rec" style="font-size: 2.5rem;">WAIT</h1>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Confidence:</span>
+                                <span class="text-white fw-bold" id="panel-confidence">--.-%</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Trend Strength:</span>
+                                <span class="text-bullish fw-bold" id="panel-trend">STRONG</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Market Regime:</span>
+                                <span class="text-white" id="panel-regime">Trending</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-4">
+                                <span class="text-muted">Risk Score:</span>
+                                <span class="text-bullish fw-bold" id="panel-risk">LOW</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-4">
+                                <span class="text-muted">Spread:</span>
+                                <span class="text-info-v42 fw-bold" id="panel-spread">0.8 pips</span>
+                            </div>
+
+                            <hr style="border-color: #30363d;">
+
+                            <div class="d-flex justify-content-between mb-2 mt-4">
+                                <span class="text-muted">Open Position:</span>
+                                <span class="text-white fw-bold" id="panel-open-position">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-4">
+                                <span class="text-muted">Floating P/L:</span>
+                                <span class="text-white fw-bold" id="panel-floating-pl">$0.00</span>
+                            </div>
+
+                            <button class="btn btn-danger w-100 fw-bold py-3 mt-4" style="letter-spacing: 1px;">EMERGENCY STOP</button>
+                            <button class="btn btn-outline-success w-100 fw-bold py-2 mt-2" id="server-power-btn" onclick="shutdownServer()" style="font-size: 0.8rem; letter-spacing: 1px; box-shadow: 0 0 8px rgba(46, 160, 67, 0.4);"><i class="bi bi-power me-1"></i> SERVER STATUS: ON</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3B: SMART MONEY -->
+            <div id="tab-smartmoney" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Smart Money Concepts (SMC)</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Order Blocks (OB) & Fair Value Gaps (FVG)</h6>
+                            <table class="table table-v42">
+                                <thead><tr><th>Level (Price)</th><th>Type</th><th>Timeframe</th><th>Status</th></tr></thead>
+                                <tbody id="smc-ob-tbody">
+                                     <tr><td colspan="4" class="text-muted text-center">Awaiting data stream...</td></tr>
+                                 </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Liquidity & Market Structure</h6>
+                            <table class="table table-v42">
+                                <tbody>
+                                    <tr><td>Current Structure (H1)</td><td class="text-white fw-bold text-end" id="smc-structure-h1">--</td></tr>
+                                    <tr><td>Current Structure (M15)</td><td class="text-white fw-bold text-end" id="smc-structure-m15">--</td></tr>
+                                    <tr><td>Buy-side Liquidity (BSL)</td><td class="text-white text-end" id="smc-bsl">--</td></tr>
+                                    <tr><td>Sell-side Liquidity (SSL)</td><td class="text-white text-end" id="smc-ssl">--</td></tr>
+                                    <tr><td>Inducement Level</td><td class="text-warning-v42 text-end" id="smc-inducement">--</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: AI DECISION CENTER -->
+            <div id="tab-ai" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">AI Decision Center</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Engine Outputs</h6>
+                            <table class="table table-v42">
+                                <tbody>
+                                    <tr><td>Trend Engine</td><td class="text-bullish fw-bold text-end" id="ai-trend">UPTREND</td></tr>
+                                    <tr><td>Momentum</td><td class="text-warning-v42 fw-bold text-end" id="ai-momentum">OVERBOUGHT</td></tr>
+                                    <tr><td>Smart Money</td><td class="text-bearish fw-bold text-end" id="ai-smartmoney">DISTRIBUTION</td></tr>
+                                    <tr><td>Intermarket</td><td class="text-info-v42 fw-bold text-end" id="ai-intermarket">NEUTRAL</td></tr>
+                                    <tr><td>ML Output</td><td class="text-bullish fw-bold text-end" id="ai-mloutput">CONTINUATION</td></tr>
+                                    <tr style="border-top: 2px solid #30363d;"><td>H1 Alignment</td><td class="text-warning-v42 fw-bold text-end" id="ai-h1-alignment">SYNCING...</td></tr>
+                                    <tr><td>Dyn. Volatility</td><td class="text-warning-v42 fw-bold text-end" id="ai-dyn-volatility">EVALUATING...</td></tr>
+                                    <tr><td>UES Edge Score</td><td class="text-info-v42 fw-bold text-end" id="ai-ues-score">CALCULATING...</td></tr>
+                                </tbody>
+                            </table>
+                            <hr style="border-color: #30363d;">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Confidence:</span>
+                                <span class="text-white fw-bold" id="ai-confidence">75.5%</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Final Decision:</span>
+                                <span class="text-sideway fw-bold" id="ai-finaldecision">WAIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Explainable AI (XAI) Node Graph</h6>
+                            <div style="min-height: 350px;" id="ai-tree-graph"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: TRADING CENTER -->
+            <div id="tab-risk" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Risk Control Center</h5>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Risk Metrics</h6>
+                            <table class="table table-v42">
+                                <tbody>
+                                    <tr><td>Daily Drawdown</td><td class="text-white text-end">0.45% / <span class="text-danger">Max 2.0%</span></td></tr>
+                                    <tr><td>Max Drawdown</td><td class="text-white text-end">5.20%</td></tr>
+                                    <tr><td>Margin Level</td><td class="text-bullish text-end">2450%</td></tr>
+                                    <tr><td>Exposure</td><td class="text-warning-v42 text-end">15% of Account</td></tr>
+                                    <tr><td>Correlation Risk</td><td class="text-info-v42 text-end">LOW (0.24)</td></tr>
+                                    <tr><td>Overall Risk Score</td><td class="text-bullish fw-bold text-end">LOW</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="bg-dark-panel p-3 rounded h-100 border-danger text-center">
+                            <h6 class="text-danger mb-3">Emergency Status</h6>
+                            <h1 class="text-bullish fw-bold my-4">SAFE</h1>
+                            <p class="text-muted" style="font-size:0.8rem;">No hard limits breached. AI and Broker connection stable.</p>
+                            <button class="btn btn-danger w-100 mt-2">TRIGGER KILL SWITCH</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 7: NEWS INTELLIGENCE -->
+            <div id="tab-news" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Hybrid News Intelligence Center</h5>
+                
+                <!-- Sentiment Gauges -->
+                <div class="row g-2 mb-3">
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center border-primary">
+                            <div class="kpi-title" style="font-size: 0.65rem; color: #58a6ff; font-weight: bold;">Global Sentiment Index (GSI)</div>
+                            <div class="kpi-value text-info-v42" id="news-tab-gsi" style="font-size: 1.15rem;">--.-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center">
+                            <div class="kpi-title" style="font-size: 0.65rem;">Sentiment Market (News)</div>
+                            <div class="kpi-value text-white" id="news-tab-sentiment" style="font-size: 1.15rem;">--.-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center">
+                            <div class="kpi-title" style="font-size: 0.65rem;">Currency Strength (DXY)</div>
+                            <div class="kpi-value text-bullish" id="news-tab-usd-strength" style="font-size: 1.15rem;">--.-%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center">
+                            <div class="kpi-title" style="font-size: 0.65rem;">Market Strength (Equity)</div>
+                            <div class="kpi-value text-white" id="news-tab-equity-strength" style="font-size: 1.15rem;">--.-%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center">
+                            <div class="kpi-title" style="font-size: 0.65rem;">Sentiment Trend (GSI)</div>
+                            <div class="kpi-value" id="news-tab-trend" style="font-size: 1.15rem;">--</div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4">
+                        <div class="kpi-card text-center">
+                            <div class="kpi-title" style="font-size: 0.65rem; color: #ff7b72;">OP Autotrade Filter</div>
+                            <div class="kpi-value" id="news-tab-gold-rec" style="font-size: 1.15rem;">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Dynamic Aggregated Feed -->
+                    <div class="col-md-12">
+                        <div class="bg-dark-panel p-3 rounded">
+                            <h6 class="text-muted mb-3">AI Sentiment Pipeline (Institutional Multi-Tier News Feed)</h6>
+                            <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+                                <table class="table table-v42 mb-0" style="font-size: 0.72rem; table-layout: fixed; width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 12%;">SUMBER</th>
+                                            <th style="width: 38%;">BERITA</th>
+                                            <th style="width: 7%;">REL</th>
+                                            <th style="width: 7%;">SENT</th>
+                                            <th style="width: 9%;">DAMPAK</th>
+                                            <th style="width: 9%;">YAKIN</th>
+                                            <th style="width: 6%;">DURASI</th>
+                                            <th style="width: 6%;">REZIM</th>
+                                            <th style="width: 6%;">SKOR AI</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="news-tab-feed-tbody">
+                                        <tr><td colspan="9" class="text-muted text-center">Awaiting data stream...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 8: ANALYTICS -->
+            <div id="tab-analytics" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Analytics Center</h5>
+                <div class="row g-2 mb-3">
+                    <div class="col"><div class="kpi-card p-2 text-center"><div class="kpi-title">Win Rate</div><div class="kpi-value text-bullish fs-5">68.5%</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 text-center"><div class="kpi-title">Profit Factor</div><div class="kpi-value text-info-v42 fs-5">1.85</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 text-center"><div class="kpi-title">Sharpe Ratio</div><div class="kpi-value text-white fs-5">2.1</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 text-center"><div class="kpi-title">Sortino Ratio</div><div class="kpi-value text-white fs-5">3.4</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 text-center"><div class="kpi-title">Monthly Return</div><div class="kpi-value text-bullish fs-5">+4.2%</div></div></div>
+                    <div class="col"><div class="kpi-card p-2 text-center border-primary"><div class="kpi-title">AI Accuracy</div><div class="kpi-value text-info-v42 fs-5">72.1%</div></div></div>
+                </div>
+                <div class="bg-dark-panel p-3 rounded text-center">
+                    <h6 class="text-muted text-start mb-3">Equity Curve</h6>
+                    <div id="analytics-equity-chart" style="height: 300px; width: 100%;"></div>
+                </div>
+            </div>
+
+            <!-- TAB 9: REPLAY & BACKTEST -->
+            <div id="tab-replay" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Replay & Backtest</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Modes</h6>
+                            <div class="d-grid gap-2" id="replay-modes-container">
+                                <button class="btn btn-primary text-start replay-mode-btn" data-sub="1"><span class="badge bg-light text-dark me-2">1</span> Replay</button>
+                                <button class="btn btn-outline-secondary text-start replay-mode-btn" data-sub="2"><span class="badge bg-dark me-2">2</span> Walk Forward</button>
+                                <button class="btn btn-outline-secondary text-start replay-mode-btn" data-sub="3"><span class="badge bg-dark me-2">3</span> Monte Carlo</button>
+                                <button class="btn btn-outline-secondary text-start replay-mode-btn" data-sub="4"><span class="badge bg-dark me-2">4</span> Backtest</button>
+                                <button class="btn btn-outline-secondary text-start replay-mode-btn" data-sub="5"><span class="badge bg-dark me-2">5</span> Optimization</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            
+                            <!-- SUB-TAB 1: REPLAY -->
+                            <div id="replay-sub-1" class="replay-sub-tab h-100 d-flex flex-column justify-content-center text-center p-4">
+                                <h4 class="text-muted mb-4">Historical Market Replay Player</h4>
+                                <div>
+                                    <button class="btn btn-primary me-2" id="btn-replay-start">Γû╢ Start Engine</button>
+                                    <button class="btn btn-outline-secondary me-2" id="btn-replay-pause">ΓÅ╕ Pause</button>
+                                    <button class="btn btn-outline-secondary" id="btn-replay-ff">ΓÅ¡ Fast Forward</button>
+                                </div>
+                            </div>
+                            
+                            <!-- SUB-TAB 2: WALK FORWARD -->
+                            <div id="replay-sub-2" class="replay-sub-tab d-none">
+                                <h6 class="text-muted mb-3">Walk Forward Optimization (WFO)</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Train Window (Days)</label>
+                                            <input type="number" class="form-control form-control-sm bg-dark border-secondary text-white" value="30">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Test Window (Days)</label>
+                                            <input type="number" class="form-control form-control-sm bg-dark border-secondary text-white" value="7">
+                                        </div>
+                                        <button class="btn btn-sm btn-primary w-100 mt-2" id="btn-run-wfo">Γû╢ Run Walk Forward</button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="bg-dark p-2 rounded border border-secondary" style="min-height: 250px; position: relative;" id="wfo-chart-div">
+                                            <div class="position-absolute top-50 start-50 translate-middle text-muted fs-7 text-center w-100">Awaiting WFO Validation...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SUB-TAB 3: MONTE CARLO -->
+                            <div id="replay-sub-3" class="replay-sub-tab d-none">
+                                <h6 class="text-muted mb-3">Monte Carlo Risk Simulator</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Simulations Count</label>
+                                            <input type="number" id="mc-runs" class="form-control form-control-sm bg-dark border-secondary text-white" value="50">
+                                        </div>
+                                        <button class="btn btn-sm btn-primary w-100 mt-3" id="btn-run-montecarlo">≡ƒÄ▓ Simulate Paths</button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="bg-dark p-2 rounded border border-secondary" style="min-height: 250px; position: relative;" id="mc-chart-div">
+                                            <div class="position-absolute top-50 start-50 translate-middle text-muted fs-7 text-center w-100">Awaiting Monte Carlo runs...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SUB-TAB 4: BACKTEST -->
+                            <div id="replay-sub-4" class="replay-sub-tab d-none">
+                                <h6 class="text-muted mb-3">Historical AI Backtest Engine</h6>
+                                <div class="row g-2 mb-3 text-center">
+                                    <div class="col-3">
+                                        <div class="bg-dark p-2 rounded border border-secondary">
+                                            <div class="text-muted fs-7">Win Rate</div>
+                                            <div class="fw-bold text-bullish fs-6" id="bt-win-rate">--%</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="bg-dark p-2 rounded border border-secondary">
+                                            <div class="text-muted fs-7">Total Trades</div>
+                                            <div class="fw-bold text-white fs-6" id="bt-total-trades">--</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="bg-dark p-2 rounded border border-secondary">
+                                            <div class="text-muted fs-7">Net Profit</div>
+                                            <div class="fw-bold text-white fs-6" id="bt-net-profit">--</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="bg-dark p-2 rounded border border-secondary">
+                                            <div class="text-muted fs-7">Max Drawdown</div>
+                                            <div class="fw-bold text-critical fs-6" id="bt-drawdown">--%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Symbol</label>
+                                            <input type="text" id="bt-symbol" class="form-control form-control-sm bg-dark border-secondary text-white" value="XAUUSD">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Timeframe</label>
+                                            <select id="bt-timeframe" class="form-select form-select-sm bg-dark border-secondary text-white">
+                                                <option value="M15" selected>M15</option>
+                                                <option value="M30">M30</option>
+                                                <option value="H1">H1</option>
+                                                <option value="H4">H4</option>
+                                                <option value="D1">D1</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Candle Count</label>
+                                            <input type="number" id="bt-bars" class="form-control form-control-sm bg-dark border-secondary text-white" value="1000">
+                                        </div>
+                                        <button class="btn btn-sm btn-primary w-100 mt-2" id="btn-run-backtest">
+                                            <span class="spinner-border spinner-border-sm d-none" id="bt-spinner" role="status" aria-hidden="true"></span>
+                                            <span id="bt-btn-text">Γû╢ Run AI Backtest</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="bg-dark p-2 rounded border border-secondary" style="min-height: 250px; position: relative;" id="backtest-equity-chart">
+                                            <div class="position-absolute top-50 start-50 translate-middle text-muted fs-7 text-center w-100">Awaiting Simulation... Click Run.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SUB-TAB 5: OPTIMIZATION -->
+                            <div id="replay-sub-5" class="replay-sub-tab d-none">
+                                <h6 class="text-muted mb-3">Genetic Optimization Matrix</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Population Size</label>
+                                            <input type="number" class="form-control form-control-sm bg-dark border-secondary text-white" value="30">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label text-muted fs-7">Generations</label>
+                                            <input type="number" class="form-control form-control-sm bg-dark border-secondary text-white" value="5">
+                                        </div>
+                                        <button class="btn btn-sm btn-primary w-100 mt-3" id="btn-run-opt">Γû╢ Run Genetic Optimizer</button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="bg-dark p-2 rounded border border-secondary" style="min-height: 250px; position: relative;" id="opt-chart-div">
+                                            <div class="position-absolute top-50 start-50 translate-middle text-muted fs-7 text-center w-100">Awaiting Optimization Matrix...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3 d-none" id="opt-results-row">
+                                    <div class="col-12">
+                                        <h6 class="text-muted mb-2">Top Optimized Parameter Candidates</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-v42 mb-0" style="font-size: 0.75rem;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Rank</th>
+                                                        <th>RSI Period</th>
+                                                        <th>MACD Boundary</th>
+                                                        <th>Win Rate</th>
+                                                        <th>Profit Factor</th>
+                                                        <th>Drawdown</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="opt-table-body">
+                                                    <!-- Dynamic table content -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 10: TELEGRAM -->
+            <div id="tab-telegram" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Telegram Operations Center</h5>
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Bot Fleet Status</h6>
+                            <table class="table table-v42 mb-0">
+                                <thead><tr><th>Bot Component</th><th>Status</th><th>Uptime</th></tr></thead>
+                                <tbody>
+                                    <tr><td>News Bot</td><td class="text-bullish">ACTIVE</td><td>24d 1h</td></tr>
+                                    <tr><td>Trade Bot</td><td class="text-bullish">ACTIVE</td><td>24d 1h</td></tr>
+                                    <tr><td>Market Bot</td><td class="text-bullish">ACTIVE</td><td>24d 1h</td></tr>
+                                    <tr><td>Health Bot</td><td class="text-bullish">ACTIVE</td><td>24d 1h</td></tr>
+                                    <tr><td>Report Bot</td><td class="text-warning-v42">IDLE</td><td>--</td></tr>
+                                    <tr><td>Admin Bot</td><td class="text-bullish">ACTIVE</td><td>24d 1h</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Communications</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Status Pengiriman:</span>
+                                <span class="text-bullish fw-bold">ONLINE (120ms)</span>
+                            </div>
+                            <hr style="border-color: #30363d;">
+                            <h6 class="text-muted mb-2">Riwayat Pesan (Last 3)</h6>
+                            <div class="text-white" style="font-size:0.8rem;">
+                                <div class="mb-1">[14:00] <span class="text-info-v42">[News Bot]</span> Impact: HIGH</div>
+                                <div class="mb-1">[13:45] <span class="text-bullish">[Trade Bot]</span> TP Hit: +$45.00</div>
+                                <div class="mb-1">[13:00] <span class="text-warning-v42">[Health Bot]</span> Ping check OK</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 11: SYSTEM OPS -->
+            <div id="tab-sysops" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">System Operations</h5>
+                <div class="bg-dark-panel p-3 rounded">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <table class="table table-v42 mb-0">
+                                <tbody>
+                                    <tr><td>CPU</td><td class="text-white text-end" id="sysops-cpu">12%</td></tr>
+                                    <tr><td>RAM</td><td class="text-white text-end" id="sysops-ram">4.2GB</td></tr>
+                                    <tr><td>SSD</td><td class="text-white text-end" id="sysops-ssd">245GB Free</td></tr>
+                                    <tr><td>Internet</td><td class="text-bullish text-end" id="sysops-internet">24ms</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <table class="table table-v42 mb-0">
+                                <tbody>
+                                    <tr><td>Broker</td><td class="text-bullish text-end" id="sysops-broker">CONNECTED</td></tr>
+                                    <tr><td>MT5</td><td class="text-bullish text-end" id="sysops-mt5">SYNCED</td></tr>
+                                    <tr><td>Database</td><td class="text-bullish text-end" id="sysops-database">WAL READY</td></tr>
+                                    <tr><td>Scheduler</td><td class="text-info-v42 text-end" id="sysops-scheduler">ACTIVE (5 Jobs)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <table class="table table-v42 mb-0">
+                                <tbody>
+                                    <tr><td>WebSocket</td><td class="text-bullish text-end" id="sysops-websocket">OPEN</td></tr>
+                                    <tr><td>API</td><td class="text-bullish text-end" id="sysops-api">UVICORN 200 OK</td></tr>
+                                    <tr><td>Logs</td><td class="text-white text-end" id="sysops-logs">75.2MB</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 mt-1">
+                    <div class="col-md-7">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">Memory Allocation Gauge (Committed Memory)</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-muted" style="font-size: 0.8rem;">
+                                    <span>Physical RAM Usage:</span>
+                                    <span id="ram-usage-text">4.2GB / 16.0GB</span>
+                                </div>
+                                <div class="progress bg-dark border border-secondary mt-1" style="height: 12px;">
+                                    <div id="ram-progress-bar" class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: 25%;"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-muted" style="font-size: 0.8rem;">
+                                    <span>Virtual RAM (Page File):</span>
+                                    <span id="vram-usage-text">8.0GB / 16.0GB</span>
+                                </div>
+                                <div class="progress bg-dark border border-secondary mt-1" style="height: 12px;">
+                                    <div id="vram-progress-bar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-between text-muted" style="font-size: 0.8rem;">
+                                    <span>Combined Committed Memory (RAM + VRAM):</span>
+                                    <span id="combined-usage-text">12.2GB / 32.0GB</span>
+                                </div>
+                                <div class="progress bg-dark border border-secondary mt-1" style="height: 16px;">
+                                    <div id="combined-progress-bar" class="progress-bar bg-info progress-bar-striped" role="progressbar" style="width: 38%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-3">RAMMap & PageFile Config</h6>
+                            <div class="mb-3">
+                                <label class="text-muted mb-1" style="font-size: 0.75rem;">Initial Size (MB):</label>
+                                <input type="number" class="form-control form-control-sm bg-dark text-white border-secondary" id="vram-init-size" value="4096">
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted mb-1" style="font-size: 0.75rem;">Maximum Size (MB):</label>
+                                <input type="number" class="form-control form-control-sm bg-dark text-white border-secondary" id="vram-max-size" value="8192">
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary btn-sm fw-bold" onclick="applyVirtualRamSettings()"><i class="bi bi-gear-fill me-1"></i> SET VIRTUAL RAM</button>
+                                <button class="btn btn-outline-success btn-sm fw-bold" id="btn-clean-ram" onclick="cleanRamMemory()"><i class="bi bi-cpu me-1"></i> RUN RAMMAP CLEANER</button>
+                            </div>
+                            <div class="mt-3 d-flex align-items-center justify-content-between border-top border-secondary pt-2">
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="vram-auto-clean-chk" onchange="toggleAutoCleanRam()">
+                                    <label class="form-check-label text-muted mb-0" for="vram-auto-clean-chk" style="font-size: 0.75rem;">Auto-Clean RAM</label>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted me-1" style="font-size: 0.7rem;">Every:</span>
+                                    <select class="form-select form-select-sm bg-dark text-white border-secondary py-0 px-2" id="vram-auto-clean-interval" style="font-size: 0.7rem; width: 85px;" onchange="changeAutoCleanInterval()">
+                                        <option value="5">5 min</option>
+                                        <option value="15" selected>15 min</option>
+                                        <option value="30">30 min</option>
+                                        <option value="60">60 min</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 12: ADMIN -->
+            <div id="tab-admin" class="spa-tab d-none">
+                <h5 class="mb-3 text-white">Administration</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="bg-dark-panel p-2 rounded h-100">
+                            <div class="list-group list-group-flush" id="admin-sidebar-list">
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="user">≡ƒæñ User Management</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="broker">≡ƒÅª Broker Integration</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="strategy">≡ƒôê Strategy Settings</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="telegram">≡ƒÆ¼ Telegram API</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="risk">ΓÜá∩╕Å Risk Parameters</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="ai">≡ƒºá AI Engine Tuning</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="scheduler">ΓÅ▒∩╕Å Scheduler Config</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="backup">≡ƒÆ╛ Backup & Restore</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="update">≡ƒöä System Update</a>
+                                <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-secondary admin-nav-link" data-module="license">≡ƒöæ License Management</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="bg-dark-panel p-4 rounded h-100" id="admin-content-panel" style="min-height: 480px; overflow-y: auto;">
+                            <div class="text-center d-flex flex-column justify-content-center h-100 py-5">
+                                <i class="bi bi-sliders fs-1 text-muted mb-3"></i>
+                                <h5 class="text-muted">Select an administration module from the left panel to configure settings.</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: LOG MONITOR -->
+            <!-- V39 ULTIMATE OVERVIEW TAB -->
+            
+            <div id="tab-logs" class="spa-tab d-none">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-white mb-0">≡ƒô¥ SYSTEM & AI LOG MONITOR</h5>
+                    <button id="btn-refresh-logs" class="btn btn-sm btn-outline-primary">≡ƒöä Refresh Now</button>
+                </div>
+                <div class="row g-3">
+                    <!-- Profit Monitor Log -->
+                    <div class="col-12">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-2" style="font-size:0.75rem;">PROFIT MONITOR DAEMON (Terminal Output)</h6>
+                            <div class="bg-black p-2 rounded border border-secondary" style="height: 250px; overflow-y: auto;">
+                                <pre id="profit-log-content" class="text-white font-monospace m-0" style="font-size: 0.75rem; white-space: pre-wrap;">Menunggu log...</pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Decision Log -->
+                    <div class="col-12">
+                        <div class="bg-dark-panel p-3 rounded h-100">
+                            <h6 class="text-muted mb-2" style="font-size:0.75rem;">14-LAYER AI DECISION ENGINE (decision_priority_log)</h6>
+                            <div class="bg-black p-2 rounded border border-secondary" style="height: 350px; overflow-y: auto;">
+                                <pre id="decision-log-content" class="text-white font-monospace m-0" style="font-size: 0.75rem; white-space: pre-wrap;">Menunggu log...</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <div class="bottom-bar d-flex align-items-center px-3 justify-content-between">
+        <div>
+            <span class="me-3 text-muted">Broker: <span class="text-bullish" id="bottom-broker">OK</span></span>
+            <span class="me-3 text-muted">MT5: <span class="text-bullish" id="bottom-mt5">OK</span></span>
+            <span class="me-3 text-muted">API: <span class="text-bullish" id="bottom-api">OK</span></span>
+            <span class="me-3 text-muted">Database: <span class="text-bullish" id="bottom-database">OK</span></span>
+            <span class="me-3 text-muted">Scheduler: <span class="text-bullish" id="bottom-scheduler">IDLE</span></span>
+            <span class="me-3 text-muted">Telegram: <span class="text-warning-v42" id="bottom-telegram">OFF</span></span>
+            <span class="me-3 text-muted">Internet: <span class="text-bullish" id="bottom-internet">CONNECTED</span></span>
+            <span class="me-3 text-muted">WebSocket: <span class="text-bullish" id="bottom-ws">OK</span></span>
+        </div>
+        <div class="text-muted">
+            Last Update: <span class="text-white" id="bottom-update">--</span> | Version: <span class="text-white">v42.0.0 Enterprise</span>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="js/app.js?v=3"></script>
+</body>
+</html>

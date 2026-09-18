@@ -1,0 +1,55 @@
+=== RECOVERED CHUNK ===
+            if (data.type === 'tick' && (data.symbol === 'XAUUSD' || !data.symbol)) {
+                latestTick = data; 
+                
+                // Manual Scalping Tick Logic (30s Rolling)
+                if (!window.scalpTickHistory) window.scalpTickHistory = [];
+                const now = Date.now();
+                window.scalpTickHistory.push({ bid: data.bid, ask: data.ask, time: now });
+                
+                // Filter ticks older than 30s
+                window.scalpTickHistory = window.scalpTickHistory.filter(t => (now - t.time) <= 30000);
+                
+                // Calculate Scalp Metrics
+                let tickUp = 0;
+                let tickDown = 0;
+                for (let i = 1; i < window.scalpTickHistory.length; i++) {
+                    const diff = window.scalpTickHistory[i].bid - window.scalpTickHistory[i-1].bid;
+                    if (diff > 0) tickUp++;
+                    else if (diff < 0) tickDown++;
+                }
+                
+                const scalpBidEl = document.getElementById('scalp-bid');
+                if (scalpBidEl) {
+                    scalpBidEl.innerText = data.bid.toFixed(2);
+                    document.getElementById('scalp-ask').innerText = data.ask.toFixed(2);
+                    const spread = Math.round((data.ask - data.bid) * 100);
+                    document.getElementById('scalp-spread').innerText = spread;
+                    document.getElementById('scalp-total-tick').innerText = window.scalpTickHistory.length;
+                    
+                    document.getElementById('scalp-tick-up').innerText = tickUp;
+                    document.getElementById('scalp-tick-down').innerText = tickDown;
+                    
+                    const totalMov = tickUp + tickDown;
+                    let velPct = 50;
+                    if (totalMov > 0) velPct = Math.round((tickUp / totalMov) * 100);
+                    
+                    const bar = document.getElementById('scalp-velocity-bar');
+                    bar.style.width = velPct + '%';
+                    
+                    const vText = document.getElementById('scalp-velocity-text');
+                    if (velPct > 60) {
+                        vText.innerText = "BULLISH (" + velPct + "%)";
+                        vText.className = "text-success fw-bold";
+                        bar.className = "progress-bar bg-success";
+                    } else if (velPct < 40) {
+                        vText.innerText = "BEARISH (" + (100 - velPct) + "%)";
+                        vText.className = "text-danger fw-bold";
+                        bar.className = "progress-bar bg-danger";
+                    } else {
+                        vText.innerText = "NEUTRAL";
+                        vText.className = "text-warning fw-bold";
+                        bar.className = "progress-bar bg-warning";
+                    }
+                }
+            }

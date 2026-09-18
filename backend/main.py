@@ -130,6 +130,127 @@ def save_settings_to_env(autotrade: bool, lot_size: float, confidence_threshold:
     os.environ["ACTIVE_METHOD"] = active_method
     dotenv.load_dotenv(env_path, override=True)
 
+async def tick_streamer():
+    import MetaTrader5 as mt5
+    import asyncio
+    import json
+    import time
+    from collections import deque
+    from datetime import datetime, timedelta
+    from backend.api.websocket import ws_manager
+    
+    print("TICK STREAMER & HFT SNIPER: Task initialized.")
+    tick_history = deque(maxlen=120)
+    HFT_MAGIC = 888222
+    HFT_LOT = 0.01
+    last_op_time = 0
+    
+    while True:
+        try:
+            if not mt5.initialize():
+                await asyncio.sleep(5)
+                continue
+                
+            if mt5.terminal_info() is not None:
+                tick = mt5.symbol_info_tick("XAUUSD")
+                if tick:
+                    # 1. Broadcast Tick Data
+                    await ws_manager._broadcast_json({
+                        "type": "tick_data",
+                        "symbol": "XAUUSD",
+                        "bid": tick.bid,
+                        "ask": tick.ask,
+                        "time": tick.time_msc,
+                        "flags": tick.flags,
+                        "volume": tick.volume
+                    })
+                    
+                    # 2. HFT Sniper Logic
+                    tick_history.append(tick)
+                    if len(tick_history) > 1:
+                        up_vel = 0
+                        down_vel = 0
+                        for i in range(1, len(tick_history)):
+                            delta = tick_history[i].bid - tick_history[i-1].bid
+                            if delta > 0: up_vel += 1
+                            elif delta < 0: down_vel += 1
+                            
+                        total_vel = up_vel + down_vel
+                        spread = round((tick.ask - tick.bid) * 100)
+                        
+                        active_positions = mt5.positions_get(symbol="XAUUSD")
+                        hft_active = [p for p in active_positions if getattr(p, "magic", 0) == HFT_MAGIC] if active_positions else []
+                        
+                        current_time = time.time()
+                        if total_vel >= 150 and spread <= 30 and len(hft_active) == 0 and (current_time - last_op_time) > 60:
+                            strength_up = (up_vel / total_vel) * 100 if total_vel > 0 else 0
+                            strength_down = (down_vel / total_vel) * 100 if total_vel > 0 else 0
+                            
+                            action = None
+                            if strength_up >= 75:
+                                action = mt5.ORDER_TYPE_BUY
+                                sl = tick.ask - 0.40 # 40 points
+                                tp = tick.ask + 0.60 # 60 points
+                                price = tick.ask
+                            elif strength_down >= 75:
+                                action = mt5.ORDER_TYPE_SELL
+                                sl = tick.bid + 0.40
+                                tp = tick.bid - 0.60
+                                price = tick.bid
+                                
+                            if action is not None:
+                                request = {
+                                    "action": mt5.TRADE_ACTION_DEAL,
+                                    "symbol": "XAUUSD",
+                                    "volume": HFT_LOT,
+                                    "type": action,
+                                    "price": price,
+                                    "sl": sl,
+                                    "tp": tp,
+                                    "deviation": 10,
+                                    "magic": HFT_MAGIC,
+                                    "comment": "XEDY HFT Sniper",
+                                    "type_time": mt5.ORDER_TIME_GTC,
+                                    "type_filling": mt5.ORDER_FILLING_IOC,
+                                }
+                                res = mt5.order_send(request)
+                                if res and res.retcode == mt5.TRADE_RETCODE_DONE:
+                                    print("HFT Sniper: OP Executed!")
+                                    last_op_time = current_time
+                                    
+                        # 3. Broadcast HFT Data for UI Tables
+                        hft_active_data = [{
+                            "ticket": p.ticket,
+                            "type": "BUY" if p.type == 0 else "SELL",
+                            "price": round(p.price_open, 2),
+                            "sl": round(p.sl, 2),
+                            "tp": round(p.tp, 2),
+                            "profit": round(p.profit, 2)
+                        } for p in hft_active]
+                        
+                        today = datetime.now()
+                        deals = mt5.history_deals_get(today - timedelta(days=2), today + timedelta(days=1))
+                        hft_history_data = []
+                        if deals:
+                            hft_deals = [d for d in deals if getattr(d, "magic", 0) == HFT_MAGIC and d.entry == 1]
+                            for d in sorted(hft_deals, key=lambda x: x.time, reverse=True)[:10]:
+                                hft_history_data.append({
+                                    "ticket": d.position_id,
+                                    "type": "BUY" if d.type == 1 else "SELL", # if exit is SELL, position was BUY
+                                    "close_time": datetime.fromtimestamp(d.time).strftime('%H:%M:%S'),
+                                    "profit": round(d.profit, 2)
+                                })
+                        
+                        await ws_manager._broadcast_json({
+                            "type": "hft_data",
+                            "active": hft_active_data,
+                            "history": hft_history_data
+                        })
+                        
+        except Exception as e:
+            print(f"Tick Streamer Error: {e}")
+        await asyncio.sleep(0.5)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize Engines
@@ -229,8 +350,10 @@ async def lifespan(app: FastAPI):
     await app.state.telegram_bot.start()
     if hasattr(app.state.telegram_bot, "notifier") and app.state.telegram_bot.notifier:
         app.state.news_engine.notifier = app.state.telegram_bot.notifier
-        app.state.execution_engine.notifier = app.state.telegram_bot.notifier
-    await app.state.execution_engine.start()
+        # Disabled Execution Engine Notifier
+        # app.state.execution_engine.notifier = app.state.telegram_bot.notifier
+    # Disabled Master Autotrade Execution Engine
+    # await app.state.execution_engine.start()
     
     for symbol, engines in app.state.asset_engines.items():
         await engines["risk_engine"].start()
@@ -243,12 +366,19 @@ async def lifespan(app: FastAPI):
     await app.state.macro_strategist.start()
     await app.state.market_engine.start()
     
+    # Start tick streamer
+    import asyncio
+    app.state.tick_task = asyncio.create_task(tick_streamer())
+    
     if hasattr(app.state.telegram_bot, "notifier") and app.state.telegram_bot.notifier:
         await app.state.telegram_bot.notifier.notify_system_status("🚀 XEDY Core Server <b>BERHASIL DIBOOT</b>.\nSemua mesin AI <i>online</i> dan siap memantau pergerakan pasar (Multi-Asset).")
 
     yield
     
     # Shutdown Engines
+    if hasattr(app.state, "tick_task"):
+        app.state.tick_task.cancel()
+        
     await app.state.market_engine.stop()
     await app.state.macro_strategist.stop()
     await app.state.news_engine.stop()
@@ -258,7 +388,7 @@ async def lifespan(app: FastAPI):
         await engines["ml_engine"].stop()
         await engines["decision_engine"].stop()
         await engines["risk_engine"].stop()
-    await app.state.execution_engine.stop()
+    # await app.state.execution_engine.stop()
     await app.state.telegram_bot.stop()
     mt5.shutdown()
 
@@ -727,9 +857,79 @@ async def get_backtest(background_tasks: BackgroundTasks, days: int = 30, refres
             return {"error": f"Failed to read cache: {str(e)}"}
 
     return {"error": "No cached backtest results found. Please run a full backtest first."}
+from pydantic import BaseModel
 
+class AutotradeConfig(BaseModel):
+    magic: str
+    strategy: str
+    winrate: str
+    lot_mode: str
 
+@app.post("/api/autotrade/config")
+async def update_autotrade_config(config: AutotradeConfig):
+    import os
+    os.environ["AUTOTRADE_MAGIC"] = config.magic
+    os.environ["AUTOTRADE_STRATEGY"] = config.strategy
+    os.environ["SNIPER_SCORE_THRESHOLD"] = config.winrate
+    os.environ["AUTOTRADE_LOT_MODE"] = config.lot_mode
+    return {"status": "success", "message": f"Config updated: Magic={config.magic}, Mode={config.lot_mode}"}
 
+@app.get("/api/autotrade/status")
+async def get_autotrade_status():
+    import MetaTrader5 as mt5
+    import os
+    from datetime import datetime, timedelta
+
+    magic = int(os.environ.get("AUTOTRADE_MAGIC", "999111"))
+    
+    if not mt5.initialize():
+        return {"error": "MT5 not initialized"}
+        
+    # Get active positions
+    positions = mt5.positions_get(symbol="XAUUSD")
+    active_pos = []
+    if positions:
+        for p in positions:
+            if p.magic == magic:
+                active_pos.append({
+                    "ticket": p.ticket,
+                    "type": "BUY" if p.type == 0 else "SELL",
+                    "volume": p.volume,
+                    "price_open": round(p.price_open, 2),
+                    "price_current": round(p.price_current, 2),
+                    "sl": round(p.sl, 2),
+                    "tp": round(p.tp, 2),
+                    "profit": round(p.profit, 2)
+                })
+                
+    # Get history for today to calculate total trades and win rate
+    date_from = datetime.now() - timedelta(days=30)
+    date_to = datetime.now() + timedelta(days=1)
+    deals = mt5.history_deals_get(date_from, date_to, group="*XAUUSD*")
+    
+    total_trades = 0
+    won_trades = 0
+    net_profit = 0.0
+    
+    if deals:
+        for d in deals:
+            if d.magic == magic and d.entry == mt5.DEAL_ENTRY_OUT:
+                total_trades += 1
+                net_profit += d.profit
+                if d.profit > 0:
+                    won_trades += 1
+                    
+    win_rate = (won_trades / total_trades * 100) if total_trades > 0 else 0
+    
+    return {
+        "status": "success",
+        "active_positions": active_pos,
+        "stats": {
+            "total_trades": total_trades,
+            "win_rate": round(win_rate, 1),
+            "net_profit": round(net_profit, 2)
+        }
+    }
 
 @app.get("/api/v1/qwen/quota")
 async def get_qwen_quota():
@@ -743,6 +943,15 @@ async def get_qwen_quota():
     log_path = "data/qwen_decisions_log.jsonl"
     total_calls = 0
     today_calls = 0
+    app.state.boot_time = datetime.now()
+    # Sync initial state with environment variables so it survives restarts
+    init_at = os.getenv("AUTOTRADE_ENABLED", "False").lower() == "true"
+    init_conf = int(float(os.getenv("CONFIDENCE_THRESHOLD", "0.65")) * 100)
+    app.state.qwen_settings = {
+        "autotrade": init_at,
+        "min_confidence": init_conf,
+        "risk_model": "Conservative"
+    }
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     last_call_ts = None
     last_bias = "N/A"
@@ -822,6 +1031,60 @@ async def inject_news(payload: dict):
             
         return {"status": "SUCCESS", "message": "News injected and Qwen3.7 Macro Strategist triggered."}
     return {"status": "ERROR", "message": "News Engine not initialized."}
+
+@app.get("/api/v1/forecast/narasi")
+async def get_ai_narrative():
+    try:
+        current_price = 0.0
+        if hasattr(app.state, "market_engine") and hasattr(app.state.market_engine, "current_price"):
+            current_price = app.state.market_engine.current_price
+            
+        if current_price == 0.0:
+            import urllib.request
+            import json
+            try:
+                req = urllib.request.Request("https://query1.finance.yahoo.com/v8/finance/chart/GC=F", headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    y_data = json.loads(response.read().decode('utf-8'))
+                    current_price = float(y_data["chart"]["result"][0]["meta"]["regularMarketPrice"])
+            except Exception:
+                pass
+                
+        recent_news = []
+        if hasattr(app.state, "news_engine") and app.state.news_engine:
+            try:
+                feed = app.state.news_engine.news_feed[-5:]
+                for n in feed:
+                    if isinstance(n, dict):
+                        recent_news.append(n.get("headline", ""))
+                    elif isinstance(n, str):
+                        recent_news.append(n)
+            except Exception:
+                pass
+
+        from backend.telegram.zero_token_formatter import generate_ascii_narrative
+        
+        headline = "Macro & Technical Dynamics"
+        if recent_news:
+            headline = recent_news[-1]
+            
+        v39_data = {}
+        if hasattr(app.state, "market_engine") and hasattr(app.state.market_engine, "latest_v39_payload"):
+            v39_data = app.state.market_engine.latest_v39_payload
+            
+        narasi = generate_ascii_narrative(v39_data, current_price, headline)
+        
+        if hasattr(app.state, "market_engine"):
+            app.state.market_engine.latest_narrative = narasi
+            
+        return {"status": "SUCCESS", "narrative": narasi}
+    except Exception as outer_e:
+        import traceback
+        return {"status": "ERROR", "message": str(outer_e), "traceback": traceback.format_exc()}
+
+@app.get("/api/v1/debug_qwen")
+def debug_qwen():
+    return getattr(app.state, "qwen_settings", {})
 
 @app.get("/api/v1/forecast/10day")
 async def get_10day_forecast():
@@ -1347,6 +1610,12 @@ async def websocket_endpoint(websocket: WebSocket):
                         
                         os.environ["ACTIVE_RISK_PROFILE"] = active_risk_profile
                         
+                        # Sync to Qwen settings so UI_ON gate check correctly mirrors this toggle
+                        if not hasattr(app.state, "qwen_settings"):
+                            app.state.qwen_settings = {}
+                        app.state.qwen_settings["autotrade"] = autotrade
+                        app.state.qwen_settings["min_confidence"] = confidence * 100 # Frontend uses 0.65 for confidence, backend UI check expects 65
+                        
                         # Persist settings to .env file
                         save_settings_to_env(autotrade, lot_size, confidence, sniper_score, sniper_lot, max_positions, hedging_enabled, auto_lot, risk_percent, active_method)
                         
@@ -1388,23 +1657,34 @@ async def websocket_endpoint(websocket: WebSocket):
                                     # If ALL, do nothing to autotrade flags. Let them manage it per asset if needed.
                                     pass
                                     
-                        if hasattr(app.state, "decision_engine"):
-                            app.state.decision_engine.confidence_threshold = confidence
-                        logger.info(f"Settings updated via UI: autotrade={autotrade}, lot_size={lot_size}, confidence={confidence}, max_positions={max_positions}, hedging={hedging_enabled}, auto_lot={auto_lot}, risk_percent={risk_percent}, active_method={active_method}")
+                        logger.info(f"Global settings updated via UI: active_asset={active_asset}, active_method={active_method}, active_risk_profile={active_risk_profile}")
                         
-                        # Broadcast settings updated to all clients
+                        # Broadcast global settings updated to all clients
                         await ws_manager.broadcast(json.dumps({
-                            "type": "settings_updated",
-                            "autotrade": autotrade,
-                            "lot_size": lot_size,
-                            "confidence_threshold": confidence,
-                            "max_positions": max_positions,
-                            "hedging_enabled": hedging_enabled,
-                            "auto_lot": auto_lot,
-                            "risk_percent": risk_percent,
-                            "active_method": active_method
+                            "type": "global_settings_updated",
+                            "active_asset": active_asset,
+                            "active_method": active_method,
+                            "active_risk_profile": active_risk_profile
                         }))
-                    elif payload.get("action") == "shutdown":
+                    elif payload.get("action") == "update_qwen_settings":
+                        at_val = payload.get("autotrade", False)
+                        if isinstance(at_val, str):
+                            at_val = at_val.lower() == 'true'
+                        mc_val = payload.get("min_confidence", 61)
+                        try:
+                            mc_val = int(mc_val) if mc_val is not None else 61
+                        except (ValueError, TypeError):
+                            mc_val = 61
+                            
+                        app.state.qwen_settings = {
+                            "autotrade": bool(at_val),
+                            "min_confidence": mc_val,
+                            "risk_model": payload.get("risk_model", "Conservative")
+                        }
+                        with open("test_debug.log", "a") as f:
+                            f.write(f"[WS] update_qwen_settings received: {app.state.qwen_settings}\n")
+                        logger.info(f"Qwen Autotrade Settings Updated: {app.state.qwen_settings}")
+                    elif payload.get("action") == "server_shutdown":
                         logger.warning("Shutdown command received from UI. Closing server...")
                         import signal
                         # Send ack before killing process
@@ -1448,6 +1728,158 @@ async def websocket_endpoint(websocket: WebSocket):
                     logging.getLogger("xedy.websocket").error(f"WS Exception in main: {e}")
     except WebSocketDisconnect:
         ws_manager.disconnect(websocket)
+
+class ManualExecuteRequest(BaseModel):
+    action: str
+    volume: float
+    sl_pips: int = 0
+
+@app.post("/api/manual/execute")
+async def manual_execute(req: ManualExecuteRequest):
+    import MetaTrader5 as mt5
+    if not mt5.initialize():
+        return {"status": "error", "message": "MT5 not initialized"}
+        
+    symbol = "XAUUSD"
+    action = req.action.upper()
+    volume = req.volume
+    magic = 777777
+    
+    symbol_info = mt5.symbol_info(symbol)
+    if symbol_info is None:
+        return {"status": "error", "message": f"{symbol} not found"}
+        
+    sl = 0.0
+    point = symbol_info.point
+    # In MT5, 1 pip = 10 points
+    pip_size = 10 * point
+        
+    if action == "BUY":
+        order_type = mt5.ORDER_TYPE_BUY
+        price = mt5.symbol_info_tick(symbol).ask
+        if req.sl_pips > 0:
+            sl = price - (req.sl_pips * pip_size)
+    elif action == "SELL":
+        order_type = mt5.ORDER_TYPE_SELL
+        price = mt5.symbol_info_tick(symbol).bid
+        if req.sl_pips > 0:
+            sl = price + (req.sl_pips * pip_size)
+    else:
+        return {"status": "error", "message": "Invalid action"}
+        
+    request = {
+        "action": mt5.TRADE_ACTION_DEAL,
+        "symbol": symbol,
+        "volume": float(volume),
+        "type": order_type,
+        "price": price,
+        "deviation": 20,
+        "magic": magic,
+        "comment": "Manual Scalping",
+        "type_time": mt5.ORDER_TIME_GTC,
+        "type_filling": mt5.ORDER_FILLING_IOC,
+    }
+    
+    if sl > 0.0:
+        request["sl"] = sl
+
+    
+    result = mt5.order_send(request)
+    if result.retcode != mt5.TRADE_RETCODE_DONE:
+        return {"status": "error", "message": f"Order failed: {result.comment} (Code: {result.retcode})"}
+        
+    return {"status": "success", "ticket": result.order, "price": result.price}
+
+class ManualCloseRequest(BaseModel):
+    ticket: int
+
+@app.post("/api/manual/close")
+async def manual_close(req: ManualCloseRequest):
+    import MetaTrader5 as mt5
+    if not mt5.initialize():
+        return {"status": "error", "message": "MT5 not initialized"}
+        
+    positions = mt5.positions_get(ticket=req.ticket)
+    if not positions:
+        return {"status": "error", "message": "Position not found"}
+        
+    pos = positions[0]
+    symbol = pos.symbol
+    
+    if pos.type == mt5.ORDER_TYPE_BUY:
+        order_type = mt5.ORDER_TYPE_SELL
+        price = mt5.symbol_info_tick(symbol).bid
+    else:
+        order_type = mt5.ORDER_TYPE_BUY
+        price = mt5.symbol_info_tick(symbol).ask
+        
+    request = {
+        "action": mt5.TRADE_ACTION_DEAL,
+        "symbol": symbol,
+        "volume": pos.volume,
+        "type": order_type,
+        "position": pos.ticket,
+        "price": price,
+        "deviation": 20,
+        "magic": 777777,
+        "comment": "Manual Close",
+        "type_time": mt5.ORDER_TIME_GTC,
+        "type_filling": mt5.ORDER_FILLING_IOC,
+    }
+    
+    result = mt5.order_send(request)
+    if result.retcode != mt5.TRADE_RETCODE_DONE:
+        return {"status": "error", "message": f"Close failed: {result.comment}"}
+        
+    return {"status": "success", "message": f"Closed ticket {req.ticket}"}
+
+@app.get("/api/manual/status")
+async def manual_status():
+    import MetaTrader5 as mt5
+    from datetime import datetime, timedelta
+    if not mt5.initialize():
+        return {"status": "error", "message": "MT5 not initialized"}
+        
+    magic = 777777
+    active_pos = []
+    positions = mt5.positions_get(symbol="XAUUSD")
+    if positions:
+        for p in positions:
+            if p.magic == magic:
+                active_pos.append({
+                    "ticket": p.ticket,
+                    "type": "BUY" if p.type == 0 else "SELL",
+                    "volume": p.volume,
+                    "price_open": round(p.price_open, 2),
+                    "price_current": round(p.price_current, 2),
+                    "sl": round(p.sl, 2),
+                    "tp": round(p.tp, 2),
+                    "profit": round(p.profit, 2)
+                })
+                
+    history = []
+    date_from = datetime.now() - timedelta(days=1)
+    date_to = datetime.now() + timedelta(days=1)
+    deals = mt5.history_deals_get(date_from, date_to, group="*XAUUSD*")
+    
+    if deals:
+        deals = sorted(deals, key=lambda x: x.time, reverse=True)
+        for d in deals:
+            if d.magic == magic and d.entry == mt5.DEAL_ENTRY_OUT:
+                history.append({
+                    "ticket": d.ticket,
+                    "type": "BUY" if d.type == 0 else "SELL",
+                    "volume": d.volume,
+                    "price": round(d.price, 2),
+                    "profit": round(d.profit, 2),
+                    "time": datetime.fromtimestamp(d.time).strftime("%H:%M:%S")
+                })
+                
+    return {
+        "status": "success",
+        "active_positions": active_pos,
+        "history": history
+    }
 
 # Mount static files for the frontend
 app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")

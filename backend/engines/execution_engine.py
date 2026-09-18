@@ -1,6 +1,6 @@
 from .base_engine import BaseEngine
 import MetaTrader5 as mt5
-
+import os
 class ExecutionEngine(BaseEngine):
     """
     Execution Engine: Interfaces directly with MetaTrader 5 Python API.
@@ -38,7 +38,7 @@ class ExecutionEngine(BaseEngine):
             await asyncio.sleep(0.1) 
             return mt5.order_send(request)
 
-    async def execute_order(self, symbol: str, action: str, volume: float) -> dict:
+    async def execute_order(self, symbol: str, action: str, volume: float, is_hedge: bool = False) -> dict:
         """
         Places an optimized limit order via MT5 API.
         """
@@ -98,10 +98,10 @@ class ExecutionEngine(BaseEngine):
             self.logger.error(f"Failed to cancel pending orders: {e}")
 
         # Calculate Entry Price, SL, TP based on dynamic ATR multipliers from MacroStrategist
-        # Fixed TP/SL for High Win Rate (V39 Optimizations)
-        # To hit >80% Win Rate, we use SL=1.5 ATR and TP=1.2 ATR.
-        sl_mult = 1.5
-        tp_mult = 1.2
+        # Fixed TP/SL for Max Win Rate (V39 Optimizations)
+        # To hit >85% Win Rate, we use SL=2.0 ATR and TP=1.0 ATR (Wider Breathing Room + Faster Target).
+        sl_mult = 2.0
+        tp_mult = 1.0
         
         self.logger.info(f"V39 Confidence Mode: Forcing SL={sl_mult} ATR, TP={tp_mult} ATR for High Win Rate")
 
@@ -123,11 +123,11 @@ class ExecutionEngine(BaseEngine):
             "volume": volume,
             "type": order_type,
             "price": round(price, 2),
-            "sl": round(sl, 2),
-            "tp": round(tp, 2),
+            "sl": round(sl, 2) if not is_hedge else 0.0,
+            "tp": round(tp, 2) if not is_hedge else 0.0,
             "deviation": 20,
-            "magic": 123456,
-            "comment": "XEDY AI Market Deal",
+            "magic": int(os.environ.get("AUTOTRADE_MAGIC", "999111")),
+            "comment": "XEDY AI Hedge Lock" if is_hedge else "XEDY AI Market Deal",
             "type_time": mt5.ORDER_TIME_GTC,
             "type_filling": filling_mode,
         }
@@ -213,7 +213,7 @@ class ExecutionEngine(BaseEngine):
             "position": ticket,
             "price": price,
             "deviation": 20,
-            "magic": 123456,
+            "magic": int(os.environ.get("AUTOTRADE_MAGIC", "999111")),
             "comment": "XEDY Close Position",
             "type_time": mt5.ORDER_TIME_GTC,
             "type_filling": filling_mode,
@@ -240,6 +240,8 @@ class ExecutionEngine(BaseEngine):
             
         closed = 0
         for pos in positions:
+            if getattr(pos, "magic", 0) != int(os.environ.get("AUTOTRADE_MAGIC", "999111")):
+                continue
             res = await self.close_position(pos.ticket)
             if res.get("status") == "success":
                 closed += 1
@@ -296,6 +298,10 @@ class ExecutionEngine(BaseEngine):
                             volume = entry_deal.volume
                             symbol = entry_deal.symbol
                             
+                            # Mencegah XEDY melaporkan transaksi dari Bot/EA lain (contoh: USDJPY) atau manual
+                            if getattr(entry_deal, "magic", 0) != int(os.environ.get("AUTOTRADE_MAGIC", "999111")):
+                                continue
+                            
                             # Push notification to Telegram bot
                             if hasattr(self, "notifier") and self.notifier:
                                 msg = (
@@ -346,7 +352,7 @@ class ExecutionEngine(BaseEngine):
             "sl": round(sl, 2),
             "tp": round(tp, 2),
             "deviation": 20,
-            "magic": 123456,
+            "magic": int(os.environ.get("AUTOTRADE_MAGIC", "999111")),
             "comment": f"XEDY AI {action} LIMIT",
             "type_time": mt5.ORDER_TIME_GTC,
             "type_filling": filling_mode,

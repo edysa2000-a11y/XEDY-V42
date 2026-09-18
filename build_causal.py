@@ -7,12 +7,10 @@ os.makedirs(engines_dir, exist_ok=True)
 event_code = """
 import logging
 from backend.engines.base_engine import BaseEngine
-from backend.engines.aivene_client import AiveneClient
 
-class EventShockEngine(BaseEngine):
+class V39CausalEngine(BaseEngine):
     def __init__(self, config=None):
         super().__init__(config)
-        self.client = AiveneClient()
         self.shock_score = 0.0
         
     @property
