@@ -132,11 +132,9 @@ def fetch_tradingview_prices():
         print(f"[ERROR] TV fetch error: {e}")
     return prices
 
-def run():
-    print(f"[INFO] Running S/R Monitor Engine on GitHub Actions ({now_wib.strftime('%Y-%m-%d %H:%M:%S WIB')})...")
-    state = load_state()
+def check_once(state):
+    now_wib = datetime.now(WIB)
     tv_prices = fetch_tradingview_prices()
-    
     current_price_data = {}
     
     for symbol, cfg in CONFIG.items():
@@ -185,7 +183,7 @@ def run():
         prev_state = state["current_state"].get(symbol, "NORMAL")
         digits = cfg["digits"]
         
-        # State Machine Anti-Spam Trigger
+        # State Machine Anti-Spam Trigger (Alert ONLY on state change)
         if raw_state != prev_state:
             state["current_state"][symbol] = raw_state
             
@@ -291,7 +289,41 @@ def run():
         print("[INFO] Hourly Report triggered from GitHub Actions.")
 
     save_state(state)
-    print("[INFO] S/R Monitor Engine execution complete on GitHub Actions.")
+    return current_price_data
+
+def run():
+    import time
+    is_once = "--once" in sys.argv or os.getenv("SR_ONCE") == "1"
+    
+    state = load_state()
+    
+    if is_once:
+        print(f"[INFO] Running single check (--once)...")
+        check_once(state)
+        return
+        
+    print(f"[INFO] Starting S/R Monitor 1-Minute Loop on GitHub Actions (Solusi A: 240s runtime)...")
+    start_time = time.time()
+    iteration = 1
+    
+    while time.time() - start_time < 240:
+        now_str = datetime.now(WIB).strftime("%H:%M:%S WIB")
+        print(f"[INFO] [Iter {iteration} | {now_str}] Checking live S/R prices...")
+        try:
+            check_once(state)
+        except Exception as e:
+            print(f"[ERROR] Error in check iteration: {e}")
+            
+        iteration += 1
+        elapsed = time.time() - start_time
+        remaining = 240 - elapsed
+        if remaining > 10:
+            sleep_time = min(60.0, remaining)
+            time.sleep(sleep_time)
+        else:
+            break
+            
+    print("[INFO] S/R Monitor Engine 4-minute cycle complete on GitHub Actions.")
 
 if __name__ == "__main__":
     run()
