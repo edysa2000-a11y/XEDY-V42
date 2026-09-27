@@ -61,13 +61,36 @@ class SRMonitorEngine:
         logger.info("AI Real-Time Support & Resistance Monitor dihentikan.")
 
     async def _send_safe(self, text: str):
+        token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+        admin_id = self.admin_id or int(os.environ.get("TELEGRAM_ADMIN_ID", "0"))
+        
         try:
-            if self.bot and self.admin_id:
-                await self.bot.send_message(chat_id=self.admin_id, text=text, parse_mode="HTML")
+            if self.bot and admin_id:
+                await self.bot.send_message(chat_id=admin_id, text=text, parse_mode="HTML")
+            elif token and admin_id:
+                await self._send_http(token, admin_id, text)
             else:
                 logger.warning(f"[TELEGRAM NOT SENT] {text[:60]}...")
         except Exception as e:
-            logger.error(f"Failed to send Telegram S/R Monitor message: {e}")
+            logger.warning(f"aiogram bot send failed: {e}. Trying urllib fallback...")
+            if token and admin_id:
+                await self._send_http(token, admin_id, text)
+
+    async def _send_http(self, token: str, chat_id: int, text: str):
+        import urllib.request
+        import json
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = {"chat_id": chat_id, "text": text, "parse_mode": "HTML"}
+        loop = asyncio.get_running_loop()
+        def _do_post():
+            data_bytes = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=data_bytes, headers={"Content-Type": "application/json"}, method="POST")
+            with urllib.request.urlopen(req, timeout=10.0) as resp:
+                resp.read()
+        try:
+            await loop.run_in_executor(None, _do_post)
+        except Exception as ex:
+            logger.error(f"urllib Telegram fallback failed: {ex}")
 
     async def _monitor_loop(self):
         while self._running:
