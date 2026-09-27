@@ -79,8 +79,9 @@ jobs:
           
           # Clean repository files
           git rm -rf . > /dev/null 2>&1 || true
-          rm -rf backend frontend docs models tests .github
-          mv temp_data/data .
+          rm -rf backend frontend docs models tests .github data
+          mkdir -p data
+          cp -r temp_data/data/* data/ || true
           rm -rf temp_data
           
           # Commit and force push to overwrite remote branch with zero history
