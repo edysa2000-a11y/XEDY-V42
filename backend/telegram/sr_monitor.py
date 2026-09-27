@@ -282,46 +282,56 @@ class SRMonitorEngine:
             await self._send_safe(msg)
 
     async def send_instant_alert(self, symbol: str, mid: float, supp: float, res: float, dist_s: float, dist_r: float, status: str, now_wib: datetime) -> str:
-        time_str = now_wib.strftime("%H:%M:%S WIB")
         digits = self.CONFIG[symbol]["digits"]
         
-        status_formatted = ""
-        is_high_priority = False
-        
         if status == "NEAR_SUPPORT":
-            status_formatted = "🔴 NEAR SUPPORT"
+            dist = round(mid - supp, digits)
+            dist_pct = round((mid - supp) / supp * 100.0, 2)
+            msg = (
+                f"🚨 <b>S/R ALERT — NEAR SUPPORT</b>\n\n"
+                f"<b>{symbol}</b>\n"
+                f"Price: {mid:.{digits}f}\n"
+                f"🔒 Support: {supp:.{digits}f}\n"
+                f"Distance: +{dist:.{digits}f}\n"
+                f"Distance: +{dist_pct:.2f}%\n\n"
+                f"⚠️ <b>PRICE NEAR SUPPORT</b>"
+            )
         elif status == "NEAR_RESISTANCE":
-            status_formatted = "🟢 NEAR RESISTANCE"
+            dist = round(res - mid, digits)
+            dist_pct = round((res - mid) / res * 100.0, 2)
+            msg = (
+                f"🚨 <b>S/R ALERT — NEAR RESISTANCE</b>\n\n"
+                f"<b>{symbol}</b>\n"
+                f"Price: {mid:.{digits}f}\n"
+                f"🔒 Resistance: {res:.{digits}f}\n"
+                f"Distance: +{dist:.{digits}f}\n"
+                f"Distance: +{dist_pct:.2f}%\n\n"
+                f"⚠️ <b>PRICE NEAR RESISTANCE</b>"
+            )
         elif status == "BREAKOUT":
-            status_formatted = "🚨 BREAKOUT"
-            is_high_priority = True
+            msg = (
+                f"🚨🚨 <b>BREAKOUT ALERT</b>\n\n"
+                f"<b>{symbol}</b>\n"
+                f"Price: {mid:.{digits}f}\n"
+                f"🔒 Resistance: {res:.{digits}f}\n\n"
+                f"<b>BREAKOUT RESISTANCE</b>"
+            )
         elif status == "BREAKDOWN":
-            status_formatted = "⚠️ BREAKDOWN"
-            is_high_priority = True
+            msg = (
+                f"🚨🚨 <b>BREAKDOWN ALERT</b>\n\n"
+                f"<b>{symbol}</b>\n"
+                f"Price: {mid:.{digits}f}\n"
+                f"🔒 Support: {supp:.{digits}f}\n\n"
+                f"<b>BREAKDOWN SUPPORT</b>"
+            )
         else: # NORMAL (No alert needed when returning to NORMAL)
             return "NONE"
 
-        header = "🚨🚨 <b>HIGH PRIORITY ALERT</b>" if is_high_priority else "🚨 <b>S/R ALERT</b>"
-
-        msg = (
-            f"{header}\n\n"
-            f"<b>{symbol}</b>\n"
-            f"Price: {mid:.{digits}f}\n"
-            f"Support: {supp:.{digits}f}\n"
-            f"Resistance: {res:.{digits}f}\n\n"
-            f"Status:\n{status_formatted}\n\n"
-            f"Distance S: {dist_s:+.{digits}f}\n"
-            f"Distance R: {dist_r:+.{digits}f}\n\n"
-            f"Time: {time_str}"
-        )
         await self._send_safe(msg)
         return f"SENT ({status})"
 
     async def send_hourly_report(self, now_wib: datetime):
-        time_str = now_wib.strftime("%H:%M WIB")
-        
         blocks = []
-        alert_statuses = []
         
         for symbol, cfg in self.CONFIG.items():
             data = self.last_price_data.get(symbol)
@@ -332,48 +342,29 @@ class SRMonitorEngine:
                 dist_s = f"{data['dist_s']:+.{digits}f}"
                 dist_r = f"{data['dist_r']:+.{digits}f}"
                 st = data["status"]
-                
-                if st == "NEAR_SUPPORT":
-                    st_fmt = "🔴 NEAR SUPPORT"
-                elif st == "NEAR_RESISTANCE":
-                    st_fmt = "🟢 NEAR RESISTANCE"
-                elif st == "BREAKOUT":
-                    st_fmt = "🚨 BREAKOUT"
-                elif st == "BREAKDOWN":
-                    st_fmt = "⚠️ BREAKDOWN"
-                else:
-                    st_fmt = "🟢 NORMAL"
             else:
                 live_price = "N/A"
                 dist_s = "N/A"
                 dist_r = "N/A"
                 st = "NO DATA"
-                st_fmt = "⚠️ NO DATA"
                 
-            icon = "🟡" if symbol == "XAUUSD" else "💴"
             block = (
-                f"{icon} <b>{symbol}</b>\n"
-                f"💰 Live: <b>{live_price}</b>\n"
-                f"S: <b>{cfg['support']:.{digits}f}</b>\n"
-                f"R: <b>{cfg['resistance']:.{digits}f}</b>\n"
-                f"Distance S: {dist_s}\n"
-                f"Distance R: {dist_r}\n"
-                f"Status: {st_fmt}"
+                f"<b>{symbol}</b>\n"
+                f"• Live: {live_price}\n"
+                f"• 🔒 S: {cfg['support']:.{digits}f}\n"
+                f"• Distance S: {dist_s}\n"
+                f"• 🔒 R: {cfg['resistance']:.{digits}f}\n"
+                f"• Distance R: {dist_r}\n"
+                f"• Status: {st}"
             )
             blocks.append(block)
-            alert_statuses.append(f"{symbol}: {st}")
 
         report_msg = (
-            f"📊 <b>HOURLY S/R MARKET REPORT</b>\n"
-            f"⏰ Time: {time_str}\n"
-            f"━━━━━━━━━━━━━━\n" +
-            "\n━━━━━━━━━━━━━━\n".join(blocks) +
-            f"\n━━━━━━━━━━━━━━\n"
-            f"<b>### ALERT STATUS</b>\n" +
-            "\n".join(alert_statuses)
+            f"📊 <b>S/R HOURLY REPORT</b>\n\n" +
+            "\n\n".join(blocks)
         )
         await self._send_safe(report_msg)
-        logger.info(f"Hourly S/R Market Report sent at {time_str}.")
+        logger.info(f"Hourly S/R Market Report sent.")
 
     def get_current_status_summary(self) -> str:
         now_wib = datetime.now(WIB)
