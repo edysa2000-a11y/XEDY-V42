@@ -3,6 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from .handlers import register_handlers
 from .notifier import TelegramNotifier
+from .sr_monitor import SRMonitorEngine
 import os
 
 logger = logging.getLogger("xedy.telegram.bot")
@@ -18,6 +19,7 @@ class TelegramEcosystem:
         self.bot = None
         self.dp = None
         self.notifier = None
+        self.sr_monitor = SRMonitorEngine()
         self._polling_task = None
 
     async def start(self):
@@ -32,8 +34,11 @@ class TelegramEcosystem:
         # Inisialisasi service
         self.notifier = TelegramNotifier(self.bot, self.admin_id)
         
+        # Start AI S/R Monitor Engine
+        await self.sr_monitor.start(bot=self.bot, admin_id=self.admin_id)
+        
         # Registrasi routing
-        register_handlers(self.dp, self.admin_id)
+        register_handlers(self.dp, self.admin_id, sr_monitor=self.sr_monitor)
         
         # Mulai long-polling sebagai background task
         self._polling_task = asyncio.create_task(self._poll())
@@ -50,6 +55,8 @@ class TelegramEcosystem:
                 await asyncio.sleep(5)  # Sleep and retry in case of connection drop
 
     async def stop(self):
+        if hasattr(self, "sr_monitor") and self.sr_monitor:
+            await self.sr_monitor.stop()
         if self._polling_task:
             self._polling_task.cancel()
         if self.bot:

@@ -54,26 +54,8 @@ def render_report_image(template_data, output_path="data/report.png"):
         return False
 
 def send_telegram_notification(token, chat_id, text):
-    if not token or not chat_id:
-        return
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {
-        "chat_id": chat_id,
-        "text": text,
-        "parse_mode": "HTML"
-    }
-    try:
-        data_bytes = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(
-            url, 
-            data=data_bytes, 
-            headers={"Content-Type": "application/json"}, 
-            method="POST"
-        )
-        with urllib.request.urlopen(req, timeout=10.0) as r:
-            r.read()
-    except Exception as e:
-        print(f"Failed to send Telegram message: {e}")
+    # Muted: Telegram is reserved exclusively for AI S/R Monitor (XAUUSD & USDJPY)
+    return
 
 def translate_to_id(text):
     if not text:

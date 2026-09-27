@@ -21,24 +21,8 @@ POLL_INTERVAL_SECONDS = 30
 ACTIVE_TICKETS = set()
 
 def send_telegram_msg(text):
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_ADMIN_ID:
-        return
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": TELEGRAM_ADMIN_ID,
-        "text": text,
-        "parse_mode": "HTML"
-    }
-    try:
-        req = urllib.request.Request(
-            url, 
-            data=json.dumps(payload).encode("utf-8"), 
-            headers={"Content-Type": "application/json"}, 
-            method="POST"
-        )
-        urllib.request.urlopen(req, timeout=5)
-    except Exception as e:
-        print(f"[ERROR] Failed to send Telegram message: {e}")
+    # Muted: Telegram is reserved exclusively for AI S/R Monitor (XAUUSD & USDJPY)
+    return
 
 def fetch_cloud_json():
     try:
