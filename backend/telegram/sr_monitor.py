@@ -118,20 +118,47 @@ class SRMonitorEngine:
                 await self._handle_data_error(sym, "MT5 INITIALIZATION FAILED")
             return
 
+        is_weekend = now_wib.weekday() in [5, 6] # 5=Saturday, 6=Sunday
+
         for symbol, cfg in self.CONFIG.items():
-            tick = mt5.symbol_info_tick(symbol)
-            if not tick:
-                await self._handle_data_error(symbol, "MT5 PRICE UNAVAILABLE")
-                continue
-                
-            bid = float(tick.bid)
-            ask = float(tick.ask)
+            # Try symbol aliases (e.g. XAUUSD, GOLD, XAUUSD.a, XAUUSDm, USDJPY, USDJPY.a, USDJPYm)
+            aliases = [symbol]
+            if symbol == "XAUUSD":
+                aliases.extend(["GOLD", "XAUUSD.a", "XAUUSDm", "XAUUSD.i", "XAUUSD_i"])
+            elif symbol == "USDJPY":
+                aliases.extend(["USDJPY.a", "USDJPYm", "USDJPY.i", "USDJPY_i"])
+
+            tick = None
+            found_symbol = symbol
+            for alias in aliases:
+                t = mt5.symbol_info_tick(alias)
+                if t and t.bid > 0:
+                    tick = t
+                    found_symbol = alias
+                    break
+
+            bid = 0.0
+            ask = 0.0
+            if tick and tick.bid > 0:
+                bid = float(tick.bid)
+                ask = float(tick.ask)
+            else:
+                # Try getting last closed M1 rate if tick stream is unavailable
+                rates = mt5.copy_rates_from_pos(found_symbol, mt5.TIMEFRAME_M1, 0, 1)
+                if rates is not None and len(rates) > 0:
+                    c_price = float(rates[-1][4])
+                    bid = c_price
+                    ask = c_price
+                else:
+                    await self._handle_data_error(symbol, "MT5 PRICE UNAVAILABLE")
+                    continue
+
             mid = round((bid + ask) / 2.0, cfg["digits"])
             
-            # Check price freshness (if tick is older than 2 minutes, treat as stale)
+            # Check price freshness (Enforce >300s stale check ONLY on weekdays when market is OPEN)
             now_ts = datetime.now().timestamp()
-            if tick.time > 0 and (now_ts - tick.time) > 120:
-                await self._handle_data_error(symbol, "MT5 PRICE STALE (>120s)")
+            if not is_weekend and tick and tick.time > 0 and (now_ts - tick.time) > 300:
+                await self._handle_data_error(symbol, "MT5 PRICE STALE (>300s)")
                 continue
 
             # Calculate distances
