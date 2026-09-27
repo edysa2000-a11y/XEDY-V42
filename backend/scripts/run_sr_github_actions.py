@@ -1,5 +1,11 @@
 import sys
 import os
+
+# Ensure root workspace is in sys.path
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 import json
 import urllib.request
 from datetime import datetime, timezone, timedelta
@@ -64,6 +70,38 @@ def send_telegram(text):
             print("[INFO] Telegram alert sent successfully from GitHub Actions.")
     except Exception as e:
         print(f"[ERROR] Failed to send Telegram: {e}")
+
+def send_telegram_photo(photo_bytes, caption=""):
+    if not TOKEN or not ADMIN_ID:
+        print("[WARN] Telegram secrets missing. Printing photo caption:\n" + caption)
+        return
+    import uuid
+    boundary = uuid.uuid4().hex
+    url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
+    
+    parts = []
+    parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"chat_id\"\r\n\r\n{ADMIN_ID}\r\n".encode("utf-8"))
+    if caption:
+        parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"caption\"\r\n\r\n{caption}\r\n".encode("utf-8"))
+        parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"parse_mode\"\r\n\r\nHTML\r\n".encode("utf-8"))
+    parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"photo\"; filename=\"weekly_sr.png\"\r\nContent-Type: image/png\r\n\r\n".encode("utf-8"))
+    parts.append(photo_bytes)
+    parts.append(f"\r\n--{boundary}--\r\n".encode("utf-8"))
+    
+    body = b"".join(parts)
+    try:
+        req = urllib.request.Request(
+            url,
+            data=body,
+            headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=15) as r:
+            r.read()
+            print("[INFO] Telegram S/R photo card sent successfully from GitHub Actions.")
+    except Exception as e:
+        print(f"[ERROR] Failed to send Telegram photo: {e}")
+        send_telegram(caption)
 
 def fetch_tradingview_prices():
     url = "https://scanner.tradingview.com/global/scan"
@@ -231,7 +269,25 @@ def run():
             f"📊 <b>S/R HOURLY REPORT</b>\n\n" +
             "\n\n".join(blocks)
         )
-        send_telegram(report_msg)
+        try:
+            from backend.telegram.sr_image_generator import generate_sr_card_bytes
+            x_data = current_price_data.get("XAUUSD", {})
+            j_data = current_price_data.get("USDJPY", {})
+            photo_bytes = generate_sr_card_bytes(
+                xau_price=x_data.get("mid", 4285.00),
+                xau_support=CONFIG["XAUUSD"]["support"],
+                xau_resistance=CONFIG["XAUUSD"]["resistance"],
+                xau_status=x_data.get("status", "NORMAL"),
+                jpy_price=j_data.get("mid", 157.29),
+                jpy_support=CONFIG["USDJPY"]["support"],
+                jpy_resistance=CONFIG["USDJPY"]["resistance"],
+                jpy_status=j_data.get("status", "NORMAL"),
+                now_wib=now_wib
+            )
+            send_telegram_photo(photo_bytes, report_msg)
+        except Exception as e:
+            print(f"[WARN] Failed to generate/send card photo: {e}")
+            send_telegram(report_msg)
         print("[INFO] Hourly Report triggered from GitHub Actions.")
 
     save_state(state)

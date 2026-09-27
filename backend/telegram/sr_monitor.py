@@ -92,6 +92,59 @@ class SRMonitorEngine:
         except Exception as ex:
             logger.error(f"urllib Telegram fallback failed: {ex}")
 
+    async def _send_photo(self, photo_bytes: bytes, caption: str = ""):
+        token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+        admin_id = self.admin_id or int(os.environ.get("TELEGRAM_ADMIN_ID", "0"))
+        
+        try:
+            if self.bot and admin_id:
+                from aiogram.types import BufferedInputFile
+                input_file = BufferedInputFile(photo_bytes, filename="weekly_sr_monitor.png")
+                await self.bot.send_photo(chat_id=admin_id, photo=input_file, caption=caption, parse_mode="HTML")
+                logger.info("S/R Card Photo sent via aiogram.")
+                return
+            elif token and admin_id:
+                await self._send_photo_http(token, admin_id, photo_bytes, caption)
+                return
+        except Exception as e:
+            logger.warning(f"aiogram photo send failed: {e}. Trying urllib fallback...")
+            if token and admin_id:
+                await self._send_photo_http(token, admin_id, photo_bytes, caption)
+
+    async def _send_photo_http(self, token: str, chat_id: int, photo_bytes: bytes, caption: str = ""):
+        import urllib.request
+        import uuid
+        boundary = uuid.uuid4().hex
+        url = f"https://api.telegram.org/bot{token}/sendPhoto"
+        
+        parts = []
+        parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"chat_id\"\r\n\r\n{chat_id}\r\n".encode("utf-8"))
+        if caption:
+            parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"caption\"\r\n\r\n{caption}\r\n".encode("utf-8"))
+            parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"parse_mode\"\r\n\r\nHTML\r\n".encode("utf-8"))
+        parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"photo\"; filename=\"weekly_sr.png\"\r\nContent-Type: image/png\r\n\r\n".encode("utf-8"))
+        parts.append(photo_bytes)
+        parts.append(f"\r\n--{boundary}--\r\n".encode("utf-8"))
+        
+        body = b"".join(parts)
+        loop = asyncio.get_running_loop()
+        def _do_post():
+            req = urllib.request.Request(
+                url,
+                data=body,
+                headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=20.0) as resp:
+                resp.read()
+        try:
+            await loop.run_in_executor(None, _do_post)
+            logger.info("S/R Card Photo sent via urllib fallback.")
+        except Exception as ex:
+            logger.error(f"urllib Telegram photo send failed: {ex}")
+            if caption:
+                await self._send_safe(caption)
+
     async def _monitor_loop(self):
         while self._running:
             try:
@@ -363,8 +416,42 @@ class SRMonitorEngine:
             f"📊 <b>S/R HOURLY REPORT</b>\n\n" +
             "\n\n".join(blocks)
         )
-        await self._send_safe(report_msg)
+        
+        # Generate & Send Visual S/R Card Photo
+        try:
+            photo_bytes = self.generate_current_photo_card(now_wib)
+            await self._send_photo(photo_bytes, caption=report_msg)
+        except Exception as e:
+            logger.error(f"Failed to send hourly S/R photo: {e}")
+            await self._send_safe(report_msg)
+
         logger.info(f"Hourly S/R Market Report sent.")
+
+    def generate_current_photo_card(self, now_wib: datetime = None) -> bytes:
+        from backend.telegram.sr_image_generator import generate_sr_card_bytes
+        if now_wib is None:
+            now_wib = datetime.now(WIB)
+            
+        x_data = self.last_price_data.get("XAUUSD", {})
+        j_data = self.last_price_data.get("USDJPY", {})
+        
+        x_p = x_data.get("mid", 4285.00) if x_data else 4285.00
+        x_st = x_data.get("status", "NORMAL") if x_data else "NORMAL"
+        
+        j_p = j_data.get("mid", 157.29) if j_data else 157.29
+        j_st = j_data.get("status", "NORMAL") if j_data else "NORMAL"
+        
+        return generate_sr_card_bytes(
+            xau_price=x_p,
+            xau_support=self.CONFIG["XAUUSD"]["support"],
+            xau_resistance=self.CONFIG["XAUUSD"]["resistance"],
+            xau_status=x_st,
+            jpy_price=j_p,
+            jpy_support=self.CONFIG["USDJPY"]["support"],
+            jpy_resistance=self.CONFIG["USDJPY"]["resistance"],
+            jpy_status=j_st,
+            now_wib=now_wib
+        )
 
     def get_current_status_summary(self) -> str:
         now_wib = datetime.now(WIB)

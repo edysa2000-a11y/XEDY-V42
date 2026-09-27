@@ -28,7 +28,14 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
             return
         if sr_monitor:
             summary = sr_monitor.get_current_status_summary()
-            await message.answer(summary, parse_mode="HTML")
+            try:
+                from aiogram.types import BufferedInputFile
+                photo_bytes = sr_monitor.generate_current_photo_card()
+                input_file = BufferedInputFile(photo_bytes, filename="weekly_sr_card.png")
+                await message.answer_photo(photo=input_file, caption=summary, parse_mode="HTML")
+            except Exception as e:
+                logger.error(f"Error sending S/R photo on /sr: {e}")
+                await message.answer(summary, parse_mode="HTML")
         else:
             await message.answer("⚠️ S/R Monitor Engine belum diinisialisasi.")
 
