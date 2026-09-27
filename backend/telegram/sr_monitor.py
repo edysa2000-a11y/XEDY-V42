@@ -314,24 +314,24 @@ class SRMonitorEngine:
                 
             icon = "🟡" if symbol == "XAUUSD" else "💴"
             block = (
-                f"{icon} <b>{symbol}</b>\n\n"
-                f"💰 Live: {live_price}\n\n"
+                f"{icon} <b>{symbol}</b>\n"
+                f"💰 Live: <b>{live_price}</b>\n"
                 f"S: <b>{cfg['support']:.{digits}f}</b>\n"
-                f"R: <b>{cfg['resistance']:.{digits}f}</b>\n\n"
+                f"R: <b>{cfg['resistance']:.{digits}f}</b>\n"
                 f"Distance S: {dist_s}\n"
-                f"Distance R: {dist_r}\n\n"
+                f"Distance R: {dist_r}\n"
                 f"Status: {st_fmt}"
             )
             blocks.append(block)
-            alert_statuses.append(f"{symbol}:\n{st}")
+            alert_statuses.append(f"{symbol}: {st}")
 
         report_msg = (
-            f"📊 <b>HOURLY S/R MARKET REPORT</b>\n\n"
-            f"⏰ Time: {time_str}\n\n"
-            f"━━━━━━━━━━━━━━\n\n" +
-            "\n\n━━━━━━━━━━━━━━\n\n".join(blocks) +
-            f"\n\n━━━━━━━━━━━━━━\n\n"
-            f"### ALERT STATUS\n\n" +
+            f"📊 <b>HOURLY S/R MARKET REPORT</b>\n"
+            f"⏰ Time: {time_str}\n"
+            f"━━━━━━━━━━━━━━\n" +
+            "\n━━━━━━━━━━━━━━\n".join(blocks) +
+            f"\n━━━━━━━━━━━━━━\n"
+            f"<b>### ALERT STATUS</b>\n" +
             "\n".join(alert_statuses)
         )
         await self._send_safe(report_msg)
