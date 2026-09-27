@@ -10,8 +10,8 @@ on:
 
 # Concurrency lock to prevent overlapping runs from queueing up if execution takes over 60s
 concurrency:
-  group: data-feed-deploy
-  cancel-in-progress: false
+  group: news-scraper-group
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -42,8 +42,8 @@ jobs:
           git fetch --depth=1 origin data-feed || echo "No previous data-feed branch found."
           git checkout origin/data-feed -- data/ || echo "No previous data directory found."
 
-      - name: Run Cloud News Scraper & S/R Monitor Engine
-        timeout-minutes: 6
+      - name: Run Cloud News Scraper Engine
+        timeout-minutes: 4
         env:
           AIVENE_API_KEY: ${{ secrets.AIVENE_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -52,7 +52,6 @@ jobs:
           python backend/scripts/scrape_news.py || echo "News scraper failed, skipping..."
           python backend/scripts/scrape_oanda_volume.py || echo "Oanda volume scraper failed, skipping..."
           python backend/scripts/scrape_cot.py || echo "COT scraper failed, skipping..."
-          python backend/scripts/run_sr_github_actions.py
 
       - name: Deploy data updates to data-feed branch
         run: |

@@ -6,8 +6,8 @@ on:
   workflow_dispatch: # Allow manual trigger from GitHub UI
 
 concurrency:
-  group: data-feed-deploy
-  cancel-in-progress: false
+  group: claude-forecast-group
+  cancel-in-progress: true
 
 jobs:
   run-daily-forecast:
