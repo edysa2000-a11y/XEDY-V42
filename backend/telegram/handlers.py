@@ -51,11 +51,33 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
         if message.from_user.id != admin_id:
             return
         await message.answer("⏸️ Perintah Jeda Diterima.")
-        
+
     @dp.message(Command("resume"))
     async def cmd_resume(message: Message):
         if message.from_user.id != admin_id:
             return
         await message.answer("▶️ Monitor S/R dilanjutkan.")
+
+    @dp.message(Command("macro", "summary"))
+    async def cmd_macro(message: Message):
+        if message.from_user.id != admin_id:
+            return
+        macro_text = (
+            "🌍 <b>MACRO & FUNDAMENTAL TREND SUMMARY</b>\n"
+            "━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            "🟡 <b>XAUUSD (GOLD) — BIAS: BULLISH (UPTREND)</b>\n"
+            "• <b>Indikator US</b>: Pemangkasan suku bunga The Fed (dovish cycle) menekan Real Yield & DXY, sangat mendongkrak daya tarik emas.\n"
+            "• <b>Geopolitik</b>: Eskalasi Timur Tengah & perang regional memicu pembelian Safe Haven masif serta akumulasi cadangan devisa emas oleh Bank Sentral (PBoC, BRICS).\n"
+            "• <b>Oil & Komoditas</b>: Fluktuasi energi menjaga ekspektasi inflasi tetap tinggi, memperkuat emas sebagai lindung nilai (hedge).\n"
+            "🎯 <i>Key Range: Support 4220.00 | Resistance 4580.00</i>\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            "💴 <b>USDJPY — BIAS: BEARISH / TEKANAN TURUN</b>\n"
+            "• <b>Indikator 2 Negara (US vs Japan)</b>: Divergensi moneter (The Fed memangkas suku bunga vs BOJ menaikkan suku bunga secara bertahap). Penyempitan yield spread memicu <i>Carry Trade Unwind</i> (penguatan Yen).\n"
+            "• <b>Geopolitik</b>: Status Yen sebagai mata uang pendanaan safe haven regional di Asia membatasi ruang penguatan USD.\n"
+            "• <b>Oil Impact</b>: Jepang adalah 90%+ net importir minyak. Penurunan/stabilisasi harga minyak mengurangi beban neraca dagang Jepang, memperkuat Yen (menekan USDJPY turun).\n"
+            "🎯 <i>Key Range: Support 152.80 | Resistance 158.30</i>\n"
+            "━━━━━━━━━━━━━━━━━━━━━━"
+        )
+        await message.answer(macro_text, parse_mode="HTML")
 
     logger.info("Telegram handlers registered.")
