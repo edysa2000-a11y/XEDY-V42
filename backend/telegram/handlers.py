@@ -80,4 +80,40 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
         )
         await message.answer(macro_text, parse_mode="HTML")
 
+    @dp.message(Command("usdjpy", "jpy"))
+    async def cmd_usdjpy(message: Message):
+        if message.from_user.id != admin_id:
+            return
+        
+        cfg = sr_monitor.CONFIG.get("USDJPY", {"support": 152.80, "resistance": 158.30, "digits": 2}) if sr_monitor else {"support": 152.80, "resistance": 158.30, "digits": 2}
+        jdata = sr_monitor.last_price_data.get("USDJPY", {}) if sr_monitor else {}
+        live_p = jdata.get("mid", 157.29)
+        dist_s = jdata.get("dist_s", live_p - cfg["support"])
+        dist_r = jdata.get("dist_r", cfg["resistance"] - live_p)
+        st = jdata.get("status", "NORMAL")
+        
+        text = (
+            "💴 <b>USDJPY — COMPLETE S/R & MACRO SUMMARY</b>\n"
+            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "📊 <b>TECHNICAL & S/R SNAPSHOT</b>\n"
+            f"• 💰 Current Price: <b>{live_p:.2f}</b>\n"
+            f"• 🔒 Resistance: <b>{cfg['resistance']:.2f}</b> (Jarak: {dist_r:+.2f} | {(dist_r/cfg['resistance'])*100:+.2f}%)\n"
+            f"• 🔒 Support: <b>{cfg['support']:.2f}</b> (Jarak: {dist_s:+.2f} | {(dist_s/cfg['support'])*100:+.2f}%)\n"
+            f"• 📍 Status: <b>{st}</b> (Near R: ≥ 157.83 | Near S: ≤ 153.26)\n"
+            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🏛️ <b>1. INDIKATOR EKONOMI 2 NEGARA (US vs JEPANG)</b>\n"
+            "• <b>The Fed (Dovish / Rate Cut)</b>: Pelonggaran suku bunga AS menekan imbal hasil US Treasury 10Y.\n"
+            "• <b>BOJ (Hawkish / Normalisasi)</b>: Inflasi Jepang >2% mendorong Bank of Japan menaikkan suku bunga.\n"
+            "• <b>Yield Spread & Carry Trade</b>: Selisih yield menyempit → Penutupan Carry Trade secara masif → Permintaan Yen naik → USDJPY tertekan turun.\n\n"
+            "⚔️ <b>2. FAKTOR GEOPOLITIK</b>\n"
+            "• <b>Risk-Off Sentiment</b>: Konflik global memperkuat reputasi Yen sebagai mata uang safe haven utama di Asia, membatasi kenaikan USD.\n\n"
+            "🛢️ <b>3. DAMPAK MINYAK & KOMODITAS</b>\n"
+            "• <b>Ketergantungan Energi 90%+</b>: Penurunan atau stabilisasi harga minyak mengurangi beban neraca dagang Jepang, memperkuat fundamental Yen secara bertahap.\n"
+            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🎯 <b>KESIMPULAN & BIAS TREN</b>:\n"
+            "<b>BEARISH / TEKANAN TURUN (Sell on Strength)</b>\n"
+            "Area Resistance 158.30 menjadi benteng pertahanan penjual (rejection zone), dengan target pelemahan menguji area Support 152.80."
+        )
+        await message.answer(text, parse_mode="HTML")
+
     logger.info("Telegram handlers registered.")
