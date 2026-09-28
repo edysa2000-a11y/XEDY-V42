@@ -1,4 +1,11 @@
 {
   "version": 2,
-  "cleanUrls": false
+  "cleanUrls": false,
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "data-feed": false,
+      "*": false
+    }
+  }
 }
