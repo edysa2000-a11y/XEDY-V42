@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XEDY V42 • INFO TAJAM & S/R RADAR</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #05070b;
+            --card-bg: #0a0f18;
+            --card-bg-subtle: #0d1420;
+            --border-dim: #162030;
+            --border-active: #23354c;
+            --gold: #f5c842;
+            --gold-glow: rgba(245, 200, 66, 0.25);
+            --cyan: #45d6ff;
+            --cyan-glow: rgba(69, 214, 255, 0.25);
+            --green: #2bf29a;
+            --green-glow: rgba(43, 242, 154, 0.25);
+            --red: #ff4766;
+            --red-glow: rgba(255, 71, 102, 0.25);
+            --text-main: #f0f4f8;
+            --text-muted: #7b8fa3;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(69, 214, 255, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 85% 15%, rgba(245, 200, 66, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 50% 80%, rgba(43, 242, 154, 0.03) 0%, transparent 50%);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            padding: 16px 12px 60px 12px;
+            letter-spacing: 0.3px;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .main-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        .header-box {
+            background: linear-gradient(180deg, #0d1624 0%, #080c14 100%);
+            border: 1px solid var(--border-dim);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+
+        .badge-live {
+            background: rgba(43, 242, 154, 0.15);
+            color: var(--green);
+            border: 1px solid rgba(43, 242, 154, 0.35);
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px var(--green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(43, 242, 154, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(43, 242, 154, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(43, 242, 154, 0); }
+        }
+
+        /* CARD PAIR STYLING */
+        .pair-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-dim);
+            border-radius: 14px;
+            padding: 22px 20px;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+            transition: border-color 0.3s ease;
+        }
+
+        .pair-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--border-active);
+        }
+
+        .pair-card.card-gold::before {
+            background: linear-gradient(180deg, var(--gold), #997a15);
+        }
+
+        .pair-card.card-jpy::before {
+            background: linear-gradient(180deg, var(--cyan), #1b6485);
+        }
+
+        .pair-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .pair-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pair-status-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .status-normal {
+            background: rgba(69, 214, 255, 0.1);
+            color: var(--cyan);
+            border: 1px solid rgba(69, 214, 255, 0.3);
+        }
+
+        .status-near {
+            background: rgba(245, 200, 66, 0.15);
+            color: var(--gold);
+            border: 1px solid rgba(245, 200, 66, 0.4);
+            animation: pulse-gold 2s infinite;
+        }
+
+        .status-break {
+            background: rgba(255, 71, 102, 0.2);
+            color: var(--red);
+            border: 1px solid rgba(255, 71, 102, 0.5);
+            animation: pulse-red 1s infinite;
+        }
+
+        /* PRICE HERO */
+        .price-display-block {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .price-main {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+        }
+
+        .price-change {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        /* S/R LEVEL BOXES */
+        .level-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .level-box {
+            background: var(--card-bg-subtle);
+            border: 1px solid var(--border-dim);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+
+        .level-box.support {
+            border-left: 3px solid var(--green);
+        }
+
+        .level-box.resistance {
+            border-left: 3px solid var(--red);
+        }
+
+        .level-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .level-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .level-dist {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--cyan);
+            margin-top: 2px;
+        }
+
+        /* GAUGE TRACK */
+        .gauge-wrapper {
+            background: #06090e;
+            border: 1px solid var(--border-dim);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+        }
+
+        .gauge-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .gauge-bar-track {
+            height: 10px;
+            background: #101620;
+            border-radius: 5px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--green) 0%, var(--cyan) 50%, var(--red) 100%);
+            transition: width 0.6s ease;
+        }
+
+        .gauge-pin {
+            position: absolute;
+            top: -5px;
+            width: 4px;
+            height: 20px;
+            background: #ffffff;
+            border-radius: 2px;
+            box-shadow: 0 0 8px #ffffff;
+            transform: translateX(-50%);
+            transition: left 0.6s ease;
+        }
+
+        /* INFO TAJAM PANELS */
+        .intel-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-dim);
+            border-radius: 14px;
+            padding: 22px 20px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .intel-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid var(--border-dim);
+            padding-bottom: 10px;
+        }
+
+        .pillar-card {
+            background: var(--card-bg-subtle);
+            border: 1px solid var(--border-dim);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+
+        .pillar-head {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .pillar-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .pillar-body {
+            font-size: 0.9rem;
+            line-height: 1.55;
+            color: #cbd5e1;
+        }
+
+        .pillar-impact {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dashed #1b2637;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--cyan);
+        }
+
+        /* VERDICT BOX */
+        .verdict-box {
+            background: linear-gradient(135deg, rgba(245, 200, 66, 0.08) 0%, rgba(69, 214, 255, 0.05) 100%);
+            border: 1px solid rgba(245, 200, 66, 0.3);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-top: 18px;
+        }
+
+        .verdict-header {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* BUTTONS & FOOTER */
+        .btn-cyber {
+            background: #111a26;
+            border: 1px solid var(--border-active);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-cyber:hover {
+            background: #182638;
+            color: #ffffff;
+            border-color: var(--cyan);
+            box-shadow: 0 0 12px var(--cyan-glow);
+        }
+
+        .footer-credit {
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 30px;
+        }
+
+        @media (max-width: 576px) {
+            .price-main {
+                font-size: 2.1rem;
+            }
+            .level-val {
+                font-size: 1.1rem;
+            }
+            .pair-card {
+                padding: 18px 14px;
+            }
+            .level-row {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+
+    <!-- HEADER / NAV -->
+    <div class="header-box">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span style="font-size: 1.6rem; line-height: 1;">⚡</span>
+                    <div>
+                        <h1 class="m-0 fw-bold" style="font-size: 1.35rem; letter-spacing: 1px; color: #fff;">
+                            XEDY V42 <span style="color: var(--gold);">• INFO TAJAM</span>
+                        </h1>
+                        <p class="m-0 text-muted" style="font-size: 0.78rem; letter-spacing: 0.5px;">
+                            PORTAL RADAR SUPPORT / RESISTANCE & MAKRO INTEL
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge-live">
+                    <span class="pulse-dot"></span> LIVE SCANNER
+                </span>
+                <button class="btn-cyber py-1 px-2" style="font-size: 0.78rem;" onclick="fetchLivePrices()">
+                    🔄 REFRESH
+                </button>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-25" style="font-size: 0.78rem;">
+            <div class="text-muted">
+                Waktu: <span id="clock-wib" class="mono text-white fw-bold">--:--:-- WIB</span>
+            </div>
+            <div class="text-muted">
+                Next Scan: <span id="scan-countdown" class="mono text-info fw-bold">30s</span>
+            </div>
+            <div>
+                <a href="/" class="text-decoration-none text-muted" style="font-size: 0.75rem;">← Dashboard Utama</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAIR CARD 1: XAUUSD -->
+    <div class="pair-card card-gold">
+        <div class="pair-header">
+            <div class="pair-title">
+                <span>🪙</span>
+                <span>XAUUSD</span>
+                <span class="badge bg-dark border border-secondary text-muted fs-6 py-1 px-2" style="font-size: 0.7rem !important;">GOLD SPOT</span>
+            </div>
+            <div id="xau-status-pill" class="pair-status-pill status-normal">
+                NORMAL
+            </div>
+        </div>
+
+        <div class="price-display-block">
+            <div id="xau-price" class="price-main">----.--</div>
+            <div id="xau-change" class="price-change text-muted">---</div>
+        </div>
+
+        <!-- S / R LEVELS (LOCKED) -->
+        <div class="level-row">
+            <div class="level-box support">
+                <div class="level-label">
+                    <span>🛡️ SUPPORT (LOCKED)</span>
+                    <span style="color: var(--green);">S1</span>
+                </div>
+                <div class="level-val">4220.00</div>
+                <div id="xau-dist-s" class="level-dist">Jarak: -- pt</div>
+            </div>
+            <div class="level-box resistance">
+                <div class="level-label">
+                    <span>🛑 RESISTANCE (LOCKED)</span>
+                    <span style="color: var(--red);">R1</span>
+                </div>
+                <div class="level-val">4580.00</div>
+                <div id="xau-dist-r" class="level-dist">Jarak: -- pt</div>
+            </div>
+        </div>
+
+        <!-- GAUGE BAR -->
+        <div class="gauge-wrapper">
+            <div class="gauge-meta">
+                <span>4220.00 (Support)</span>
+                <span id="xau-gauge-pct" class="mono text-white fw-bold">--% Posisi Rentang</span>
+                <span>4580.00 (Resistance)</span>
+            </div>
+            <div class="gauge-bar-track">
+                <div id="xau-gauge-fill" class="gauge-fill" style="width: 50%;"></div>
+                <div id="xau-gauge-pin" class="gauge-pin" style="left: 50%;"></div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between text-muted" style="font-size: 0.76rem;">
+            <span>High 24h: <b id="xau-high" class="mono text-white">----.--</b></span>
+            <span>Low 24h: <b id="xau-low" class="mono text-white">----.--</b></span>
+            <span>Technical: <b id="xau-tech-rec" class="mono text-white">NEUTRAL</b></span>
+        </div>
+    </div>
+
+    <!-- PAIR CARD 2: USDJPY -->
+    <div class="pair-card card-jpy">
+        <div class="pair-header">
+            <div class="pair-title">
+                <span>💴</span>
+                <span>USDJPY</span>
+                <span class="badge bg-dark border border-secondary text-muted fs-6 py-1 px-2" style="font-size: 0.7rem !important;">US DOLLAR / YEN</span>
+            </div>
+            <div id="jpy-status-pill" class="pair-status-pill status-normal">
+                NORMAL
+            </div>
+        </div>
+
+        <div class="price-display-block">
+            <div id="jpy-price" class="price-main">---.--</div>
+            <div id="jpy-change" class="price-change text-muted">---</div>
+        </div>
+
+        <!-- S / R LEVELS (LOCKED) -->
+        <div class="level-row">
+            <div class="level-box support">
+                <div class="level-label">
+                    <span>🛡️ SUPPORT (LOCKED)</span>
+                    <span style="color: var(--green);">S1</span>
+                </div>
+                <div class="level-val">152.80</div>
+                <div id="jpy-dist-s" class="level-dist">Jarak: -- pips</div>
+            </div>
+            <div class="level-box resistance">
+                <div class="level-label">
+                    <span>🛑 RESISTANCE (LOCKED)</span>
+                    <span style="color: var(--red);">R1</span>
+                </div>
+                <div class="level-val">158.30</div>
+                <div id="jpy-dist-r" class="level-dist">Jarak: -- pips</div>
+            </div>
+        </div>
+
+        <!-- GAUGE BAR -->
+        <div class="gauge-wrapper">
+            <div class="gauge-meta">
+                <span>152.80 (Support)</span>
+                <span id="jpy-gauge-pct" class="mono text-white fw-bold">--% Posisi Rentang</span>
+                <span>158.30 (Resistance)</span>
+            </div>
+            <div class="gauge-bar-track">
+                <div id="jpy-gauge-fill" class="gauge-fill" style="width: 50%;"></div>
+                <div id="jpy-gauge-pin" class="gauge-pin" style="left: 50%;"></div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between text-muted" style="font-size: 0.76rem;">
+            <span>High 24h: <b id="jpy-high" class="mono text-white">---.--</b></span>
+            <span>Low 24h: <b id="jpy-low" class="mono text-white">---.--</b></span>
+            <span>Technical: <b id="jpy-tech-rec" class="mono text-white">NEUTRAL</b></span>
+        </div>
+    </div>
+
+    <!-- SEKSI INFO TAJAM (3 PILAR FUNDAMENTAL & MAKRO) -->
+    <div class="intel-section">
+        <div class="intel-title">
+            <span>🧠</span>
+            <span>INFO TAJAM • ANALISIS 3 PILAR PENGGERAK HARGA</span>
+        </div>
+
+        <!-- PILAR 1 -->
+        <div class="pillar-card">
+            <div class="pillar-head">
+                <span>🏛️ PILAR 1: DIVERGENSI EKONOMI 2 NEGARA (US vs JAPAN)</span>
+                <span class="pillar-badge bg-warning bg-opacity-25 text-warning">IMPAK TINGGI</span>
+            </div>
+            <div class="pillar-body">
+                Divergensi suku bunga obligasi (Yield Gap) antara <b>US 10-Year (4.65%)</b> dan <b>Japan 10-Year (0.85%)</b> masih menjadi katalis utama pelemahan Yen. Selama Bank of Japan (BoJ) berhati-hati menaikkan suku bunga acuan di tengah ekspektasi The Fed menahan suku bunga tinggi lebih lama, carry-trade USDJPY tetap bertahan kuat.
+            </div>
+            <div class="pillar-impact">
+                📌 Implikasi Tajam: USDJPY mendekati zona intervensi verbal Kemenkeu Jepang di <b>158.00–158.30</b>. Bagi XAUUSD, yield AS yang tinggi membatasi akselerasi rally di atas 4500.
+            </div>
+        </div>
+
+        <!-- PILAR 2 -->
+        <div class="pillar-card">
+            <div class="pillar-head">
+                <span>🌐 PILAR 2: ESKALASI GEOPOLITIK GLOBAL (SAFE HAVEN)</span>
+                <span class="pillar-badge bg-danger bg-opacity-25 text-danger">SAFE HAVEN DRIVER</span>
+            </div>
+            <div class="pillar-body">
+                Ketegangan geopolitik yang persisten di Timur Tengah dan gesekan jalur logistik Laut Merah / Selat Hormuz memicu akumulasi emas fisik oleh bank sentral non-G7 (BRICS de-dollarization trend). Penurunan harga emas selalu tertahan oleh pembelian institusional di dekat support struktural.
+            </div>
+            <div class="pillar-impact">
+                📌 Implikasi Tajam: Emas mempertahankan lantai defensif (hard floor) di <b>4220.00</b>. Selama eskalasi geopolitik aktif, breakdown di bawah 4220 memiliki probabilitas rendah (< 15%).
+            </div>
+        </div>
+
+        <!-- PILAR 3 -->
+        <div class="pillar-card">
+            <div class="pillar-head">
+                <span>🛢️ PILAR 3: MINYAK MENTAH (CRUDE OIL) & KOMODITAS ENERGI</span>
+                <span class="pillar-badge bg-info bg-opacity-25 text-info">INFLASI & DEFISIT JEPANG</span>
+            </div>
+            <div class="pillar-body">
+                Jepang mengimpor lebih dari 99% kebutuhan minyak mentahnya. Kenaikan harga minyak WTI/Brent memperlebar defisit neraca transaksi berjalan Jepang (Current Account Deficit), yang memaksa penjualan Yen secara alami untuk membeli minyak berdenominasi Dolar AS.
+            </div>
+            <div class="pillar-impact">
+                📌 Implikasi Tajam: Reli minyak menekan Yen (USDJPY terdorong naik ke Resistance 158.30), sekaligus menyulut ekspektasi inflasi AS yang menjaga daya tarik lindung nilai Emas (XAUUSD).
+            </div>
+        </div>
+
+        <!-- EXECUTIVE VERDICT & STRATEGI -->
+        <div class="verdict-box">
+            <div class="verdict-header">
+                <span>🎯</span>
+                <span>EXECUTIVE VERDICT & PEDOMAN AKSI</span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.6; color: #f1f5f9;">
+                <div class="mb-2">
+                    <b style="color: var(--gold);">• XAUUSD:</b> Tren konsolidasi lebar (4220 - 4580). Akumulasi bertahap disarankan di dekat zona <b>4220 - 4280</b> dengan SL ketat di bawah 4200. Profit-taking defensif di <b>4520 - 4580</b>.
+                </div>
+                <div>
+                    <b style="color: var(--cyan);">• USDJPY:</b> Rentang 152.80 - 158.30. Waspadai risiko <i>Bank of Japan Stealth Intervention</i> jika harga menyentuh zona <b>158.00 - 158.30</b>. Rejection di 158.30 berpotensi memicu pullback cepat menuju 154.50.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="/" class="btn-cyber">
+            🏠 Buka Mission Control
+        </a>
+        <a href="https://t.me" target="_blank" class="btn-cyber">
+            📱 Buka Telegram Bot (/sr)
+        </a>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-credit">
+        <div>XEDY V42 ENTERPRISE TRADING SYSTEM • AUTOMATED S/R RADAR ENGINE</div>
+        <div class="text-secondary mt-1">Data Real-Time Scanner • TradingView CFD & FX Engine</div>
+    </div>
+
+</div>
+
+<!-- JAVASCRIPT SCANNER LOGIC -->
+<script>
+    // Locked S/R parameters
+    const LEVELS = {
+        XAUUSD: {
+            support: 4220.00,
+            resistance: 4580.00,
+            nearThreshold: 25.00
+        },
+        USDJPY: {
+            support: 152.80,
+            resistance: 158.30,
+            nearThreshold: 0.50
+        }
+    };
+
+    let countdown = 30;
+
+    // Real-time clock (WIB)
+    function updateClock() {
+        const now = new Date();
+        const wibTime = new Intl.DateTimeFormat('id-ID', {
+            timeZone: 'Asia/Jakarta',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).format(now);
+        const clockEl = document.getElementById('clock-wib');
+        if (clockEl) clockEl.innerText = wibTime + ' WIB';
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Fetch TradingView Scanner Data directly
+    async function fetchLivePrices() {
+        countdown = 30;
+        
+        // 1. Fetch USDJPY (Forex Scanner)
+        try {
+            const jpyRes = await fetch('https://scanner.tradingview.com/forex/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    symbols: { tickers: ['OANDA:USDJPY'] },
+                    columns: ['close', 'change', 'change_abs', 'high', 'low', 'Recommend.All']
+                })
+            });
+            const jpyData = await jpyRes.json();
+            if (jpyData && jpyData.data && jpyData.data.length > 0) {
+                const d = jpyData.data[0].d;
+                updatePairUI('USDJPY', {
+                    price: d[0],
+                    changePct: d[1],
+                    changeAbs: d[2],
+                    high: d[3],
+                    low: d[4],
+                    rec: d[5]
+                });
+            }
+        } catch (e) {
+            console.warn('Gagal fetch USDJPY dari TV Scanner:', e);
+        }
+
+        // 2. Fetch XAUUSD (CFD Scanner)
+        try {
+            const xauRes = await fetch('https://scanner.tradingview.com/cfd/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    symbols: { tickers: ['OANDA:XAUUSD'] },
+                    columns: ['close', 'change', 'change_abs', 'high', 'low', 'Recommend.All']
+                })
+            });
+            const xauData = await xauRes.json();
+            if (xauData && xauData.data && xauData.data.length > 0) {
+                const d = xauData.data[0].d;
+                updatePairUI('XAUUSD', {
+                    price: d[0],
+                    changePct: d[1],
+                    changeAbs: d[2],
+                    high: d[3],
+                    low: d[4],
+                    rec: d[5]
+                });
+            }
+        } catch (e) {
+            console.warn('Gagal fetch XAUUSD dari TV Scanner:', e);
+        }
+    }
+
+    function updatePairUI(pair, data) {
+        const isGold = (pair === 'XAUUSD');
+        const prefix = isGold ? 'xau' : 'jpy';
+        const decimals = isGold ? 2 : 3;
+        const config = LEVELS[pair];
+
+        // Format Price
+        const priceEl = document.getElementById(`${prefix}-price`);
+        if (priceEl) priceEl.innerText = data.price.toFixed(decimals);
+
+        // Format Change
+        const changeEl = document.getElementById(`${prefix}-change`);
+        if (changeEl) {
+            const sign = data.changePct >= 0 ? '+' : '';
+            changeEl.innerText = `${sign}${data.changePct.toFixed(2)}% (${sign}${data.changeAbs.toFixed(decimals)})`;
+            changeEl.className = 'price-change ' + (data.changePct >= 0 ? 'text-success' : 'text-danger');
+        }
+
+        // High & Low
+        const highEl = document.getElementById(`${prefix}-high`);
+        if (highEl) highEl.innerText = data.high.toFixed(decimals);
+        const lowEl = document.getElementById(`${prefix}-low`);
+        if (lowEl) lowEl.innerText = data.low.toFixed(decimals);
+
+        // Technical Recommendation
+        const recEl = document.getElementById(`${prefix}-tech-rec`);
+        if (recEl) {
+            let label = 'NEUTRAL';
+            let color = 'text-warning';
+            if (data.rec > 0.3) { label = 'STRONG BUY'; color = 'text-success'; }
+            else if (data.rec > 0.05) { label = 'BUY'; color = 'text-success'; }
+            else if (data.rec < -0.3) { label = 'STRONG SELL'; color = 'text-danger'; }
+            else if (data.rec < -0.05) { label = 'SELL'; color = 'text-danger'; }
+            recEl.innerText = label;
+            recEl.className = `mono ${color}`;
+        }
+
+        // Distances
+        const distSEl = document.getElementById(`${prefix}-dist-s`);
+        const distREl = document.getElementById(`${prefix}-dist-r`);
+        const unit = isGold ? 'pt' : 'pips';
+        const mult = isGold ? 1 : 100; // 1 pip = 0.01 for JPY
+
+        const distS = (data.price - config.support) * mult;
+        const distR = (config.resistance - data.price) * mult;
+
+        if (distSEl) {
+            const prefixSign = distS >= 0 ? '+' : '';
+            distSEl.innerText = `Jarak: ${prefixSign}${distS.toFixed(1)} ${unit} dari S1`;
+        }
+        if (distREl) {
+            const prefixSign = distR >= 0 ? '' : '+';
+            distREl.innerText = `Jarak: ${distR.toFixed(1)} ${unit} ke R1`;
+        }
+
+        // Gauge Position
+        const range = config.resistance - config.support;
+        let pct = ((data.price - config.support) / range) * 100;
+        pct = Math.max(0, Math.min(100, pct));
+
+        const gaugeFill = document.getElementById(`${prefix}-gauge-fill`);
+        const gaugePin = document.getElementById(`${prefix}-gauge-pin`);
+        const gaugePct = document.getElementById(`${prefix}-gauge-pct`);
+
+        if (gaugeFill) gaugeFill.style.width = `${pct.toFixed(1)}%`;
+        if (gaugePin) gaugePin.style.left = `${pct.toFixed(1)}%`;
+        if (gaugePct) gaugePct.innerText = `${pct.toFixed(1)}% Posisi Rentang`;
+
+        // Status Evaluation
+        const statusPill = document.getElementById(`${prefix}-status-pill`);
+        if (statusPill) {
+            if (data.price > config.resistance) {
+                statusPill.innerText = 'BREAKOUT (BULL)';
+                statusPill.className = 'pair-status-pill status-break';
+            } else if (data.price < config.support) {
+                statusPill.innerText = 'BREAKDOWN (BEAR)';
+                statusPill.className = 'pair-status-pill status-break';
+            } else if ((config.resistance - data.price) <= config.nearThreshold) {
+                statusPill.innerText = 'NEAR RESISTANCE';
+                statusPill.className = 'pair-status-pill status-near';
+            } else if ((data.price - config.support) <= config.nearThreshold) {
+                statusPill.innerText = 'NEAR SUPPORT';
+                statusPill.className = 'pair-status-pill status-near';
+            } else {
+                statusPill.innerText = 'NORMAL';
+                statusPill.className = 'pair-status-pill status-normal';
+            }
+        }
+    }
+
+    // Countdown timer for next scan
+    setInterval(() => {
+        countdown--;
+        if (countdown <= 0) {
+            fetchLivePrices();
+        } else {
+            const el = document.getElementById('scan-countdown');
+            if (el) el.innerText = `${countdown}s`;
+        }
+    }, 1000);
+
+    // Initial fetch on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchLivePrices();
+    });
+</script>
+
+</body>
+</html>
