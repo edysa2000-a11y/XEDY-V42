@@ -410,6 +410,32 @@
                 gap: 8px;
             }
         }
+
+        @keyframes flash-green {
+            0% { background: rgba(43, 242, 154, 0.4); text-shadow: 0 0 20px #2bf29a; }
+            100% { background: transparent; text-shadow: none; }
+        }
+        @keyframes flash-red {
+            0% { background: rgba(255, 71, 102, 0.4); text-shadow: 0 0 20px #ff4766; }
+            100% { background: transparent; text-shadow: none; }
+        }
+        .flash-up {
+            animation: flash-green 0.9s ease-out;
+            border-radius: 6px;
+        }
+        .flash-down {
+            animation: flash-red 0.9s ease-out;
+            border-radius: 6px;
+        }
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #2bf29a;
+            display: inline-block;
+            box-shadow: 0 0 8px #2bf29a;
+            animation: pulse 1.5s infinite;
+        }
     </style>
 </head>
 <body>
@@ -463,8 +489,9 @@
                 <span>XAUUSD</span>
                 <span class="badge bg-dark border border-secondary text-muted fs-6 py-1 px-2" style="font-size: 0.7rem !important;">GOLD SPOT</span>
             </div>
-            <div id="xau-status-pill" class="pair-status-pill status-normal">
-                NORMAL
+            <div class="d-flex align-items-center gap-2">
+                <span id="xau-updated-at" class="badge bg-dark border border-secondary text-info mono" style="font-size: 0.7rem;"><span class="live-dot me-1"></span>LIVE</span>
+                <div id="xau-status-pill" class="pair-status-pill status-normal">NORMAL</div>
             </div>
         </div>
 
@@ -521,8 +548,9 @@
                 <span>USDJPY</span>
                 <span class="badge bg-dark border border-secondary text-muted fs-6 py-1 px-2" style="font-size: 0.7rem !important;">US DOLLAR / YEN</span>
             </div>
-            <div id="jpy-status-pill" class="pair-status-pill status-normal">
-                NORMAL
+            <div class="d-flex align-items-center gap-2">
+                <span id="jpy-updated-at" class="badge bg-dark border border-secondary text-info mono" style="font-size: 0.7rem;"><span class="live-dot me-1"></span>LIVE</span>
+                <div id="jpy-status-pill" class="pair-status-pill status-normal">NORMAL</div>
             </div>
         </div>
 
@@ -672,7 +700,8 @@
         }
     };
 
-    let countdown = 30;
+    let countdown = 5;
+    let lastPrices = { XAUUSD: 0, USDJPY: 0 };
 
     // Real-time clock (WIB)
     function updateClock() {
@@ -690,72 +719,109 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Fetch TradingView Scanner Data directly
+    // Fetch Prices (Local API First -> Fallback to TradingView Scanner)
     async function fetchLivePrices() {
-        countdown = 30;
-        
-        // 1. Fetch USDJPY (Forex Scanner)
+        countdown = 5;
+        let updated = false;
+
+        // 1. Coba ambil dari Server Lokal (/api/prices)
         try {
-            const jpyRes = await fetch('https://scanner.tradingview.com/forex/scan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    symbols: { tickers: ['OANDA:USDJPY'] },
-                    columns: ['close', 'change', 'change_abs', 'high', 'low', 'Recommend.All']
-                })
-            });
-            const jpyData = await jpyRes.json();
-            if (jpyData && jpyData.data && jpyData.data.length > 0) {
-                const d = jpyData.data[0].d;
-                updatePairUI('USDJPY', {
-                    price: d[0],
-                    changePct: d[1],
-                    changeAbs: d[2],
-                    high: d[3],
-                    low: d[4],
-                    rec: d[5]
-                });
+            const apiRes = await fetch('/api/prices?t=' + Date.now(), { cache: 'no-store' });
+            if (apiRes.ok) {
+                const apiData = await apiRes.json();
+                if (apiData.XAUUSD && apiData.XAUUSD.price) {
+                    updatePairUI('XAUUSD', apiData.XAUUSD, apiData.timestamp);
+                    updated = true;
+                }
+                if (apiData.USDJPY && apiData.USDJPY.price) {
+                    updatePairUI('USDJPY', apiData.USDJPY, apiData.timestamp);
+                    updated = true;
+                }
             }
         } catch (e) {
-            console.warn('Gagal fetch USDJPY dari TV Scanner:', e);
+            // Local server API tidak tersedia, fallback ke TradingView
         }
 
-        // 2. Fetch XAUUSD (CFD Scanner)
-        try {
-            const xauRes = await fetch('https://scanner.tradingview.com/cfd/scan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    symbols: { tickers: ['OANDA:XAUUSD'] },
-                    columns: ['close', 'change', 'change_abs', 'high', 'low', 'Recommend.All']
-                })
-            });
-            const xauData = await xauRes.json();
-            if (xauData && xauData.data && xauData.data.length > 0) {
-                const d = xauData.data[0].d;
-                updatePairUI('XAUUSD', {
-                    price: d[0],
-                    changePct: d[1],
-                    changeAbs: d[2],
-                    high: d[3],
-                    low: d[4],
-                    rec: d[5]
+        // 2. Fallback: Query TradingView Scanner langsung jika local API gagal
+        if (!updated) {
+            // Fetch USDJPY (Forex Scanner)
+            try {
+                const jpyRes = await fetch('https://scanner.tradingview.com/forex/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        symbols: { tickers: ['OANDA:USDJPY'] },
+                        columns: ['close', 'change', 'change_abs', 'high', 'low', 'Recommend.All']
+                    })
                 });
+                const jpyData = await jpyRes.json();
+                if (jpyData && jpyData.data && jpyData.data.length > 0) {
+                    const d = jpyData.data[0].d;
+                    updatePairUI('USDJPY', {
+                        price: d[0],
+                        changePct: d[1],
+                        changeAbs: d[2],
+                        high: d[3],
+                        low: d[4],
+                        rec: d[5]
+                    });
+                }
+            } catch (err) {
+                console.warn('TV Scanner USDJPY error:', err);
             }
-        } catch (e) {
-            console.warn('Gagal fetch XAUUSD dari TV Scanner:', e);
+
+            // Fetch XAUUSD (CFD Scanner)
+            try {
+                const xauRes = await fetch('https://scanner.tradingview.com/cfd/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        symbols: { tickers: ['OANDA:XAUUSD'] },
+                        columns: ['close', 'change', 'change_abs', 'high', 'low', 'Recommend.All']
+                    })
+                });
+                const xauData = await xauRes.json();
+                if (xauData && xauData.data && xauData.data.length > 0) {
+                    const d = xauData.data[0].d;
+                    updatePairUI('XAUUSD', {
+                        price: d[0],
+                        changePct: d[1],
+                        changeAbs: d[2],
+                        high: d[3],
+                        low: d[4],
+                        rec: d[5]
+                    });
+                }
+            } catch (err) {
+                console.warn('TV Scanner XAUUSD error:', err);
+            }
         }
     }
 
-    function updatePairUI(pair, data) {
+    function updatePairUI(pair, data, timestamp) {
         const isGold = (pair === 'XAUUSD');
         const prefix = isGold ? 'xau' : 'jpy';
         const decimals = isGold ? 2 : 3;
         const config = LEVELS[pair];
 
-        // Format Price
+        // Format Price & Visual Flash on tick
         const priceEl = document.getElementById(`${prefix}-price`);
-        if (priceEl) priceEl.innerText = data.price.toFixed(decimals);
+        if (priceEl) {
+            const oldPrice = lastPrices[pair] || 0;
+            const newPrice = data.price;
+            priceEl.innerText = newPrice.toFixed(decimals);
+
+            if (oldPrice > 0 && newPrice !== oldPrice) {
+                priceEl.classList.remove('flash-up', 'flash-down');
+                void priceEl.offsetWidth; // Trigger reflow
+                if (newPrice > oldPrice) {
+                    priceEl.classList.add('flash-up');
+                } else {
+                    priceEl.classList.add('flash-down');
+                }
+            }
+            lastPrices[pair] = newPrice;
+        }
 
         // Format Change
         const changeEl = document.getElementById(`${prefix}-change`);
@@ -794,12 +860,22 @@
         const distR = (config.resistance - data.price) * mult;
 
         if (distSEl) {
-            const prefixSign = distS >= 0 ? '+' : '';
-            distSEl.innerText = `Jarak: ${prefixSign}${distS.toFixed(1)} ${unit} dari S1`;
+            if (data.price < config.support) {
+                distSEl.innerText = `Jarak: ${distS.toFixed(1)} ${unit} (Breakdown S1)`;
+                distSEl.style.color = 'var(--red)';
+            } else {
+                distSEl.innerText = `Jarak: +${distS.toFixed(1)} ${unit} dari S1`;
+                distSEl.style.color = 'var(--green)';
+            }
         }
         if (distREl) {
-            const prefixSign = distR >= 0 ? '' : '+';
-            distREl.innerText = `Jarak: ${distR.toFixed(1)} ${unit} ke R1`;
+            if (data.price > config.resistance) {
+                distREl.innerText = `Jarak: +${(-distR).toFixed(1)} ${unit} (Breakout R1)`;
+                distREl.style.color = 'var(--green)';
+            } else {
+                distREl.innerText = `Jarak: ${distR.toFixed(1)} ${unit} ke R1`;
+                distREl.style.color = 'var(--cyan)';
+            }
         }
 
         // Gauge Position
@@ -835,9 +911,19 @@
                 statusPill.className = 'pair-status-pill status-normal';
             }
         }
+
+        // Update timestamp badge
+        const updatedBadge = document.getElementById(`${prefix}-updated-at`);
+        if (updatedBadge) {
+            const nowTime = timestamp || new Intl.DateTimeFormat('id-ID', {
+                timeZone: 'Asia/Jakarta',
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            }).format(new Date()) + ' WIB';
+            updatedBadge.innerHTML = `<span class="live-dot me-1"></span>${nowTime}`;
+        }
     }
 
-    // Countdown timer for next scan
+    // Countdown timer for next scan (5 seconds cycle)
     setInterval(() => {
         countdown--;
         if (countdown <= 0) {
@@ -848,10 +934,8 @@
         }
     }, 1000);
 
-    // Initial fetch on page load
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchLivePrices();
-    });
+    // Initial immediate fetch on load
+    fetchLivePrices();
 </script>
 
 </body>
