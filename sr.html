@@ -436,6 +436,34 @@
             box-shadow: 0 0 8px #2bf29a;
             animation: pulse 1.5s infinite;
         }
+
+        /* MT5 BRIDGE BAR */
+        .mt5-bridge-panel {
+            background: linear-gradient(135deg, #09131e 0%, #060b12 100%);
+            border: 1px solid rgba(69, 214, 255, 0.25);
+            border-radius: 10px;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .mt5-badge-connected {
+            background: rgba(43, 242, 154, 0.15);
+            color: #2bf29a;
+            border: 1px solid rgba(43, 242, 154, 0.4);
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+        .mt5-badge-standby {
+            background: rgba(245, 200, 66, 0.15);
+            color: #f5c842;
+            border: 1px solid rgba(245, 200, 66, 0.4);
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -477,6 +505,24 @@
             </div>
             <div>
                 <a href="/" class="text-decoration-none text-muted" style="font-size: 0.75rem;">← Dashboard Utama</a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MT5 BRIDGE STATUS PANEL -->
+    <div class="mt5-bridge-panel">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span id="mt5-status-dot" class="live-dot" style="background: #2bf29a;"></span>
+                <span class="fw-bold" style="font-size: 0.85rem; letter-spacing: 0.5px; color: #fff;">MT5 BRIDGE:</span>
+                <span id="mt5-status-badge" class="mt5-badge-connected">CONNECTED</span>
+                <span id="mt5-broker-name" class="text-muted" style="font-size: 0.78rem;">Finex Bisnis Solusi • Acc: Edy Sa (112132028)</span>
+            </div>
+            <div class="d-flex align-items-center gap-3 text-muted flex-wrap" style="font-size: 0.78rem;">
+                <span>Sumber: <b id="data-source-badge" class="mono text-info">MT5 DIRECT</b></span>
+                <span>Saldo: <b id="mt5-balance-val" class="mono text-white">$37.41</b></span>
+                <span>Ping: <b id="mt5-ping-val" class="mono text-success">175ms</b></span>
             </div>
         </div>
     </div>
@@ -536,6 +582,7 @@
         <div class="d-flex justify-content-between text-muted" style="font-size: 0.76rem;">
             <span>High 24h: <b id="xau-high" class="mono text-white">4275.32</b></span>
             <span>Low 24h: <b id="xau-low" class="mono text-white">4191.47</b></span>
+            <span>Ask: <b id="xau-ask" class="mono text-warning">4138.71</b> (Spread: <b id="xau-spread" class="mono text-warning">0.41 pt</b>)</span>
             <span>Technical: <b id="xau-tech-rec" class="mono text-white">NEUTRAL</b></span>
         </div>
     </div>
@@ -595,6 +642,7 @@
         <div class="d-flex justify-content-between text-muted" style="font-size: 0.76rem;">
             <span>High 24h: <b id="jpy-high" class="mono text-white">157.860</b></span>
             <span>Low 24h: <b id="jpy-low" class="mono text-white">157.237</b></span>
+            <span>Ask: <b id="jpy-ask" class="mono text-warning">157.385</b> (Spread: <b id="jpy-spread" class="mono text-warning">0.1 pips</b>)</span>
             <span>Technical: <b id="jpy-tech-rec" class="mono text-white">NEUTRAL</b></span>
         </div>
     </div>
@@ -719,16 +767,41 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Fetch Prices (Local API First -> Fallback to TradingView Scanner)
+// Fetch Prices (Local API First with MT5 Bridge -> Fallback to TradingView Scanner)
     async function fetchLivePrices() {
         countdown = 5;
         let updated = false;
 
-        // 1. Coba ambil dari Server Lokal (/api/prices)
+        // 1. Coba ambil dari Server Lokal (/api/prices dengan MT5 Bridge)
         try {
             const apiRes = await fetch('/api/prices?t=' + Date.now(), { cache: 'no-store' });
             if (apiRes.ok) {
                 const apiData = await apiRes.json();
+                
+                // Update MT5 Bridge Status Panel
+                if (apiData.mt5_bridge) {
+                    const mb = apiData.mt5_bridge;
+                    const badge = document.getElementById('mt5-status-badge');
+                    const dot = document.getElementById('mt5-status-dot');
+                    const broker = document.getElementById('mt5-broker-name');
+                    const balance = document.getElementById('mt5-balance-val');
+                    const ping = document.getElementById('mt5-ping-val');
+                    const srcBadge = document.getElementById('data-source-badge');
+
+                    if (mb.connected) {
+                        if (badge) { badge.className = 'mt5-badge-connected'; badge.innerText = 'CONNECTED'; }
+                        if (dot) { dot.style.background = '#2bf29a'; dot.style.boxShadow = '0 0 8px #2bf29a'; }
+                        if (broker) broker.innerText = `${mb.broker} • Acc: ${mb.name} (${mb.login})`;
+                        if (balance) balance.innerText = `$${mb.balance.toFixed(2)}`;
+                        if (ping) ping.innerText = `${mb.ping}ms`;
+                        if (srcBadge) { srcBadge.innerText = 'MT5 DIRECT'; srcBadge.className = 'mono text-success'; }
+                    } else {
+                        if (badge) { badge.className = 'mt5-badge-standby'; badge.innerText = 'STANDBY'; }
+                        if (dot) { dot.style.background = '#f5c842'; dot.style.boxShadow = '0 0 8px #f5c842'; }
+                        if (srcBadge) { srcBadge.innerText = 'TRADINGVIEW'; srcBadge.className = 'mono text-info'; }
+                    }
+                }
+
                 if (apiData.XAUUSD && apiData.XAUUSD.price) {
                     updatePairUI('XAUUSD', apiData.XAUUSD, apiData.timestamp);
                     updated = true;
@@ -744,7 +817,12 @@
 
         // 2. Fallback: Query TradingView Scanner langsung jika local API gagal
         if (!updated) {
-            // Fetch USDJPY (Forex Scanner)
+            const srcBadge = document.getElementById('data-source-badge');
+            if (srcBadge) { srcBadge.innerText = 'TRADINGVIEW'; srcBadge.className = 'mono text-info'; }
+            const badge = document.getElementById('mt5-status-badge');
+            if (badge) { badge.className = 'mt5-badge-standby'; badge.innerText = 'STANDBY'; }
+
+            // Fetch USDJPY
             try {
                 const jpyRes = await fetch('https://scanner.tradingview.com/forex/scan', {
                     method: 'POST',
@@ -770,7 +848,7 @@
                 console.warn('TV Scanner USDJPY error:', err);
             }
 
-            // Fetch XAUUSD (CFD Scanner)
+            // Fetch XAUUSD
             try {
                 const xauRes = await fetch('https://scanner.tradingview.com/cfd/scan', {
                     method: 'POST',
@@ -821,6 +899,17 @@
                 }
             }
             lastPrices[pair] = newPrice;
+        }
+
+        // Ask & Spread if present
+        const askEl = document.getElementById(`${prefix}-ask`);
+        if (askEl && data.ask) {
+            askEl.innerText = data.ask.toFixed(decimals);
+        }
+        const spreadEl = document.getElementById(`${prefix}-spread`);
+        if (spreadEl && data.spread !== undefined) {
+            const unit = isGold ? 'pt' : 'pips';
+            spreadEl.innerText = `${data.spread} ${unit}`;
         }
 
         // Format Change
