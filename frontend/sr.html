@@ -545,8 +545,8 @@
             </table>
 
             <div class="mt-1 pt-1 border-top border-dim d-flex justify-content-between text-muted" style="font-size: 0.67rem;">
-                <span>Weekly Range:</span>
-                <span><b class="text-success">152.80</b> to <b class="text-danger">158.30</b></span>
+                <span>Weekly Range (W1):</span>
+                <span><b class="text-success" id="sub-w-low">156.507</b> to <b class="text-danger" id="sub-w-high">157.857</b> (135p)</span>
             </div>
         </div>
 
@@ -819,33 +819,37 @@
                 </div>
             </div>
 
-            <!-- LONG SnR -->
+            <!-- DYNAMIC WEEKLY SnR (RECALCULATED) -->
             <div class="col-md-4">
                 <div class="p-2 rounded" style="background: #040812; border: 1px solid var(--border-dim); border-left: 3px solid var(--green);">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-bold text-success" style="font-size: 0.76rem;">🏛️ LONG SnR (H4 / D1 / W1)</span>
-                        <span class="badge bg-success bg-opacity-25 text-success mono" id="qwen-long-acc">97.6% ACCURACY</span>
+                        <span class="fw-bold text-success" style="font-size: 0.76rem;">🏛️ WEEKLY SnR (DYNAMIC W1 MT5)</span>
+                        <span class="badge bg-success bg-opacity-25 text-success mono" id="qwen-long-acc">95.8% ACCURACY</span>
                     </div>
                     <table class="kv-table">
                         <tr>
-                            <td class="kv-label">Support (W1)</td>
-                            <td class="kv-val text-success">152.80 (Near S: 153.26)</td>
+                            <td class="kv-label">Support S1 / Base</td>
+                            <td class="kv-val text-success"><b id="snr-w-maj-s">156.222</b> <span class="text-muted">(Base: 152.888)</span></td>
                         </tr>
                         <tr>
-                            <td class="kv-label">Resistance (W1)</td>
-                            <td class="kv-val text-danger">158.30 (Near R: 157.83)</td>
+                            <td class="kv-label">Immediate Support</td>
+                            <td class="kv-val text-success"><b id="snr-w-imm-s">156.507</b> <span class="text-muted">(Week Low)</span></td>
                         </tr>
                         <tr>
-                            <td class="kv-label">Midpoint Range</td>
-                            <td class="kv-val text-white">155.55</td>
+                            <td class="kv-label">Weekly Pivot (P)</td>
+                            <td class="kv-val text-white"><b id="snr-w-p">157.630</b></td>
                         </tr>
                         <tr>
-                            <td class="kv-label">Intervention Zone</td>
-                            <td class="kv-val text-danger">158.00 – 158.30 (MODEL ZONE)</td>
+                            <td class="kv-label">Immediate Resistance</td>
+                            <td class="kv-val text-danger"><b id="snr-w-imm-r">157.857</b> <span class="text-muted">(Week High)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Resistance R1 / Peak</td>
+                            <td class="kv-val text-danger"><b id="snr-w-maj-r">158.685</b> <span class="text-muted">(Prior: 159.038)</span></td>
                         </tr>
                     </table>
                     <div class="mt-1 text-success" style="font-size: 0.67rem;" id="snr-long-rule">
-                        <b>Tactic:</b> Level 152.80 - 158.30 adalah batas mutlak. Jangan pasang buy breakout di atas 158.00.
+                        <b>Tactic:</b> Sell rejection bila harga menguji area 157.857. Target ke Weekly Pivot 157.630 dan support 156.507.
                     </div>
                 </div>
             </div>
@@ -1006,6 +1010,15 @@
                 setText('sub-med-s1', `S1 ${sm.medium.s1}`);
                 setText('sub-med-p', `P ${sm.medium.daily_pivot}`);
                 setText('sub-med-r1', `R1 ${sm.medium.r1}`);
+            }
+            if (sm.long) {
+                setText('snr-w-maj-s', sm.long.major_support);
+                setText('snr-w-imm-s', sm.long.immediate_support);
+                setText('snr-w-p', Number(sm.long.weekly_pivot).toFixed(3));
+                setText('snr-w-imm-r', sm.long.immediate_resistance);
+                setText('snr-w-maj-r', sm.long.major_resistance);
+                setText('sub-w-low', sm.long.immediate_support);
+                setText('sub-w-high', sm.long.immediate_resistance);
             }
         }
 

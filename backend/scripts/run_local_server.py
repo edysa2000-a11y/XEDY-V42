@@ -307,6 +307,11 @@ LAST_QWEN_RUN = 0
 def compute_snr_multi_horizon(current_price):
     m5_h, m5_l, m5_c = current_price + 0.08, current_price - 0.12, current_price
     d1_h, d1_l, d1_c = current_price + 0.22, current_price - 0.26, current_price
+    
+    # Weekly defaults
+    w_curr_h, w_curr_l, w_curr_o = current_price + 0.44, current_price - 0.91, current_price - 0.21
+    w_prev_h, w_prev_l, w_prev_c = 159.038, 156.575, 157.278
+    w_base_l = 152.888
 
     if MT5_AVAILABLE:
         try:
@@ -321,6 +326,16 @@ def compute_snr_multi_horizon(current_price):
                 d1_h = round(float(r_d1[-1]['high']), 3)
                 d1_l = round(float(r_d1[-1]['low']), 3)
                 d1_c = round(float(r_d1[-1]['close']), 3)
+
+            r_w1 = mt5.copy_rates_from_pos('USDJPY', mt5.TIMEFRAME_W1, 0, 6)
+            if r_w1 is not None and len(r_w1) >= 2:
+                w_curr_h = round(float(r_w1[-1]['high']), 3)
+                w_curr_l = round(float(r_w1[-1]['low']), 3)
+                w_curr_o = round(float(r_w1[-1]['open']), 3)
+                w_prev_h = round(float(r_w1[-2]['high']), 3)
+                w_prev_l = round(float(r_w1[-2]['low']), 3)
+                w_prev_c = round(float(r_w1[-2]['close']), 3)
+                w_base_l = round(float(min([x['low'] for x in r_w1])), 3)
         except Exception:
             pass
 
@@ -345,14 +360,15 @@ def compute_snr_multi_horizon(current_price):
     med_s3 = round(d1_l - 2 * (d1_h - med_p), 3)
     med_range_pips = round((d1_h - d1_l) * 100, 1)
 
-    # 3. LONG SnR (LOCKED Weekly)
-    long_locked_r = LOCKED_SR["resistance"]
-    long_near_r = LOCKED_SR["near_resistance"]
-    long_locked_s = LOCKED_SR["support"]
-    long_near_s = LOCKED_SR["near_support"]
-    long_midpoint = round((long_locked_r + long_locked_s) / 2, 3)
-    dist_to_r_pips = round((long_locked_r - current_price) * 100, 1)
-    dist_to_s_pips = round((current_price - long_locked_s) * 100, 1)
+    # 3. DYNAMIC WEEKLY SnR (H4/D1/W1) - RECALCULATED
+    w_p = round((w_prev_h + w_prev_l + w_prev_c) / 3, 3)
+    w_r1 = round(2 * w_p - w_prev_l, 3)
+    w_r2 = round(w_p + (w_prev_h - w_prev_l), 3)
+    w_s1 = round(2 * w_p - w_prev_h, 3)
+    w_s2 = round(w_p - (w_prev_h - w_prev_l), 3)
+    w_range_pips = round((w_curr_h - w_curr_l) * 100, 1)
+    dist_to_week_h = round((w_curr_h - current_price) * 100, 1)
+    dist_to_week_l = round((current_price - w_curr_l) * 100, 1)
 
     return {
         "scalp": {
@@ -391,16 +407,20 @@ def compute_snr_multi_horizon(current_price):
         },
         "long": {
             "timeframe": "H4 / D1 / W1",
-            "locked_resistance": long_locked_r,
-            "near_resistance": long_near_r,
-            "locked_support": long_locked_s,
-            "near_support": long_near_s,
-            "midpoint": long_midpoint,
-            "dist_to_r_pips": dist_to_r_pips,
-            "dist_to_s_pips": dist_to_s_pips,
-            "pct_in_range": round(((current_price - long_locked_s) / (long_locked_r - long_locked_s)) * 100, 1),
-            "intervention_risk_zone": "158.00 - 158.30 (MODEL RISK ZONE)",
-            "bias": "WIDE CONSOLIDATION (Intervention Risk Cap vs Yield Floor)"
+            "weekly_pivot": w_p,
+            "immediate_resistance": w_curr_h,
+            "major_resistance": w_r1,
+            "macro_ceiling": w_prev_h,
+            "immediate_support": w_curr_l,
+            "major_support": w_s1,
+            "structural_base": w_base_l,
+            "week_high": w_curr_h,
+            "week_low": w_curr_l,
+            "range_pips": w_range_pips,
+            "dist_to_week_high_pips": dist_to_week_h,
+            "dist_to_week_low_pips": dist_to_week_l,
+            "pct_in_range": round(((current_price - w_curr_l) / (w_curr_h - w_curr_l)) * 100, 1) if (w_curr_h > w_curr_l) else 50.0,
+            "bias": f"{'BEARISH' if current_price < w_p else 'BULLISH'} (Below Pivot {w_p})" if current_price < w_p else f"BULLISH (Above Pivot {w_p})"
         }
     }
 
