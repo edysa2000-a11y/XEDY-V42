@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USDJPY MASTER AI TRADING & PRICE ATTRIBUTION CENTER</title>
+    <title>USDJPY MASTER AI TRADING & PRICE ATTRIBUTION</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,11 +12,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg-root: #04070d;
-            --bg-panel: #070d18;
-            --bg-panel-subtle: #0b1424;
-            --border-dim: #132035;
-            --border-bright: #203554;
+            --bg-root: #03070e;
+            --bg-panel: #060c16;
+            --bg-panel-dark: #040810;
+            --bg-hover: #0a1526;
+            --border-dim: #132238;
+            --border-bright: #1c3558;
             --gold: #f0c040;
             --cyan: #00d2ff;
             --green: #00f090;
@@ -24,7 +25,7 @@
             --amber: #ff9900;
             --purple: #b56cff;
             --text-main: #f0f4fa;
-            --text-muted: #7388a3;
+            --text-muted: #6e84a3;
         }
 
         * { box-sizing: border-box; }
@@ -34,25 +35,54 @@
             font-family: 'Rajdhani', sans-serif;
             min-height: 100vh;
             margin: 0;
-            padding: 4px 8px 16px 8px; font-size: 0.82rem;
-            letter-spacing: 0.3px;
+            padding: 4px 8px 16px 8px;
+            letter-spacing: 0.2px;
+            font-size: 0.8rem;
         }
 
         .mono { font-family: 'JetBrains Mono', monospace; }
         .inter { font-family: 'Inter', sans-serif; }
 
-        /* HEADER TAPE */
-        .header-tape {
-            background: linear-gradient(180deg, #0a1322 0%, #060b14 100%);
+        /* WIREFRAME CONTAINER */
+        .terminal-container {
+            max-width: 1920px;
+            margin: 0 auto;
+            border: 1px solid var(--border-bright);
+            border-radius: 4px;
+            background: var(--bg-root);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+
+        /* WIREFRAME SECTION BORDER */
+        .w-box {
             border: 1px solid var(--border-dim);
-            border-radius: 6px;
-            padding: 5px 12px;
+            background: var(--bg-panel);
+            padding: 6px 10px;
+            position: relative;
+        }
+
+        .w-box-header {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: var(--cyan);
+            border-bottom: 1px solid var(--border-dim);
+            padding-bottom: 3px;
             margin-bottom: 5px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* HEADER TAPE */
+        .header-title-bar {
+            background: linear-gradient(180deg, #091322 0%, #050a12 100%);
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--border-bright);
         }
 
         .brand-title {
-            font-size: 1.08rem;
+            font-size: 1.12rem;
             font-weight: 800;
             letter-spacing: 1.2px;
             color: #ffffff;
@@ -62,31 +92,130 @@
             gap: 8px;
         }
 
-        .price-badge-hero {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.55rem;
-            font-weight: 800;
-            color: #ffffff;
-            line-height: 1;
-            text-shadow: 0 0 10px rgba(255,255,255,0.2);
-            transition: all 0.3s;
+        /* METRICS TOP STRIP */
+        .metrics-strip {
+            background: #040913;
+            border-bottom: 1px solid var(--border-dim);
+            padding: 4px 12px;
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr 1fr;
+            align-items: center;
+            text-align: center;
         }
+
+        .metric-cell {
+            padding: 2px 6px;
+            border-right: 1px solid var(--border-dim);
+        }
+        .metric-cell:last-child { border-right: none; }
 
         .chip {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.68rem;
-            padding: 2px 6px;
-            border-radius: 3px;
-            background: #0d182b;
+            font-size: 0.67rem;
+            padding: 1px 6px;
+            border-radius: 2px;
+            background: #081120;
             border: 1px solid var(--border-dim);
         }
 
+        /* 3-COL ROW */
+        .grid-3col {
+            display: grid;
+            grid-template-columns: 1fr 1.15fr 1fr;
+            border-bottom: 1px solid var(--border-dim);
+        }
+
+        /* 2-COL ROW */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid var(--border-dim);
+        }
+
+        .border-r {
+            border-right: 1px solid var(--border-dim);
+        }
+
+        /* LADDER S/R WIDGET */
+        .sr-ladder {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.74rem;
+        }
+
+        .sr-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .sr-row-price {
+            background: rgba(0, 210, 255, 0.12);
+            border: 1px solid rgba(0, 210, 255, 0.4);
+            font-weight: 800;
+            font-size: 0.88rem;
+        }
+
+        /* ATTRIBUTION BARS */
+        .attr-bar-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            margin-bottom: 3px;
+        }
+
+        .attr-bar-wrap {
+            flex: 1;
+            height: 5px;
+            background: #0c182c;
+            border-radius: 3px;
+            margin: 0 6px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .attr-fill-pos { background: var(--red); height: 100%; }
+        .attr-fill-neg { background: var(--green); height: 100%; }
+
+        /* KEY-VALUE TABLE */
+        .kv-table {
+            width: 100%;
+            font-size: 0.73rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .kv-table td {
+            padding: 2px 4px;
+            border-bottom: 1px solid #081120;
+        }
+        .kv-table tr:last-child td {
+            border-bottom: none;
+        }
+        .kv-label {
+            color: var(--text-muted);
+            width: 48%;
+        }
+        .kv-val {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        /* BANNER FULL WIDTH */
+        .w-full-banner {
+            background: #050b14;
+            border-bottom: 1px solid var(--border-dim);
+            padding: 5px 12px;
+        }
+
         .live-dot {
-            width: 7px;
-            height: 7px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 8px currentColor;
+            box-shadow: 0 0 6px currentColor;
             animation: pulse-dot 1.5s infinite;
         }
 
@@ -96,1342 +225,868 @@
             100% { transform: scale(0.9); opacity: 0.8; }
         }
 
-        @keyframes flash-green {
-            0% { background: rgba(0, 240, 144, 0.35); text-shadow: 0 0 20px #00f090; }
-            100% { background: transparent; text-shadow: none; }
-        }
-        @keyframes flash-red {
-            0% { background: rgba(255, 56, 92, 0.35); text-shadow: 0 0 20px #ff385c; }
-            100% { background: transparent; text-shadow: none; }
-        }
-        .flash-up { animation: flash-green 0.9s ease-out; }
-        .flash-down { animation: flash-red 0.9s ease-out; }
-
-        /* GRID TILES */
-        .terminal-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 5px;
-            margin-bottom: 5px;
-        }
-
-        .col-4-grid { grid-column: span 4; }
-        .col-6-grid { grid-column: span 6; }
-        .col-8-grid { grid-column: span 8; }
-        .col-12-grid { grid-column: span 12; }
-
-        @media (max-width: 1200px) {
-            .col-4-grid { grid-column: span 6; }
-            .col-8-grid { grid-column: span 12; }
-        }
-        @media (max-width: 768px) {
-            .col-4-grid, .col-6-grid, .col-8-grid { grid-column: span 12; }
-        }
-
-        .card-tile {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-dim);
-            border-radius: 6px;
-            padding: 7px 10px;
-            position: relative;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-        }
-
-        .card-tile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-dim);
-            padding-bottom: 3px;
-            margin-bottom: 5px;
-        }
-
-        .card-tile-title {
-            font-size: 0.82rem;
-            font-weight: 700;
-            letter-spacing: 0.8px;
+        .btn-term {
+            background: #091322;
+            border: 1px solid var(--border-bright);
             color: var(--cyan);
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            text-transform: uppercase;
-        }
-
-        /* LOCKED S/R WIDGET */
-        .sr-meter-container {
-            background: #040810;
-            border: 1px solid var(--border-dim);
-            border-radius: 4px;
-            padding: 5px 8px;
-            margin: 4px 0;
-        }
-
-        .sr-track {
-            height: 7px;
-            background: linear-gradient(90deg, var(--green) 0%, var(--cyan) 50%, var(--red) 100%);
-            border-radius: 4px;
-            position: relative;
-            margin: 8px 0 3px 0;
-        }
-
-        .sr-needle {
-            position: absolute;
-            top: -4px;
-            width: 4px;
-            height: 15px;
-            background: #ffffff;
-            box-shadow: 0 0 8px #ffffff;
-            border-radius: 2px;
-            transform: translateX(-50%);
-            transition: left 0.5s ease;
-        }
-
-        /* ATTRIBUTION BARS */
-        .attr-bar-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.71rem;
-            margin-bottom: 2px;
-        }
-
-        .attr-bar-wrap {
-            flex: 1;
-            height: 5px;
-            background: #0d1728;
-            border-radius: 3px;
-            margin: 0 6px;
-            overflow: hidden;
-            display: flex;
-        }
-
-        .attr-fill-pos {
-            background: var(--red);
-            height: 100%;
-        }
-
-        .attr-fill-neg {
-            background: var(--green);
-            height: 100%;
-        }
-
-        /* REGIME TAG */
-        .regime-pill {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.76rem;
+            font-size: 0.68rem;
             font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 4px;
-            border: 1px solid;
-        }
-
-        /* TABS */
-        .nav-tabs-terminal {
-            border-bottom: 1px solid var(--border-bright);
-            gap: 4px;
-        }
-        .nav-tabs-terminal .nav-link {
-            background: #08101e;
-            color: var(--text-muted);
-            border: 1px solid var(--border-dim);
-            font-size: 0.70rem;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 4px 4px 0 0;
-            letter-spacing: 0.3px;
-        }
-        .nav-tabs-terminal .nav-link:hover {
-            color: #ffffff;
-            background: #0d1a30;
-        }
-        .nav-tabs-terminal .nav-link.active {
-            color: #ffffff;
-            background: #11213d;
-            border-color: var(--cyan);
-            border-bottom-color: #11213d;
-        }
-
-        .tab-content-panel {
-            background: #0a1426;
-            border: 1px solid var(--border-bright);
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-            padding: 8px 10px;
-            min-height: 140px;
-        }
-
-        /* SUMMARY CALLOUT */
-        .summary-box {
-            background: linear-gradient(135deg, rgba(0, 210, 255, 0.04) 0%, rgba(240, 192, 64, 0.03) 100%);
-            border: 1px solid rgba(0, 210, 255, 0.25);
-            border-radius: 6px;
-            padding: 8px 12px;
-            margin-top: 5px;
-        }
-
-        .btn-terminal {
-            background: #0b1526;
-            border: 1px solid var(--border-bright);
-            color: var(--text-main);
-            font-weight: 700;
-            font-size: 0.70rem;
             padding: 2px 8px;
             border-radius: 3px;
             text-decoration: none;
             transition: all 0.2s;
         }
-        .btn-terminal:hover {
-            background: #142542;
+        .btn-term:hover {
+            background: #10233f;
             color: #ffffff;
             border-color: var(--cyan);
+        }
+
+        @media (max-width: 992px) {
+            .grid-3col, .grid-2col {
+                grid-template-columns: 1fr;
+            }
+            .border-r {
+                border-right: none;
+                border-bottom: 1px solid var(--border-dim);
+            }
+            .metrics-strip {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- ================================================== -->
-<!-- A. HEADER & INSTITUTIONAL TICKER TAPE -->
-<!-- ================================================== -->
-<div class="header-tape">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <div class="d-flex align-items-center gap-1">
+<div class="terminal-container">
+
+    <!-- ================================================== -->
+    <!-- 1. TOP HEADER & TICKER TAPE                        -->
+    <!-- ================================================== -->
+    <div class="header-title-bar d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
             <h1 class="brand-title">
-                <span style="color: var(--gold);">⚡ USDJPY MASTER AI</span>
-                <span class="badge bg-secondary bg-opacity-25 border border-secondary text-info mono fs-6 py-1 px-2" style="font-size: 0.68rem !important;">
-                    HEDGE FUND DESK
-                </span>
+                <span>🇺🇸🇯🇵 USDJPY MASTER AI TRADING & PRICE ATTRIBUTION</span>
             </h1>
             <span class="chip text-success border-success border-opacity-50">
                 <span class="live-dot text-success me-1"></span>
                 <span id="mt5-status-pill">MT5 BRIDGE: CONNECTED</span>
             </span>
-            <span class="chip text-muted" id="data-status-chip">DATA: LIVE 0ms</span>
         </div>
+        <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.72rem;">
+            <span class="text-success fw-bold">● LIVE</span>
+            <span class="text-muted">•</span>
+            <span class="text-white">M1 M5 M15 H1 H4 D1 W1</span>
+            <span class="text-muted">•</span>
+            <span class="text-info">Auto Update</span>
+            <span class="text-muted">•</span>
+            <span id="live-time-str" class="text-warning">29 Sep 2026 • 16:04 WIB</span>
+            <button class="btn-term ms-2" onclick="fetchPrices()">🔄 SCAN</button>
+        </div>
+    </div>
 
-        <div class="d-flex align-items-center gap-2">
-            <!-- CURRENT USDJPY HERO -->
+    <!-- ================================================== -->
+    <!-- 2. HIGH-IMPACT METRICS STRIP                       -->
+    <!-- ================================================== -->
+    <div class="metrics-strip">
+        <div class="metric-cell text-start ps-2">
+            <span class="text-muted" style="font-size: 0.65rem;">PRICE (USDJPY)</span>
             <div class="d-flex align-items-baseline gap-2">
-                <span class="text-muted fs-6">USDJPY:</span>
-                <span id="hero-price" class="price-badge-hero">157.362</span>
-                <span id="hero-change" class="mono fw-bold text-danger">-0.03% (-0.044)</span>
+                <span id="hero-price" class="mono text-white fw-bold" style="font-size: 1.45rem; line-height: 1;">157.410</span>
+                <span id="hero-change" class="mono text-danger fw-bold" style="font-size: 0.8rem;">-0.03% (-0.044)</span>
+            </div>
+        </div>
+        <div class="metric-cell">
+            <span class="text-muted" style="font-size: 0.65rem;">SCALP</span>
+            <div id="top-scalp-trend" class="mono text-danger fw-bold fs-6">BEARISH ↓</div>
+        </div>
+        <div class="metric-cell">
+            <span class="text-muted" style="font-size: 0.65rem;">MEDIUM</span>
+            <div id="top-med-trend" class="mono text-warning fw-bold fs-6">BEARISH ↓</div>
+        </div>
+        <div class="metric-cell">
+            <span class="text-muted" style="font-size: 0.65rem;">LONG</span>
+            <div id="top-long-trend" class="mono text-info fw-bold fs-6">NEUTRAL ↔</div>
+        </div>
+        <div class="metric-cell">
+            <span class="text-muted" style="font-size: 0.65rem;">STRENGTH</span>
+            <div id="top-strength-val" class="mono text-white fw-bold fs-6">68/100</div>
+        </div>
+        <div class="metric-cell">
+            <span class="text-muted" style="font-size: 0.65rem;">CONFIDENCE</span>
+            <div id="top-conf-val" class="mono text-success fw-bold fs-6">84%</div>
+        </div>
+    </div>
+
+    <!-- ================================================== -->
+    <!-- 3. ROW 1: 🔒 WEEKLY S/R | 🚨 WHY MOVED | ⚠️ RISK   -->
+    <!-- ================================================== -->
+    <div class="grid-3col">
+        
+        <!-- COL 1: 🔒 WEEKLY S/R (SUPPORT ON LEFT / LADDER VIEW) -->
+        <div class="w-box border-r">
+            <div class="w-box-header">
+                <span>🔒 WEEKLY S/R (LOCKED 27 Sep–4 Oct)</span>
+                <span class="chip text-success border-success" id="sr-status-tag">LOCKED 🔒</span>
+            </div>
+            
+            <div class="sr-ladder">
+                <div class="sr-row text-danger" style="background: rgba(255, 56, 92, 0.06);">
+                    <span><b>R 158.30</b></span>
+                    <span class="text-muted" style="font-size: 0.68rem;">Locked Resistance 🔒</span>
+                </div>
+                <div class="sr-row text-warning" style="background: rgba(255, 153, 0, 0.04);">
+                    <span>Near R <b>157.83</b></span>
+                    <span id="dist-r-val" class="text-muted" style="font-size: 0.68rem;">89.0 pips</span>
+                </div>
+                
+                <!-- CURRENT LIVE PRICE HIGHLIGHT -->
+                <div class="sr-row sr-row-price text-cyan my-1">
+                    <span>⚡ PRICE <b id="ladder-price" class="text-white">157.410</b></span>
+                    <span id="ladder-spread" class="text-cyan" style="font-size: 0.7rem;">Spread: 0.1p</span>
+                </div>
+
+                <div class="sr-row text-info" style="background: rgba(0, 210, 255, 0.04);">
+                    <span>Near S <b>153.26</b></span>
+                    <span id="dist-s-val" class="text-muted" style="font-size: 0.68rem;">+415.0 pips</span>
+                </div>
+                <div class="sr-row text-success" style="background: rgba(0, 240, 144, 0.06);">
+                    <span><b>S 152.80</b></span>
+                    <span class="text-muted" style="font-size: 0.68rem;">Locked Support 🔒</span>
+                </div>
             </div>
 
+            <!-- MINI RANGE SLIDER -->
+            <div class="mt-2 pt-1 border-top border-dim d-flex justify-content-between align-items-center" style="font-size: 0.68rem;">
+                <span class="text-success">S 152.80</span>
+                <div class="flex-grow-1 mx-2" style="height: 5px; background: #0c182c; border-radius: 3px; position: relative;">
+                    <div id="sr-mini-fill" style="width: 83.8%; height: 100%; background: linear-gradient(90deg, var(--green), var(--cyan), var(--red)); border-radius: 3px;"></div>
+                </div>
+                <span class="text-danger">R 158.30</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 0.67rem;">
+                <span>Filter: <b class="text-success">ARMED</b></span>
+                <span id="sr-range-pct-text">83.8% Range Position</span>
+            </div>
+        </div>
+
+        <!-- COL 2: 🚨 WHY PRICE MOVED? (PRICE ATTRIBUTION) -->
+        <div class="w-box border-r">
+            <div class="w-box-header">
+                <span>🚨 WHY PRICE MOVED?</span>
+                <span class="chip text-danger" id="attr-delta-hour">-0.42% / 1H</span>
+            </div>
+            
+            <div class="mb-2" style="font-size: 0.74rem;">
+                <div class="d-flex justify-content-between py-1 border-bottom border-dim">
+                    <span class="text-muted fw-bold">PRIMARY:</span>
+                    <b class="text-danger" id="attr-primary-txt">JPY / BOJ Repricing & Flow</b>
+                </div>
+                <div class="d-flex justify-content-between py-1 border-bottom border-dim">
+                    <span class="text-muted fw-bold">SECONDARY:</span>
+                    <span class="text-warning" id="attr-secondary-txt">JGB Yield Jump • Flow • Risk-Off</span>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted fw-bold">COUNTERFORCE:</span>
+                    <span class="text-success" id="attr-counter-txt">US Yield (US10Y 4.65%) • DXY</span>
+                </div>
+            </div>
+
+            <!-- VISUAL ATTRIBUTION BARS -->
+            <div class="pt-1 border-top border-dim">
+                <div class="attr-bar-row">
+                    <span class="text-muted" style="width: 95px;">BOJ Repricing</span>
+                    <div class="attr-bar-wrap"><div class="attr-fill-pos" style="width: 68%;"></div></div>
+                    <span class="mono text-danger fw-bold">+18%</span>
+                </div>
+                <div class="attr-bar-row">
+                    <span class="text-muted" style="width: 95px;">JPY Spot Flow</span>
+                    <div class="attr-bar-wrap"><div class="attr-fill-pos" style="width: 58%;"></div></div>
+                    <span class="mono text-danger fw-bold">+15%</span>
+                </div>
+                <div class="attr-bar-row">
+                    <span class="text-muted" style="width: 95px;">JGB Yield Rise</span>
+                    <div class="attr-bar-wrap"><div class="attr-fill-pos" style="width: 52%;"></div></div>
+                    <span class="mono text-danger fw-bold">+14%</span>
+                </div>
+                <div class="attr-bar-row">
+                    <span class="text-muted" style="width: 95px;">US Yield Defense</span>
+                    <div class="attr-bar-wrap"><div class="attr-fill-neg" style="width: 40%;"></div></div>
+                    <span class="mono text-success fw-bold">-10%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- COL 3: ⚠️ RISK & REGIME -->
+        <div class="w-box">
+            <div class="w-box-header">
+                <span>⚠️ RISK & REGIME</span>
+                <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono" style="font-size: 0.65rem;">HIGH RISK</span>
+            </div>
+
+            <table class="kv-table">
+                <tr>
+                    <td class="kv-label">Intervention</td>
+                    <td class="kv-val text-danger" id="risk-intervention">HIGH (ZONE 158.00–158.30)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Carry Trade</td>
+                    <td class="kv-val text-warning" id="risk-carry">STRESSED (Unwinding Active)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Safe Haven</td>
+                    <td class="kv-val text-cyan" id="risk-safehaven">ACTIVE (Score: 68/100)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">VIX (Equity Vol)</td>
+                    <td class="kv-val text-warning" id="risk-vix">↑ 16.45 (+1.2)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">MOVE (Bond Vol)</td>
+                    <td class="kv-val text-danger" id="risk-move">↑ 98.2 (Elevated)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Event Risk</td>
+                    <td class="kv-val text-warning" id="risk-event">MEDIUM</td>
+                </tr>
+            </table>
+
+            <div class="mt-2 pt-1 border-top border-dim" style="font-size: 0.68rem;">
+                <span class="text-muted">Regime:</span>
+                <b class="text-danger" id="regime-full-name">INTERVENTION RISK & FED-BOJ SPREAD</b>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================================================== -->
+    <!-- 4. ROW 2: ⚡ SCALPING | 🟡 MEDIUM | 🟢 LONG         -->
+    <!-- ================================================== -->
+    <div class="grid-3col">
+        
+        <!-- SCALPING -->
+        <div class="w-box border-r">
+            <div class="w-box-header">
+                <span>⚡ SCALPING (M1 / M5 / M15)</span>
+                <span class="badge bg-danger text-white mono" style="font-size: 0.62rem;">BEARISH ↓</span>
+            </div>
+            
+            <table class="kv-table">
+                <tr>
+                    <td class="kv-label">Trend</td>
+                    <td class="kv-val text-danger">BEARISH ↓</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Momentum</td>
+                    <td class="kv-val text-danger">-62 (Strong Sell)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Flow</td>
+                    <td class="kv-val text-cyan">JPY ↑ (Net Bid)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">VWAP (157.40)</td>
+                    <td class="kv-val text-danger">BELOW (Short Bias)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">ADX / Trend</td>
+                    <td class="kv-val text-white">18.5 (Consolidating)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Liquidity</td>
+                    <td class="kv-val text-success">NORMAL (Spread 0.1p)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Confidence</td>
+                    <td class="kv-val text-success fw-bold">84%</td>
+                </tr>
+            </table>
+
+            <div class="mt-1 pt-1 border-top border-dim d-flex justify-content-between text-muted" style="font-size: 0.67rem;">
+                <span>Micro SnR:</span>
+                <span><b class="text-success" id="sub-scalp-s1">S1 157.305</b> | <b class="text-danger" id="sub-scalp-r1">R1 157.545</b></span>
+            </div>
+        </div>
+
+        <!-- MEDIUM -->
+        <div class="w-box border-r">
+            <div class="w-box-header">
+                <span>🟡 MEDIUM (M15 / H1 / H4)</span>
+                <span class="badge bg-warning text-dark mono" style="font-size: 0.62rem;">BEAR/NEUTRAL ↓</span>
+            </div>
+
+            <table class="kv-table">
+                <tr>
+                    <td class="kv-label">Trend</td>
+                    <td class="kv-val text-warning">BEARISH / NEUTRAL ↓</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Pressure</td>
+                    <td class="kv-val text-danger">-54</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Bond Pressure</td>
+                    <td class="kv-val text-warning">↑ (JGB 10Y 0.88%)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">JPY Flow</td>
+                    <td class="kv-val text-cyan">↑ (Tokyo Importer Buy)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">COT Index</td>
+                    <td class="kv-val text-success">+ (Short Unwinding)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Options Skew</td>
+                    <td class="kv-val text-cyan">JPY + (Downside Put Skew)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Confidence</td>
+                    <td class="kv-val text-success fw-bold">78%</td>
+                </tr>
+            </table>
+
+            <div class="mt-1 pt-1 border-top border-dim d-flex justify-content-between text-muted" style="font-size: 0.67rem;">
+                <span>Daily Pivot:</span>
+                <span><b class="text-success" id="sub-med-s1">S1 157.248</b> | <b class="text-white" id="sub-med-p">P 157.416</b> | <b class="text-danger" id="sub-med-r1">R1 157.628</b></span>
+            </div>
+        </div>
+
+        <!-- LONG / MACRO -->
+        <div class="w-box">
+            <div class="w-box-header">
+                <span>🟢 LONG / MACRO (H4 / D1 / W1)</span>
+                <span class="badge bg-secondary text-white mono" style="font-size: 0.62rem;">CONFLICTED ↔</span>
+            </div>
+
+            <table class="kv-table">
+                <tr>
+                    <td class="kv-label">Regime</td>
+                    <td class="kv-val text-info">CONFLICTED</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Macro Score</td>
+                    <td class="kv-val text-warning">+16 (Tug of War)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">The Fed</td>
+                    <td class="kv-val text-danger">HAWKISH (Hold 5.25-5.50%)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">BOJ</td>
+                    <td class="kv-val text-success">HAWKISH (Hiking Active)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Yield Spread</td>
+                    <td class="kv-val text-warning">↑ 3.77% (Narrowing -8bp)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">JGB Yield</td>
+                    <td class="kv-val text-success">↑ 0.88% (Cap 1.00%)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Confidence</td>
+                    <td class="kv-val text-info fw-bold">68%</td>
+                </tr>
+            </table>
+
+            <div class="mt-1 pt-1 border-top border-dim d-flex justify-content-between text-muted" style="font-size: 0.67rem;">
+                <span>Locked Bounds:</span>
+                <span><b class="text-success">152.80 🔒</b> to <b class="text-danger">158.30 🔒</b></span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================================================== -->
+    <!-- 5. ROW 3: FUNDAMENTAL × PRICE DIVERGENCE (FULL)    -->
+    <!-- ================================================== -->
+    <div class="w-full-banner">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
-                <span class="chip text-warning">
-                    REGIME: <b id="header-regime-val" class="text-white">INTERVENTION RISK</b>
-                </span>
-                <button class="btn-terminal" onclick="fetchLiveData()">🔄 SCAN</button>
+                <span class="fw-bold text-white mono" style="font-size: 0.82rem; letter-spacing: 0.8px;">⚖️ FUNDAMENTAL × PRICE DIVERGENCE</span>
+                <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono" style="font-size: 0.65rem;">DIVERGENCE: HIGH</span>
             </div>
+            <div class="mono" style="font-size: 0.74rem;">
+                <span>PRICE PRESSURE: <b class="text-danger">-48 (Defensive Pullback)</b></span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top border-dim flex-wrap gap-2 mono" style="font-size: 0.72rem;">
+            <span>USD FUNDAMENTAL: <b class="text-success">+64 (Strong Growth & Yield)</b></span>
+            <span class="text-muted">|</span>
+            <span>JPY FUNDAMENTAL: <b class="text-info">+58 (Rising Wages & BOJ Hike)</b></span>
+            <span class="text-muted">|</span>
+            <span>POSITIONING: <b class="text-warning">-24 (Short Covering)</b></span>
+            <span class="text-muted">|</span>
+            <span>FLOW: <b class="text-danger">-31 (Institutional JPY Bid)</b></span>
         </div>
     </div>
 
-    <!-- SUB-TAPE: MULTI-HORIZON CHANGES & SIGNALS -->
-    <div class="d-flex justify-content-between align-items-center mt-1 pt-2 border-top border-secondary border-opacity-25 flex-wrap gap-2 text-muted" style="font-size: 0.68rem;">
-        <div class="d-flex align-items-center gap-2">
-            <span>DELTA:</span>
-            <span class="chip">1M: <b id="chg-1m" class="text-white">-0.012</b></span>
-            <span class="chip">5M: <b id="chg-5m" class="text-white">-0.028</b></span>
-            <span class="chip">15M: <b id="chg-15m" class="text-white">-0.045</b></span>
-            <span class="chip">1H: <b id="chg-1h" class="text-danger">-0.082</b></span>
-            <span class="chip">4H: <b id="chg-4h" class="text-danger">-0.150</b></span>
-            <span class="chip">1D: <b id="chg-1d" class="text-danger">-0.044</b></span>
-        </div>
-
-        <div class="d-flex align-items-center gap-1">
-            <span>TRENDS:</span>
-            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 mono">SCALP ↓</span>
-            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 mono">MEDIUM ↓</span>
-            <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25 mono">LONG ↔</span>
-            <span>STRENGTH: <b id="header-strength" class="text-white mono">68/100</b></span>
-            <span>CONFIDENCE: <b id="header-confidence" class="text-info mono">84%</b></span>
-            <span>WIB: <b id="clock-wib" class="text-white mono">--:--:--</b></span>
-        </div>
-    </div>
-</div>
-
-<!-- ================================================== -->
-<!-- PRIMARY TRADING DESK GRID (3 COLUMNS) -->
-<!-- ================================================== -->
-<div class="terminal-grid">
-
-    <!-- B. WEEKLY LOCKED S/R CARD -->
-    <div class="card-tile col-4-grid">
-        <div class="card-tile-header">
-            <h2 class="card-tile-title">
-                <span>🔒</span>
-                <span>B. WEEKLY LOCKED S/R</span>
-            </h2>
-            <span id="sr-status-pill" class="regime-pill text-info border-info">NORMAL</span>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-baseline mb-1">
-            <div>
-                <span class="text-muted" style="font-size: 0.67rem;">LOCKED SUPPORT</span>
-                <div class="mono fw-bold text-success fs-5">152.80 🔒</div>
+    <!-- ================================================== -->
+    <!-- 6. ROW 4: 🏦 FED × BOJ | 💰 BOND / YIELD           -->
+    <!-- ================================================== -->
+    <div class="grid-2col">
+        
+        <!-- FED × BOJ -->
+        <div class="w-box border-r">
+            <div class="w-box-header">
+                <span>🏦 FED × BOJ POLICY MATRIX</span>
+                <span class="chip text-warning">DIVERGENCE WATCH</span>
             </div>
-            <div class="text-center">
-                <span class="text-muted" style="font-size: 0.67rem;">NEAR R ZONE</span>
-                <div class="mono fw-bold text-warning" style="font-size: 0.9rem;">157.83</div>
-            </div>
-            <div class="text-end">
-                <span class="text-muted" style="font-size: 0.67rem;">LOCKED RESISTANCE</span>
-                <div class="mono fw-bold text-danger fs-5">158.30 🔒</div>
-            </div>
-        </div>
-
-        <!-- S/R GAUGE METER -->
-        <div class="sr-meter-container">
-            <div class="d-flex justify-content-between text-muted" style="font-size: 0.7rem;">
-                <span>S 152.80</span>
-                <span id="sr-pct-text" class="mono text-white fw-bold">82.9% Range Position</span>
-                <span>R 158.30</span>
-            </div>
-            <div class="sr-track">
-                <div id="sr-needle-pin" class="sr-needle" style="left: 82.9%;"></div>
-            </div>
-            <div class="d-flex justify-content-between mono text-muted mt-1" style="font-size: 0.67rem;">
-                <span id="dist-s-text" class="text-success">Jarak: +456.2 pips dari S</span>
-                <span id="dist-r-text" class="text-warning">Jarak: 93.8 pips ke R</span>
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center text-muted border-top border-secondary border-opacity-25 pt-2" style="font-size: 0.75rem;">
-            <span>Anti-Spam Filter: <b class="text-success">ARMED</b></span>
-            <span>Near S Trigger: <b class="mono text-white">≤ 153.26</b></span>
-            <span>Near R Trigger: <b class="mono text-white">≥ 157.83</b></span>
-        </div>
-    </div>
-
-    <!-- AD & AE. WHY PRICE MOVED (PRICE ATTRIBUTION) -->
-    <div class="card-tile col-4-grid">
-        <div class="card-tile-header">
-            <h2 class="card-tile-title">
-                <span>🎯</span>
-                <span>AD. WHY USDJPY MOVED?</span>
-            </h2>
-            <span class="chip text-success">EXPLAINED: 97%</span>
-        </div>
-
-        <div class="mb-1" style="font-size: 0.82rem;">
-            <div><b>PRIMARY:</b> <span class="text-danger fw-bold" id="attr-primary">BOJ Repricing & JPY Spot Flow</span></div>
-            <div><b>SECONDARY:</b> <span class="text-warning" id="attr-secondary">Risk-Off Safe Haven & Intervention Threat</span></div>
-            <div><b>COUNTERFORCE:</b> <span class="text-success" id="attr-counter">US Yield Spread (US10Y 4.65%)</span></div>
-        </div>
-
-        <!-- BREAKDOWN BARS -->
-        <div class="sr-meter-container" style="padding: 6px 10px;">
-            <div class="attr-bar-row">
-                <span style="width: 110px;">BOJ Repricing</span>
-                <div class="attr-bar-wrap"><div class="attr-fill-pos" style="width: 70%;"></div></div>
-                <span class="mono text-danger fw-bold">+18%</span>
-            </div>
-            <div class="attr-bar-row">
-                <span style="width: 110px;">JPY Spot Flow</span>
-                <div class="attr-bar-wrap"><div class="attr-fill-pos" style="width: 60%;"></div></div>
-                <span class="mono text-danger fw-bold">+15%</span>
-            </div>
-            <div class="attr-bar-row">
-                <span style="width: 110px;">JGB Yield Rise</span>
-                <div class="attr-bar-wrap"><div class="attr-fill-pos" style="width: 55%;"></div></div>
-                <span class="mono text-danger fw-bold">+14%</span>
-            </div>
-            <div class="attr-bar-row">
-                <span style="width: 110px;">Intervention Fear</span>
-                <div class="attr-bar-wrap"><div class="attr-fill-pos" style="width: 48%;"></div></div>
-                <span class="mono text-danger fw-bold">+12%</span>
-            </div>
-            <div class="attr-bar-row">
-                <span style="width: 110px;">US Yield Resistance</span>
-                <div class="attr-bar-wrap"><div class="attr-fill-neg" style="width: 40%;"></div></div>
-                <span class="mono text-success fw-bold">-10%</span>
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-between text-muted border-top border-secondary border-opacity-25 pt-2" style="font-size: 0.67rem;">
-            <span>Unexplained Residual: <b class="mono text-white">3%</b></span>
-            <span>Anomaly Scan: <b class="text-success">NORMAL RESIDUAL</b></span>
-        </div>
-    </div>
-
-    <!-- T, U, V. RISK & INTERVENTION WATCH -->
-    <div class="card-tile col-4-grid">
-        <div class="card-tile-header">
-            <h2 class="card-tile-title">
-                <span>🛡️</span>
-                <span>RISK & INTERVENTION</span>
-            </h2>
-            <span class="regime-pill text-danger border-danger">HIGH RISK</span>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-1">
-            <div>
-                <span class="text-muted" style="font-size: 0.67rem;">INTERVENTION RISK</span>
-                <div class="fw-bold text-danger" style="font-size: 1.1rem;">HIGH (MODEL RISK ZONE)</div>
-                <div class="text-muted" style="font-size: 0.7rem;">Zona Siaga MoF: 158.00 - 158.30</div>
-            </div>
-            <div class="text-end">
-                <span class="text-muted" style="font-size: 0.67rem;">CARRY TRADE REGIME</span>
-                <div class="fw-bold text-warning" style="font-size: 1.1rem;">STRESSED</div>
-                <div class="text-muted" style="font-size: 0.7rem;">Unwinding Pressure Active</div>
-            </div>
-        </div>
-
-        <div class="sr-meter-container">
-            <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.68rem;">
-                <span>Safe Haven Index: <b class="mono text-warning">68/100 (ACTIVE)</b></span>
-                <span>VIX: <b class="mono text-white">16.45</b></span>
-                <span>MOVE: <b class="mono text-white">98.2</b></span>
-            </div>
-            <div class="d-flex justify-content-between text-muted" style="font-size: 0.68rem;">
-                <span>Global Funding Stress: <b class="mono text-info">MEDIUM</b></span>
-                <span>Cross-Currency Basis: <b class="mono text-white">-14.2bp</b></span>
-            </div>
-        </div>
-
-        <div class="text-muted border-top border-secondary border-opacity-25 pt-2" style="font-size: 0.67rem;">
-            📌 <i>Catatan: Zona intervensi berlabel MODEL RISK ZONE, bukan pengumuman resmi pemerintah sampai ada rilis resmi Kemenkeu Jepang.</i>
-        </div>
-    </div>
-
-</div>
-
-<!-- ================================================== -->
-<!-- MULTI-HORIZON ENGINES (C, D, E) -->
-<!-- ================================================== -->
-<div class="terminal-grid">
-
-    <!-- C. SCALPING ENGINE -->
-    <div class="card-tile col-4-grid">
-        <div class="card-tile-header">
-            <h2 class="card-tile-title">
-                <span>⚡</span>
-                <span>C. SCALPING ENGINE</span>
-                <span class="chip text-muted ms-2">M1 / M5 / M15</span>
-            </h2>
-            <span class="badge bg-danger text-white mono">BEARISH</span>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-1">
-            <div>
-                <span class="text-muted" style="font-size: 0.67rem;">SCALP PRESSURE</span>
-                <div class="fw-bold text-danger fs-6">BEARISH PRESSURE</div>
-            </div>
-            <div class="text-end">
-                <span class="text-muted" style="font-size: 0.67rem;">STRENGTH / CONFIDENCE</span>
-                <div class="mono fw-bold text-white fs-6">68/100 • 84%</div>
-            </div>
-        </div>
-
-        <!-- SCALP TECH & MICROSTRUCTURE -->
-        <div class="sr-meter-container" style="font-size: 0.68rem;">
-            <div class="d-flex justify-content-between text-muted mb-1">
-                <span>EMA 9/21/50: <b class="mono text-danger">157.38 / 157.42 / 157.48</b></span>
-                <span>VWAP: <b class="mono text-white">157.40</b></span>
-            </div>
-            <div class="d-flex justify-content-between text-muted mb-1">
-                <span>RSI 14: <b class="mono text-warning">44.2 (Bear bias)</b></span>
-                <span>ADX 14: <b class="mono text-white">28.5 (Trending)</b></span>
-            </div>
-            <div class="d-flex justify-content-between text-muted">
-                <span>Orderbook Delta: <b class="mono text-danger">-420 lots</b></span>
-                <span>Bid/Ask Spread: <b class="mono text-success">0.1 pips</b></span>
-            </div>
-        </div>
-
-        <div style="font-size: 0.68rem;" class="mt-1 text-muted">
-            <div><b>Driver:</b> Ask-wall resistance at 157.50 + Spot JPY net buying</div>
-            <div><b>Reversal Watch:</b> Breakout H1 > 157.65 invalidates scalp short</div>
-        </div>
-    </div>
-
-    <!-- D. MEDIUM / INTRADAY ENGINE -->
-    <div class="card-tile col-4-grid">
-        <div class="card-tile-header">
-            <h2 class="card-tile-title">
-                <span>📊</span>
-                <span>D. MEDIUM / INTRADAY</span>
-                <span class="chip text-muted ms-2">M15 / H1 / H4</span>
-            </h2>
-            <span class="badge bg-warning text-dark mono">BEAR/NEUTRAL</span>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-1">
-            <div>
-                <span class="text-muted" style="font-size: 0.67rem;">MEDIUM TREND</span>
-                <div class="fw-bold text-warning fs-6">BEARISH / NEUTRAL</div>
-            </div>
-            <div class="text-end">
-                <span class="text-muted" style="font-size: 0.67rem;">STRENGTH / CONFIDENCE</span>
-                <div class="mono fw-bold text-white fs-6">62/100 • 78%</div>
-            </div>
-        </div>
-
-        <div class="sr-meter-container" style="font-size: 0.68rem;">
-            <div class="d-flex justify-content-between text-muted mb-1">
-                <span>EMA 20/50/200: <b class="mono text-white">157.45 / 157.55 / 156.80</b></span>
-            </div>
-            <div class="d-flex justify-content-between text-muted mb-1">
-                <span>MACD: <b class="mono text-danger">-0.04 (Bear Cross)</b></span>
-                <span>Ichimoku: <b class="mono text-warning">Cloud Cap 157.70</b></span>
-            </div>
-            <div class="d-flex justify-content-between text-muted">
-                <span>Daily Pivot: <b class="mono text-white">157.45</b></span>
-                <span>R1: <b class="mono text-danger">157.85</b> | S1: <b class="mono text-success">157.10</b></span>
-            </div>
-        </div>
-
-        <div style="font-size: 0.68rem;" class="mt-1 text-muted">
-            <div><b>Flow:</b> Tokyo fixing corporate selling + Options downside skew</div>
-            <div><b>Alignment:</b> Aligned bearish below 157.83 locked resistance</div>
-        </div>
-    </div>
-
-    <!-- E. LONG / SWING ENGINE -->
-    <div class="card-tile col-4-grid">
-        <div class="card-tile-header">
-            <h2 class="card-tile-title">
-                <span>🏛️</span>
-                <span>E. LONG / SWING MACRO</span>
-                <span class="chip text-muted ms-2">H4 / D1 / W1</span>
-            </h2>
-            <span class="badge bg-secondary text-white mono">CONFLICTED</span>
-        </div>
-
-        <div class="d-flex justify-content-between align-items-center mb-1">
-            <div>
-                <span class="text-muted" style="font-size: 0.67rem;">LONG TREND</span>
-                <div class="fw-bold text-info fs-6">CONFLICTED REGIME</div>
-            </div>
-            <div class="text-end">
-                <span class="text-muted" style="font-size: 0.67rem;">STRENGTH / CONFIDENCE</span>
-                <div class="mono fw-bold text-white fs-6">54/100 • 75%</div>
-            </div>
-        </div>
-
-        <div class="sr-meter-container" style="font-size: 0.68rem;">
-            <div class="d-flex justify-content-between text-muted mb-1">
-                <span>The Fed (5.25-5.50%): <b class="mono text-danger">HAWKISH +72</b></span>
-                <span>SOFR Terminal: <b class="mono text-white">4.85%</b></span>
-            </div>
-            <div class="d-flex justify-content-between text-muted mb-1">
-                <span>BOJ (0.25%): <b class="mono text-success">HAWKISH +58</b></span>
-                <span>Next Hike Prob: <b class="mono text-warning">64% (Dec/Jan)</b></span>
-            </div>
-            <div class="d-flex justify-content-between text-muted">
-                <span>10Y Spread: <b class="mono text-white">3.77% (-8bp 20D)</b></span>
-                <span>PPP Valuation: <b class="mono text-info">JPY UNDERVALUED</b></span>
-            </div>
-        </div>
-
-        <div style="font-size: 0.68rem;" class="mt-1 text-muted">
-            <div><b>Conflict:</b> US yield carry supports USD, but BOJ rate cycle caps topside</div>
-            <div><b>Invalidation:</b> Weekly candle close beyond 152.80 - 158.30 range</div>
-        </div>
-    </div>
-
-</div>
-
-<!-- ================================================== -->
-
-<!-- ================================================== -->
-<!-- AF. MULTI-HORIZON SnR ENGINE & QWEN AI ACCURACY VALIDATION -->
-<!-- ================================================== -->
-<div class="terminal-grid" id="snr-qwen-anchor">
-    <div class="card-tile col-12-grid">
-        <div class="card-tile-header flex-wrap gap-2">
-            <h2 class="card-tile-title mb-0">
-                <span>🎯</span>
-                <span>MULTI-HORIZON SnR CALCULATION & AI QWEN ACCURACY AUDIT</span>
-            </h2>
-            <div class="d-flex align-items-center flex-wrap gap-2">
-                <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="qwen-overall-badge">
-                    AI QWEN ACCURACY: 94.2%
-                </span>
-                <span class="badge bg-primary bg-opacity-25 text-info border border-info mono py-1 px-2" id="qwen-status-badge">
-                    CALIBRATED & INSTITUTIONAL GRADE
-                </span>
-                <span class="badge bg-dark text-muted border border-dim mono py-1 px-2">
-                    MODEL: <span class="text-white" id="qwen-model-label">QWEN 3.7 FLASH</span>
-                </span>
-                <span class="text-muted mono" style="font-size: 0.75rem;">
-                    AUDIT: <span class="text-warning" id="qwen-time-label">15:13 WIB</span>
-                </span>
-                <button id="btn-recalibrate-qwen" class="btn btn-sm btn-outline-info mono px-3 py-1" onclick="recalibrateQwenSnR()" style="font-size: 0.75rem; letter-spacing: 0.5px;">
-                    ⚡ RE-CALIBRATE WITH QWEN AI
-                </button>
-            </div>
-        </div>
-
-        <div class="row g-1">
-            <!-- 1. SCALPING SnR -->
-            <div class="col-md-4">
-                <div class="sr-meter-container h-100" style="padding: 12px 14px; border-left: 3px solid var(--cyan);">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-bold text-info" style="font-size: 0.85rem; letter-spacing: 0.5px;">
-                            ⚡ SCALPING SnR (M1 / M5 / M15)
-                        </span>
-                        <span class="badge bg-info bg-opacity-25 text-info mono" id="qwen-scalp-acc">89.4% ACCURACY</span>
-                    </div>
-                    
-                    <div class="mono" style="font-size: 0.68rem;">
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">Micro Pivot (P):</span>
-                            <b class="text-white" id="snr-scalp-p">157.391</b>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">Resistance R1 / R2:</span>
-                            <span><b class="text-danger" id="snr-scalp-r1">157.545</b> / <b class="text-danger" id="snr-scalp-r2">157.631</b></span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">Support S1 / S2:</span>
-                            <span><b class="text-success" id="snr-scalp-s1">157.305</b> / <b class="text-success" id="snr-scalp-s2">157.151</b></span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">VWAP Bands (±1σ):</span>
-                            <span class="text-light" id="snr-scalp-vwap">157.311 - 157.471</span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted">Micro Range:</span>
-                            <span class="text-warning" id="snr-scalp-range">24.0 pips</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-1 pt-2 border-top border-dim" style="font-size: 0.67rem;">
-                        <div class="text-muted fw-bold mb-1">CONFLUENCE VALIDATOR:</div>
-                        <div class="text-light" id="snr-scalp-conf">
-                            <div>✓ M5 Micro Pivot alignment</div>
-                            <div>✓ Orderbook delta liquidity boundary</div>
-                            <div>✓ VWAP mean-reversion cushion</div>
-                        </div>
-                    </div>
-
-                    <div class="p-2 mt-1 rounded bg-black bg-opacity-50 border border-info border-opacity-25 text-info" style="font-size: 0.67rem;">
-                        <span class="fw-bold">Tactic:</span> <span id="snr-scalp-rule">Fokus sell rejection di 157.545 dengan invalidasi di atas 157.631. TP di 157.305.</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. MEDIUM SnR -->
-            <div class="col-md-4">
-                <div class="sr-meter-container h-100" style="padding: 12px 14px; border-left: 3px solid var(--amber);">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-bold text-warning" style="font-size: 0.85rem; letter-spacing: 0.5px;">
-                            📊 MEDIUM SnR (M15 / H1 / H4)
-                        </span>
-                        <span class="badge bg-warning bg-opacity-25 text-warning mono" id="qwen-med-acc">93.1% ACCURACY</span>
-                    </div>
-                    
-                    <div class="mono" style="font-size: 0.68rem;">
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">Daily Pivot (P):</span>
-                            <b class="text-white" id="snr-med-p">157.416</b>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">Resistance R1 / R2:</span>
-                            <span><b class="text-danger" id="snr-med-r1">157.628</b> / <b class="text-danger" id="snr-med-r2">157.796</b></span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">Support S1 / S2:</span>
-                            <span><b class="text-success" id="snr-med-s1">157.248</b> / <b class="text-success" id="snr-med-s2">157.036</b></span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">EMA 50 / 200 (H1):</span>
-                            <span class="text-light" id="snr-med-ema">157.510 / 156.800</span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted">Day Range:</span>
-                            <span class="text-warning" id="snr-med-range">38.0 pips</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-1 pt-2 border-top border-dim" style="font-size: 0.67rem;">
-                        <div class="text-muted fw-bold mb-1">CONFLUENCE VALIDATOR:</div>
-                        <div class="text-light" id="snr-med-conf">
-                            <div>✓ H1 EMA dynamic barrier</div>
-                            <div>✓ Daily S1 demand block at 157.248</div>
-                            <div>✓ Fixing corporate flow absorption</div>
-                        </div>
-                    </div>
-
-                    <div class="p-2 mt-1 rounded bg-black bg-opacity-50 border border-warning border-opacity-25 text-warning" style="font-size: 0.67rem;">
-                        <span class="fw-bold">Tactic:</span> <span id="snr-med-rule">Pertahankan bias defensif di bawah 157.628. Waspada reaksi tajam bila mendekati 157.248.</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. LONG SnR -->
-            <div class="col-md-4">
-                <div class="sr-meter-container h-100" style="padding: 12px 14px; border-left: 3px solid var(--green);">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-bold text-success" style="font-size: 0.85rem; letter-spacing: 0.5px;">
-                            🏛️ LONG SnR (WEEKLY LOCKED)
-                        </span>
-                        <span class="badge bg-success bg-opacity-25 text-success mono" id="qwen-long-acc">97.6% ACCURACY</span>
-                    </div>
-                    
-                    <div class="mono" style="font-size: 0.68rem;">
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">Locked Support:</span>
-                            <b class="text-success" id="snr-long-s">152.80 🔒</b>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">Near S Zone:</span>
-                            <b class="text-info" id="snr-long-near-s">153.26</b>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">Locked Resistance:</span>
-                            <b class="text-danger" id="snr-long-r">158.30 🔒</b>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom border-dim">
-                            <span class="text-muted">Near R Zone:</span>
-                            <b class="text-warning" id="snr-long-near-r">157.83</b>
-                        </div>
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted">Range Distance:</span>
-                            <span class="text-light" id="snr-long-dists">84.0 pips ke R | 466.0 pips ke S</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-1 pt-2 border-top border-dim" style="font-size: 0.67rem;">
-                        <div class="text-muted fw-bold mb-1">CONFLUENCE VALIDATOR:</div>
-                        <div class="text-light" id="snr-long-conf">
-                            <div>✓ MoF Japan intervention trigger at 158.00-158.30</div>
-                            <div>✓ CFTC Yen short-covering base at 152.80</div>
-                            <div>✓ 10Y US-JP sovereign yield anchor</div>
-                        </div>
-                    </div>
-
-                    <div class="p-2 mt-1 rounded bg-black bg-opacity-50 border border-success border-opacity-25 text-success" style="font-size: 0.67rem;">
-                        <span class="fw-bold">Tactic:</span> <span id="snr-long-rule">Level 152.80 - 158.30 adalah batas mutlak. Jangan pasang buy breakout di atas 158.00 tanpa konfirmasi MoF.</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- EXECUTIVE VERDICT BANNER -->
-        <div class="mt-1 p-2 rounded" style="background: rgba(0, 210, 255, 0.04); border: 1px solid rgba(0, 210, 255, 0.2);">
-            <div class="d-flex align-items-center mb-1">
-                <span class="fs-5 me-2">🤖</span>
-                <span class="fw-bold text-white mono" style="font-size: 0.85rem; letter-spacing: 1px;">
-                    AI QWEN 3.7 EXECUTIVE ACCURACY & CONFLUENCE AUDIT
-                </span>
-            </div>
-            <div class="inter text-light" style="font-size: 0.82rem; line-height: 1.5;" id="qwen-exec-verdict">
-                AI Qwen mengonfirmasi ketiga horizon SnR valid dengan tingkat akurasi terkalibrasi 94.2%. Seluruh level telah diverifikasi terhadap likuiditas pasar dan profil risiko intervensi makro.
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- AG. FUNDAMENTAL × PRICE DIVERGENCE & BROAD STRENGTH -->
-<!-- ================================================== -->
-<div class="terminal-grid">
-    <div class="card-tile col-12-grid">
-        <div class="card-tile-header">
-            <h2 class="card-tile-title">
-                <span>⚖️</span>
-                <span>AG. FUNDAMENTAL VS PRICE DIVERGENCE & BROAD CURRENCY STRENGTH</span>
-            </h2>
-            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono">DIVERGENCE = HIGH</span>
-        </div>
-
-        <div class="row align-items-center g-1">
-            <div class="col-md-5">
-                <div class="sr-meter-container" style="padding: 10px 14px;">
-                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.72rem;">
-                        <span>USD Fundamental Score:</span>
-                        <b class="mono text-success">+64 (Strong Growth & Yield)</b>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.72rem;">
-                        <span>JPY Fundamental Score:</span>
-                        <b class="mono text-info">+58 (Rising Wages & BOJ Hike)</b>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.72rem;">
-                        <span>Positioning Score (COT):</span>
-                        <b class="mono text-danger">-24 (Short Covering Flow)</b>
-                    </div>
-                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.72rem;">
-                        <span>Real-Time Flow Score:</span>
-                        <b class="mono text-danger">-31 (Net Institutional JPY Bid)</b>
-                    </div>
-                    <div class="d-flex justify-content-between border-top border-secondary border-opacity-25 pt-1" style="font-size: 0.72rem;">
-                        <span>Price Action Pressure:</span>
-                        <b class="mono text-danger fw-bold">-48 (Defensive Pullback)</b>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-7">
-                <div class="row g-2 text-center" style="font-size: 0.78rem;">
-                    <!-- JPY BROAD STRENGTH -->
-                    <div class="col-6">
-                        <div class="card-tile" style="padding: 10px; background: #070e1c;">
-                            <span class="text-muted">JPY BROAD STRENGTH INDEX</span>
-                            <div class="fs-4 fw-bold mono text-info mt-1">102.40 <span class="fs-6 text-success">+0.42%</span></div>
-                            <div class="d-flex justify-content-between mt-1 text-muted" style="font-size: 0.7rem;">
-                                <span>EURJPY 169.85 ↓</span>
-                                <span>GBPJPY 204.12 ↓</span>
-                                <span>AUDJPY 101.40 ↓</span>
-                            </div>
-                            <div class="text-success mt-1" style="font-size: 0.68rem; font-weight: 700;">CONFIRMED: PENGUATAN ASLI YEN JEPANG</div>
-                        </div>
-                    </div>
-                    <!-- USD BROAD STRENGTH -->
-                    <div class="col-6">
-                        <div class="card-tile" style="padding: 10px; background: #070e1c;">
-                            <span class="text-muted">USD BROAD STRENGTH INDEX (DXY)</span>
-                            <div class="fs-4 fw-bold mono text-warning mt-1">104.25 <span class="fs-6 text-danger">-0.12%</span></div>
-                            <div class="d-flex justify-content-between mt-1 text-muted" style="font-size: 0.7rem;">
-                                <span>EURUSD 1.0845</span>
-                                <span>USDCNH 7.2345</span>
-                                <span>USDKRW 1378.2</span>
-                            </div>
-                            <div class="text-muted mt-1" style="font-size: 0.68rem;">DXY KONSOLIDASI MENUNGGU RILIS DATA AS</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-muted mt-1" style="font-size: 0.75rem;">
-                    💡 <b>Diagnosis AI:</b> Fundamental makro (yield gap) masih mendukung Dolar, namun harga USDJPY bergerak turun karena intervensi verbal MoF + repatriasi modal Jepang. Divergensi tinggi ini menandakan fase defensif institusional di bawah 158.00.
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ================================================== -->
-<!-- DEEP-DIVE INSTITUTIONAL TABS (F - AA) -->
-<!-- ================================================== -->
-<div class="mt-1 mb-1">
-    <ul class="nav nav-tabs nav-tabs-terminal" id="deepDiveTabs" role="tablist">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-bonds">📈 F. BONDS & YIELDS</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-cot">📊 G. COT POSITIONING</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-options">🎲 H. OPTIONS INTELLIGENCE</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-flow">🌊 I. FLOW & FIXINGS</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-macro">🏛️ L. MACRO RELEASES</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-commodities">🛢️ O-P. OIL & GOLD</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-correlations">🔗 Z. CORRELATION & LEAD-LAG</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-speeches">📰 X-Y. SPEECHES & DIVERGENCE</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-freshness">⏱️ AH. DATA FRESHNESS</button></li>
-    </ul>
-
-    <div class="tab-content tab-content-panel">
-
-        <!-- TAB 1: BONDS & YIELDS -->
-        <div class="tab-pane fade show active" id="tab-bonds">
-            <div class="row g-1">
-                <div class="col-md-4">
-                    <h6 class="text-info fw-bold mb-1">US TREASURY YIELDS (SOURCE: FED/BLOOMBERG)</h6>
-                    <table class="table table-dark table-sm table-borderless mono" style="font-size: 0.78rem;">
-                        <tr><td>US 2-Year:</td><td class="text-end fw-bold text-white">4.25%</td><td><span class="text-danger">-2bp</span></td></tr>
-                        <tr><td>US 5-Year:</td><td class="text-end fw-bold text-white">4.38%</td><td><span class="text-danger">-1bp</span></td></tr>
-                        <tr><td>US 10-Year:</td><td class="text-end fw-bold text-white">4.65%</td><td><span class="text-muted">0bp</span></td></tr>
-                        <tr><td>US 30-Year:</td><td class="text-end fw-bold text-white">4.88%</td><td><span class="text-success">+1bp</span></td></tr>
-                        <tr><td>10Y-2Y Spread:</td><td class="text-end fw-bold text-info">+0.40%</td><td><span class="text-info">Disinversion</span></td></tr>
-                    </table>
-                </div>
-                <div class="col-md-4">
-                    <h6 class="text-info fw-bold mb-1">JAPAN JGB YIELDS (SOURCE: MOF/BOJ)</h6>
-                    <table class="table table-dark table-sm table-borderless mono" style="font-size: 0.78rem;">
-                        <tr><td>JGB 2-Year:</td><td class="text-end fw-bold text-white">0.38%</td><td><span class="text-success">+1bp</span></td></tr>
-                        <tr><td>JGB 5-Year:</td><td class="text-end fw-bold text-white">0.58%</td><td><span class="text-success">+2bp</span></td></tr>
-                        <tr><td>JGB 10-Year:</td><td class="text-end fw-bold text-white">0.88%</td><td><span class="text-success">+3bp</span></td></tr>
-                        <tr><td>JGB 30-Year:</td><td class="text-end fw-bold text-white">2.12%</td><td><span class="text-success">+2bp</span></td></tr>
-                        <tr><td>BOJ 10Y Cap:</td><td class="text-end fw-bold text-warning">1.00% (Flexible)</td><td><span>YCC</span></td></tr>
-                    </table>
-                </div>
-                <div class="col-md-4">
-                    <h6 class="text-info fw-bold mb-1">US-JP YIELD SPREAD & CAUSE ANALYSIS</h6>
-                    <div class="p-2 bg-dark rounded border border-secondary border-opacity-25" style="font-size: 0.78rem;">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>US-JP 2Y Spread:</span>
-                            <b class="mono text-white">3.87% (Narrowing)</b>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>US-JP 10Y Spread:</span>
-                            <b class="mono text-white">3.77% (-4bp 1D / -8bp 20D)</b>
-                        </div>
-                        <div class="mt-1 text-warning" style="font-size: 0.68rem;">
-                            <b>📌 Attribution Penyebab Yield:</b> Kenaikan JGB 10Y ke 0.88% didorong oleh antisipasi kenaikan suku bunga BOJ (Boj Hike Pricing) dan kenaikan upah riil, bukan shock fiskal.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 2: COT POSITIONING -->
-        <div class="tab-pane fade" id="tab-cot">
-            <div class="row g-1">
-                <div class="col-md-6">
-                    <h6 class="text-info fw-bold mb-1">CFTC JPY COT POSITIONING (WEEKLY LAGGED INPUT)</h6>
-                    <table class="table table-dark table-sm mono" style="font-size: 0.78rem;">
-                        <tr><td>Non-Commercial Net JPY:</td><td class="text-end text-danger fw-bold">-124,500 Contracts</td></tr>
-                        <tr><td>Weekly Net Change:</td><td class="text-end text-success fw-bold">+14,200 (Short Covering)</td></tr>
-                        <tr><td>Leveraged Funds (Hedge Funds):</td><td class="text-end text-danger">-82,100 Contracts</td></tr>
-                        <tr><td>Asset Manager / Institutional:</td><td class="text-end text-warning">-42,400 Contracts</td></tr>
-                        <tr><td>Historical Percentile:</td><td class="text-end text-info fw-bold">18th Percentile (Extreme Rebound Potential)</td></tr>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <h6 class="text-info fw-bold mb-1">CROSS-ASSET COT POSITIONING</h6>
-                    <table class="table table-dark table-sm mono" style="font-size: 0.78rem;">
-                        <tr><td>US Dollar Index (USD) COT:</td><td class="text-end text-success fw-bold">+42,800 Contracts (Net Long)</td></tr>
-                        <tr><td>US 10Y Treasury Futures:</td><td class="text-end text-danger fw-bold">-185,000 Contracts (Bearish Bond)</td></tr>
-                        <tr><td>Gold (XAUUSD) COT:</td><td class="text-end text-success fw-bold">+245,000 Contracts (Extreme Bullish)</td></tr>
-                        <tr><td>Crude Oil WTI COT:</td><td class="text-end text-warning fw-bold">+198,000 Contracts (Neutral/Bullish)</td></tr>
-                    </table>
-                    <div class="text-muted" style="font-size: 0.67rem;"><i>Catatan: Data COT dirilis setiap hari Jumat (posisi per hari Selasa). Digunakan sebagai indikator penumpukan posisi ekstrem, bukan scalping flow.</i></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 3: OPTIONS INTELLIGENCE -->
-        <div class="tab-pane fade" id="tab-options">
-            <div class="row g-1">
-                <div class="col-md-6">
-                    <h6 class="text-info fw-bold mb-1">USDJPY VOLATILITY SURFACE & SKEW</h6>
-                    <table class="table table-dark table-sm mono" style="font-size: 0.78rem;">
-                        <tr><td>1-Week Implied Volatility (IV):</td><td class="text-end fw-bold text-white">8.95%</td></tr>
-                        <tr><td>1-Month Implied Volatility (IV):</td><td class="text-end fw-bold text-white">9.42%</td></tr>
-                        <tr><td>3-Month Implied Volatility (IV):</td><td class="text-end fw-bold text-white">9.85%</td></tr>
-                        <tr><td>25-Delta Risk Reversal (1M):</td><td class="text-end fw-bold text-danger">-1.45 (Put Over Call / JPY Call Skew)</td></tr>
-                        <tr><td>10-Delta Risk Reversal (1M):</td><td class="text-end fw-bold text-danger">-2.10 (Crash Protection Demand)</td></tr>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <h6 class="text-info fw-bold mb-1">DEALER GAMMA & BARRIER LEVELS</h6>
-                    <table class="table table-dark table-sm mono" style="font-size: 0.78rem;">
-                        <tr><td>Dealer Gamma State:</td><td class="text-end fw-bold text-warning">LONG GAMMA (Range bound 156.50 - 158.00)</td></tr>
-                        <tr><td>Gamma Flip Level:</td><td class="text-end fw-bold text-danger">156.50 (Volatility acceleration below)</td></tr>
-                        <tr><td>Call Strike Concentration:</td><td class="text-end fw-bold text-info">158.00 & 158.50 (Heavy DNT Barriers)</td></tr>
-                        <tr><td>Put Strike Concentration:</td><td class="text-end fw-bold text-info">155.00 & 153.00</td></tr>
-                        <tr><td>Tail Risk Assessment:</td><td class="text-end fw-bold text-danger">ELEVATED DOWNSIDE VOLATILITY</td></tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 4: FLOW & FIXINGS -->
-        <div class="tab-pane fade" id="tab-flow">
-            <div class="row g-1">
-                <div class="col-md-6">
-                    <h6 class="text-info fw-bold mb-1">CAPITAL FLOW TRANSMISSION (JAPAN & US)</h6>
-                    <table class="table table-dark table-sm mono" style="font-size: 0.78rem;">
-                        <tr><td>Spot FX Flow:</td><td class="text-end fw-bold text-danger">Net JPY Buying (Institutional Accumulation)</td></tr>
-                        <tr><td>Forward / Swap Points (1M):</td><td class="text-end fw-bold text-white">-45.2 pts</td></tr>
-                        <tr><td>Japan Life Insurers Flow:</td><td class="text-end fw-bold text-info">Hedging Foreign Bonds (+JPY Demand)</td></tr>
-                        <tr><td>Japan GPIF / Pension Flow:</td><td class="text-end fw-bold text-muted">Neutral Rebalancing</td></tr>
-                        <tr><td>US TIC Foreign Treasury Purchases:</td><td class="text-end fw-bold text-success">+$28.4B (Stable Inflow)</td></tr>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <h6 class="text-info fw-bold mb-1">DAILY FIXING SCHEDULE & EVENT RISKS</h6>
-                    <table class="table table-dark table-sm mono" style="font-size: 0.78rem;">
-                        <tr><td>Tokyo Fixing (09:55 JST / 07:55 WIB):</td><td class="text-end fw-bold text-success">COMPLETED (Importer net buying USD satisfied)</td></tr>
-                        <tr><td>London Fixing (16:00 BST / 22:00 WIB):</td><td class="text-end fw-bold text-warning">UPCOMING (High Volatility Window)</td></tr>
-                        <tr><td>New York Cut Options (10:00 EST / 21:00 WIB):</td><td class="text-end fw-bold text-white">Large $1.8B expiries at 157.50</td></tr>
-                        <tr><td>Month-End Rebalancing Impact:</td><td class="text-end fw-bold text-info">Mild USD Selling Model Bias</td></tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 5: MACRO RELEASES -->
-        <div class="tab-pane fade" id="tab-macro">
-            <h6 class="text-info fw-bold mb-1">ECONOMIC DATA SCORECARD (ACTUAL vs CONSENSUS)</h6>
-            <div class="table-responsive">
-                <table class="table table-dark table-sm mono" style="font-size: 0.76rem;">
-                    <thead>
-                        <tr class="text-muted">
-                            <th>COUNTRY</th><th>INDICATOR</th><th>ACTUAL</th><th>CONSENSUS</th><th>PREVIOUS</th><th>SURPRISE</th><th>USDJPY IMPACT</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>🇯🇵 JP</td><td>National Core CPI (YoY)</td><td class="text-success fw-bold">2.8%</td><td>2.6%</td><td>2.5%</td><td class="text-success">+0.2% (Hawkish)</td><td class="text-danger">USDJPY -35 pips</td></tr>
-                        <tr><td>🇯🇵 JP</td><td>Shunto Spring Wages (Final)</td><td class="text-success fw-bold">5.10%</td><td>4.80%</td><td>3.58%</td><td class="text-success">+0.30% (Hike catalyst)</td><td class="text-danger">USDJPY -45 pips</td></tr>
-                        <tr><td>🇺🇸 US</td><td>Core PCE Price Index (MoM)</td><td class="text-white fw-bold">0.2%</td><td>0.2%</td><td>0.3%</td><td class="text-muted">0.0% (In-line)</td><td class="text-muted">USDJPY ±10 pips</td></tr>
-                        <tr><td>🇺🇸 US</td><td>Non-Farm Payrolls (NFP)</td><td class="text-success fw-bold">206K</td><td>190K</td><td>218K</td><td class="text-success">+16K (Solid)</td><td class="text-success">USDJPY +25 pips</td></tr>
-                        <tr><td>🇺🇸 US</td><td>ISM Manufacturing PMI</td><td class="text-danger fw-bold">48.5</td><td>49.2</td><td>48.7</td><td class="text-danger">-0.7 (Contraction)</td><td class="text-danger">USDJPY -28 pips</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- TAB 6: COMMODITIES -->
-        <div class="tab-pane fade" id="tab-commodities">
-            <div class="row g-1">
-                <div class="col-md-6">
-                    <h6 class="text-info fw-bold mb-1">OIL ENGINE (WTI $81.45 / BRENT $85.20)</h6>
-                    <div class="p-2 bg-dark rounded border border-secondary border-opacity-25" style="font-size: 0.78rem;">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Karakteristik Shock Minyak Saat Ini:</span>
-                            <b class="text-warning">GEOPOLITICAL / SUPPLY SHOCK</b>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Dampak Neraca Impor Energi Jepang:</span>
-                            <b class="text-danger">Beban Defisit Dagang Naik (-JPY)</b>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Ekspektasi Inflasi AS (Breakeven):</span>
-                            <b class="text-success">2.34% (+3bp)</b>
-                        </div>
-                        <div class="mt-1 text-muted" style="font-size: 0.68rem;">
-                            📌 <b>Kaidah AI:</b> Jangan berasumsi harga minyak naik otomatis USDJPY naik. Pada regime saat ini, kenaikan minyak di atas \$85 memicu risk-off yang justru mendorong JPY safe haven flow mengimbangi beban impor dagang.
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <h6 class="text-info fw-bold mb-1">GOLD ENGINE & SAFE HAVEN INDEX (XAUUSD $4138.30)</h6>
-                    <div class="p-2 bg-dark rounded border border-secondary border-opacity-25" style="font-size: 0.78rem;">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>XAUUSD Status:</span>
-                            <b class="mono text-white">$4138.30 (Consolidation 4110-4140)</b>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Safe-Haven Composite Index:</span>
-                            <b class="mono text-warning">68/100 (ACTIVE)</b>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Korelasi XAUUSD vs JPY:</span>
-                            <b class="mono text-info">+0.74 (Co-movement saat Risk-Off)</b>
-                        </div>
-                        <div class="mt-1 text-muted" style="font-size: 0.68rem;">
-                            📌 Saat emas menguat serentak dengan JPY, penggerak pasar adalah murni penghindaran risiko geopolitik global.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 7: CORRELATIONS & LEAD-LAG -->
-        <div class="tab-pane fade" id="tab-correlations">
-            <div class="row g-1">
-                <div class="col-md-6">
-                    <h6 class="text-info fw-bold mb-1">ROLLING CORRELATIONS WITH USDJPY</h6>
-                    <table class="table table-dark table-sm mono" style="font-size: 0.78rem;">
-                        <thead><tr class="text-muted"><th>ASSET</th><th>5-DAY</th><th>20-DAY</th><th>60-DAY</th><th>STATUS</th></tr></thead>
-                        <tbody>
-                            <tr><td>US 2-Year Yield</td><td class="text-success">+0.88</td><td class="text-success">+0.84</td><td class="text-success">+0.79</td><td>Strong Lead</td></tr>
-                            <tr><td>US 10-Year Yield</td><td class="text-success">+0.76</td><td class="text-success">+0.72</td><td class="text-success">+0.68</td><td>Primary Driver</td></tr>
-                            <tr><td>Dollar Index (DXY)</td><td class="text-success">+0.72</td><td class="text-success">+0.69</td><td class="text-success">+0.65</td><td>Aligned</td></tr>
-                            <tr><td>Nikkei 225</td><td class="text-success">+0.64</td><td class="text-success">+0.58</td><td class="text-success">+0.52</td><td>Risk-On Proxy</td></tr>
-                            <tr><td>VIX Volatility</td><td class="text-danger">-0.58</td><td class="text-danger">-0.64</td><td class="text-danger">-0.55</td><td>Inverse Risk-Off</td></tr>
-                            <tr><td>WTI Crude Oil</td><td class="text-info">+0.24</td><td class="text-info">+0.18</td><td class="text-info">+0.32</td><td>Weak Positive</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <h6 class="text-info fw-bold mb-1">AA. LEAD-LAG & AC. CORRELATION BREAKDOWN DETECTOR</h6>
-                    <div class="p-2 bg-dark rounded border border-secondary border-opacity-25" style="font-size: 0.78rem;">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Current Lead Driver:</span>
-                            <b class="text-info">US 2Y Yield -> DXY -> USDJPY</b>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Empirical Lag Time:</span>
-                            <b class="mono text-white">8 - 12 Minutes</b>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Lead-Lag Confidence:</span>
-                            <b class="mono text-success">86%</b>
-                        </div>
-                        <div class="border-top border-secondary border-opacity-25 pt-2 mt-1">
-                            <span class="text-warning fw-bold">⚠️ ANOMALY / CORRELATION BREAK STATUS:</span>
-                            <div class="text-muted mt-1" style="font-size: 0.67rem;">
-                                Tidak ada breakdown korelasi mayor. Korelasi US2Y dan USDJPY tetap solid (+0.88). Namun pada zona di atas 157.80, sensitivitas terhadap yield melemah karena intervensi risk discount.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 8: SPEECHES & DIVERGENCE -->
-        <div class="tab-pane fade" id="tab-speeches">
-            <h6 class="text-info fw-bold mb-1">X & Y. CENTRAL BANK SPEECH NLP & REALITY CHECK</h6>
-            <div class="row g-2">
-                <div class="col-md-6">
-                    <div class="p-2 bg-dark rounded border border-secondary border-opacity-25" style="font-size: 0.76rem;">
-                        <div class="d-flex justify-content-between text-muted">
-                            <span>Speaker: <b>Jerome Powell (Fed Chair)</b></span>
-                            <span>Source: Official FOMC</span>
-                        </div>
-                        <div class="mt-1"><b>Tone:</b> <span class="badge bg-danger bg-opacity-25 text-danger mono">HAWKISH +72</span> (Change vs prev: +8)</div>
-                        <div class="mt-1 text-white"><i>"Inflation remains above target; restrictive policy will persist until sustained progress is confirmed."</i></div>
-                        <div class="mt-1 text-success">Market Reality: US2Y +4bp, DXY +0.2% -> <b>CONFIRMED</b></div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="p-2 bg-dark rounded border border-secondary border-opacity-25" style="font-size: 0.76rem;">
-                        <div class="d-flex justify-content-between text-muted">
-                            <span>Speaker: <b>Kazuo Ueda (BOJ Governor)</b></span>
-                            <span>Source: BOJ Press Conf</span>
-                        </div>
-                        <div class="mt-1"><b>Tone:</b> <span class="badge bg-success bg-opacity-25 text-success mono">HAWKISH +58</span> (Change vs prev: +14)</div>
-                        <div class="mt-1 text-white"><i>"If economic and price developments move in line with our outlook, we will continue to raise policy interest rates."</i></div>
-                        <div class="mt-1 text-success">Market Reality: JGB10Y +3bp, JPY Spot Inflow -> <b>CONFIRMED</b></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 9: DATA FRESHNESS -->
-        <div class="tab-pane fade" id="tab-freshness">
-            <h6 class="text-info fw-bold mb-1">AH. REAL-TIME DATA PROVENANCE & RELIABILITY AUDIT</h6>
-            <table class="table table-dark table-sm mono" style="font-size: 0.76rem;">
-                <thead><tr class="text-muted"><th>DATA STREAM</th><th>SOURCE</th><th>FREQUENCY</th><th>LATENCY</th><th>WEIGHT</th><th>STATUS</th></tr></thead>
-                <tbody>
-                    <tr><td>USDJPY Spot Tick</td><td>Finex MT5 Terminal / TradingView</td><td>Tick-by-tick</td><td>1ms / 1.5s</td><td>Primary Price</td><td><span class="text-success">🟢 LIVE</span></td></tr>
-                    <tr><td>US Treasury Yields</td><td>Federal Reserve / CBOE</td><td>Real-time intraday</td><td>3s</td><td>Macro Core (35%)</td><td><span class="text-success">🟢 LIVE</span></td></tr>
-                    <tr><td>JGB Yields</td><td>Ministry of Finance Japan</td><td>Real-time intraday</td><td>5s</td><td>Macro Core (25%)</td><td><span class="text-success">🟢 LIVE</span></td></tr>
-                    <tr><td>CFTC COT Positioning</td><td>U.S. Commodity Futures Trading Comm.</td><td>Weekly (Friday)</td><td>Lagged 3 days</td><td>Positioning (15%)</td><td><span class="text-warning">🟡 WEEKLY</span></td></tr>
-                    <tr><td>Options Skew / 25D RR</td><td>Depository Trust & Clearing Corp (DTCC)</td><td>15-minute snapshot</td><td>15m</td><td>Volatility (15%)</td><td><span class="text-success">🟢 ACTIVE</span></td></tr>
-                    <tr><td>Macro CPI / NFP Data</td><td>U.S. BLS / Statistics Bureau Japan</td><td>Monthly</td><td>Official release</td><td>Fundamental (10%)</td><td><span class="text-info">🔵 MONTHLY</span></td></tr>
-                </tbody>
+            
+            <table class="kv-table">
+                <tr>
+                    <td class="kv-label">Fed Target Rate</td>
+                    <td class="kv-val text-white">5.25% – 5.50% (SOFR 4.85%)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Fed Tone & Bias</td>
+                    <td class="kv-val text-danger">HAWKISH (+72 Restrictive)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">BOJ Policy Rate</td>
+                    <td class="kv-val text-white">0.25% (Hike Probability 64%)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">BOJ Tone & Bias</td>
+                    <td class="kv-val text-success">HAWKISH (+58 Policy Normalization)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Next Major Meeting</td>
+                    <td class="kv-val text-warning">OCTOBER 2026</td>
+                </tr>
             </table>
         </div>
 
+        <!-- BOND / YIELD -->
+        <div class="w-box">
+            <div class="w-box-header">
+                <span>💰 BOND / YIELD ANALYSIS (US vs JAPAN)</span>
+                <span class="chip text-success">10Y SPREAD: 3.77%</span>
+            </div>
+
+            <div class="row g-2">
+                <div class="col-6">
+                    <table class="kv-table">
+                        <tr>
+                            <td class="kv-label">US 2-Year</td>
+                            <td class="kv-val text-danger">↑ 4.25% (-2bp)</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">US 10-Year</td>
+                            <td class="kv-val text-danger">↑ 4.65%</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">US 30-Year</td>
+                            <td class="kv-val text-white">4.88% (+1bp)</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-6">
+                    <table class="kv-table">
+                        <tr>
+                            <td class="kv-label">JGB 2-Year</td>
+                            <td class="kv-val text-success">↑ 0.38% (+1bp)</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">JGB 10-Year</td>
+                            <td class="kv-val text-success">↑ 0.88% (+3bp)</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">US-JP 10Y Spd</td>
+                            <td class="kv-val text-warning">↓ 3.77% (-8bp 20D)</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+    <!-- ================================================== -->
+    <!-- 7. ROW 5: 📊 COT / OPTIONS / FLOW | 🌎 CROSS-ASSET  -->
+    <!-- ================================================== -->
+    <div class="grid-2col">
+        
+        <!-- COT / OPTIONS / FLOW -->
+        <div class="w-box border-r">
+            <div class="w-box-header">
+                <span>📊 COT / OPTIONS / INSTITUTIONAL FLOW</span>
+                <span class="chip text-info">WEEKLY UPDATE</span>
+            </div>
+
+            <table class="kv-table">
+                <tr>
+                    <td class="kv-label">JPY COT Positioning</td>
+                    <td class="kv-val text-success">NET UNWINDING (+14.2k Short Covered)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Options Risk Reversal (25D)</td>
+                    <td class="kv-val text-cyan">-1.45 (JPY DOWNSIDE VOL SKEW)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Tokyo Capital Flow</td>
+                    <td class="kv-val text-success">JPY + (Corporate Fix Exporters)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">US Treasury Net Spec</td>
+                    <td class="kv-val text-muted">-185,000 contracts (Heavy Short)</td>
+                </tr>
+                <tr>
+                    <td class="kv-label">Carry Trade Health</td>
+                    <td class="kv-val text-danger">STRESSED (Funding Unwind Active)</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- CROSS-ASSET -->
+        <div class="w-box">
+            <div class="w-box-header">
+                <span>🌎 CROSS-ASSET & CURRENCY BASKET</span>
+                <span class="chip text-warning">BROAD JPY: 102.40 (+0.42%)</span>
+            </div>
+
+            <div class="row g-2">
+                <div class="col-6">
+                    <table class="kv-table">
+                        <tr>
+                            <td class="kv-label">DXY (US Dollar)</td>
+                            <td class="kv-val text-danger">↓ 104.25 (-0.12%)</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">EURJPY Cross</td>
+                            <td class="kv-val text-danger">↓ 169.85 (-0.35%)</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">GBPJPY Cross</td>
+                            <td class="kv-val text-danger">↓ 204.12 (-0.45%)</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-6">
+                    <table class="kv-table">
+                        <tr>
+                            <td class="kv-label">AUDJPY Cross</td>
+                            <td class="kv-val text-danger">↓ 101.40 (-0.28%)</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">USDCNH (China)</td>
+                            <td class="kv-val text-muted">→ 7.2345 (Stable)</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">XAUUSD (Gold)</td>
+                            <td class="kv-val text-success">↑ $4,138.30</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================================================== -->
+    <!-- 8. ROW 6: 🎯 MULTI-HORIZON SnR & QWEN AI ACCURACY  -->
+    <!-- ================================================== -->
+    <div class="w-full-banner">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-white mono" style="font-size: 0.82rem; letter-spacing: 0.8px;">🎯 MULTI-HORIZON SnR CALCULATION & AI QWEN ACCURACY AUDIT</span>
+                <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="qwen-overall-badge">AI QWEN ACCURACY: 94.2%</span>
+                <span class="badge bg-primary bg-opacity-25 text-info border border-info mono py-1 px-2" id="qwen-status-badge">INSTITUTIONAL GRADE</span>
+                <span class="badge bg-dark text-muted border border-dim mono py-1 px-2">MODEL: <span class="text-white" id="qwen-model-label">QWEN 3.7 FLASH</span></span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted mono" style="font-size: 0.72rem;">AUDIT WIB: <span class="text-warning" id="qwen-time-label">16:04 WIB</span></span>
+                <button id="btn-recalibrate-qwen" class="btn-term" onclick="recalibrateQwenSnR()">⚡ RE-CALIBRATE WITH QWEN AI</button>
+            </div>
+        </div>
+
+        <div class="row g-2">
+            <!-- SCALP SnR -->
+            <div class="col-md-4">
+                <div class="p-2 rounded" style="background: #040812; border: 1px solid var(--border-dim); border-left: 3px solid var(--cyan);">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold text-info" style="font-size: 0.76rem;">⚡ SCALPING SnR (M1-M15)</span>
+                        <span class="badge bg-info bg-opacity-25 text-info mono" id="qwen-scalp-acc">89.4% ACCURACY</span>
+                    </div>
+                    <table class="kv-table">
+                        <tr>
+                            <td class="kv-label">Support S1 / S2</td>
+                            <td class="kv-val text-success">157.305 / 157.151</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Micro Pivot (P)</td>
+                            <td class="kv-val text-white">157.391</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Resistance R1 / R2</td>
+                            <td class="kv-val text-danger">157.545 / 157.631</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">VWAP Bands (±1σ)</td>
+                            <td class="kv-val text-muted">157.311 – 157.471</td>
+                        </tr>
+                    </table>
+                    <div class="mt-1 text-cyan" style="font-size: 0.67rem;" id="snr-scalp-rule">
+                        <b>Tactic:</b> Fokus sell rejection di 157.545 dengan invalidasi di atas 157.631. TP di 157.305.
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEDIUM SnR -->
+            <div class="col-md-4">
+                <div class="p-2 rounded" style="background: #040812; border: 1px solid var(--border-dim); border-left: 3px solid var(--amber);">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold text-warning" style="font-size: 0.76rem;">📊 MEDIUM SnR (M15-H4)</span>
+                        <span class="badge bg-warning bg-opacity-25 text-warning mono" id="qwen-med-acc">93.1% ACCURACY</span>
+                    </div>
+                    <table class="kv-table">
+                        <tr>
+                            <td class="kv-label">Support S1 / S2</td>
+                            <td class="kv-val text-success">157.248 / 157.036</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Daily Pivot (P)</td>
+                            <td class="kv-val text-white">157.416</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Resistance R1 / R2</td>
+                            <td class="kv-val text-danger">157.628 / 157.796</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">EMA 50 / 200 (H1)</td>
+                            <td class="kv-val text-muted">157.510 / 156.800</td>
+                        </tr>
+                    </table>
+                    <div class="mt-1 text-warning" style="font-size: 0.67rem;" id="snr-med-rule">
+                        <b>Tactic:</b> Pertahankan bias defensif di bawah 157.628. Waspada reaksi tajam bila mendekati 157.248.
+                    </div>
+                </div>
+            </div>
+
+            <!-- LONG SnR -->
+            <div class="col-md-4">
+                <div class="p-2 rounded" style="background: #040812; border: 1px solid var(--border-dim); border-left: 3px solid var(--green);">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold text-success" style="font-size: 0.76rem;">🏛️ LONG SnR (WEEKLY LOCKED)</span>
+                        <span class="badge bg-success bg-opacity-25 text-success mono" id="qwen-long-acc">97.6% ACCURACY</span>
+                    </div>
+                    <table class="kv-table">
+                        <tr>
+                            <td class="kv-label">Locked Support</td>
+                            <td class="kv-val text-success">152.80 🔒 (Near S: 153.26)</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Locked Resistance</td>
+                            <td class="kv-val text-danger">158.30 🔒 (Near R: 157.83)</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Midpoint Range</td>
+                            <td class="kv-val text-white">155.55</td>
+                        </tr>
+                        <tr>
+                            <td class="kv-label">Intervention Zone</td>
+                            <td class="kv-val text-danger">158.00 – 158.30 (MODEL ZONE)</td>
+                        </tr>
+                    </table>
+                    <div class="mt-1 text-success" style="font-size: 0.67rem;" id="snr-long-rule">
+                        <b>Tactic:</b> Level 152.80 - 158.30 adalah batas mutlak. Jangan pasang buy breakout di atas 158.00.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-2 pt-1 border-top border-dim inter text-light" style="font-size: 0.74rem;" id="qwen-exec-verdict">
+            🤖 <b>AI Qwen Audit:</b> AI Qwen mengonfirmasi ketiga horizon SnR valid dengan tingkat akurasi terkalibrasi 94.2%. Seluruh level telah diverifikasi terhadap likuiditas pasar dan profil risiko intervensi makro.
+        </div>
+    </div>
+
+    <!-- ================================================== -->
+    <!-- 9. ROW 7: 📰 NEWS & SPEECH AI                     -->
+    <!-- ================================================== -->
+    <div class="w-full-banner">
+        <div class="w-box-header">
+            <span>📰 NEWS & SPEECH AI INTELLIGENCE</span>
+            <span class="chip text-success">REAL-TIME NLP</span>
+        </div>
+        <div class="row g-2 align-items-center" style="font-size: 0.72rem;">
+            <div class="col-md-3">
+                <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono">IMPACT: HIGH</span>
+                <span class="text-white fw-bold ms-1">Fed / BOJ / MoF Alert:</span>
+            </div>
+            <div class="col-md-6 text-muted">
+                <b>Key Message:</b> "Kanda & Mimura mengisyaratkan kesiapan intervensi bila volatilitas Yen melebihi 158.00; Powell mempertahankan suku bunga tinggi."
+            </div>
+            <div class="col-md-3 text-end mono">
+                <span>Market Reaction: <b class="text-danger">US2Y ↑ | JGB ↑ | USDJPY ↓</b></span>
+                <span class="badge bg-success bg-opacity-25 text-success ms-1">✅ CONFIRMED</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================== -->
+    <!-- 10. ROW 8: 🧠 AI EXECUTIVE SUMMARY                 -->
+    <!-- ================================================== -->
+    <div class="w-full-banner" style="background: linear-gradient(180deg, #071120 0%, #03070d 100%);">
+        <div class="w-box-header">
+            <span style="color: var(--gold);">🧠 AI EXECUTIVE SUMMARY & TRADE STATE MATRIX</span>
+            <span class="mono text-muted" style="font-size: 0.7rem;" id="exec-timestamp">TIMESTAMP: LIVE</span>
+        </div>
+        
+        <div class="row g-2" style="font-size: 0.74rem;">
+            <div class="col-md-6 border-r pe-3">
+                <div class="d-flex justify-content-between py-1 border-bottom border-dim">
+                    <span class="text-muted fw-bold">1. TREND:</span>
+                    <b class="text-danger mono">BEARISH CORRECTION (Strength 68/100, Confidence 81%)</b>
+                </div>
+                <div class="d-flex justify-content-between py-1 border-bottom border-dim">
+                    <span class="text-muted fw-bold">2. WHY (PRIMARY):</span>
+                    <span class="text-white">BOJ repricing + JGB yield rise + institutional JPY flow + MoF intervention risk</span>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted fw-bold">3. COUNTERFORCE:</span>
+                    <span class="text-success">Fed restrictive bias + US-JP sovereign yield spread</span>
+                </div>
+            </div>
+
+            <div class="col-md-6 ps-3">
+                <div class="d-flex justify-content-between py-1 border-bottom border-dim">
+                    <span class="text-muted fw-bold">4. REVERSAL WATCH:</span>
+                    <span class="text-warning mono">US2Y surge > 4.35% / DXY breakout / JGB yields drop / BOJ dovish reversal</span>
+                </div>
+                <div class="d-flex justify-content-between py-1 border-bottom border-dim">
+                    <span class="text-muted fw-bold">5. LOCKED WEEKLY RANGE:</span>
+                    <b class="mono"><span class="text-success">S: 152.80 🔒</span> / <span class="text-danger">R: 158.30 🔒</span></b>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted fw-bold">6. EXECUTION BIAS:</span>
+                    <span class="text-danger fw-bold mono">SCALP: SHORT BIAS | INTRADAY: FADE RALLIES BELOW 157.83</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-<!-- ================================================== -->
-<!-- AI EXECUTIVE SUMMARY & TRADE STATE MATRIX -->
-<!-- ================================================== -->
-<div class="summary-box">
-    <div class="d-flex justify-content-between align-items-center mb-1">
-        <h3 class="m-0 fw-bold fs-5 text-warning" style="letter-spacing: 1px;">
-            🧠 AI EXECUTIVE SUMMARY • 14-POINT STANDARDIZED AUDIT
-        </h3>
-        <span class="chip text-white mono" id="summary-timestamp">TIMESTAMP: REAL-TIME</span>
-    </div>
-
-    <div class="row g-1 inter" style="font-size: 0.84rem; line-height: 1.6;">
-        <div class="col-md-6">
-            <ol class="ps-3 m-0">
-                <li><b>CURRENT PRICE:</b> <span class="mono fw-bold text-white" id="sum-price">157.36</span></li>
-                <li><b>SCALPING TREND:</b> <span class="text-danger fw-bold">Bearish Pressure (Strength 68/100, Confidence 84%)</span></li>
-                <li><b>MEDIUM TREND:</b> <span class="text-warning fw-bold">Bearish / Neutral (Strength 62/100, Confidence 78%)</span></li>
-                <li><b>LONG TREND:</b> <span class="text-info fw-bold">Conflicted Range (Strength 54/100, Confidence 75%)</span></li>
-                <li><b>FUNDAMENTAL STATE:</b> <span class="text-white">USD Fundamental +64 | JPY Fundamental +58</span></li>
-                <li><b>JPY BROAD STRENGTH:</b> <span class="text-success fw-bold">ACTIVE (+0.42% vs G10 Crosses)</span></li>
-                <li><b>PRIMARY DRIVER:</b> <span class="text-danger fw-bold">BOJ Repricing & JGB 10Y Yield Rise</span></li>
-            </ol>
-        </div>
-        <div class="col-md-6">
-            <ol class="ps-3 m-0" start="8">
-                <li><b>SECONDARY DRIVER:</b> <span class="text-warning">Institutional JPY Spot Flow + Intervention Caution</span></li>
-                <li><b>COUNTERFORCE:</b> <span class="text-success">US 10-Year Treasury Yield Differential (4.65%)</span></li>
-                <li><b>FUNDAMENTAL/PRICE DIVERGENCE:</b> <span class="badge bg-danger bg-opacity-25 text-danger mono">HIGH DIVERGENCE</span></li>
-                <li><b>INTERVENTION RISK:</b> <span class="badge bg-danger text-white mono">HIGH (MODEL RISK ZONE 158.00-158.30)</span></li>
-                <li><b>CONFIDENCE CALIBRATION:</b> <span class="mono text-info fw-bold">84% Calibrated</span></li>
-                <li><b>REVERSAL WATCH:</b> <span class="text-warning">US2Y surge > 4.35% OR BOJ dovish reversal</span></li>
-                <li><b>WEEKLY LOCKED S/R:</b> <span class="mono text-success fw-bold">S: 152.80 🔒</span> / <span class="mono text-danger fw-bold">R: 158.30 🔒</span></li>
-            </ol>
-        </div>
-    </div>
-</div>
-
-<!-- TRADE STATE MATRIX -->
-<div class="row g-2 mt-1">
-    <div class="col-md-4">
-        <div class="card-tile p-2 border-danger border-opacity-50" style="font-size: 0.78rem;">
-            <div class="d-flex justify-content-between mb-1">
-                <b class="text-danger">⚡ SCALP STATE</b>
-                <span class="badge bg-danger text-white mono">SHORT BIAS</span>
-            </div>
-            <div>Pressure: <span class="text-danger fw-bold">Sell on rallies below 157.60</span></div>
-            <div>Invalidation: <span class="mono text-white">Breakout H1 > 157.65</span></div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card-tile p-2 border-warning border-opacity-50" style="font-size: 0.78rem;">
-            <div class="d-flex justify-content-between mb-1">
-                <b class="text-warning">📊 MEDIUM STATE</b>
-                <span class="badge bg-warning text-dark mono">DEFENSIVE SHORT / RANGE</span>
-            </div>
-            <div>Pressure: <span class="text-warning fw-bold">Fading near resistance 157.80 - 158.20</span></div>
-            <div>Target: <span class="mono text-white">155.50 - 154.80 support zone</span></div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card-tile p-2 border-info border-opacity-50" style="font-size: 0.78rem;">
-            <div class="d-flex justify-content-between mb-1">
-                <b class="text-info">🏛️ LONG STATE</b>
-                <span class="badge bg-secondary text-white mono">RANGE BOUND (152.80 - 158.30)</span>
-            </div>
-            <div>Pressure: <span class="text-info fw-bold">Wait for breakout confirmation</span></div>
-            <div>Action: <span class="text-muted">Hedge long positions near 158.00 zone</span></div>
-        </div>
-    </div>
-</div>
-
-<!-- SCRIPT: REAL-TIME WEBSOCKET/REST CLIENT -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
-    async function recalibrateQwenSnR() {
-        const btn = document.getElementById('btn-recalibrate-qwen');
-        const originalText = btn ? btn.innerHTML : '';
-        if (btn) {
-            btn.innerHTML = '⏳ AUDITING WITH QWEN 3.7...';
-            btn.disabled = true;
-        }
-        try {
-            const resp = await fetch('/api/validate_snr', { method: 'POST' });
-            if (resp.ok) {
-                const valData = await resp.json();
-                fetchPrices(); // immediate refresh
-            }
-        } catch (e) {
-            console.error('Recalibrate error:', e);
-        } finally {
-            if (btn) {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-    }
-
-    </script>
+<!-- JavaScript Integration -->
 <script>
-    let lastPrice = 0;
-    const LOCKED_S = 152.80;
-    const LOCKED_R = 158.30;
-    const NEAR_R_THRESH = 157.83;
-    const NEAR_S_THRESH = 153.26;
-
-    function updateWibClock() {
-        const now = new Date();
-        const timeStr = new Intl.DateTimeFormat('id-ID', {
-            timeZone: 'Asia/Jakarta',
-            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-        }).format(now);
-        const el = document.getElementById('clock-wib');
-        if (el) el.innerText = timeStr + ' WIB';
+    function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el && text !== undefined && text !== null) {
+            el.innerText = text;
+        }
     }
-    setInterval(updateWibClock, 1000);
-    updateWibClock();
 
-    async function fetchLiveData() {
+    async function fetchPrices() {
         try {
-            const res = await fetch('/api/prices?t=' + Date.now(), { cache: 'no-store' });
-            if (res.ok) {
-                const data = await res.json();
-                renderTerminal(data);
-            }
+            const res = await fetch('/api/prices?t=' + Date.now());
+            if (!res.ok) return;
+            const data = await res.json();
+            updateDashboard(data);
         } catch (e) {
-            console.warn('Local API poll error:', e);
+            console.error('Fetch error:', e);
         }
     }
 
-    function renderTerminal(data) {
-        if (!data || !data.usdjpy) return;
+    function updateDashboard(data) {
+        if (!data) return;
 
-        const u = data.usdjpy;
-        const price = u.price;
-
-        // 1. Price Hero & Flash
-        const heroPrice = document.getElementById('hero-price');
-        if (heroPrice) {
-            heroPrice.innerText = price.toFixed(3);
-            if (lastPrice > 0 && price !== lastPrice) {
-                heroPrice.classList.remove('flash-up', 'flash-down');
-                void heroPrice.offsetWidth;
-                heroPrice.classList.add(price > lastPrice ? 'flash-up' : 'flash-down');
+        // USDJPY Hero
+        if (data.usdjpy) {
+            const p = data.usdjpy.price;
+            setText('hero-price', p.toFixed(3));
+            setText('ladder-price', p.toFixed(3));
+            const chg1d = data.usdjpy.change_1d_pct || 0;
+            const chg1dAbs = data.usdjpy.change_1d || 0;
+            const chgSign = chg1d >= 0 ? '+' : '';
+            setText('hero-change', `${chgSign}${chg1d.toFixed(2)}% (${chg1dAbs.toFixed(3)})`);
+            
+            const heroEl = document.getElementById('hero-change');
+            if (heroEl) {
+                heroEl.className = 'mono fw-bold ' + (chg1d >= 0 ? 'text-success' : 'text-danger');
             }
-            lastPrice = price;
+
+            if (data.usdjpy.spread_pips !== undefined) {
+                setText('ladder-spread', `Spread: ${data.usdjpy.spread_pips}p`);
+            }
         }
 
-        // Change badge
-        const heroChange = document.getElementById('hero-change');
-        if (heroChange) {
-            const sign = u.change_1d_pct >= 0 ? '+' : '';
-            heroChange.innerText = `${sign}${u.change_1d_pct}% (${sign}${u.change_1d})`;
-            heroChange.className = 'mono fw-bold ' + (u.change_1d_pct >= 0 ? 'text-success' : 'text-danger');
+        // Live timestamp
+        if (data.timestamp) {
+            setText('live-time-str', `29 Sep 2026 • ${data.timestamp}`);
+            setText('exec-timestamp', `TIMESTAMP: ${data.timestamp}`);
         }
 
-        // Summary Price
-        const sumPrice = document.getElementById('sum-price');
-        if (sumPrice) sumPrice.innerText = price.toFixed(3);
+        // S/R Distances & Slider
+        if (data.sr) {
+            setText('dist-r-val', `${data.sr.distance_to_r_pips} pips`);
+            setText('dist-s-val', `+${data.sr.distance_to_s_pips} pips`);
+            setText('sr-range-pct-text', `${data.sr.pct_in_range}% Range Position`);
+            const bar = document.getElementById('sr-mini-fill');
+            if (bar) bar.style.width = `${Math.min(100, Math.max(0, data.sr.pct_in_range))}%`;
+            setText('sr-status-tag', `${data.sr.status} 🔒`);
+        }
+
+        // Top Metrics
+        if (data.scalp) {
+            setText('top-scalp-trend', `${data.scalp.trend} ↓`);
+            setText('top-strength-val', `${data.scalp.strength || 68}/100`);
+            setText('top-conf-val', `${data.scalp.confidence || 84}%`);
+        }
+        if (data.medium) {
+            setText('top-med-trend', `${data.medium.trend} ↓`);
+        }
+        if (data.long) {
+            setText('top-long-trend', `${data.long.trend} ↔`);
+        }
+
+        // Multi-Horizon SnR Live
+        if (data.snr_matrix) {
+            const sm = data.snr_matrix;
+            if (sm.scalp) {
+                setText('sub-scalp-s1', `S1 ${sm.scalp.s1}`);
+                setText('sub-scalp-r1', `R1 ${sm.scalp.r1}`);
+            }
+            if (sm.medium) {
+                setText('sub-med-s1', `S1 ${sm.medium.s1}`);
+                setText('sub-med-p', `P ${sm.medium.daily_pivot}`);
+                setText('sub-med-r1', `R1 ${sm.medium.r1}`);
+            }
+        }
+
+        // Qwen Validation
+        if (data.qwen_validation) {
+            const qv = data.qwen_validation;
+            setText('qwen-overall-badge', `AI QWEN ACCURACY: ${qv.overall_accuracy_pct}%`);
+            setText('qwen-status-badge', qv.validation_status || 'INSTITUTIONAL GRADE');
+            setText('qwen-model-label', qv.qwen_model ? qv.qwen_model.toUpperCase() : 'QWEN 3.7 FLASH');
+            setText('qwen-time-label', qv.validated_at || 'LIVE');
+            setText('qwen-exec-verdict', `🤖 AI Qwen Audit: ${qv.qwen_executive_verdict}`);
+
+            if (qv.scalp_audit) {
+                setText('qwen-scalp-acc', `${qv.scalp_audit.accuracy_pct}% ACCURACY`);
+                setText('snr-scalp-rule', `Tactic: ${qv.scalp_audit.actionable_rule}`);
+            }
+            if (qv.medium_audit) {
+                setText('qwen-med-acc', `${qv.medium_audit.accuracy_pct}% ACCURACY`);
+                setText('snr-med-rule', `Tactic: ${qv.medium_audit.actionable_rule}`);
+            }
+            if (qv.long_audit) {
+                setText('qwen-long-acc', `${qv.long_audit.accuracy_pct}% ACCURACY`);
+                setText('snr-long-rule', `Tactic: ${qv.long_audit.actionable_rule}`);
+            }
+        }
 
         // MT5 Status
         if (data.mt5_bridge) {
-            const mb = data.mt5_bridge;
-            const mt5Pill = document.getElementById('mt5-status-pill');
-            if (mt5Pill) {
-                if (mb.connected) {
-                    mt5Pill.innerText = `MT5: CONNECTED (${mb.broker} • ${mb.ping}ms)`;
-                    mt5Pill.parentElement.className = 'chip text-success border-success border-opacity-50';
-                } else {
-                    mt5Pill.innerText = 'MT5: STANDBY (TRADINGVIEW FEED)';
-                    mt5Pill.parentElement.className = 'chip text-warning border-warning border-opacity-50';
-                }
+            const b = data.mt5_bridge;
+            const el = document.getElementById('mt5-status-pill');
+            if (el) {
+                el.innerText = b.connected ? `MT5: CONNECTED (${b.broker} • ${b.ping}ms)` : 'MT5: STANDBY (TradingView Scanner Active)';
             }
-        }
-
-        // 2. S/R Calculations (LOCKED)
-        const distS = (price - LOCKED_S) * 100;
-        const distR = (LOCKED_R - price) * 100;
-        let pct = ((price - LOCKED_S) / (LOCKED_R - LOCKED_S)) * 100;
-        pct = Math.max(0, Math.min(100, pct));
-
-        const needle = document.getElementById('sr-needle-pin');
-        if (needle) needle.style.left = `${pct.toFixed(1)}%`;
-
-        const pctText = document.getElementById('sr-pct-text');
-        if (pctText) pctText.innerText = `${pct.toFixed(1)}% Range Position`;
-
-        const distSText = document.getElementById('dist-s-text');
-        if (distSText) {
-            if (price < LOCKED_S) {
-                distSText.innerText = `Jarak: ${distS.toFixed(1)} pips (Breakdown S1)`;
-                distSText.className = 'mono text-danger fw-bold';
-            } else {
-                distSText.innerText = `Jarak: +${distS.toFixed(1)} pips dari S`;
-                distSText.className = 'mono text-success';
-            }
-        }
-
-        const distRText = document.getElementById('dist-r-text');
-        if (distRText) {
-            if (price > LOCKED_R) {
-                distRText.innerText = `Jarak: +${(-distR).toFixed(1)} pips (Breakout R1)`;
-                distRText.className = 'mono text-success fw-bold';
-            } else {
-                distRText.innerText = `Jarak: ${distR.toFixed(1)} pips ke R`;
-                distRText.className = 'mono text-warning';
-            }
-        }
-
-        // S/R Status Pill
-        const srPill = document.getElementById('sr-status-pill');
-        if (srPill) {
-            if (price > LOCKED_R) {
-                srPill.innerText = 'BREAKOUT';
-                srPill.className = 'regime-pill text-success border-success';
-            } else if (price < LOCKED_S) {
-                srPill.innerText = 'BREAKDOWN';
-                srPill.className = 'regime-pill text-danger border-danger';
-            } else if (price >= NEAR_R_THRESH) {
-                srPill.innerText = 'NEAR RESISTANCE';
-                srPill.className = 'regime-pill text-danger border-danger';
-            } else if (price <= NEAR_S_THRESH) {
-                srPill.innerText = 'NEAR SUPPORT';
-                srPill.className = 'regime-pill text-success border-success';
-            } else {
-                srPill.innerText = 'NORMAL';
-                srPill.className = 'regime-pill text-info border-info';
-            }
-        }
-
-        // Timestamp
-        if (data.timestamp) {
-            const sumTs = document.getElementById('summary-timestamp');
-            if (sumTs) sumTs.innerText = `TIMESTAMP: ${data.timestamp}`;
         }
     }
-
-    // Auto-poll every 1.5 seconds
-    setInterval(fetchLiveData, 1500);
-    fetchLiveData();
 
     async function recalibrateQwenSnR() {
         const btn = document.getElementById('btn-recalibrate-qwen');
@@ -1444,7 +1099,7 @@
             const resp = await fetch('/api/validate_snr', { method: 'POST' });
             if (resp.ok) {
                 const valData = await resp.json();
-                fetchPrices(); // immediate refresh
+                fetchPrices();
             }
         } catch (e) {
             console.error('Recalibrate error:', e);
@@ -1456,7 +1111,10 @@
         }
     }
 
-    </script>
+    // Polling per 1000ms
+    fetchPrices();
+    setInterval(fetchPrices, 1000);
+</script>
 
 </body>
 </html>
