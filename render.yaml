@@ -5,11 +5,14 @@ services:
     region: singapore
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn backend.cloud_runner:app --host 0.0.0.0 --port 
+    startCommand: python backend/cloud_runner.py
     envVars:
       - key: TELEGRAM_BOT_TOKEN
-        sync: false
+        value: 8670995678:AAEvTX6Ii222QVCW4AIlRhzQYKbOR-lj06c
       - key: TELEGRAM_ADMIN_ID
-        sync: false
+        value: "-1003468917523"
       - key: PYTHON_VERSION
         value: 3.11.8
+      - key: PYTHONUNBUFFERED
+        value: "1"
+

@@ -1,1 +1,1 @@
-web: uvicorn backend.cloud_runner:app --host 0.0.0.0 --port 
+web: python backend/cloud_runner.py
