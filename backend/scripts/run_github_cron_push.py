@@ -1,0 +1,31 @@
+import sys
+import os
+import asyncio
+from datetime import datetime, timezone, timedelta
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(BASE_DIR, ".env"))
+except Exception:
+    pass
+
+from backend.telegram.sr_monitor import SRMonitorEngine
+
+WIB = timezone(timedelta(hours=7))
+
+async def main():
+    print("XEDY GitHub 15-Minute Bloomberg SR Push starting...")
+    now_wib = datetime.now(WIB)
+    engine = SRMonitorEngine()
+    print(f"Scanning market symbols at {now_wib.strftime('%Y-%m-%d %H:%M:%S WIB')}...")
+    await engine.check_all_symbols(now_wib)
+    print("Generating and sending 16:9 Bloomberg dashboard card to Telegram...")
+    await engine.send_scheduled_report(now_wib)
+    print("Finished successfully!")
+
+if __name__ == "__main__":
+    asyncio.run(main())
