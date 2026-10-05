@@ -84,6 +84,69 @@ class SRMonitorEngine:
         self.last_error_sent = {s: 0.0 for s in self.CONFIG}
         self.last_alert_sent_time = {s: 0.0 for s in self.CONFIG}
         self.last_scheduled_slot = None
+        self.load_custom_snr()
+
+    def canonical_symbol(self, raw: str) -> str:
+        s = raw.upper().strip().replace("/", "")
+        if s in ("GOLD", "XAUUSD", "XAU", "EMAS"):
+            return "XAUUSD"
+        elif s in ("EURUSD", "EUR"):
+            return "EURUSD"
+        elif s in ("OIL", "USOIL", "WTI", "CRUDE"):
+            return "OIL"
+        elif s in ("USDJPY", "JPY"):
+            return "USDJPY"
+        return None
+
+    def load_custom_snr(self):
+        snr_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "custom_snr.json")
+        if os.path.exists(snr_file):
+            try:
+                with open(snr_file, "r") as f:
+                    saved = json.load(f)
+                for sym, vals in saved.items():
+                    if sym in self.CONFIG:
+                        if "support" in vals: self.CONFIG[sym]["support"] = float(vals["support"])
+                        if "resistance" in vals: self.CONFIG[sym]["resistance"] = float(vals["resistance"])
+                logger.info(f"Loaded custom SNR from {snr_file}")
+            except Exception as e:
+                logger.warning(f"Failed to load custom SNR: {e}")
+
+    def save_custom_snr(self):
+        snr_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "custom_snr.json")
+        os.makedirs(os.path.dirname(snr_file), exist_ok=True)
+        try:
+            dump_data = {}
+            for sym, cfg in self.CONFIG.items():
+                dump_data[sym] = {
+                    "name": cfg["name"],
+                    "support": cfg["support"],
+                    "resistance": cfg["resistance"]
+                }
+            with open(snr_file, "w") as f:
+                json.dump(dump_data, f, indent=4)
+            logger.info(f"Saved custom SNR to {snr_file}")
+        except Exception as e:
+            logger.error(f"Failed to save custom SNR: {e}")
+
+    def set_snr(self, raw_symbol: str, support: float, resistance: float) -> tuple:
+        sym = self.canonical_symbol(raw_symbol)
+        if not sym:
+            return False, f"⚠️ Simbol <code>{raw_symbol}</code> tidak dikenali.\nPilihan: <b>GOLD</b>, <b>EURUSD</b>, <b>OIL</b>, atau <b>USDJPY</b>."
+        
+        if support >= resistance:
+            return False, f"⚠️ Support (<code>{support}</code>) harus lebih kecil dari Resistance (<code>{resistance}</code>)."
+        
+        digits = self.CONFIG[sym]["digits"]
+        self.CONFIG[sym]["support"] = round(float(support), digits)
+        self.CONFIG[sym]["resistance"] = round(float(resistance), digits)
+        self.save_custom_snr()
+        
+        # Reset alert debounce
+        self.last_alert_sent_time[sym] = 0.0
+        
+        name = self.CONFIG[sym]["name"]
+        return True, f"✅ <b>Level S/R {name} Berhasil Diperbarui:</b>\n• Support (0%): <code>{support:,.{digits}f}</code>\n• Resistance (100%): <code>{resistance:,.{digits}f}</code>"
 
     async def start(self, bot=None, admin_id=None):
         if bot:
