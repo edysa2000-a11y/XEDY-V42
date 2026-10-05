@@ -83,7 +83,7 @@ class SRMonitorEngine:
         self.last_price_data = {}
         self.last_error_sent = {s: 0.0 for s in self.CONFIG}
         self.last_alert_sent_time = {s: 0.0 for s in self.CONFIG}
-        self.last_hourly_hour = -1
+        self.last_scheduled_slot = None
 
     async def start(self, bot=None, admin_id=None):
         if bot:
@@ -191,14 +191,11 @@ class SRMonitorEngine:
                 # 1. Fetch live prices, tick volumes, trend & check SNR touch / breakout
                 await self.check_all_symbols(now_wib)
                 
-                # 2. Hourly Scheduled Report (Setiap 1 jam sekali pada awal jam baru :00 WIB)
-                if self.last_hourly_hour != now_wib.hour:
-                    if self.last_hourly_hour != -1:
-                        await self.send_hourly_report(now_wib)
-                    else:
-                        # Initial launch report
-                        await self.send_hourly_report(now_wib)
-                    self.last_hourly_hour = now_wib.hour
+                # 2. 15-Minute Scheduled Report (Setiap 15 menit sekali: :00, :15, :30, :45 WIB)
+                current_slot = (now_wib.hour, now_wib.minute // 15)
+                if self.last_scheduled_slot != current_slot:
+                    await self.send_scheduled_report(now_wib)
+                    self.last_scheduled_slot = current_slot
                     
             except Exception as e:
                 logger.error(f"Error in SRMonitorEngine loop: {e}", exc_info=True)
@@ -517,11 +514,11 @@ class SRMonitorEngine:
             logger.error(f"Failed to send instant touch photo: {e}")
             await self._send_safe(caption)
 
-    async def send_hourly_report(self, now_wib: datetime):
+    async def send_scheduled_report(self, now_wib: datetime):
         """
-        Sends the scheduled 1-hour report with the latest 16:9 Bloomberg Dashboard Card.
+        Sends the scheduled 15-minute report with the latest 16:9 Bloomberg Dashboard Card.
         """
-        time_str = now_wib.strftime("%d %b %Y • %H:00 WIB")
+        time_str = now_wib.strftime("%d %b %Y • %H:%M WIB")
         
         summary_rows = []
         for symbol, cfg in self.CONFIG.items():
@@ -543,16 +540,20 @@ class SRMonitorEngine:
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
             + "\n".join(summary_rows) + "\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"💡 <i>Update otomatis setiap 1 jam & langsung mengirim popup visual jika harga live mengenai batas SNR.</i>"
+            f"💡 <i>Update otomatis setiap 15 menit & langsung mengirim visual instan jika harga live mengenai batas SNR.</i>"
         )
 
         try:
             photo_bytes = self.generate_current_photo_card()
             await self._send_photo(photo_bytes, caption=report_caption)
-            logger.info("Hourly Bloomberg Dashboard card sent to Telegram.")
+            logger.info("15-Minute Bloomberg Dashboard card sent to Telegram.")
         except Exception as e:
-            logger.error(f"Failed to send hourly report card: {e}")
+            logger.error(f"Failed to send scheduled report card: {e}")
             await self._send_safe(report_caption)
+
+    async def send_hourly_report(self, now_wib: datetime):
+        """Backwards compatibility alias."""
+        await self.send_scheduled_report(now_wib)
 
     def generate_current_photo_card(self, now_wib: datetime = None) -> bytes:
         """

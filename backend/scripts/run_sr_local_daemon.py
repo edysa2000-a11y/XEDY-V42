@@ -32,7 +32,7 @@ async def main():
     logger.info("🚀 XEDY MASTER S/R REAL-TIME MONITOR DAEMON STARTED")
     logger.info("📍 Timezone: WIB (UTC+7)")
     logger.info("📊 Assets: GOLD (XAUUSD), EURUSD, OIL (WTI), USDJPY")
-    logger.info("⏱️ Hourly Report: 1 Jam Sekali (:00)")
+    logger.info("⏱️ Scheduled Report: Setiap 15 Menit Sekali (:00, :15, :30, :45)")
     logger.info("🚨 Instant Alert: Langsung saat harga mengenai SNR!")
     logger.info("==================================================")
     
