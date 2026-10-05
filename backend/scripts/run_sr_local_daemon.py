@@ -12,6 +12,7 @@ if BASE_DIR not in sys.path:
 
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
+from backend.telegram.bot import TelegramEcosystem
 from backend.telegram.sr_monitor import SRMonitorEngine
 
 WIB = timezone(timedelta(hours=7))
@@ -28,21 +29,28 @@ logger = logging.getLogger("xedy.sr_local_daemon")
 
 async def main():
     logger.info("==================================================")
-    logger.info("🚀 XEDY LOCAL S/R REAL-TIME MONITOR DAEMON STARTED")
+    logger.info("🚀 XEDY MASTER S/R REAL-TIME MONITOR DAEMON STARTED")
     logger.info("📍 Timezone: WIB (UTC+7)")
-    logger.info("⏱️ Interval: Every 60 seconds (1 minute)")
-    logger.info("📊 Hourly Report: Every hour on the hour (:00)")
+    logger.info("📊 Assets: GOLD (XAUUSD), EURUSD, OIL (WTI), USDJPY")
+    logger.info("⏱️ Hourly Report: 1 Jam Sekali (:00)")
+    logger.info("🚨 Instant Alert: Langsung saat harga mengenai SNR!")
     logger.info("==================================================")
     
-    engine = SRMonitorEngine()
-    await engine.start()
+    ecosystem = TelegramEcosystem()
+    try:
+        await ecosystem.start()
+    except Exception as e:
+        logger.warning(f"TelegramEcosystem polling startup notice: {e}. Starting SRMonitorEngine standalone fallback...")
+        engine = SRMonitorEngine()
+        await engine.start()
+        ecosystem = engine
     
     try:
         while True:
             await asyncio.sleep(3600)
     except (KeyboardInterrupt, SystemExit):
         logger.info("Stopping local daemon...")
-        await engine.stop()
+        await ecosystem.stop()
 
 if __name__ == "__main__":
     asyncio.run(main())

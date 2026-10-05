@@ -1,47 +1,83 @@
 import asyncio
 import logging
 import os
+import json
+import urllib.request
+import uuid
 from datetime import datetime, timezone, timedelta
 import MetaTrader5 as mt5
+from backend.telegram.sr_image_generator import generate_sr_card_bytes
 
 logger = logging.getLogger("xedy.telegram.sr_monitor")
 WIB = timezone(timedelta(hours=7))
 
 class SRMonitorEngine:
     """
-    AI Real-Time Support & Resistance Monitoring Agent.
-    Monitors XAUUSD and USDJPY live MT5 prices every 1 minute.
-    Enforces state-machine anti-spam, 2-reading breakout confirmations,
-    high priority alerts, and hourly market reports in WIB timezone.
+    AI Real-Time Support & Resistance Monitoring Engine for 4 Key Assets:
+    1. GOLD (XAUUSD)
+    2. EURUSD (EUR/USD)
+    3. OIL (WTI CRUDE)
+    4. USDJPY (USD/JPY)
+    
+    Features:
+    - Real-time price scanning via TradingView Global Scanner + MT5 fallback.
+    - Hourly reports sent to Telegram once every 1 hour with visual Bloomberg-style card.
+    - INSTANT ALERT: When live price hits/touches SNR (Support/Resistance/Breakout/Breakdown),
+      immediately generates and sends the card to Telegram without waiting for the hour.
+    - Anti-spam state machine with cooldown.
     """
     
-    # LEVEL S/R BERLAKU: 27 September 2026 - 4 Oktober 2026
     CONFIG = {
         "XAUUSD": {
-            "support": 4220.0,
-            "resistance": 4580.0,
-            "near_pct": 0.005, # 0.50%
+            "name": "GOLD",
+            "subtitle": "XAUUSD",
+            "orb_color": (255, 195, 0),
+            "support": 3855.0,
+            "resistance": 4230.0,
+            "near_pct": 0.003, # 0.3% near/touch threshold
+            "digits": 2
+        },
+        "EURUSD": {
+            "name": "EURUSD",
+            "subtitle": "EUR/USD",
+            "orb_color": (0, 140, 255),
+            "support": 1.1100,
+            "resistance": 1.1320,
+            "near_pct": 0.002, # 0.2%
+            "digits": 4
+        },
+        "OIL": {
+            "name": "OIL",
+            "subtitle": "WTI CRUDE",
+            "orb_color": (60, 65, 75),
+            "support": 87.90,
+            "resistance": 99.10,
+            "near_pct": 0.005, # 0.5%
             "digits": 2
         },
         "USDJPY": {
-            "support": 152.80,
-            "resistance": 158.30,
-            "near_pct": 0.003, # 0.30%
+            "name": "USDJPY",
+            "subtitle": "USD/JPY",
+            "orb_color": (160, 50, 255),
+            "support": 156.20,
+            "resistance": 159.40,
+            "near_pct": 0.003, # 0.3%
             "digits": 2
         }
     }
 
     def __init__(self, bot=None, admin_id=None):
         self.bot = bot
-        self.admin_id = admin_id or int(os.environ.get("TELEGRAM_ADMIN_ID", "0"))
+        self.admin_id = admin_id or int(os.environ.get("TELEGRAM_ADMIN_ID", "-1003468917523"))
         self._running = False
         self._monitor_task = None
         
         # State Tracking
-        self.current_state = {s: "NORMAL" for s in self.CONFIG}
+        self.current_state = {s: "WAIT" for s in self.CONFIG}
         self.raw_outside_count = {s: {"BREAKOUT": 0, "BREAKDOWN": 0} for s in self.CONFIG}
         self.last_price_data = {}
         self.last_error_sent = {s: 0.0 for s in self.CONFIG}
+        self.last_alert_sent_time = {s: 0.0 for s in self.CONFIG}
         self.last_hourly_hour = -1
 
     async def start(self, bot=None, admin_id=None):
@@ -50,7 +86,7 @@ class SRMonitorEngine:
         if admin_id:
             self.admin_id = admin_id
             
-        logger.info("Memulai AI Real-Time Support & Resistance Monitor...")
+        logger.info("Memulai AI Real-Time Support & Resistance Monitor (4 Pasang Mata Uang/Komoditas)...")
         self._running = True
         self._monitor_task = asyncio.create_task(self._monitor_loop())
 
@@ -77,14 +113,12 @@ class SRMonitorEngine:
                 await self._send_http(token, admin_id, text)
 
     async def _send_http(self, token: str, chat_id: int, text: str):
-        import urllib.request
-        import json
         url = f"https://api.telegram.org/bot{token}/sendMessage"
         payload = {"chat_id": chat_id, "text": text, "parse_mode": "HTML"}
         loop = asyncio.get_running_loop()
         def _do_post():
             data_bytes = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(url, data=data_bytes, headers={"Content-Type": "application/json"}, method="POST")
+            req = urllib.request.Request(url, data=data_bytes, headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"}, method="POST")
             with urllib.request.urlopen(req, timeout=10.0) as resp:
                 resp.read()
         try:
@@ -99,7 +133,7 @@ class SRMonitorEngine:
         try:
             if self.bot and admin_id:
                 from aiogram.types import BufferedInputFile
-                input_file = BufferedInputFile(photo_bytes, filename="weekly_sr_monitor.png")
+                input_file = BufferedInputFile(photo_bytes, filename="snr_monitor_card.png")
                 await self.bot.send_photo(chat_id=admin_id, photo=input_file, caption=caption, parse_mode="HTML")
                 logger.info("S/R Card Photo sent via aiogram.")
                 return
@@ -112,8 +146,6 @@ class SRMonitorEngine:
                 await self._send_photo_http(token, admin_id, photo_bytes, caption)
 
     async def _send_photo_http(self, token: str, chat_id: int, photo_bytes: bytes, caption: str = ""):
-        import urllib.request
-        import uuid
         boundary = uuid.uuid4().hex
         url = f"https://api.telegram.org/bot{token}/sendPhoto"
         
@@ -122,7 +154,7 @@ class SRMonitorEngine:
         if caption:
             parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"caption\"\r\n\r\n{caption}\r\n".encode("utf-8"))
             parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"parse_mode\"\r\n\r\nHTML\r\n".encode("utf-8"))
-        parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"photo\"; filename=\"weekly_sr.png\"\r\nContent-Type: image/png\r\n\r\n".encode("utf-8"))
+        parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"photo\"; filename=\"snr_card.png\"\r\nContent-Type: image/png\r\n\r\n".encode("utf-8"))
         parts.append(photo_bytes)
         parts.append(f"\r\n--{boundary}--\r\n".encode("utf-8"))
         
@@ -132,7 +164,7 @@ class SRMonitorEngine:
             req = urllib.request.Request(
                 url,
                 data=body,
-                headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+                headers={"Content-Type": f"multipart/form-data; boundary={boundary}", "User-Agent": "Mozilla/5.0"},
                 method="POST"
             )
             with urllib.request.urlopen(req, timeout=20.0) as resp:
@@ -146,33 +178,41 @@ class SRMonitorEngine:
                 await self._send_safe(caption)
 
     async def _monitor_loop(self):
+        # On boot, send an initial welcome card if desired
+        logger.info("S/R Monitor Engine active. Checking every 30 seconds...")
         while self._running:
             try:
                 now_wib = datetime.now(WIB)
                 
-                # Perform 1-minute S/R check for all configured symbols
+                # 1. Fetch live prices & check SNR touch / breakout
                 await self.check_all_symbols(now_wib)
                 
-                # Check for Hourly Report trigger (on every new hour)
+                # 2. Hourly Report Trigger (1 jam sekali pada awal jam baru)
                 if self.last_hourly_hour != now_wib.hour:
                     if self.last_hourly_hour != -1:
+                        await self.send_hourly_report(now_wib)
+                    else:
+                        # Send first report on startup
                         await self.send_hourly_report(now_wib)
                     self.last_hourly_hour = now_wib.hour
                     
             except Exception as e:
                 logger.error(f"Error in SRMonitorEngine loop: {e}", exc_info=True)
                 
-            await asyncio.sleep(60) # Pengecekan setiap 1 menit
+            await asyncio.sleep(30) # Interval pengecekan setiap 30 detik
 
     def fetch_tradingview_prices(self) -> dict:
-        import urllib.request
-        import json
         url = "https://scanner.tradingview.com/global/scan"
         payload = {
             "symbols": {
-                "tickers": ["OANDA:XAUUSD", "OANDA:USDJPY", "FX_IDC:XAUUSD", "FX:USDJPY"]
+                "tickers": [
+                    "OANDA:XAUUSD", "FX_IDC:XAUUSD",
+                    "FX:EURUSD", "OANDA:EURUSD",
+                    "NYMEX:CL1!", "TVC:USOIL",
+                    "FX:USDJPY", "OANDA:USDJPY"
+                ]
             },
-            "columns": ["close", "bid", "ask"]
+            "columns": ["close", "bid", "ask", "change", "change_abs", "high", "low"]
         }
         prices = {}
         try:
@@ -186,13 +226,18 @@ class SRMonitorEngine:
                 for item in data.get("data", []):
                     ticker = item.get("s", "")
                     vals = item.get("d", [])
-                    if len(vals) >= 3:
-                        close, bid, ask = vals[0], vals[1], vals[2]
+                    if len(vals) >= 5:
+                        close, bid, ask, chg_pct, chg_abs = vals[0], vals[1], vals[2], vals[3], vals[4]
                         mid = (bid + ask) / 2.0 if (bid and ask and bid > 0 and ask > 0) else close
+                        
                         if "XAUUSD" in ticker and "XAUUSD" not in prices:
-                            prices["XAUUSD"] = {"close": close, "bid": bid, "ask": ask, "mid": mid, "source": f"TradingView ({ticker})"}
+                            prices["XAUUSD"] = {"price": mid, "change_val": chg_abs or 0.0, "change_pct": chg_pct or 0.0, "source": f"TV ({ticker})"}
+                        elif "EURUSD" in ticker and "EURUSD" not in prices:
+                            prices["EURUSD"] = {"price": mid, "change_val": chg_abs or 0.0, "change_pct": chg_pct or 0.0, "source": f"TV ({ticker})"}
+                        elif ("CL1!" in ticker or "USOIL" in ticker) and "OIL" not in prices:
+                            prices["OIL"] = {"price": mid, "change_val": chg_abs or 0.0, "change_pct": chg_pct or 0.0, "source": f"TV ({ticker})"}
                         elif "USDJPY" in ticker and "USDJPY" not in prices:
-                            prices["USDJPY"] = {"close": close, "bid": bid, "ask": ask, "mid": mid, "source": f"TradingView ({ticker})"}
+                            prices["USDJPY"] = {"price": mid, "change_val": chg_abs or 0.0, "change_pct": chg_pct or 0.0, "source": f"TV ({ticker})"}
         except Exception as e:
             logger.warning(f"TradingView price fetch exception: {e}")
         return prices
@@ -200,269 +245,280 @@ class SRMonitorEngine:
     async def check_all_symbols(self, now_wib: datetime):
         loop = asyncio.get_running_loop()
         tv_prices = await loop.run_in_executor(None, self.fetch_tradingview_prices)
-        
-        is_weekend = now_wib.weekday() in [5, 6] # 5=Saturday, 6=Sunday
 
         for symbol, cfg in self.CONFIG.items():
-            bid = 0.0
-            ask = 0.0
-            mid = 0.0
+            price = 0.0
+            chg_val = 0.0
+            chg_pct = 0.0
             source_info = "TradingView"
 
-            # Primary: TradingView Live Price
             if symbol in tv_prices:
                 tv_data = tv_prices[symbol]
-                bid = float(tv_data["bid"]) if tv_data["bid"] else float(tv_data["close"])
-                ask = float(tv_data["ask"]) if tv_data["ask"] else float(tv_data["close"])
-                mid = round(float(tv_data["mid"]), cfg["digits"])
+                price = round(float(tv_data["price"]), cfg["digits"])
+                chg_val = float(tv_data["change_val"])
+                chg_pct = float(tv_data["change_pct"])
                 source_info = tv_data["source"]
             else:
-                # Fallback: MetaTrader 5 Ticks / Rates
+                # MT5 Fallback
                 if mt5.initialize():
-                    aliases = [symbol]
-                    if symbol == "XAUUSD":
-                        aliases.extend(["GOLD", "XAUUSD.a", "XAUUSDm", "XAUUSD.i"])
-                    elif symbol == "USDJPY":
-                        aliases.extend(["USDJPY.a", "USDJPYm", "USDJPY.i"])
-
-                    tick = None
-                    found_symbol = symbol
-                    for alias in aliases:
-                        t = mt5.symbol_info_tick(alias)
-                        if t and t.bid > 0:
-                            tick = t
-                            found_symbol = alias
-                            break
-
-                    if tick and tick.bid > 0:
-                        bid = float(tick.bid)
-                        ask = float(tick.ask)
-                    else:
-                        rates = mt5.copy_rates_from_pos(found_symbol, mt5.TIMEFRAME_M1, 0, 1)
-                        if rates is not None and len(rates) > 0:
-                            c_price = float(rates[-1][4])
-                            bid = c_price
-                            ask = c_price
+                    alias = "XAUUSD" if symbol == "XAUUSD" else "EURUSD" if symbol == "EURUSD" else "USDJPY" if symbol == "USDJPY" else None
+                    if alias:
+                        tick = mt5.symbol_info_tick(alias)
+                        if tick and tick.bid > 0:
+                            price = round((tick.bid + tick.ask) / 2.0, cfg["digits"])
+                            rates = mt5.copy_rates_from_pos(alias, mt5.TIMEFRAME_D1, 0, 1)
+                            if rates is not None and len(rates) > 0:
+                                d_open = float(rates[-1][1])
+                                chg_val = price - d_open
+                                chg_pct = (chg_val / d_open) * 100.0 if d_open > 0 else 0.0
+                            source_info = "MT5"
                         else:
-                            await self._handle_data_error(symbol, "TRADINGVIEW & MT5 PRICE UNAVAILABLE")
-                            continue
-                    mid = round((bid + ask) / 2.0, cfg["digits"])
-                    source_info = "MT5 Fallback"
-                else:
-                    await self._handle_data_error(symbol, "TRADINGVIEW & MT5 UNAVAILABLE")
-                    continue
+                            rates = mt5.copy_rates_from_pos(alias, mt5.TIMEFRAME_M1, 0, 1)
+                            if rates is not None and len(rates) > 0:
+                                price = round(float(rates[-1][4]), cfg["digits"])
+                                source_info = "MT5 Rate"
 
-            # Calculate distances
+            if price <= 0:
+                continue
+
             supp = cfg["support"]
             res = cfg["resistance"]
-            dist_s = round(mid - supp, cfg["digits"])
-            dist_r = round(res - mid, cfg["digits"])
-            
-            # Calculate raw state
-            raw_state = "NORMAL"
-            
-            if mid > res:
+            near_pct = cfg.get("near_pct", 0.003)
+
+            # Calculate %SNR
+            if res > supp:
+                pct_snr = (price - supp) / (res - supp) * 100.0
+            else:
+                pct_snr = 50.0
+
+            # Determine State & Status
+            # 1. Breakout / Breakdown (confirmed over 2 readings)
+            raw_state = "WAIT"
+            status_label = "WAIT"
+            is_touch_event = False
+
+            if price > res:
                 self.raw_outside_count[symbol]["BREAKOUT"] += 1
                 self.raw_outside_count[symbol]["BREAKDOWN"] = 0
                 if self.raw_outside_count[symbol]["BREAKOUT"] >= 2:
                     raw_state = "BREAKOUT"
+                    status_label = "BREAKOUT"
+                    is_touch_event = True
                 else:
-                    raw_state = self.current_state[symbol] # Hold state until confirmed
-            elif mid < supp:
+                    raw_state = self.current_state[symbol]
+                    status_label = "WAIT"
+            elif price < supp:
                 self.raw_outside_count[symbol]["BREAKDOWN"] += 1
                 self.raw_outside_count[symbol]["BREAKOUT"] = 0
                 if self.raw_outside_count[symbol]["BREAKDOWN"] >= 2:
                     raw_state = "BREAKDOWN"
+                    status_label = "BREAKDOWN"
+                    is_touch_event = True
                 else:
-                    raw_state = self.current_state[symbol] # Hold state until confirmed
+                    raw_state = self.current_state[symbol]
+                    status_label = "WAIT"
             else:
-                # Reset breakout/breakdown consecutive counters when price returns inside
                 self.raw_outside_count[symbol]["BREAKOUT"] = 0
                 self.raw_outside_count[symbol]["BREAKDOWN"] = 0
                 
-                # Check Near thresholds
-                # Near Support: within near_pct above support
-                near_s_bound = supp + (supp * cfg["near_pct"])
-                # Near Resistance: within near_pct below resistance
-                near_r_bound = res - (res * cfg["near_pct"])
+                # Check touch / near thresholds
+                dist_to_res = res - price
+                dist_to_supp = price - supp
                 
-                if mid >= near_r_bound:
+                # Touch condition: within near_pct of level (e.g. 0.3%) or extreme %SNR
+                if price >= res * (1.0 - near_pct) or pct_snr >= 95.0:
+                    raw_state = "TOUCH_RESISTANCE"
+                    status_label = "REVERSAL"
+                    is_touch_event = True
+                elif price <= supp * (1.0 + near_pct) or pct_snr <= 5.0:
+                    raw_state = "TOUCH_SUPPORT"
+                    status_label = "BUY"
+                    is_touch_event = True
+                elif pct_snr >= 78.0:
                     raw_state = "NEAR_RESISTANCE"
-                elif mid <= near_s_bound:
+                    status_label = "REVERSAL"
+                elif pct_snr <= 22.0:
                     raw_state = "NEAR_SUPPORT"
+                    status_label = "BUY"
                 else:
                     raw_state = "NORMAL"
+                    status_label = "WAIT"
 
             prev_state = self.current_state[symbol]
-            alert_sent = "NONE"
 
-            # STATE MACHINE ANTI-SPAM: Alert ONLY on state change
-            if raw_state != prev_state:
-                self.current_state[symbol] = raw_state
-                alert_sent = await self.send_instant_alert(symbol, mid, supp, res, dist_s, dist_r, raw_state, now_wib)
-                
-            # Store price data for hourly report & logging
+            # Save data
             self.last_price_data[symbol] = {
-                "bid": bid,
-                "ask": ask,
-                "mid": mid,
-                "supp": supp,
-                "res": res,
-                "dist_s": dist_s,
-                "dist_r": dist_r,
-                "status": self.current_state[symbol],
+                "name": cfg["name"],
+                "subtitle": cfg["subtitle"],
+                "orb_color": cfg["orb_color"],
+                "price": price,
+                "change_val": chg_val,
+                "change_pct": chg_pct,
+                "digits": cfg["digits"],
+                "support": supp,
+                "resistance": res,
+                "pct_snr": pct_snr,
+                "status": status_label,
+                "raw_state": raw_state,
+                "source": source_info,
                 "time": now_wib
             }
 
-            # Logging Section (Section 12)
-            time_str = now_wib.strftime("%Y-%m-%d %H:%M:%S WIB")
-            logger.info(
-                f"S/R LOG | {time_str} | {symbol} | Price={mid:.2f} (Bid={bid:.2f}, Ask={ask:.2f}) | "
-                f"S={supp} | R={res} | DistS={dist_s:+.2f} | DistR={dist_r:+.2f} | "
-                f"Status={self.current_state[symbol]} | PrevStatus={prev_state} | Alert={alert_sent}"
-            )
+            # TRIGGER INSTANT ALERT JIKA MENGENAI SNR
+            now_ts = datetime.now().timestamp()
+            cooldown_expired = (now_ts - self.last_alert_sent_time.get(symbol, 0)) > 1800 # 30 min cooldown
+            
+            # Send immediately if:
+            # 1. State changed into a touch/breakout event
+            # 2. Or is a touch event and cooldown has passed
+            if is_touch_event:
+                if raw_state != prev_state or cooldown_expired:
+                    self.current_state[symbol] = raw_state
+                    self.last_alert_sent_time[symbol] = now_ts
+                    await self.send_instant_touch_alert(symbol, raw_state, status_label, price, supp, res, pct_snr, now_wib)
+            else:
+                self.current_state[symbol] = raw_state
 
-    async def _handle_data_error(self, symbol: str, error_msg: str):
-        now_ts = datetime.now().timestamp()
-        # Throttle data error alerts to max 1 per 15 minutes per symbol to prevent spam
-        if now_ts - self.last_error_sent.get(symbol, 0) > 900:
-            self.last_error_sent[symbol] = now_ts
-            msg = (
-                f"⚠️ <b>DATA ERROR</b>\n\n"
-                f"Instrument:\n<b>{symbol}</b>\n\n"
-                f"Status:\n<b>{error_msg}</b>"
-            )
-            await self._send_safe(msg)
-
-    async def send_instant_alert(self, symbol: str, mid: float, supp: float, res: float, dist_s: float, dist_r: float, status: str, now_wib: datetime) -> str:
-        digits = self.CONFIG[symbol]["digits"]
+    async def send_instant_touch_alert(self, symbol: str, state: str, status_label: str, price: float, supp: float, res: float, pct_snr: float, now_wib: datetime):
+        """
+        Sends an INSTANT visual card & urgent notification when price touches or breaks SNR.
+        """
+        cfg = self.CONFIG[symbol]
+        digits = cfg["digits"]
+        time_str = now_wib.strftime("%H:%M:%S WIB")
         
-        if status == "NEAR_SUPPORT":
-            dist = round(mid - supp, digits)
-            dist_pct = round((mid - supp) / supp * 100.0, 2)
-            msg = (
-                f"🚨 <b>S/R ALERT — NEAR SUPPORT</b>\n\n"
-                f"<b>{symbol}</b>\n"
-                f"Price: {mid:.{digits}f}\n"
-                f"🔒 Support: {supp:.{digits}f}\n"
-                f"Distance: +{dist:.{digits}f}\n"
-                f"Distance: +{dist_pct:.2f}%\n\n"
-                f"⚠️ <b>PRICE NEAR SUPPORT</b>"
-            )
-        elif status == "NEAR_RESISTANCE":
-            dist = round(res - mid, digits)
-            dist_pct = round((res - mid) / res * 100.0, 2)
-            msg = (
-                f"🚨 <b>S/R ALERT — NEAR RESISTANCE</b>\n\n"
-                f"<b>{symbol}</b>\n"
-                f"Price: {mid:.{digits}f}\n"
-                f"🔒 Resistance: {res:.{digits}f}\n"
-                f"Distance: +{dist:.{digits}f}\n"
-                f"Distance: +{dist_pct:.2f}%\n\n"
-                f"⚠️ <b>PRICE NEAR RESISTANCE</b>"
-            )
-        elif status == "BREAKOUT":
-            msg = (
-                f"🚨🚨 <b>BREAKOUT ALERT</b>\n\n"
-                f"<b>{symbol}</b>\n"
-                f"Price: {mid:.{digits}f}\n"
-                f"🔒 Resistance: {res:.{digits}f}\n\n"
-                f"<b>BREAKOUT RESISTANCE</b>"
-            )
-        elif status == "BREAKDOWN":
-            msg = (
-                f"🚨🚨 <b>BREAKDOWN ALERT</b>\n\n"
-                f"<b>{symbol}</b>\n"
-                f"Price: {mid:.{digits}f}\n"
-                f"🔒 Support: {supp:.{digits}f}\n\n"
-                f"<b>BREAKDOWN SUPPORT</b>"
-            )
-        else: # NORMAL (No alert needed when returning to NORMAL)
-            return "NONE"
+        if state == "TOUCH_RESISTANCE":
+            event_title = "🚨 <b>S/R ALERT — MENGENAI RESISTANCE!</b>"
+            level_name = "RESISTANCE"
+            target_level = res
+            dist = res - price
+            tactical = "⚠️ <i>Harga menguji batas atas Resistance. Pantau potensi REVERSAL / SELL Rejection!</i>"
+        elif state == "TOUCH_SUPPORT":
+            event_title = "🚨 <b>S/R ALERT — MENGENAI SUPPORT!</b>"
+            level_name = "SUPPORT"
+            target_level = supp
+            dist = price - supp
+            tactical = "🎯 <i>Harga menyentuh batas bawah Support. Pantau potensi BUY / Demand Bounce!</i>"
+        elif state == "BREAKOUT":
+            event_title = "⚡🚨 <b>BREAKOUT ALERT — TEMBUS RESISTANCE!</b>"
+            level_name = "BREAKOUT R"
+            target_level = res
+            dist = price - res
+            tactical = "🚀 <i>Momentum kuat menembus Resistance. Waspada kelanjutan reli ke level berikutnya.</i>"
+        elif state == "BREAKDOWN":
+            event_title = "⚡🚨 <b>BREAKDOWN ALERT — TEMBUS SUPPORT!</b>"
+            level_name = "BREAKDOWN S"
+            target_level = supp
+            dist = supp - price
+            tactical = "🔻 <i>Harga tembus di bawah Support. Waspada percepatan tekanan jual.</i>"
+        else:
+            return
 
-        await self._send_safe(msg)
-        return f"SENT ({status})"
+        caption = (
+            f"{event_title}\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📍 <b>{cfg['name']} ({cfg['subtitle']})</b>\n"
+            f"• 💰 <b>Live Price:</b> <code>{price:,.{digits}f}</code>\n"
+            f"• 🎯 <b>Level {level_name}:</b> <code>{target_level:,.{digits}f}</code>\n"
+            f"• 📏 <b>Jarak Level:</b> {dist:+.{digits}f} (%SNR: {pct_snr:.1f}%)\n"
+            f"• 🏷️ <b>Status Sinyal:</b> <b>{status_label}</b>\n"
+            f"• ⏱️ <b>Waktu:</b> {time_str}\n\n"
+            f"{tactical}\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━"
+        )
+        
+        try:
+            photo_bytes = self.generate_current_photo_card()
+            await self._send_photo(photo_bytes, caption=caption)
+            logger.info(f"Instant SNR touch alert photo sent for {symbol} ({state})")
+        except Exception as e:
+            logger.error(f"Failed to send instant touch photo: {e}")
+            await self._send_safe(caption)
 
     async def send_hourly_report(self, now_wib: datetime):
-        blocks = []
+        """
+        Sends the scheduled 1-hour report with the latest 4-pair visual SNR card.
+        """
+        time_str = now_wib.strftime("%d %b %Y • %H:00 WIB")
         
+        summary_rows = []
         for symbol, cfg in self.CONFIG.items():
             data = self.last_price_data.get(symbol)
             digits = cfg["digits"]
-            
             if data:
-                live_price = f"{data['mid']:.{digits}f}"
-                dist_s = f"{data['dist_s']:+.{digits}f}"
-                dist_r = f"{data['dist_r']:+.{digits}f}"
+                p = data["price"]
                 st = data["status"]
+                pct = data["pct_snr"]
+                summary_rows.append(f"• <b>{cfg['name']}</b>: <code>{p:,.{digits}f}</code> ({pct:.1f}%) → <b>{st}</b>")
             else:
-                live_price = "N/A"
-                dist_s = "N/A"
-                dist_r = "N/A"
-                st = "NO DATA"
-                
-            block = (
-                f"<b>{symbol}</b>\n"
-                f"• Live: {live_price}\n"
-                f"• 🔒 S: {cfg['support']:.{digits}f}\n"
-                f"• Distance S: {dist_s}\n"
-                f"• 🔒 R: {cfg['resistance']:.{digits}f}\n"
-                f"• Distance R: {dist_r}\n"
-                f"• Status: {st}"
-            )
-            blocks.append(block)
+                summary_rows.append(f"• <b>{cfg['name']}</b>: <i>Syncing...</i>")
 
-        report_msg = (
-            f"📊 <b>S/R HOURLY REPORT</b>\n\n" +
-            "\n\n".join(blocks)
+        report_caption = (
+            f"📊 <b>S/R HOURLY MONITOR REPORT</b>\n"
+            f"🕒 <b>{time_str}</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            + "\n".join(summary_rows) + "\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"💡 <i>Update otomatis setiap 1 jam & langsung kirim notifikasi jika harga mengenai SNR.</i>"
         )
-        
-        # Generate & Send Visual S/R Card Photo
-        try:
-            photo_bytes = self.generate_current_photo_card(now_wib)
-            await self._send_photo(photo_bytes, caption=report_msg)
-        except Exception as e:
-            logger.error(f"Failed to send hourly S/R photo: {e}")
-            await self._send_safe(report_msg)
 
-        logger.info(f"Hourly S/R Market Report sent.")
+        try:
+            photo_bytes = self.generate_current_photo_card()
+            await self._send_photo(photo_bytes, caption=report_caption)
+            logger.info("Hourly S/R 4-pair report card sent to Telegram.")
+        except Exception as e:
+            logger.error(f"Failed to send hourly report card: {e}")
+            await self._send_safe(report_caption)
 
     def generate_current_photo_card(self, now_wib: datetime = None) -> bytes:
-        from backend.telegram.sr_image_generator import generate_sr_card_bytes
-        if now_wib is None:
-            now_wib = datetime.now(WIB)
-            
-        x_data = self.last_price_data.get("XAUUSD", {})
-        j_data = self.last_price_data.get("USDJPY", {})
-        
-        x_p = x_data.get("mid", 4285.00) if x_data else 4285.00
-        x_st = x_data.get("status", "NORMAL") if x_data else "NORMAL"
-        
-        j_p = j_data.get("mid", 157.29) if j_data else 157.29
-        j_st = j_data.get("status", "NORMAL") if j_data else "NORMAL"
-        
-        return generate_sr_card_bytes(
-            xau_price=x_p,
-            xau_support=self.CONFIG["XAUUSD"]["support"],
-            xau_resistance=self.CONFIG["XAUUSD"]["resistance"],
-            xau_status=x_st,
-            jpy_price=j_p,
-            jpy_support=self.CONFIG["USDJPY"]["support"],
-            jpy_resistance=self.CONFIG["USDJPY"]["resistance"],
-            jpy_status=j_st,
-            now_wib=now_wib
-        )
+        """
+        Generates the 4-pair visual card PNG bytes matching user's blueprint.
+        """
+        data_list = []
+        for symbol, cfg in self.CONFIG.items():
+            d = self.last_price_data.get(symbol)
+            if d:
+                data_list.append({
+                    "name": cfg["name"],
+                    "subtitle": cfg["subtitle"],
+                    "orb_color": cfg["orb_color"],
+                    "price": d["price"],
+                    "change_val": d.get("change_val", 0.0),
+                    "change_pct": d.get("change_pct", 0.0),
+                    "digits": cfg["digits"],
+                    "support": cfg["support"],
+                    "resistance": cfg["resistance"],
+                    "status": d.get("status", "WAIT"),
+                })
+            else:
+                # Default placeholder if not yet ticked
+                data_list.append({
+                    "name": cfg["name"],
+                    "subtitle": cfg["subtitle"],
+                    "orb_color": cfg["orb_color"],
+                    "price": cfg["support"] + (cfg["resistance"] - cfg["support"]) * 0.5,
+                    "change_val": 0.0,
+                    "change_pct": 0.0,
+                    "digits": cfg["digits"],
+                    "support": cfg["support"],
+                    "resistance": cfg["resistance"],
+                    "status": "WAIT",
+                })
+        return generate_sr_card_bytes(data_list)
 
     def get_current_status_summary(self) -> str:
         now_wib = datetime.now(WIB)
         time_str = now_wib.strftime("%H:%M:%S WIB")
-        summary_lines = [f"📊 <b>S/R MONITOR STATUS</b> ({time_str})\n"]
+        summary_lines = [f"📊 <b>XEDY MASTER S/R MONITOR</b> ({time_str})\n━━━━━━━━━━━━━━━━━━━━━━"]
         for symbol, cfg in self.CONFIG.items():
-            data = self.last_price_data.get(symbol)
-            if data:
+            d = self.last_price_data.get(symbol)
+            digits = cfg["digits"]
+            if d:
                 summary_lines.append(
-                    f"• <b>{symbol}</b>: Price=${data['mid']} | S={cfg['support']} | R={cfg['resistance']} | Status=<b>{data['status']}</b>"
+                    f"• <b>{cfg['name']} ({cfg['subtitle']})</b>: <code>{d['price']:,.{digits}f}</code>\n"
+                    f"  S: {cfg['support']:.{digits}f} | R: {cfg['resistance']:.{digits}f} | %SNR: <b>{d['pct_snr']:.1f}%</b> | Status: <b>{d['status']}</b>"
                 )
             else:
-                summary_lines.append(f"• <b>{symbol}</b>: Waiting for MT5 price tick...")
+                summary_lines.append(f"• <b>{cfg['name']}</b>: Menunggu sinkronisasi harga...")
+        summary_lines.append("━━━━━━━━━━━━━━━━━━━━━━\n<i>Ketik /sr untuk refresh kartu visual.</i>")
         return "\n".join(summary_lines)
