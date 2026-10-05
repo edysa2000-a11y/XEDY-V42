@@ -37,6 +37,7 @@ env/
 *.njsproj
 *.sln
 *.swp
+active_tunnel_url.txt
 
 cloudflared.exe
 active_online_url.txt

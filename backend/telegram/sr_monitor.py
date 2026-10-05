@@ -5,7 +5,10 @@ import json
 import urllib.request
 import uuid
 from datetime import datetime, timezone, timedelta
-import MetaTrader5 as mt5
+try:
+    import MetaTrader5 as mt5
+except ImportError:
+    mt5 = None
 from backend.telegram.sr_image_generator import generate_sr_card_bytes
 
 logger = logging.getLogger("xedy.telegram.sr_monitor")
@@ -338,7 +341,7 @@ class SRMonitorEngine:
     async def check_all_symbols(self, now_wib: datetime):
         loop = asyncio.get_running_loop()
         tv_prices = await loop.run_in_executor(None, self.fetch_tradingview_prices)
-        mt5_active = mt5.initialize()
+        mt5_active = mt5.initialize() if mt5 is not None else False
 
         for symbol, cfg in self.CONFIG.items():
             price = 0.0
@@ -557,7 +560,7 @@ class SRMonitorEngine:
             else:
                 self.current_state[symbol] = raw_state
 
-        if mt5_active:
+        if mt5_active and mt5 is not None:
             mt5.shutdown()
 
     async def send_instant_touch_alert(self, symbol: str, state: str, status: str, status_sub: str, price: float, supp: float, res: float, pct_snr: float, delta: int, buy_pct: float, sell_pct: float, now_wib: datetime):
