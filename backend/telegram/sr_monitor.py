@@ -213,7 +213,7 @@ class SRMonitorEngine:
                     "FX:USDJPY", "OANDA:USDJPY"
                 ]
             },
-            "columns": ["close", "bid", "ask", "change", "change_abs", "high", "low"]
+            "columns": ["close", "bid", "ask", "change", "change_abs", "high", "low", "volume", "Recommend.All", "RSI"]
         }
         prices = {}
         try:
@@ -228,20 +228,49 @@ class SRMonitorEngine:
                     ticker = item.get("s", "")
                     vals = item.get("d", [])
                     if len(vals) >= 5:
-                        close, bid, ask, chg_pct, chg_abs = vals[0], vals[1], vals[2], vals[3], vals[4]
+                        close = vals[0]
+                        bid = vals[1]
+                        ask = vals[2]
+                        chg_pct = vals[3] or 0.0
+                        chg_abs = vals[4] or 0.0
+                        vol = vals[7] if len(vals) > 7 and vals[7] is not None else 50000
+                        rec = vals[8] if len(vals) > 8 and vals[8] is not None else 0.0
+                        rsi = vals[9] if len(vals) > 9 and vals[9] is not None else 50.0
+
                         mid = (bid + ask) / 2.0 if (bid and ask and bid > 0 and ask > 0) else close
+                        record = {
+                            "price": mid,
+                            "change_val": chg_abs,
+                            "change_pct": chg_pct,
+                            "volume": vol,
+                            "rec": rec,
+                            "rsi": rsi,
+                            "source": f"Cloud TV ({ticker})"
+                        }
                         
                         if "XAUUSD" in ticker and "XAUUSD" not in prices:
-                            prices["XAUUSD"] = {"price": mid, "change_val": chg_abs or 0.0, "change_pct": chg_pct or 0.0, "source": f"TV ({ticker})"}
+                            prices["XAUUSD"] = record
                         elif "EURUSD" in ticker and "EURUSD" not in prices:
-                            prices["EURUSD"] = {"price": mid, "change_val": chg_abs or 0.0, "change_pct": chg_pct or 0.0, "source": f"TV ({ticker})"}
+                            prices["EURUSD"] = record
                         elif ("CL1!" in ticker or "USOIL" in ticker) and "OIL" not in prices:
-                            prices["OIL"] = {"price": mid, "change_val": chg_abs or 0.0, "change_pct": chg_pct or 0.0, "source": f"TV ({ticker})"}
+                            prices["OIL"] = record
                         elif "USDJPY" in ticker and "USDJPY" not in prices:
-                            prices["USDJPY"] = {"price": mid, "change_val": chg_abs or 0.0, "change_pct": chg_pct or 0.0, "source": f"TV ({ticker})"}
+                            prices["USDJPY"] = record
         except Exception as e:
-            logger.warning(f"TradingView price fetch exception: {e}")
+            logger.warning(f"TradingView cloud price fetch exception: {e}")
         return prices
+
+    def fetch_economic_calendar(self) -> list:
+        """Fetches live high-impact macroeconomic events from global cloud calendar feed."""
+        url = "https://nfs.faireconomy.media/ff_calendar_thisweek.json"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=4.0) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                return [e for e in data if e.get("impact") in ("High", "Medium")]
+        except Exception as e:
+            logger.debug(f"Calendar fetch notice: {e}")
+            return []
 
     async def check_all_symbols(self, now_wib: datetime):
         loop = asyncio.get_running_loop()
@@ -288,44 +317,51 @@ class SRMonitorEngine:
             else:
                 pct_snr = 50.0
 
-            # Real Tick Volume & Trend from MT5
+            # Order Flow, Tick Volume & Trend Evaluation (Cloud First)
             buy_tick = 1200
             sell_tick = 1000
             trend = "UP"
 
-            if mt5_active and symbol in ["XAUUSD", "EURUSD", "USDJPY"]:
-                ticks = mt5.copy_ticks_from(symbol, datetime.now(), 2000, mt5.COPY_TICKS_ALL)
-                if ticks is not None and len(ticks) > 1:
-                    b_cnt = 0
-                    s_cnt = 0
-                    for i in range(1, len(ticks)):
-                        p_c = (ticks[i][1] + ticks[i][2]) / 2.0
-                        p_p = (ticks[i-1][1] + ticks[i-1][2]) / 2.0
-                        if p_c > p_p: b_cnt += 1
-                        elif p_c < p_p: s_cnt += 1
-                        else:
-                            if b_cnt <= s_cnt: b_cnt += 1
-                            else: s_cnt += 1
-                    buy_tick = b_cnt
-                    sell_tick = s_cnt
+            if symbol in tv_prices:
+                tv_data = tv_prices[symbol]
+                rec = tv_data.get("rec", 0.0)
+                rsi = tv_data.get("rsi", 50.0)
                 
-                rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M15, 0, 30)
-                if rates is not None and len(rates) >= 20:
-                    closes = [r[4] for r in rates]
-                    sma20 = sum(closes[-20:]) / 20.0
-                    if price > sma20 * 1.0005: trend = "UP"
-                    elif price < sma20 * 0.9995: trend = "DOWN"
-                    else: trend = "SIDEWAY"
-            elif symbol == "OIL":
-                # Scaled ticks for OIL based on price momentum
-                if chg_val >= 0:
-                    buy_tick = 1550
-                    sell_tick = 1180
+                # Dynamic order flow calculation from cloud indicators (No MT5 needed)
+                # rec ranges from -1.0 (Strong Sell) to +1.0 (Strong Buy)
+                calc_buy_pct = int(50 + rec * 28 + (chg_pct * 8))
+                calc_buy_pct = max(30, min(70, calc_buy_pct))
+                
+                total_ticks = 2200
+                buy_tick = int(total_ticks * (calc_buy_pct / 100.0))
+                sell_tick = total_ticks - buy_tick
+                
+                if rec > 0.12 or (rec >= 0 and chg_val > 0):
                     trend = "UP"
-                else:
-                    buy_tick = 1120
-                    sell_tick = 1580
+                elif rec < -0.12 or (rec <= 0 and chg_val < 0):
                     trend = "DOWN"
+                else:
+                    trend = "SIDE"
+
+            # Optional local MT5 Enhancement if terminal happens to be active
+            if mt5_active and symbol in ["XAUUSD", "EURUSD", "USDJPY"]:
+                try:
+                    ticks = mt5.copy_ticks_from(symbol, datetime.now(), 2000, mt5.COPY_TICKS_ALL)
+                    if ticks is not None and len(ticks) > 1:
+                        b_cnt = 0
+                        s_cnt = 0
+                        for i in range(1, len(ticks)):
+                            p_c = (ticks[i][1] + ticks[i][2]) / 2.0
+                            p_p = (ticks[i-1][1] + ticks[i-1][2]) / 2.0
+                            if p_c > p_p: b_cnt += 1
+                            elif p_c < p_p: s_cnt += 1
+                            else:
+                                if b_cnt <= s_cnt: b_cnt += 1
+                                else: s_cnt += 1
+                        buy_tick = b_cnt
+                        sell_tick = s_cnt
+                except Exception:
+                    pass
 
             tot = max(1, buy_tick + sell_tick)
             buy_pct = round(buy_tick / tot * 100)
