@@ -433,92 +433,151 @@ class SRMonitorEngine:
             buy_pct = round(buy_tick / tot * 100)
             sell_pct = 100 - buy_pct
             delta = buy_tick - sell_tick
+            delta_pct = round((delta / tot) * 100)
 
-            # Pressure Threshold Evaluation (Section D)
-            if buy_pct > 55:
+            # Pressure Threshold Evaluation
+            if buy_pct >= 65:
+                pressure = "STRONG_BUY"
+            elif buy_pct > 55:
                 pressure = "BUY_PRESSURE"
+            elif sell_pct >= 65:
+                pressure = "STRONG_SELL"
             elif sell_pct > 55:
                 pressure = "SELL_PRESSURE"
             else:
                 pressure = "BALANCED"
 
-            # Strict State & Status Matrix Evaluation (Section E, F, G, H, I)
+            # Reversal Score Engine (0 - 100)
+            if pct_snr <= 20.0:
+                rev_base = int((20.0 - max(0.0, pct_snr)) * 1.5)
+                rev_press = int((buy_pct - 50) * 1.5) if buy_pct >= 55 else 0
+                rev_delta = min(20, int((delta / tot) * 40)) if delta > 0 else 0
+                rev_pa = 15 if (trend == "UP" or chg_val > 0) else 0
+                reversal_score = min(98, max(20, rev_base + rev_press + rev_delta + rev_pa + 15))
+            elif pct_snr >= 80.0:
+                rev_base = int((min(100.0, pct_snr) - 80.0) * 1.5)
+                rev_press = int((sell_pct - 50) * 1.5) if sell_pct >= 55 else 0
+                rev_delta = min(20, int((-delta / tot) * 40)) if delta < 0 else 0
+                rev_pa = 15 if (trend == "DOWN" or chg_val < 0) else 0
+                reversal_score = min(98, max(20, rev_base + rev_press + rev_delta + rev_pa + 15))
+            else:
+                reversal_score = min(60, max(25, int(42 + (buy_pct - 50) * 0.4)))
+
+            # Confidence Score Engine (0 - 100)
+            c_loc = 20 if (pct_snr <= 20.0 or pct_snr >= 80.0) else max(8, int(20 - abs(pct_snr - 50.0) * 0.3))
+            c_press = min(20, max(8, int((abs(buy_pct - 50) / 50.0) * 12) + 8))
+            c_delta = min(15, max(5, int(abs(delta / tot) * 45)))
+            c_trend = 15 if trend != "SIDE" else 8
+            c_pa = 20 if ((buy_pct > 50 and chg_val > 0) or (sell_pct > 50 and chg_val < 0)) else 10
+            c_mkt = 10
+            confidence = min(98, max(35, c_loc + c_press + c_delta + c_trend + c_pa + c_mkt))
+
+            # Action Score Engine (0 - 100)
+            a_loc = 25 if (pct_snr <= 15.0 or pct_snr >= 85.0) else (20 if (pct_snr <= 20.0 or pct_snr >= 80.0) else 10)
+            a_press = 25 if (buy_pct >= 65 or sell_pct >= 65) else (18 if (buy_pct > 55 or sell_pct > 55) else 10)
+            a_delta = min(15, max(5, int(abs(delta / tot) * 45)))
+            a_trend = 15 if trend != "SIDE" else 8
+            a_pa = 20 if ((buy_pct > 50 and chg_val > 0) or (sell_pct > 50 and chg_val < 0)) else 10
+            action_score = min(98, max(35, a_loc + a_press + a_delta + a_trend + a_pa))
+
+            # Signal Grade Engine
+            if confidence >= 90 and action_score >= 85 and (pct_snr <= 15.0 or pct_snr >= 85.0) and (buy_pct >= 65 or sell_pct >= 65):
+                grade = "A+"
+            elif confidence >= 85 and action_score >= 75:
+                grade = "A"
+            elif confidence >= 75 and action_score >= 65:
+                grade = "B"
+            elif confidence >= 65 and action_score >= 50:
+                grade = "C"
+            else:
+                grade = "D"
+
+            # Final Status Engine Priority (1 to 15)
             is_touch_event = False
             raw_state = "WAIT"
-            status = "WAIT"
-            status_sub = "Konsolidasi tengah, tunggu setup"
 
-            if price > res:
-                self.raw_outside_count[symbol]["BREAKOUT"] += 1
-                self.raw_outside_count[symbol]["BREAKDOWN"] = 0
-                if self.raw_outside_count[symbol]["BREAKOUT"] >= 2:
-                    raw_state = "BREAKOUT"
-                    status = "BREAKOUT WATCH"
-                    status_sub = "Tembus Resistance waspada breakout"
-                    is_touch_event = True
-                else:
-                    raw_state = self.current_state[symbol]
-                    status = "WAIT"
-            elif price < supp:
-                self.raw_outside_count[symbol]["BREAKDOWN"] += 1
-                self.raw_outside_count[symbol]["BREAKOUT"] = 0
-                if self.raw_outside_count[symbol]["BREAKDOWN"] >= 2:
-                    raw_state = "BREAKDOWN"
-                    status = "BREAKDOWN RISK"
-                    status_sub = "Tembus Support waspada breakdown"
-                    is_touch_event = True
-                else:
-                    raw_state = self.current_state[symbol]
-                    status = "WAIT"
+            if price > res and buy_pct >= 60 and trend == "UP":
+                status = "BREAKOUT BUY"
+                status_sub = "Tembus Resistance waspada breakout"
+                raw_state = "BREAKOUT"
+                is_touch_event = True
+            elif price < supp and sell_pct >= 60 and trend == "DOWN":
+                status = "BREAKDOWN"
+                status_sub = "Tembus Support waspada breakdown"
+                raw_state = "BREAKDOWN"
+                is_touch_event = True
+            elif pct_snr <= 15.0 and buy_pct >= 65 and delta > 0 and confidence >= 90 and action_score >= 85:
+                status = "STRONG BUY"
+                status_sub = "Dekat support reversal valid"
+                raw_state = "TOUCH_SUPPORT"
+                is_touch_event = True
+            elif pct_snr >= 85.0 and sell_pct >= 65 and delta < 0 and confidence >= 90 and action_score >= 85:
+                status = "STRONG SELL"
+                status_sub = "Dekat resistance volume dominan"
+                raw_state = "TOUCH_RESISTANCE"
+                is_touch_event = True
+            elif pct_snr <= 20.0 and buy_pct >= 55 and delta > 0 and reversal_score >= 60:
+                status = "REVERSAL UP"
+                status_sub = "Dekat support reversal valid"
+                raw_state = "NEAR_SUPPORT"
+                is_touch_event = True
+            elif pct_snr >= 80.0 and sell_pct >= 55 and delta < 0 and reversal_score >= 60:
+                status = "SELL SETUP"
+                status_sub = "Dekat resistance volume dominan"
+                raw_state = "NEAR_RESISTANCE"
+                is_touch_event = True
+            elif pct_snr <= 20.0 and buy_pct > 55 and confidence >= 70:
+                status = "BUY"
+                status_sub = "Dekat support, Buy volume dominan"
+                raw_state = "NEAR_SUPPORT"
+            elif pct_snr >= 80.0 and sell_pct > 55 and confidence >= 70:
+                status = "SELL"
+                status_sub = "Dekat resistance, Sell volume dominan"
+                raw_state = "NEAR_RESISTANCE"
+            elif pct_snr >= 80.0 and buy_pct > 55:
+                status = "BREAKOUT WATCH"
+                status_sub = "Dekat resistance, waspada breakout"
+                raw_state = "NEAR_RESISTANCE"
+            elif pct_snr <= 20.0 and sell_pct > 55:
+                status = "BREAKDOWN RISK"
+                status_sub = "Dekat support, waspada breakdown"
+                raw_state = "NEAR_SUPPORT"
+            elif action_score >= 65:
+                status = "WAIT"
+                status_sub = "Konsolidasi di tengah"
+            elif pct_snr <= 20.0:
+                status = "WAIT"
+                status_sub = "Dekat support, volume seimbang"
+            elif pct_snr >= 80.0:
+                status = "WAIT"
+                status_sub = "Dekat resistance, volume seimbang"
             else:
-                self.raw_outside_count[symbol]["BREAKOUT"] = 0
-                self.raw_outside_count[symbol]["BREAKDOWN"] = 0
+                status = "WAIT"
+                status_sub = "Konsolidasi di tengah"
 
-                # Check proximity / touch
-                is_near_s = (price <= supp * (1.0 + near_pct)) or (pct_snr <= 5.0)
-                is_near_r = (price >= res * (1.0 - near_pct)) or (pct_snr >= 95.0)
-
-                if pct_snr <= 20.0:
-                    # 0–20% BUY ZONE
-                    if is_near_s: is_touch_event = True
-                    if pressure == "BUY_PRESSURE":
-                        raw_state = "TOUCH_SUPPORT" if is_near_s else "NEAR_SUPPORT"
-                        status = "BUY"
-                        status_sub = "Dekat support, Buy volume dominan"
-                    elif pressure == "SELL_PRESSURE":
-                        # Section G: JANGAN tampilkan BUY bila Sell Volume jauh lebih besar!
-                        raw_state = "TOUCH_SUPPORT" if is_near_s else "NEAR_SUPPORT"
-                        status = "SELL PRESSURE"
-                        status_sub = "Dekat support, waspada breakdown"
-                    else:
-                        status = "WAIT"
-                        status_sub = "Dekat support, volume seimbang"
-                elif pct_snr >= 80.0:
-                    # 80–100% SELL ZONE
-                    if is_near_r: is_touch_event = True
-                    if pressure == "BUY_PRESSURE":
-                        # Section G: JANGAN langsung tampilkan SELL bila Buy Volume jauh lebih besar!
-                        raw_state = "TOUCH_RESISTANCE" if is_near_r else "NEAR_RESISTANCE"
-                        status = "BREAKOUT WATCH"
-                        status_sub = "Dekat resistance, waspada breakout"
-                    elif pressure == "SELL_PRESSURE":
-                        raw_state = "TOUCH_RESISTANCE" if is_near_r else "NEAR_RESISTANCE"
-                        status = "REVERSAL WATCH"
-                        status_sub = "Dekat resistance, Sell volume dominan"
-                    else:
-                        status = "WAIT"
-                        status_sub = "Dekat resistance, volume seimbang"
-                else:
-                    # 20–80% NEUTRAL / WAIT ZONE
-                    if pressure == "BUY_PRESSURE":
-                        status = "WAIT"
-                        status_sub = "Net Buy, masih tengah tunggu konfirmasi"
-                    elif pressure == "SELL_PRESSURE":
-                        status = "WAIT"
-                        status_sub = "Net Sell, masih tengah tunggu konfirmasi"
-                    else:
-                        status = "WAIT"
-                        status_sub = "Konsolidasi tengah, tunggu setup"
+            # TP / SL Engine
+            digits = cfg["digits"]
+            if "BUY" in status or pct_snr <= 35.0:
+                sl = round(supp - 0.03 * (res - supp), digits)
+                r_val = max(1e-4, price - sl)
+                tp1 = round(price + 0.5 * r_val, digits)
+                tp2 = round(price + 0.8 * r_val, digits)
+                tp3 = round(price + 1.2 * r_val, digits)
+                rr = "1:1.7"
+            elif "SELL" in status or pct_snr >= 65.0:
+                sl = round(res + 0.03 * (res - supp), digits)
+                r_val = max(1e-4, sl - price)
+                tp1 = round(price - 0.5 * r_val, digits)
+                tp2 = round(price - 0.8 * r_val, digits)
+                tp3 = round(price - 1.2 * r_val, digits)
+                rr = "1:1.8"
+            else:
+                sl = round(supp if pct_snr < 50.0 else res, digits)
+                r_val = max(1e-4, abs(price - sl))
+                tp1 = round(price + 0.4 * (res - price), digits) if pct_snr < 50.0 else round(price - 0.4 * (price - supp), digits)
+                tp2 = round(price + 0.6 * (res - price), digits) if pct_snr < 50.0 else round(price - 0.6 * (price - supp), digits)
+                tp3 = round(price + 0.8 * (res - price), digits) if pct_snr < 50.0 else round(price - 0.8 * (price - supp), digits)
+                rr = "1:1.9"
 
             prev_state = self.current_state[symbol]
 
@@ -530,7 +589,7 @@ class SRMonitorEngine:
                 "price": price,
                 "change_val": chg_val,
                 "change_pct": chg_pct,
-                "digits": cfg["digits"],
+                "digits": digits,
                 "support": supp,
                 "resistance": res,
                 "pct_snr": pct_snr,
@@ -541,8 +600,17 @@ class SRMonitorEngine:
                 "delta": delta,
                 "trend": trend,
                 "pressure": pressure,
+                "reversal_score": reversal_score,
+                "confidence": confidence,
+                "action_score": action_score,
+                "grade": grade,
                 "status": status,
                 "status_sub": status_sub,
+                "tp1": tp1,
+                "tp2": tp2,
+                "tp3": tp3,
+                "sl": sl,
+                "rr": rr,
                 "raw_state": raw_state,
                 "source": source_info,
                 "time": now_wib
@@ -688,8 +756,18 @@ class SRMonitorEngine:
                     "sell_pct": 45,
                     "delta": 200,
                     "trend": "UP",
+                    "pressure": "BALANCED",
+                    "reversal_score": 45,
+                    "confidence": 75,
+                    "action_score": 65,
+                    "grade": "B",
                     "status": "WAIT",
-                    "status_sub": "Sinkronisasi market..."
+                    "status_sub": "Sinkronisasi market...",
+                    "tp1": mid,
+                    "tp2": mid,
+                    "tp3": mid,
+                    "sl": supp,
+                    "rr": "1:1.8"
                 })
         return generate_sr_card_bytes(data_list)
 
@@ -702,13 +780,16 @@ class SRMonitorEngine:
             digits = cfg["digits"]
             if d:
                 d_sgn = "+" if d["delta"] >= 0 else ""
+                gr = d.get("grade", "B")
+                conf = d.get("confidence", 75)
+                act = d.get("action_score", 65)
                 summary_lines.append(
-                    f"• <b>{cfg['name']} ({cfg['subtitle']})</b>: <code>{d['price']:,.{digits}f}</code>\n"
+                    f"• <b>[{gr}] {cfg['name']} ({cfg['subtitle']})</b>: <code>{d['price']:,.{digits}f}</code>\n"
                     f"  S: {cfg['support']:.{digits}f} | R: {cfg['resistance']:.{digits}f} | %SNR: <b>{d['pct_snr']:.1f}%</b>\n"
-                    f"  Flow: Buy {d['buy_pct']}% / Sell {d['sell_pct']}% (Δ {d_sgn}{d['delta']}) | Trend: <b>{d['trend']}</b>\n"
+                    f"  Flow: B {d['buy_pct']}% / S {d['sell_pct']}% (Δ {d_sgn}{d['delta']}) | Score: Conf {conf}% / Act {act}\n"
                     f"  Status: <b>{d['status']}</b> ({d['status_sub']})"
                 )
             else:
                 summary_lines.append(f"• <b>{cfg['name']}</b>: Menunggu sinkronisasi harga...")
-        summary_lines.append("━━━━━━━━━━━━━━━━━━━━━━\n<i>Ketik /sr untuk refresh kartu Bloomberg live.</i>")
+        summary_lines.append("━━━━━━━━━━━━━━━━━━━━━━\n<i>Ketik /popup atau /sr untuk kartu visual 16:9 widescreen.</i>")
         return "\n".join(summary_lines)
