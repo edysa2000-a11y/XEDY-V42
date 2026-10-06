@@ -1,4 +1,4 @@
-﻿import os
+import os
 import io
 import math
 from datetime import datetime, timezone, timedelta
@@ -550,17 +550,24 @@ def render_bloomberg_dashboard_card(data_list: list, output_path: str = None) ->
         draw.text((914, gy), gr_req, fill=(180, 215, 250), font=get_font(9, bold=False))
         draw.text((914, gy + 12), f"→ {gr_st}", fill=gr_c, font=get_font(9, bold=True))
 
-    # Panel 5: TRADING PRINCIPLE & DISCIPLINE [w: 396]
+    # Panel 5: LEGEND FINAL STATUS (RULE STATUS) [w: 396]
     draw.rounded_rectangle([(1188, Y_BTM), (1584, Y_BTM + H_BTM)], radius=6, fill=(4, 18, 44), outline=(15, 50, 105), width=1)
-    draw.text((1198, Y_BTM + 8), "TRADING PRINCIPLE & DISCIPLINE", fill=(215, 235, 255), font=get_font(10, bold=True))
-    draw.text((1198, Y_BTM + 28), "LOCATION → PRESSURE → TREND → REJECTION\n→ CONFIDENCE → ACTION SCORE → STATUS", fill=(0, 229, 255), font=get_font(9, bold=True))
-    f_rule = get_font(9, bold=False)
-    draw.text((1198, Y_BTM + 65), "• SNR = LOCATION (Zona risiko optimal)", fill=(190, 220, 255), font=f_rule)
-    draw.text((1198, Y_BTM + 85), "• TICK FLOW = PRESSURE (Dominasi buyers vs sellers)", fill=(190, 220, 255), font=f_rule)
-    draw.text((1198, Y_BTM + 105), "• TREND = DIRECTION (Arah momentum pasar mayor)", fill=(190, 220, 255), font=f_rule)
-    draw.text((1198, Y_BTM + 125), "• PRICE ACTION = CONFIRMATION (Rejection valid)", fill=(190, 220, 255), font=f_rule)
-    draw.text((1198, Y_BTM + 145), "• CONFIDENCE = EVIDENCE  |  ACTION = TRADEABILITY", fill=(255, 220, 0), font=f_rule)
-    draw.text((1198, Y_BTM + 165), "Discipline: A+ rare. Tanpa konfirmasi lengkap = NO TRADE.", fill=(255, 120, 120), font=f_rule)
+    draw.text((1198, Y_BTM + 8), "LEGEND FINAL STATUS (RULE STATUS)", fill=(215, 235, 255), font=get_font(10, bold=True))
+    
+    st_rules = [
+        ("STRONG BUY / SELL", (0, 255, 136), "SNR Ekstrem (<=15% / >=85%) + Vol >=65% + Conf >=90"),
+        ("BREAKOUT / BREAKDOWN", (0, 229, 255), "Harga menembus level S/R + Vol >=60% searah tren"),
+        ("REVERSAL UP / DOWN", (255, 160, 0), "Zona Pantul (<=20% / >=80%) + Rev Score >=60 valid"),
+        ("BUY / SELL SETUP", (255, 220, 0), "Mendekati zona SNR + dominasi volume terkonfirmasi"),
+        ("BUY / SELL PRESSURE", (255, 120, 120), "Arus volume mengalir searah (>55%), cari momentum"),
+        ("WAIT / NO TRADE", (160, 190, 225), "Konsolidasi di tengah / belum ada setup yang valid")
+    ]
+    f_st_t = get_font(9, bold=True)
+    f_st_d = get_font(9, bold=False)
+    for idx, (st_name, st_col, st_desc) in enumerate(st_rules):
+        sy = Y_BTM + 28 + idx * 26
+        draw.text((1198, sy), f"• {st_name}", fill=st_col, font=f_st_t)
+        draw.text((1198, sy + 12), f"   {st_desc}", fill=(180, 215, 250), font=f_st_d)
 
     if output_path:
         os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)

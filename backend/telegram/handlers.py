@@ -44,12 +44,58 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
             "• 🟣 <b>USDJPY</b> (USD/JPY)\n\n"
             "<b>Perintah Tersedia:</b>\n"
             "⚡ <b>/popup</b> atau <b>/sr</b> — Request instan Dashboard 16:9 Bloomberg (tanpa tunggu interval)\n"
+            "📖 <b>/legend</b> — Penjelasan lengkap Grade (A+, A, B, C, D) & 15 Final Status\n"
             "⚙️ <b>/setsnr</b> — Merubah level Support & Resistance lewat Telegram\n"
             "📊 <b>/status</b> — Ringkasan teks metrik harga & status S/R\n"
             "🆔 <b>/id</b> — Mengetahui Chat ID & User ID\n\n"
             "💡 <i>Update otomatis terkirim setiap 15 menit, dan alert visual instan dikirim detik itu juga jika harga mengenai batas SNR.</i>"
         )
         await message.answer(help_text, parse_mode="HTML")
+
+    @dp.message(Command("legend", "rules", "grade", "rule"))
+    async def cmd_legend(message: Message):
+        if not is_authorized(message):
+            return
+        legend_text = (
+            "🏛️ <b>LEGEND SIGNAL GRADE & FINAL STATUS</b>\n"
+            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🎖️ <b>1. SIGNAL GRADE (KUALITAS SINYAL):</b>\n"
+            "• 🟢 <b>[A+] STRONG ENTRY</b>\n"
+            "   Confidence >=90% | Action >=85 | SNR Ekstrem (<=15% / >=85%) | Vol >=65% | Delta ±15%.\n"
+            "   <i>Sinyal langka & sangat presisi. Hanya dieksekusi saat seluruh filter lolos sempurna.</i>\n\n"
+            "• 🟢 <b>[A] ENTRY</b>\n"
+            "   Confidence >=85% | Action >=75 | Major filters confirmed.\n"
+            "   <i>Sinyal entri standar institusional yang terverifikasi kuat.</i>\n\n"
+            "• 🟡 <b>[B] SETUP / WATCH</b>\n"
+            "   Confidence >=75% | Action >=65.\n"
+            "   <i>Peluang potensial sedang terbentuk, pantau konfirmasi candle rejection.</i>\n\n"
+            "• 🟠 <b>[C] WAIT</b>\n"
+            "   Confidence >=65% | Action >=50.\n"
+            "   <i>Data belum lengkap, risiko tinggi jika masuk sekarang.</i>\n\n"
+            "• 🔴 <b>[D] NO TRADE</b>\n"
+            "   Confidence <65% atau Action <50.\n"
+            "   <i>Dilarang open posisi. Disiplin menunggu kondisi pasar optimal.</i>\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🚦 <b>2. FINAL STATUS (15 HIERARKI PRIORITAS):</b>\n"
+            "1. <b>STRONG BUY</b> : Dekat Support (<=15%) + Buy Vol >=65% + Delta +15% + Conf>=90\n"
+            "2. <b>STRONG SELL</b> : Dekat Resistance (>=85%) + Sell Vol >=65% + Delta -15% + Conf>=90\n"
+            "3. <b>BREAKOUT BUY</b> : Harga menembus Resistance + Buy Vol >=60% + Trend UP\n"
+            "4. <b>BREAKDOWN</b> : Harga menembus Support + Sell Vol >=60% + Trend DOWN\n"
+            "5. <b>REVERSAL UP</b> : Zona Support (<=20%) + Reversal Score >=60 + Buy flow aktif\n"
+            "6. <b>REVERSAL DOWN</b> : Zona Resistance (>=80%) + Reversal Score >=60 + Sell flow aktif\n"
+            "7. <b>BUY</b> : Zona Support (<=20%) + Buy dominan + Conf >=70 + Action >=75\n"
+            "8. <b>SELL</b> : Zona Resistance (>=80%) + Sell dominan + Conf >=70 + Action >=75\n"
+            "9. <b>BREAKOUT WATCH</b> : Mendekati Resistance (>=70%) + Buy volume aktif\n"
+            "10. <b>BREAKDOWN RISK</b> : Mendekati Support (<=30%) + Sell volume aktif\n"
+            "11. <b>BUY SETUP</b> : Dekat Support atau Action >=65 dengan bias beli aktif\n"
+            "12. <b>SELL SETUP</b> : Dekat Resistance atau Action >=65 dengan bias jual aktif\n"
+            "13. <b>BUY PRESSURE</b> : Aliran volume beli kuat (>55% / >65%)\n"
+            "14. <b>SELL PRESSURE</b> : Aliran volume jual kuat (>55% / >65%)\n"
+            "15. <b>WAIT / NO TRADE</b> : Konsolidasi netral tanpa konfirmasi setup\n"
+            "━━━━━━━━━━━━━━━━━━━━━━\n"
+            "💡 <i>Ketik /popup untuk melihat kartu Bloomberg live dengan legend visual di bagian bawah.</i>"
+        )
+        await message.answer(legend_text, parse_mode="HTML")
         
     @dp.message(Command("sr", "popup", "dashboard", "now"))
     async def cmd_popup(message: Message):
