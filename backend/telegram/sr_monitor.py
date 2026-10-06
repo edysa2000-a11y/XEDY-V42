@@ -476,93 +476,79 @@ class SRMonitorEngine:
             a_pa = 20 if ((buy_pct > 50 and chg_val > 0) or (sell_pct > 50 and chg_val < 0)) else 10
             action_score = min(98, max(35, a_loc + a_press + a_delta + a_trend + a_pa))
 
-            # Signal Grade Engine
-            if confidence >= 90 and action_score >= 85 and (pct_snr <= 15.0 or pct_snr >= 85.0) and (buy_pct >= 65 or sell_pct >= 65):
+            # Daily Scalping Signal Grade Engine
+            if (buy_pct >= 65 or sell_pct >= 65) and abs(delta / tot) >= 0.18 and confidence >= 85 and action_score >= 80:
                 grade = "A+"
-            elif confidence >= 85 and action_score >= 75:
+            elif (buy_pct >= 60 or sell_pct >= 60) and confidence >= 75 and action_score >= 70:
                 grade = "A"
-            elif confidence >= 75 and action_score >= 65:
+            elif (buy_pct >= 55 or sell_pct >= 55) and confidence >= 65 and action_score >= 60:
                 grade = "B"
-            elif confidence >= 65 and action_score >= 50:
+            elif confidence >= 60 and action_score >= 48:
                 grade = "C"
             else:
                 grade = "D"
 
-            # Final Status Engine Priority (1 to 15)
+            # Daily Scalping Final Status Engine Priority (1 to 15)
             is_touch_event = False
             raw_state = "WAIT"
 
             if price > res and buy_pct >= 60 and trend == "UP":
                 status = "BREAKOUT BUY"
-                status_sub = "Tembus Resistance waspada breakout"
+                status_sub = "Breakout scalping, ikuti momentum"
                 raw_state = "BREAKOUT"
                 is_touch_event = True
             elif price < supp and sell_pct >= 60 and trend == "DOWN":
                 status = "BREAKDOWN"
-                status_sub = "Tembus Support waspada breakdown"
+                status_sub = "Breakdown scalping, ikuti momentum"
                 raw_state = "BREAKDOWN"
                 is_touch_event = True
-            elif pct_snr <= 15.0 and buy_pct >= 65 and delta > 0 and confidence >= 90 and action_score >= 85:
+            elif buy_pct >= 65 and trend == "UP" and confidence >= 80:
                 status = "STRONG BUY"
-                status_sub = "Dekat support reversal valid"
-                raw_state = "TOUCH_SUPPORT"
-                is_touch_event = True
-            elif pct_snr >= 85.0 and sell_pct >= 65 and delta < 0 and confidence >= 90 and action_score >= 85:
+                status_sub = "Momentum buy scalping agresif"
+                raw_state = "TOUCH_SUPPORT" if pct_snr <= 25.0 else "NEAR_SUPPORT"
+                is_touch_event = True if pct_snr <= 25.0 else False
+            elif sell_pct >= 65 and trend == "DOWN" and confidence >= 80:
                 status = "STRONG SELL"
-                status_sub = "Dekat resistance volume dominan"
-                raw_state = "TOUCH_RESISTANCE"
-                is_touch_event = True
-            elif pct_snr <= 20.0 and buy_pct >= 55 and delta > 0 and reversal_score >= 60:
+                status_sub = "Momentum sell scalping agresif"
+                raw_state = "TOUCH_RESISTANCE" if pct_snr >= 75.0 else "NEAR_RESISTANCE"
+                is_touch_event = True if pct_snr >= 75.0 else False
+            elif pct_snr <= 25.0 and buy_pct >= 55 and reversal_score >= 60:
                 status = "REVERSAL UP"
-                status_sub = "Reversal dari support valid"
+                status_sub = "Pantulan support scalping valid"
                 raw_state = "NEAR_SUPPORT"
                 is_touch_event = True
-            elif pct_snr >= 80.0 and sell_pct >= 55 and delta < 0 and reversal_score >= 60:
+            elif pct_snr >= 75.0 and sell_pct >= 55 and reversal_score >= 60:
                 status = "REVERSAL DOWN"
-                status_sub = "Reversal dari resistance valid"
+                status_sub = "Pantulan resist scalping valid"
                 raw_state = "NEAR_RESISTANCE"
                 is_touch_event = True
-            elif pct_snr <= 20.0 and buy_pct >= 55 and confidence >= 70 and action_score >= 75:
-                status = "BUY"
-                status_sub = "Dekat support, Buy volume dominan"
+            elif buy_pct >= 60 and (trend == "UP" or pct_snr <= 40.0):
+                status = "BUY SCALP"
+                status_sub = "Entri buy scalping terkonfirmasi"
                 raw_state = "NEAR_SUPPORT"
-            elif pct_snr >= 80.0 and sell_pct >= 55 and confidence >= 70 and action_score >= 75:
-                status = "SELL"
-                status_sub = "Dekat resistance, Sell volume dominan"
+            elif sell_pct >= 60 and (trend == "DOWN" or pct_snr >= 60.0):
+                status = "SELL SCALP"
+                status_sub = "Entri sell scalping terkonfirmasi"
                 raw_state = "NEAR_RESISTANCE"
             elif pct_snr >= 70.0 and buy_pct >= 55:
                 status = "BREAKOUT WATCH"
-                status_sub = "Dekat resistance, waspada breakout"
-                raw_state = "NEAR_RESISTANCE"
+                status_sub = "Dekat resist, waspada breakout"
             elif pct_snr <= 30.0 and sell_pct >= 55:
                 status = "BREAKDOWN RISK"
                 status_sub = "Dekat support, waspada breakdown"
-                raw_state = "NEAR_SUPPORT"
-            elif pct_snr >= 65.0 and sell_pct >= 60:
-                status = "SELL SETUP"
-                status_sub = "Dekat resistance volume sell dominan"
-            elif pct_snr <= 35.0 and buy_pct >= 60:
-                status = "BUY SETUP"
-                status_sub = "Dekat support volume buy dominan"
-            elif buy_pct >= 65:
-                status = "BUY PRESSURE"
-                status_sub = "Tekanan beli sangat kuat"
-            elif sell_pct >= 65:
-                status = "SELL PRESSURE"
-                status_sub = "Tekanan jual sangat kuat"
-            elif action_score >= 65:
+            elif action_score >= 60:
                 if buy_pct > sell_pct:
                     status = "BUY SETUP"
-                    status_sub = "Setup buy dalam konfirmasi"
+                    status_sub = "Setup buy scalping terbentuk"
                 else:
                     status = "SELL SETUP"
-                    status_sub = "Setup sell dalam konfirmasi"
+                    status_sub = "Setup sell scalping terbentuk"
             elif buy_pct >= 55:
                 status = "BUY PRESSURE"
-                status_sub = "Arus beli aktif mengalir"
+                status_sub = "Tekanan beli aktif, cari pullback"
             elif sell_pct >= 55:
                 status = "SELL PRESSURE"
-                status_sub = "Arus jual aktif mengalir"
+                status_sub = "Tekanan jual aktif, cari pullback"
             elif pct_snr <= 20.0:
                 status = "WAIT"
                 status_sub = "Dekat support, volume seimbang"
@@ -571,31 +557,52 @@ class SRMonitorEngine:
                 status_sub = "Dekat resistance, volume seimbang"
             else:
                 status = "WAIT"
-                status_sub = "Konsolidasi di tengah"
+                status_sub = "Konsolidasi sempit, tunggu setup"
 
-            # TP / SL Engine
+            # Precision Daily Scalping TP / SL Engine
             digits = cfg["digits"]
-            if "BUY" in status or pct_snr <= 35.0:
-                sl = round(supp - 0.03 * (res - supp), digits)
-                r_val = max(1e-4, price - sl)
-                tp1 = round(price + 0.5 * r_val, digits)
-                tp2 = round(price + 0.8 * r_val, digits)
-                tp3 = round(price + 1.2 * r_val, digits)
-                rr = "1:1.7"
-            elif "SELL" in status or pct_snr >= 65.0:
-                sl = round(res + 0.03 * (res - supp), digits)
-                r_val = max(1e-4, sl - price)
-                tp1 = round(price - 0.5 * r_val, digits)
-                tp2 = round(price - 0.8 * r_val, digits)
-                tp3 = round(price - 1.2 * r_val, digits)
+            if symbol == "XAUUSD":
+                sl_dist = 5.20     # ~5.2 points risk
+                tp1_dist = 4.50    # ~4.5 points target (0.86R)
+                tp2_dist = 8.80    # ~8.8 points target (1.7R)
+                tp3_dist = 13.50   # ~13.5 points target (2.6R)
+                rr = "1:1.9"
+            elif symbol == "EURUSD":
+                sl_dist = 0.0016   # 16 pips risk
+                tp1_dist = 0.0013  # 13 pips target
+                tp2_dist = 0.0025  # 25 pips target
+                tp3_dist = 0.0036  # 36 pips target
+                rr = "1:1.8"
+            elif symbol == "OIL":
+                sl_dist = 0.65     # 65 cents risk
+                tp1_dist = 0.55    # 55 cents target
+                tp2_dist = 1.10    # $1.10 target
+                tp3_dist = 1.65    # $1.65 target
+                rr = "1:1.8"
+            elif symbol == "USDJPY":
+                sl_dist = 0.25     # 25 pips risk
+                tp1_dist = 0.22    # 22 pips target
+                tp2_dist = 0.44    # 44 pips target
+                tp3_dist = 0.66    # 66 pips target
                 rr = "1:1.8"
             else:
-                sl = round(supp if pct_snr < 50.0 else res, digits)
-                r_val = max(1e-4, abs(price - sl))
-                tp1 = round(price + 0.4 * (res - price), digits) if pct_snr < 50.0 else round(price - 0.4 * (price - supp), digits)
-                tp2 = round(price + 0.6 * (res - price), digits) if pct_snr < 50.0 else round(price - 0.6 * (price - supp), digits)
-                tp3 = round(price + 0.8 * (res - price), digits) if pct_snr < 50.0 else round(price - 0.8 * (price - supp), digits)
-                rr = "1:1.9"
+                sl_dist = price * 0.0025
+                tp1_dist = sl_dist * 0.85
+                tp2_dist = sl_dist * 1.70
+                tp3_dist = sl_dist * 2.50
+                rr = "1:1.8"
+
+            is_buy_bias = any(k in status for k in ["BUY", "UP"]) or (buy_pct > sell_pct and "SELL" not in status)
+            if is_buy_bias:
+                sl = round(price - sl_dist, digits)
+                tp1 = round(price + tp1_dist, digits)
+                tp2 = round(price + tp2_dist, digits)
+                tp3 = round(price + tp3_dist, digits)
+            else:
+                sl = round(price + sl_dist, digits)
+                tp1 = round(price - tp1_dist, digits)
+                tp2 = round(price - tp2_dist, digits)
+                tp3 = round(price - tp3_dist, digits)
 
             prev_state = self.current_state[symbol]
 
