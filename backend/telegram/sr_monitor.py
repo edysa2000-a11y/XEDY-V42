@@ -514,33 +514,55 @@ class SRMonitorEngine:
                 is_touch_event = True
             elif pct_snr <= 20.0 and buy_pct >= 55 and delta > 0 and reversal_score >= 60:
                 status = "REVERSAL UP"
-                status_sub = "Dekat support reversal valid"
+                status_sub = "Reversal dari support valid"
                 raw_state = "NEAR_SUPPORT"
                 is_touch_event = True
             elif pct_snr >= 80.0 and sell_pct >= 55 and delta < 0 and reversal_score >= 60:
-                status = "SELL SETUP"
-                status_sub = "Dekat resistance volume dominan"
+                status = "REVERSAL DOWN"
+                status_sub = "Reversal dari resistance valid"
                 raw_state = "NEAR_RESISTANCE"
                 is_touch_event = True
-            elif pct_snr <= 20.0 and buy_pct > 55 and confidence >= 70:
+            elif pct_snr <= 20.0 and buy_pct >= 55 and confidence >= 70 and action_score >= 75:
                 status = "BUY"
                 status_sub = "Dekat support, Buy volume dominan"
                 raw_state = "NEAR_SUPPORT"
-            elif pct_snr >= 80.0 and sell_pct > 55 and confidence >= 70:
+            elif pct_snr >= 80.0 and sell_pct >= 55 and confidence >= 70 and action_score >= 75:
                 status = "SELL"
                 status_sub = "Dekat resistance, Sell volume dominan"
                 raw_state = "NEAR_RESISTANCE"
-            elif pct_snr >= 80.0 and buy_pct > 55:
+            elif pct_snr >= 70.0 and buy_pct >= 55:
                 status = "BREAKOUT WATCH"
                 status_sub = "Dekat resistance, waspada breakout"
                 raw_state = "NEAR_RESISTANCE"
-            elif pct_snr <= 20.0 and sell_pct > 55:
+            elif pct_snr <= 30.0 and sell_pct >= 55:
                 status = "BREAKDOWN RISK"
                 status_sub = "Dekat support, waspada breakdown"
                 raw_state = "NEAR_SUPPORT"
+            elif pct_snr >= 65.0 and sell_pct >= 60:
+                status = "SELL SETUP"
+                status_sub = "Dekat resistance volume sell dominan"
+            elif pct_snr <= 35.0 and buy_pct >= 60:
+                status = "BUY SETUP"
+                status_sub = "Dekat support volume buy dominan"
+            elif buy_pct >= 65:
+                status = "BUY PRESSURE"
+                status_sub = "Tekanan beli sangat kuat"
+            elif sell_pct >= 65:
+                status = "SELL PRESSURE"
+                status_sub = "Tekanan jual sangat kuat"
             elif action_score >= 65:
-                status = "WAIT"
-                status_sub = "Konsolidasi di tengah"
+                if buy_pct > sell_pct:
+                    status = "BUY SETUP"
+                    status_sub = "Setup buy dalam konfirmasi"
+                else:
+                    status = "SELL SETUP"
+                    status_sub = "Setup sell dalam konfirmasi"
+            elif buy_pct >= 55:
+                status = "BUY PRESSURE"
+                status_sub = "Arus beli aktif mengalir"
+            elif sell_pct >= 55:
+                status = "SELL PRESSURE"
+                status_sub = "Arus jual aktif mengalir"
             elif pct_snr <= 20.0:
                 status = "WAIT"
                 status_sub = "Dekat support, volume seimbang"
