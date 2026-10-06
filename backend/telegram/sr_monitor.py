@@ -4,6 +4,7 @@ import os
 import json
 import urllib.request
 import uuid
+import math
 from datetime import datetime, timezone, timedelta
 try:
     import MetaTrader5 as mt5
@@ -393,10 +394,14 @@ class SRMonitorEngine:
                 rec = tv_data.get("rec", 0.0)
                 rsi = tv_data.get("rsi", 50.0)
                 
-                # Dynamic order flow calculation from cloud indicators (No MT5 needed)
-                # rec ranges from -1.0 (Strong Sell) to +1.0 (Strong Buy)
-                calc_buy_pct = int(50 + rec * 28 + (chg_pct * 8))
-                calc_buy_pct = max(30, min(70, calc_buy_pct))
+                # Composite institutional directional order flow proxy
+                # Driven by Technical Oscillators/MA rating (45%), RSI Displacement (25%), Intraday Momentum (30%)
+                rsi_disp = (rsi - 50.0) / 50.0
+                mom_bias = math.copysign(min(1.0, abs(chg_pct) / 0.5), chg_pct) if abs(chg_pct) > 0.001 else 0.0
+                flow_bias = (rec * 0.45) + (rsi_disp * 0.25) + (mom_bias * 0.30)
+                
+                calc_buy_pct = int(round(50.0 + flow_bias * 36.0))
+                calc_buy_pct = max(24, min(76, calc_buy_pct))
                 
                 total_ticks = 2200
                 buy_tick = int(total_ticks * (calc_buy_pct / 100.0))
@@ -409,23 +414,14 @@ class SRMonitorEngine:
                 else:
                     trend = "SIDE"
 
-            # Optional local MT5 Enhancement if terminal happens to be active
+            # Optional local MT5 calibration of volume scale
             if mt5_active and symbol in ["XAUUSD", "EURUSD", "USDJPY"]:
                 try:
-                    ticks = mt5.copy_ticks_from(symbol, datetime.now(), 2000, mt5.COPY_TICKS_ALL)
-                    if ticks is not None and len(ticks) > 1:
-                        b_cnt = 0
-                        s_cnt = 0
-                        for i in range(1, len(ticks)):
-                            p_c = (ticks[i][1] + ticks[i][2]) / 2.0
-                            p_p = (ticks[i-1][1] + ticks[i-1][2]) / 2.0
-                            if p_c > p_p: b_cnt += 1
-                            elif p_c < p_p: s_cnt += 1
-                            else:
-                                if b_cnt <= s_cnt: b_cnt += 1
-                                else: s_cnt += 1
-                        buy_tick = b_cnt
-                        sell_tick = s_cnt
+                    t_info = mt5.symbol_info_tick(symbol)
+                    if t_info and t_info.volume > 0:
+                        total_ticks = int(max(1500, min(5000, t_info.volume)))
+                        buy_tick = int(total_ticks * (calc_buy_pct / 100.0))
+                        sell_tick = total_ticks - buy_tick
                 except Exception:
                     pass
 
