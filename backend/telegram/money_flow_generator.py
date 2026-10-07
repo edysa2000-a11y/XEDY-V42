@@ -610,6 +610,10 @@ def generate_money_flow_radar_card(radar_data: dict, now_wib: datetime = None) -
         stat_col = (0, 255, 136) if "ACCUMULATION" in h_verdict or "DOMINANCE" in h_verdict else ((255, 75, 75) if "DISTRIBUTION" in h_verdict or "OUTFLOW" in h_verdict else (220, 200, 40))
         draw.text((col_xs[7], hy + 2), h_verdict, fill=stat_col, font=get_font(10, bold=True))
         
+    # Upgrade to 1920x1080 Full HD (16:9) with High-Fidelity Lanczos Resampling
+    if img.size != (1920, 1080):
+        img = img.resize((1920, 1080), Image.Resampling.LANCZOS)
+        
     out = io.BytesIO()
     img.save(out, format="PNG", optimize=True)
     return out.getvalue()

@@ -577,6 +577,9 @@ def render_bloomberg_dashboard_card(data_list: list, output_path: str = None) ->
 
 def generate_sr_card_bytes(data_list: list) -> bytes:
     img = render_bloomberg_dashboard_card(data_list)
+    # Upgrade to 1920x1080 Full HD (16:9) with High-Fidelity Lanczos Resampling
+    if img.size != (1920, 1080):
+        img = img.resize((1920, 1080), Image.Resampling.LANCZOS)
     buf = io.BytesIO()
     img.save(buf, format="PNG", optimize=True)
     return buf.getvalue()
