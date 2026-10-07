@@ -263,6 +263,19 @@ class SRMonitorEngine:
                 if self.last_scheduled_slot != current_slot:
                     await self.send_scheduled_report(now_wib)
                     self.last_scheduled_slot = current_slot
+
+                # 3. 30-Minute Scheduled Money Flow Radar Report (:00 dan :30 WIB)
+                if not hasattr(self, "money_flow_engine"):
+                    from backend.telegram.money_flow_engine import MoneyFlowRadarEngine
+                    self.money_flow_engine = MoneyFlowRadarEngine(bot=self.bot, admin_id=self.admin_id)
+                
+                radar_slot = (now_wib.hour, now_wib.minute // 30)
+                if getattr(self, "last_radar_slot", None) != radar_slot:
+                    try:
+                        self.last_radar_slot = radar_slot
+                        await self.money_flow_engine.send_scheduled_radar(now_wib)
+                    except Exception as err_radar:
+                        logger.error(f"Error sending 30m Money Flow Radar: {err_radar}")
                     
             except Exception as e:
                 logger.error(f"Error in SRMonitorEngine loop: {e}", exc_info=True)

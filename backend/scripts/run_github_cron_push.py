@@ -25,6 +25,14 @@ async def main():
     await engine.check_all_symbols(now_wib)
     print("Generating and sending 16:9 Bloomberg dashboard card to Telegram...")
     await engine.send_scheduled_report(now_wib)
+    
+    # If minute is :00 or :30, also push the Money Flow Radar
+    if now_wib.minute in [0, 30] or (len(sys.argv) > 1 and sys.argv[1] == "--flow"):
+        print("Generating and sending 30-Minute Money Flow Radar to Telegram...")
+        from backend.telegram.money_flow_engine import MoneyFlowRadarEngine
+        flow_engine = MoneyFlowRadarEngine()
+        await flow_engine.send_scheduled_radar(now_wib)
+        
     print("Finished successfully!")
 
 if __name__ == "__main__":
