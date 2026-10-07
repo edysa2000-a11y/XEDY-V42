@@ -32,15 +32,15 @@ def draw_sphere(draw, cx, cy, r, color):
 
 def draw_flag_icon(draw, cx, cy, r, p_type):
     if p_type == "gold":
-        # 3D Gold bars icon
-        draw.polygon([(cx - 13, cy + 2), (cx + 2, cy + 2), (cx + 7, cy - 7), (cx - 8, cy - 7)], fill=(255, 215, 0), outline=(218, 165, 32))
-        draw.polygon([(cx - 8, cy + 9), (cx + 7, cy + 9), (cx + 13, cy), (cx - 2, cy)], fill=(255, 195, 0), outline=(184, 134, 11))
+        # 3D Stacked Gold Ingots
+        draw.polygon([(cx - 14, cy + 2), (cx + 2, cy + 2), (cx + 8, cy - 8), (cx - 8, cy - 8)], fill=(255, 215, 0), outline=(218, 165, 32))
+        draw.polygon([(cx - 8, cy + 10), (cx + 8, cy + 10), (cx + 14, cy), (cx - 2, cy)], fill=(255, 195, 0), outline=(184, 134, 11))
     elif p_type == "oil":
-        # 3D Oil droplet icon
+        # 3D Oil Droplet
         draw_sphere(draw, cx, cy + 3, r - 3, (140, 150, 165))
-        draw.polygon([(cx, cy - 11), (cx - 6, cy + 3), (cx + 6, cy + 3)], fill=(25, 30, 42))
+        draw.polygon([(cx, cy - 12), (cx - 6, cy + 2), (cx + 6, cy + 2)], fill=(25, 30, 42))
     elif p_type == "eur":
-        # EU blue circle with circle of stars
+        # EU Circle of Stars
         draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], fill=(0, 51, 153), outline=(40, 90, 200), width=1)
         for ang in range(0, 360, 45):
             rad = math.radians(ang)
@@ -48,44 +48,41 @@ def draw_flag_icon(draw, cx, cy, r, p_type):
             sy = int(cy + (r - 4) * math.sin(rad))
             draw.ellipse([(sx - 1, sy - 1), (sx + 1, sy + 1)], fill=(255, 204, 0))
     elif p_type == "gbp":
-        # UK Flag icon circle
+        # UK Union Jack Circle
         draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], fill=(1, 33, 105), outline=(100, 140, 210), width=1)
         draw.line([(cx - r + 2, cy), (cx + r - 2, cy)], fill=(255, 255, 255), width=5)
         draw.line([(cx, cy - r + 2), (cx, cy + r - 2)], fill=(255, 255, 255), width=5)
         draw.line([(cx - r + 2, cy), (cx + r - 2, cy)], fill=(200, 16, 46), width=3)
         draw.line([(cx, cy - r + 2), (cx, cy + r - 2)], fill=(200, 16, 46), width=3)
     elif p_type == "jpy":
-        # Japan flag circle
+        # Japan Flag Circle
         draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], fill=(255, 255, 255), outline=(180, 180, 180), width=1)
         draw.ellipse([(cx - r//2, cy - r//2), (cx + r//2, cy + r//2)], fill=(188, 0, 45))
     else:
         draw_sphere(draw, cx, cy, r, (0, 170, 255))
 
 def draw_trend_arrow_badge(draw, cx, cy, trend):
-    r = 16
+    r = 17
     if trend == "BEARISH":
-        bg_col = (185, 28, 28)
-        arrow_col = (255, 255, 255)
+        bg_col = (195, 25, 35)
         draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], fill=bg_col)
-        # Down-right arrow
-        draw.line([(cx - 6, cy - 6), (cx + 6, cy + 6)], fill=arrow_col, width=3)
-        draw.polygon([(cx + 6, cy + 6), (cx + 6, cy), (cx, cy + 6)], fill=arrow_col)
+        # Down-right angled arrow
+        draw.line([(cx - 7, cy - 7), (cx + 7, cy + 7)], fill=(255, 255, 255), width=3)
+        draw.polygon([(cx + 7, cy + 7), (cx + 7, cy), (cx, cy + 7)], fill=(255, 255, 255))
     else:
         bg_col = (16, 185, 129)
-        arrow_col = (255, 255, 255)
         draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], fill=bg_col)
-        # Up-right arrow
-        draw.line([(cx - 6, cy + 6), (cx + 6, cy - 6)], fill=arrow_col, width=3)
-        draw.polygon([(cx + 6, cy - 6), (cx + 6, cy), (cx, cy - 6)], fill=arrow_col)
+        # Up-right angled arrow
+        draw.line([(cx - 7, cy + 7), (cx + 7, cy - 7)], fill=(255, 255, 255), width=3)
+        draw.polygon([(cx + 7, cy - 7), (cx + 7, cy), (cx, cy - 7)], fill=(255, 255, 255))
 
-# Custom Crisp Vector Icon Renderers (to avoid missing emojis/boxes)
+# Vector Icon Renderers
 def draw_icon_target(draw, cx, cy, col=(0, 210, 255)):
     draw.ellipse([(cx - 8, cy - 8), (cx + 8, cy + 8)], outline=col, width=2)
     draw.ellipse([(cx - 4, cy - 4), (cx + 4, cy + 4)], outline=col, width=1)
     draw.ellipse([(cx - 1, cy - 1), (cx + 1, cy + 1)], fill=col)
 
 def draw_icon_brain(draw, cx, cy, col=(0, 210, 255)):
-    # Two lobes of brain
     draw.ellipse([(cx - 8, cy - 7), (cx - 1, cy + 6)], outline=col, width=2)
     draw.ellipse([(cx + 1, cy - 7), (cx + 8, cy + 6)], outline=col, width=2)
     draw.line([(cx - 4, cy), (cx + 4, cy)], fill=col, width=1)
@@ -116,7 +113,6 @@ def draw_icon_calendar(draw, cx, cy, col=(0, 210, 255)):
 
 def draw_icon_shield(draw, cx, cy, col=(0, 230, 118)):
     draw.polygon([(cx - 6, cy - 6), (cx + 6, cy - 6), (cx + 5, cy + 2), (cx, cy + 7), (cx - 5, cy + 2)], outline=col, width=1)
-    # Checkmark inside
     draw.line([(cx - 3, cy), (cx - 1, cy + 3)], fill=col, width=2)
     draw.line([(cx - 1, cy + 3), (cx + 3, cy - 3)], fill=col, width=2)
 
@@ -126,26 +122,52 @@ def draw_icon_cloud(draw, cx, cy, col=(0, 230, 118)):
     draw.ellipse([(cx + 1, cy - 2), (cx + 7, cy + 4)], fill=col)
     draw.rectangle([(cx - 4, cy + 1), (cx + 5, cy + 4)], fill=col)
 
+def draw_icon_macro(draw, cx, cy, m_type, col=(245, 65, 75)):
+    if m_type == "fomc":
+        # Bank / Pillar icon
+        draw.line([(cx - 6, cy - 5), (cx + 6, cy - 5)], fill=col, width=2)
+        draw.line([(cx - 4, cy - 5), (cx - 4, cy + 5)], fill=col, width=1)
+        draw.line([(cx, cy - 5), (cx, cy + 5)], fill=col, width=1)
+        draw.line([(cx + 4, cy - 5), (cx + 4, cy + 5)], fill=col, width=1)
+        draw.line([(cx - 6, cy + 5), (cx + 6, cy + 5)], fill=col, width=2)
+    elif m_type == "cpi":
+        # Percent icon
+        draw.ellipse([(cx - 5, cy - 5), (cx - 2, cy - 2)], outline=col, width=1)
+        draw.ellipse([(cx + 2, cy + 2), (cx + 5, cy + 5)], outline=col, width=1)
+        draw.line([(cx + 4, cy - 5), (cx - 4, cy + 5)], fill=col, width=1)
+    elif m_type == "geo":
+        # Target / globe
+        draw.ellipse([(cx - 5, cy - 5), (cx + 5, cy + 5)], outline=col, width=1)
+        draw.line([(cx, cy - 7), (cx, cy + 7)], fill=col, width=1)
+        draw.line([(cx - 7, cy), (cx + 7, cy)], fill=col, width=1)
+    elif m_type == "oil":
+        # Warning triangle
+        draw.polygon([(cx, cy - 6), (cx - 6, cy + 5), (cx + 6, cy + 5)], outline=col, width=1)
+        draw.line([(cx, cy - 2), (cx, cy + 1)], fill=col, width=1)
+        draw.ellipse([(cx - 1, cy + 3), (cx + 1, cy + 4)], fill=col)
+    else:
+        draw.ellipse([(cx - 4, cy - 4), (cx + 4, cy + 4)], fill=col)
+
 def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = None) -> bytes:
     """
     Renders 1920x1080 (16:9 Full HD) Institutional XEDY AI Precision Trading Engine Dashboard.
-    Single-Page, Zero-Scroll, Multi-Agent Architecture matching media_1791360039961.jpg.
+    Single-Page, Zero-Scroll, Multi-Agent Architecture matching media_1791361552558.jpg.
     """
     if now_wib is None:
         now_wib = datetime.now(WIB)
 
     W, H = 1920, 1080
-    img = Image.new("RGB", (W, H), (2, 6, 15))
+    img = Image.new("RGB", (W, H), (2, 6, 14))
     draw = ImageDraw.Draw(img)
 
-    # Subtle Background Cyber Grid
+    # Background Cyber Matrix Grid
     for x in range(0, W, 48):
-        draw.line([(x, 0), (x, H)], fill=(6, 14, 28), width=1)
+        draw.line([(x, 0), (x, H)], fill=(5, 13, 26), width=1)
     for y in range(0, H, 48):
-        draw.line([(0, y), (W, y)], fill=(6, 14, 28), width=1)
+        draw.line([(0, y), (W, y)], fill=(5, 13, 26), width=1)
 
-    # Outer Global Border (Navy Blue Institutional Frame)
-    draw.rounded_rectangle([(10, 10), (W - 10, H - 10)], radius=10, outline=(14, 42, 82), width=2)
+    # Outer Global Frame
+    draw.rounded_rectangle([(8, 8), (W - 8, H - 8)], radius=10, outline=(14, 44, 88), width=2)
 
     # Typography
     f_logo = get_font(28, bold=True)
@@ -153,7 +175,7 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
     f_engine_sub = get_font(11, bold=False)
     f_pill = get_font(11, bold=True)
     f_pill_sm = get_font(10, bold=True)
-    f_clock = get_font(16, bold=True)
+    f_clock = get_font(15, bold=True)
     f_date = get_font(11, bold=False)
     f_label_sm = get_font(10, bold=False)
     
@@ -164,7 +186,7 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
     
     f_trend = get_font(17, bold=True)
     f_trend_score = get_font(12, bold=False)
-    f_range_val = get_font(11, bold=True)
+    f_range_val = get_font(12, bold=True)
     f_range_lbl = get_font(10, bold=False)
     f_exec_val = get_font(12, bold=True)
     f_exec_lbl = get_font(11, bold=True)
@@ -176,55 +198,61 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
     # =========================================================================
     # 1. HEADER BAR (Y: 14 to 88)
     # =========================================================================
-    draw.rounded_rectangle([(18, 14), (W - 18, 88)], radius=8, fill=(4, 11, 24), outline=(15, 38, 74), width=1)
+    draw.rounded_rectangle([(16, 14), (W - 16, 88)], radius=8, fill=(3, 10, 22), outline=(14, 36, 70), width=1)
 
-    # Brand Title: XEDY in cyan, AI in vivid blue
+    # Brand Title: XEDY in cyan, AI in royal blue
     draw.text((32, 22), "XEDY", fill=(0, 210, 255), font=f_logo)
     draw.text((115, 22), "AI", fill=(41, 121, 255), font=f_logo)
-    draw.text((158, 26), "PRECISION TRADING ENGINE", fill=(255, 255, 255), font=f_engine_title)
-    draw.text((158, 56), "Multi-Agent • Low Error • High Probability", fill=(130, 160, 195), font=f_engine_sub)
+    # Thin vertical divider
+    draw.line([(150, 26), (150, 76)], fill=(20, 50, 95), width=1)
+    draw.text((165, 26), "PRECISION TRADING ENGINE", fill=(255, 255, 255), font=f_engine_title)
+    draw.text((165, 54), "Multi-Agent • Low Error • High Probability", fill=(125, 155, 190), font=f_engine_sub)
 
-    # Widget 1: LIVE Clock
-    draw.rounded_rectangle([(710, 30), (764, 52)], radius=4, fill=(0, 230, 118))
-    draw.text((737, 41), "LIVE", fill=(0, 0, 0), font=f_pill, anchor="mm")
+    # Widget 1: LIVE Clock Modular Box
+    draw.rounded_rectangle([(670, 22), (865, 78)], radius=6, fill=(4, 12, 26), outline=(15, 38, 75), width=1)
+    draw.rounded_rectangle([(682, 36), (732, 60)], radius=4, fill=(0, 230, 118))
+    draw.text((707, 48), "LIVE", fill=(0, 0, 0), font=f_pill, anchor="mm")
     time_str = now_wib.strftime("%H:%M:%S WIB")
     date_str = now_wib.strftime("%a, %d %b %Y")
-    draw.text((776, 28), time_str, fill=(255, 255, 255), font=f_clock)
-    draw.text((776, 52), date_str, fill=(140, 160, 185), font=f_date)
+    draw.text((744, 34), time_str, fill=(255, 255, 255), font=f_clock)
+    draw.text((744, 56), date_str, fill=(135, 155, 180), font=f_date)
 
-    # Widget 2: Market Regime
-    draw.text((950, 24), "Market Regime", fill=(120, 150, 180), font=f_label_sm)
-    draw.rounded_rectangle([(950, 42), (1024, 64)], radius=4, fill=(215, 45, 55))
-    draw.text((987, 53), "RISK-OFF", fill=(255, 255, 255), font=f_pill_sm, anchor="mm")
-    draw.text((1034, 53), "HIGH VOLATILITY", fill=(245, 75, 75), font=f_pill_sm, anchor="lm")
+    # Widget 2: Market Regime Modular Box
+    draw.rounded_rectangle([(875, 22), (1110, 78)], radius=6, fill=(4, 12, 26), outline=(15, 38, 75), width=1)
+    draw.text((887, 30), "Market Regime", fill=(115, 145, 175), font=f_label_sm)
+    draw.rounded_rectangle([(887, 46), (960, 68)], radius=4, fill=(215, 45, 55))
+    draw.text((923, 57), "RISK-OFF", fill=(255, 255, 255), font=f_pill_sm, anchor="mm")
+    draw.text((970, 57), "HIGH VOLATILITY", fill=(245, 75, 75), font=f_pill_sm, anchor="lm")
 
-    # Widget 3: Event Risk
-    draw.text((1180, 24), "Event Risk", fill=(120, 150, 180), font=f_label_sm)
-    draw.rounded_rectangle([(1180, 42), (1242, 64)], radius=4, fill=(18, 30, 52), outline=(215, 45, 55), width=1)
-    draw_icon_calendar(draw, 1194, 53, col=(245, 75, 75))
-    draw.rounded_rectangle([(1206, 44), (1238, 62)], radius=3, fill=(215, 45, 55))
-    draw.text((1222, 53), "HIGH", fill=(255, 255, 255), font=f_pill_sm, anchor="mm")
+    # Widget 3: Event Risk Modular Box
+    draw.rounded_rectangle([(1120, 22), (1240, 78)], radius=6, fill=(4, 12, 26), outline=(15, 38, 75), width=1)
+    draw.text((1132, 30), "Event Risk", fill=(115, 145, 175), font=f_label_sm)
+    draw_icon_calendar(draw, 1146, 57, col=(245, 75, 75))
+    draw.rounded_rectangle([(1162, 46), (1226, 68)], radius=4, fill=(215, 45, 55))
+    draw.text((1194, 57), "HIGH", fill=(255, 255, 255), font=f_pill_sm, anchor="mm")
 
-    # Widget 4: Data Feed
-    draw.text((1280, 24), "Data Feed", fill=(120, 150, 180), font=f_label_sm)
-    draw.rounded_rectangle([(1280, 42), (1344, 64)], radius=4, fill=(18, 30, 52), outline=(0, 200, 100), width=1)
-    draw_icon_cloud(draw, 1294, 53, col=(0, 230, 118))
-    draw.text((1320, 53), "LIVE", fill=(0, 230, 118), font=f_pill, anchor="mm")
+    # Widget 4: Data Feed Modular Box
+    draw.rounded_rectangle([(1250, 22), (1365, 78)], radius=6, fill=(4, 12, 26), outline=(15, 38, 75), width=1)
+    draw.text((1262, 30), "Data Feed", fill=(115, 145, 175), font=f_label_sm)
+    draw_icon_cloud(draw, 1276, 57, col=(0, 230, 118))
+    draw.rounded_rectangle([(1292, 46), (1350, 68)], radius=4, fill=(8, 28, 22), outline=(0, 200, 100), width=1)
+    draw.text((1321, 57), "LIVE", fill=(0, 230, 118), font=f_pill, anchor="mm")
 
-    # Widget 5: Model Status
-    draw.text((1380, 24), "Model Status", fill=(120, 150, 180), font=f_label_sm)
-    draw.rounded_rectangle([(1380, 42), (1444, 64)], radius=4, fill=(18, 30, 52), outline=(0, 200, 100), width=1)
-    draw_icon_shield(draw, 1394, 53, col=(0, 230, 118))
-    draw.text((1420, 53), "PASS", fill=(0, 230, 118), font=f_pill, anchor="mm")
+    # Widget 5: Model Status Modular Box
+    draw.rounded_rectangle([(1375, 22), (1495, 78)], radius=6, fill=(4, 12, 26), outline=(15, 38, 75), width=1)
+    draw.text((1387, 30), "Model Status", fill=(115, 145, 175), font=f_label_sm)
+    draw_icon_shield(draw, 1401, 57, col=(0, 230, 118))
+    draw.rounded_rectangle([(1417, 46), (1480, 68)], radius=4, fill=(8, 28, 22), outline=(0, 200, 100), width=1)
+    draw.text((1448, 57), "PASS", fill=(0, 230, 118), font=f_pill, anchor="mm")
 
-    # Widget 6: Version Badge
-    draw.rounded_rectangle([(1560, 22), (1890, 78)], radius=6, fill=(10, 25, 50), outline=(0, 140, 255), width=1)
-    cx_cb, cy_cb = 1585, 50
+    # Widget 6: Version Badge (Far Right Box)
+    draw.rounded_rectangle([(1505, 22), (1896, 78)], radius=6, fill=(6, 18, 38), outline=(0, 120, 230), width=1)
+    cx_cb, cy_cb = 1530, 50
     draw.polygon([(cx_cb, cy_cb - 12), (cx_cb + 11, cy_cb - 6), (cx_cb, cy_cb), (cx_cb - 11, cy_cb - 6)], fill=(0, 190, 255))
     draw.polygon([(cx_cb - 11, cy_cb - 6), (cx_cb, cy_cb), (cx_cb, cy_cb + 12), (cx_cb - 11, cy_cb + 6)], fill=(0, 120, 200))
     draw.polygon([(cx_cb + 11, cy_cb - 6), (cx_cb, cy_cb), (cx_cb, cy_cb + 12), (cx_cb + 11, cy_cb + 6)], fill=(0, 80, 150))
-    draw.text((1610, 36), "XEDY v31.0", fill=(0, 210, 255), font=get_font(16, bold=True))
-    draw.text((1610, 58), "5 Assets • AI Multi-Agent", fill=(100, 180, 255), font=f_engine_sub)
+    draw.text((1556, 34), "XEDY v31.0", fill=(0, 210, 255), font=get_font(16, bold=True))
+    draw.text((1556, 56), "5 Assets • AI Multi-Agent", fill=(100, 180, 255), font=f_engine_sub)
 
     # =========================================================================
     # 2. TOP SECTION: 5 PAIR DECISION CARDS (Y: 96 to 572)
@@ -240,8 +268,8 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
         y0 = 96
         y1 = 572
 
-        # Card Outer Box
-        draw.rounded_rectangle([(x0, y0), (x1, y1)], radius=8, fill=(4, 11, 24), outline=(18, 48, 92), width=1)
+        # Card Outer Box with institutional gradient outline
+        draw.rounded_rectangle([(x0, y0), (x1, y1)], radius=8, fill=(3, 10, 22), outline=(18, 48, 92), width=1)
 
         # Asset Icon & Header
         icon_cx, icon_cy = x0 + 32, y0 + 32
@@ -268,7 +296,9 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
         draw.text((x0 + 56, y0 + 82), trend, fill=t_col, font=f_trend)
         draw.text((x0 + 56, y0 + 106), f"Trend Score  {c['trend_score']}/100", fill=(180, 195, 215), font=f_trend_score)
 
-        # Daily Range Section (Y: y0 + 134 to y0 + 214)
+        # =====================================================================
+        # DAILY RANGE SECTION WITH RULER GRADUATION TICKS
+        # =====================================================================
         slider_left = x0 + 24
         slider_right = x1 - 24
         slider_w = slider_right - slider_left
@@ -276,51 +306,62 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
         marker_x = int(slider_left + (pos_pct / 100.0) * slider_w)
         marker_x = max(slider_left + 15, min(slider_right - 15, marker_x))
 
-        # Range Values: Low on left, High on right
-        draw.text((slider_left, y0 + 138), f"{c['low']:,.{digits}f}", fill=(240, 245, 255), font=f_range_val)
-        draw.text((slider_left, y0 + 154), "Low", fill=(120, 140, 165), font=f_range_lbl)
+        # Daily Range values: Low on left, High on right
+        draw.text((slider_left, y0 + 136), f"{c['low']:,.{digits}f}", fill=(240, 245, 255), font=f_range_val)
+        draw.text((slider_left, y0 + 152), "Low", fill=(120, 140, 165), font=f_range_lbl)
 
-        draw.text((slider_right, y0 + 138), f"{c['high']:,.{digits}f}", fill=(240, 245, 255), font=f_range_val, anchor="ra")
-        draw.text((slider_right, y0 + 154), "High", fill=(120, 140, 165), font=f_range_lbl, anchor="ra")
+        draw.text((slider_right, y0 + 136), f"{c['high']:,.{digits}f}", fill=(240, 245, 255), font=f_range_val, anchor="ra")
+        draw.text((slider_right, y0 + 152), "High", fill=(120, 140, 165), font=f_range_lbl, anchor="ra")
 
-        # Avoid text overlap: only draw live price text above marker if it doesn't collide with Low/High
-        dist_to_low = marker_x - slider_left
-        dist_to_high = slider_right - marker_x
-        if dist_to_low > 55 and dist_to_high > 55:
-            draw.text((marker_x, y0 + 138), p_str, fill=(255, 255, 255), font=f_range_val, anchor="ma")
+        # Live Price above marker: dynamically centered or safely offset to prevent collision
+        low_txt_w = 60 if digits == 2 else 70
+        high_txt_w = 60 if digits == 2 else 70
+        if marker_x > (slider_left + low_txt_w + 10) and marker_x < (slider_right - high_txt_w - 10):
+            draw.text((marker_x, y0 + 136), p_str, fill=(255, 255, 255), font=f_range_val, anchor="ma")
+        elif marker_x <= (slider_left + low_txt_w + 10):
+            # If marker is very close to Low, display live price slightly shifted right
+            draw.text((slider_left + low_txt_w + 24, y0 + 136), p_str, fill=(255, 255, 255), font=f_range_val, anchor="ma")
+        else:
+            # If marker is very close to High, display live price slightly shifted left
+            draw.text((slider_right - high_txt_w - 24, y0 + 136), p_str, fill=(255, 255, 255), font=f_range_val, anchor="ma")
 
-        # Horizontal Slider Bar Track (Y: y0 + 172)
+        # Graduation Ruler Ticks & Segmented Track (Y: y0 + 172)
         bar_y = y0 + 172
+        
+        # Ruler tick marks background
+        for step in range(0, 11):
+            tk_x = int(slider_left + (step / 10.0) * slider_w)
+            draw.line([(tk_x, bar_y - 6), (tk_x, bar_y + 6)], fill=(15, 35, 68), width=1)
+
+        # Track Bar Fill
         for bx in range(slider_left, slider_right):
             ratio = (bx - slider_left) / slider_w
             if trend == "BEARISH":
-                # Red emphasis for bearish assets
-                if ratio < 0.40:
+                if ratio < 0.38:
                     b_color = (235, 45, 55)
-                elif ratio < 0.70:
-                    b_color = (int(235 - 150 * (ratio - 0.40) / 0.30), int(45 + 140 * (ratio - 0.40) / 0.30), 60)
+                elif ratio < 0.68:
+                    b_color = (int(235 - 150 * (ratio - 0.38) / 0.30), int(45 + 140 * (ratio - 0.38) / 0.30), 60)
                 else:
                     b_color = (25, 160, 90)
             else:
-                # Green emphasis for bullish assets
-                if ratio < 0.30:
-                    b_color = (30, 60, 100)
-                elif ratio < 0.60:
-                    b_color = (int(30 + 100 * (ratio - 0.30) / 0.30), int(60 + 150 * (ratio - 0.30) / 0.30), 100)
+                if ratio < 0.32:
+                    b_color = (25, 65, 105)
+                elif ratio < 0.62:
+                    b_color = (int(25 + 100 * (ratio - 0.32) / 0.30), int(65 + 150 * (ratio - 0.32) / 0.30), 110)
                 else:
                     b_color = (0, 230, 118)
             draw.line([(bx, bar_y - 2), (bx, bar_y + 2)], fill=b_color, width=1)
 
-        # Live Marker Dot & Tick
-        draw.line([(marker_x, bar_y - 6), (marker_x, bar_y + 6)], fill=(255, 255, 255), width=2)
-        draw.ellipse([(marker_x - 4, bar_y - 4), (marker_x + 4, bar_y + 4)], fill=(255, 255, 255))
+        # Live Needle & Dot Marker
+        draw.line([(marker_x, bar_y - 8), (marker_x, bar_y + 12)], fill=(255, 255, 255), width=2)
+        draw.ellipse([(marker_x - 5, bar_y - 5), (marker_x + 5, bar_y + 5)], fill=(255, 255, 255))
 
-        # Position % Badge Pill below slider
+        # Position % Badge Pill below slider (Connecting vertical needle)
         badge_col = (215, 45, 55) if trend == "BEARISH" else (0, 200, 100)
-        pill_w = 42
-        draw.rounded_rectangle([(marker_x - pill_w // 2, bar_y + 10), (marker_x + pill_w // 2, bar_y + 28)], radius=3, fill=badge_col)
-        draw.polygon([(marker_x, bar_y + 7), (marker_x - 4, bar_y + 11), (marker_x + 4, bar_y + 11)], fill=badge_col)
-        draw.text((marker_x, bar_y + 19), f"{pos_pct}%", fill=(255, 255, 255), font=f_pill_sm, anchor="mm")
+        pill_w = 44
+        draw.rounded_rectangle([(marker_x - pill_w // 2, bar_y + 12), (marker_x + pill_w // 2, bar_y + 30)], radius=3, fill=badge_col)
+        draw.polygon([(marker_x, bar_y + 8), (marker_x - 4, bar_y + 13), (marker_x + 4, bar_y + 13)], fill=badge_col)
+        draw.text((marker_x, bar_y + 21), f"{pos_pct}%", fill=(255, 255, 255), font=f_pill_sm, anchor="mm")
 
         # Setup Badge Row (Y: y0 + 224)
         draw.rounded_rectangle([(x0 + 24, y0 + 222), (x0 + 72, y0 + 244)], radius=4, fill=(16, 32, 58))
@@ -331,10 +372,10 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
         draw.rounded_rectangle([(x0 + 78, y0 + 222), (x0 + 195, y0 + 244)], radius=4, fill=s_bg)
         draw.text((x0 + 136, y0 + 233), setup_name, fill=(255, 255, 255), font=f_pill, anchor="mm")
 
-        # Order Execution Box (Y: y0 + 258 to y1 - 16)
+        # Order Execution Inset Card (Y: y0 + 258 to y1 - 16)
         exec_y0 = y0 + 256
         exec_y1 = y1 - 16
-        draw.rounded_rectangle([(x0 + 16, exec_y0), (x1 - 16, exec_y1)], radius=6, fill=(3, 9, 20), outline=(14, 32, 60), width=1)
+        draw.rounded_rectangle([(x0 + 16, exec_y0), (x1 - 16, exec_y1)], radius=6, fill=(2, 8, 18), outline=(14, 32, 60), width=1)
 
         # Left Column: OP, SL, TP1, TP2, TP3
         col1_x = x0 + 26
@@ -371,14 +412,12 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
         draw.text((rcol_x, exec_y0 + 64), "CONF", fill=(120, 150, 190), font=f_pill_sm, anchor="mm")
         draw.text((rcol_x, exec_y0 + 86), f"{c['confidence']}%", fill=(255, 255, 255), font=get_font(16, bold=True), anchor="mm")
 
-        # Quality Gate Badge (bottom right)
+        # Quality Gate Badge (Bottom Right)
         q_pass = "PASS" in c["quality_gate"]
         q_bg = (0, 170, 75) if q_pass else (190, 120, 10)
         draw.rounded_rectangle([(rcol_x - 42, exec_y0 + 120), (rcol_x + 42, exec_y0 + 154)], radius=4, fill=q_bg)
-        q_label1 = "GATE"
-        q_label2 = "PASS" if q_pass else "WARNING"
-        draw.text((rcol_x, exec_y0 + 130), q_label1, fill=(255, 255, 255), font=get_font(9, bold=True), anchor="mm")
-        draw.text((rcol_x, exec_y0 + 144), q_label2, fill=(255, 255, 255), font=get_font(11, bold=True), anchor="mm")
+        draw.text((rcol_x, exec_y0 + 130), "GATE", fill=(255, 255, 255), font=get_font(9, bold=True), anchor="mm")
+        draw.text((rcol_x, exec_y0 + 144), "PASS" if q_pass else "WARNING", fill=(255, 255, 255), font=get_font(11, bold=True), anchor="mm")
 
     # =========================================================================
     # 3. MIDDLE SECTION: 2 BIG PANELS (Y: 584 to 804)
@@ -386,51 +425,42 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
     # Panel 3A: PRECISION & ERROR METRICS (Left: X: 20 to 1040, W: 1020)
     p3a_x0, p3a_y0 = 20, 584
     p3a_x1, p3a_y1 = 1040, 804
-    draw.rounded_rectangle([(p3a_x0, p3a_y0), (p3a_x1, p3a_y1)], radius=8, fill=(4, 11, 24), outline=(18, 48, 92), width=1)
+    draw.rounded_rectangle([(p3a_x0, p3a_y0), (p3a_x1, p3a_y1)], radius=8, fill=(3, 10, 22), outline=(18, 48, 92), width=1)
 
-    # Header with crisp vector Target icon
     draw_icon_target(draw, p3a_x0 + 30, p3a_y0 + 24, col=(0, 210, 255))
     draw.text((p3a_x0 + 46, p3a_y0 + 15), "PRECISION & ERROR METRICS", fill=(0, 210, 255), font=f_panel_hdr)
 
-    # Table Header (Y: p3a_y0 + 44)
     tbl_cols_x = [p3a_x0 + 20, p3a_x0 + 135, p3a_x0 + 260, p3a_x0 + 390, p3a_x0 + 520, p3a_x0 + 650, p3a_x0 + 775, p3a_x0 + 900]
     tbl_headers = ["PAIR", "TREND ACC", "TREND ERR", "OP ERR (ATR)", "TP ERR (ATR)", "SL ERR (ATR)", "CALIB ERR", "PRECISION"]
     for col_i, th in enumerate(tbl_headers):
         draw.text((tbl_cols_x[col_i], p3a_y0 + 46), th, fill=(120, 150, 185), font=f_tbl_hdr)
 
-    # Table Rows (5 pairs)
     pt_rows = engine_data.get("precision_table", [])
     for row_i, r in enumerate(pt_rows[:5]):
         ry = p3a_y0 + 74 + row_i * 26
         if row_i % 2 == 1:
-            draw.rectangle([(p3a_x0 + 10, ry - 4), (p3a_x1 - 10, ry + 20)], fill=(6, 16, 32))
+            draw.rectangle([(p3a_x0 + 10, ry - 4), (p3a_x1 - 10, ry + 20)], fill=(5, 15, 30))
 
         # PAIR
         draw.text((tbl_cols_x[0], ry + 2), r["pair"], fill=(255, 255, 255), font=f_tbl_cell_b)
 
-        # TREND ACC (Green badge)
+        # TREND ACC
         draw.rounded_rectangle([(tbl_cols_x[1] - 4, ry), (tbl_cols_x[1] + 52, ry + 18)], radius=3, fill=(0, 140, 65))
         draw.text((tbl_cols_x[1] + 24, ry + 9), r["trend_acc"], fill=(255, 255, 255), font=f_tbl_cell_b, anchor="mm")
 
-        # TREND ERR (Amber / Red badge)
+        # TREND ERR
         err_val = float(r["trend_err"].replace("%", ""))
         err_bg = (180, 40, 30) if err_val >= 12.0 else (190, 100, 20)
         draw.rounded_rectangle([(tbl_cols_x[2] - 4, ry), (tbl_cols_x[2] + 56, ry + 18)], radius=3, fill=err_bg)
         draw.text((tbl_cols_x[2] + 26, ry + 9), r["trend_err"], fill=(255, 255, 255), font=f_tbl_cell_b, anchor="mm")
 
-        # OP ERR (ATR)
+        # ATR ERRORS
         draw.text((tbl_cols_x[3] + 20, ry + 2), r["op_err"], fill=(220, 230, 245), font=f_tbl_cell)
-
-        # TP ERR (ATR)
         draw.text((tbl_cols_x[4] + 20, ry + 2), r["tp_err"], fill=(220, 230, 245), font=f_tbl_cell)
-
-        # SL ERR (ATR)
         draw.text((tbl_cols_x[5] + 20, ry + 2), r["sl_err"], fill=(220, 230, 245), font=f_tbl_cell)
-
-        # CALIB ERR
         draw.text((tbl_cols_x[6] + 16, ry + 2), r["calib_err"], fill=(220, 230, 245), font=f_tbl_cell)
 
-        # PRECISION (Score badge)
+        # PRECISION SCORE
         prec_val = int(r["precision"].split("/")[0])
         p_bg = (0, 150, 70) if prec_val >= 88 else ((190, 120, 20) if prec_val >= 80 else (180, 40, 30))
         draw.rounded_rectangle([(tbl_cols_x[7] - 4, ry), (tbl_cols_x[7] + 62, ry + 18)], radius=3, fill=p_bg)
@@ -439,13 +469,11 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
     # Panel 3B: MARKET INTELLIGENCE (Right: X: 1052 to 1900, W: 848)
     p3b_x0, p3b_y0 = 1052, 584
     p3b_x1, p3b_y1 = 1900, 804
-    draw.rounded_rectangle([(p3b_x0, p3b_y0), (p3b_x1, p3b_y1)], radius=8, fill=(4, 11, 24), outline=(18, 48, 92), width=1)
+    draw.rounded_rectangle([(p3b_x0, p3b_y0), (p3b_x1, p3b_y1)], radius=8, fill=(3, 10, 22), outline=(18, 48, 92), width=1)
 
-    # Header with crisp vector Brain icon
     draw_icon_brain(draw, p3b_x0 + 30, p3b_y0 + 24, col=(0, 210, 255))
     draw.text((p3b_x0 + 46, p3b_y0 + 15), "MARKET INTELLIGENCE", fill=(0, 210, 255), font=f_panel_hdr)
 
-    # 4 Sub-Columns:
     col_w = (p3b_x1 - p3b_x0 - 40) // 4
     mi_cols_x = [p3b_x0 + 20 + j * col_w for j in range(4)]
     mi_titles = ["FUNDAMENTAL BIAS", "MONEY FLOW", "REGIME", "EVENT RISK"]
@@ -466,7 +494,6 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
         draw.text((mi_cols_x[1], my + 2), ast, fill=(255, 255, 255), font=f_tbl_cell_b)
         f_bg = (0, 140, 65) if flow == "INFLOW" else (180, 25, 35)
         draw.rounded_rectangle([(mi_cols_x[1] + 50, my), (mi_cols_x[1] + 155, my + 18)], radius=3, fill=f_bg)
-        # Vector arrow inside pill
         ax, ay = mi_cols_x[1] + 62, my + 9
         if flow == "INFLOW":
             draw.line([(ax - 3, ay + 3), (ax + 3, ay - 3)], fill=(255, 255, 255), width=2)
@@ -482,7 +509,6 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
         draw.text((mi_cols_x[2], my + 2), ast, fill=(255, 255, 255), font=f_tbl_cell_b)
         r_bg = (0, 140, 65) if "UP" in reg or "BREAKOUT" in reg else (180, 25, 35)
         draw.rounded_rectangle([(mi_cols_x[2] + 46, my), (mi_cols_x[2] + 158, my + 18)], radius=3, fill=r_bg)
-        # Vector triangle indicator inside pill
         rx, ry_t = mi_cols_x[2] + 58, my + 9
         if "UP" in reg or "BREAKOUT" in reg:
             draw.polygon([(rx, ry_t - 4), (rx - 4, ry_t + 3), (rx + 4, ry_t + 3)], fill=(255, 255, 255))
@@ -493,25 +519,24 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
     # Sub-column 4: Event Risk
     for r_i, (ev, risk, r_type) in enumerate(engine_data.get("event_risk", [])):
         my = p3b_y0 + 74 + r_i * 26
-        draw.text((mi_cols_x[3], my + 2), ev, fill=(255, 255, 255), font=f_tbl_cell_b)
+        draw.text((mi_cols_x[3] + 20, my + 2), ev, fill=(255, 255, 255), font=f_tbl_cell_b)
+        # Macro icon next to event
+        draw_icon_macro(draw, mi_cols_x[3] + 8, my + 9, ev.lower(), col=(245, 65, 75))
         e_bg = (180, 25, 35) if "HIGH" in risk else (190, 110, 20)
-        draw.rounded_rectangle([(mi_cols_x[3] + 50, my), (mi_cols_x[3] + 144, my + 18)], radius=3, fill=e_bg)
-        draw.text((mi_cols_x[3] + 97, my + 9), risk, fill=(255, 255, 255), font=f_tbl_cell_b, anchor="mm")
+        draw.rounded_rectangle([(mi_cols_x[3] + 68, my), (mi_cols_x[3] + 152, my + 18)], radius=3, fill=e_bg)
+        draw.text((mi_cols_x[3] + 110, my + 9), risk, fill=(255, 255, 255), font=f_tbl_cell_b, anchor="mm")
 
     # =========================================================================
     # 4. BOTTOM SECTION: 4 COMPACT PANELS (Y: 816 to 1066)
     # =========================================================================
     b_y0, b_y1 = 816, 1066
     
-    # -------------------------------------------------------------------------
     # Panel 4A: MODEL VALIDATION (X: 20 to 520, W: 500)
-    # -------------------------------------------------------------------------
     p4a_x0, p4a_x1 = 20, 520
-    draw.rounded_rectangle([(p4a_x0, b_y0), (p4a_x1, b_y1)], radius=8, fill=(4, 11, 24), outline=(18, 48, 92), width=1)
+    draw.rounded_rectangle([(p4a_x0, b_y0), (p4a_x1, b_y1)], radius=8, fill=(3, 10, 22), outline=(18, 48, 92), width=1)
     draw_icon_gear(draw, p4a_x0 + 30, b_y0 + 24, col=(0, 210, 255))
     draw.text((p4a_x0 + 46, b_y0 + 15), "MODEL VALIDATION", fill=(0, 210, 255), font=f_panel_hdr)
 
-    # 5 Metric validation cards
     val_cards = [
         ("WALK FORWARD", "PASS"),
         ("OUT OF SAMPLE", "PASS"),
@@ -541,15 +566,12 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
         draw.text((sx, b_y0 + 140), s_lbl, fill=(120, 150, 185), font=f_label_sm, anchor="mm")
         draw.text((sx, b_y0 + 175), s_val, fill=s_col, font=get_font(15, bold=True), anchor="mm")
 
-    # -------------------------------------------------------------------------
     # Panel 4B: FINAL RANKING (TOP SETUPS) (X: 532 to 992, W: 460)
-    # -------------------------------------------------------------------------
     p4b_x0, p4b_x1 = 532, 992
-    draw.rounded_rectangle([(p4b_x0, b_y0), (p4b_x1, b_y1)], radius=8, fill=(4, 11, 24), outline=(18, 48, 92), width=1)
+    draw.rounded_rectangle([(p4b_x0, b_y0), (p4b_x1, b_y1)], radius=8, fill=(3, 10, 22), outline=(18, 48, 92), width=1)
     draw_icon_trophy(draw, p4b_x0 + 30, b_y0 + 24, col=(0, 210, 255))
     draw.text((p4b_x0 + 46, b_y0 + 15), "FINAL RANKING (TOP SETUPS)", fill=(0, 210, 255), font=f_panel_hdr)
 
-    # Headers
     draw.text((p4b_x0 + 16, b_y0 + 44), "#", fill=(120, 150, 185), font=f_tbl_hdr)
     draw.text((p4b_x0 + 46, b_y0 + 44), "PAIR", fill=(120, 150, 185), font=f_tbl_hdr)
     draw.text((p4b_x0 + 130, b_y0 + 44), "SETUP", fill=(120, 150, 185), font=f_tbl_hdr)
@@ -575,11 +597,9 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
         draw.rounded_rectangle([(p4b_x0 + 390, ry + 2), (p4b_x0 + 430, ry + 20)], radius=3, fill=(0, 140, 65))
         draw.text((p4b_x0 + 410, ry + 11), str(rk["score"]), fill=(255, 255, 255), font=f_tbl_cell_b, anchor="mm")
 
-    # -------------------------------------------------------------------------
     # Panel 4C: RECENT SIGNALS (X: 1004 to 1424, W: 420)
-    # -------------------------------------------------------------------------
     p4c_x0, p4c_x1 = 1004, 1424
-    draw.rounded_rectangle([(p4c_x0, b_y0), (p4c_x1, b_y1)], radius=8, fill=(4, 11, 24), outline=(18, 48, 92), width=1)
+    draw.rounded_rectangle([(p4c_x0, b_y0), (p4c_x1, b_y1)], radius=8, fill=(3, 10, 22), outline=(18, 48, 92), width=1)
     draw_icon_bell(draw, p4c_x0 + 30, b_y0 + 24, col=(0, 210, 255))
     draw.text((p4c_x0 + 46, b_y0 + 15), "RECENT SIGNALS", fill=(0, 210, 255), font=f_panel_hdr)
 
@@ -599,15 +619,23 @@ def generate_precision_dashboard_card(engine_data: dict, now_wib: datetime = Non
         st = sig["status"]
         st_bg = (180, 25, 35) if st == "OP ZONE" else ((0, 140, 65) if st in ["ACTIVE", "TP1 HIT"] else (190, 110, 20))
         draw.rounded_rectangle([(p4c_x0 + 265, ry + 2), (p4c_x0 + 380, ry + 20)], radius=3, fill=st_bg)
-        # Small circle marker instead of emoji
-        draw.ellipse([(p4c_x0 + 276, ry + 8), (p4c_x0 + 282, ry + 14)], fill=(255, 255, 255))
-        draw.text((p4c_x0 + 326, ry + 11), st, fill=(255, 255, 255), font=f_pill_sm, anchor="mm")
+        
+        # Micro status symbol
+        sx_icon, sy_icon = p4c_x0 + 278, ry + 11
+        if st == "OP ZONE":
+            draw.ellipse([(sx_icon - 4, sy_icon - 4), (sx_icon + 4, sy_icon + 4)], outline=(255, 255, 255), width=1)
+            draw.line([(sx_icon - 3, sy_icon - 3), (sx_icon + 3, sy_icon + 3)], fill=(255, 255, 255), width=1)
+        elif st in ["ACTIVE", "TP1 HIT"]:
+            draw.line([(sx_icon - 3, sy_icon), (sx_icon - 1, sy_icon + 3)], fill=(255, 255, 255), width=2)
+            draw.line([(sx_icon - 1, sy_icon + 3), (sx_icon + 4, sy_icon - 3)], fill=(255, 255, 255), width=2)
+        else:
+            draw.polygon([(sx_icon, sy_icon - 4), (sx_icon - 4, sy_icon + 4), (sx_icon + 4, sy_icon + 4)], fill=(255, 255, 255))
+            
+        draw.text((p4c_x0 + 330, ry + 11), st, fill=(255, 255, 255), font=f_pill_sm, anchor="mm")
 
-    # -------------------------------------------------------------------------
     # Panel 4D: EVENT CALENDAR (WIB) (X: 1436 to 1900, W: 464)
-    # -------------------------------------------------------------------------
     p4d_x0, p4d_x1 = 1436, 1900
-    draw.rounded_rectangle([(p4d_x0, b_y0), (p4d_x1, b_y1)], radius=8, fill=(4, 11, 24), outline=(18, 48, 92), width=1)
+    draw.rounded_rectangle([(p4d_x0, b_y0), (p4d_x1, b_y1)], radius=8, fill=(3, 10, 22), outline=(18, 48, 92), width=1)
     draw_icon_calendar(draw, p4d_x0 + 30, b_y0 + 24, col=(0, 210, 255))
     draw.text((p4d_x0 + 46, b_y0 + 15), "EVENT CALENDAR (WIB)", fill=(0, 210, 255), font=f_panel_hdr)
 
