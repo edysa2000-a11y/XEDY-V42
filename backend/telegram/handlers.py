@@ -51,7 +51,10 @@ def get_narrative_menu_keyboard() -> InlineKeyboardMarkup:
         ],
         [
             InlineKeyboardButton(text="📜 Narasi OIL (WTI)", callback_data="menu:nr:oil"),
-            InlineKeyboardButton(text="🔙 Kembali ke Menu", callback_data="menu:back")
+            InlineKeyboardButton(text="🧩 38 Pertanyaan Inti", callback_data="menu:38:xauusd")
+        ],
+        [
+            InlineKeyboardButton(text="🔙 Kembali ke Menu Utama", callback_data="menu:back")
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -129,6 +132,18 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
         except Exception as e:
             logger.error(f"Error sending narrative for {symbol}: {e}")
             await target.answer(f"⚠️ Gagal menyusun narasi untuk {symbol}: {e}")
+
+    async def do_send_38_questions(target: Message, symbol: str = "XAUUSD"):
+        try:
+            from backend.telegram.narrative_engine import build_38_questions_text
+            loop = asyncio.get_running_loop()
+            parts = await loop.run_in_executor(None, build_38_questions_text, symbol)
+            for p in parts:
+                await target.answer(p, parse_mode="HTML")
+                await asyncio.sleep(0.4)
+        except Exception as e:
+            logger.error(f"Error sending 38 questions analysis for {symbol}: {e}")
+            await target.answer(f"⚠️ Gagal menyusun 38 Pertanyaan Inti: {e}")
 
     async def do_send_legend(target: Message):
         legend_text = (
@@ -327,9 +342,18 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
                 "• <code>/nr eurusd</code> — Narasi komprehensif EUR/USD\n"
                 "• <code>/nr gbpusd</code> — Narasi komprehensif GBP/USD\n"
                 "• <code>/nr oil</code> — Narasi komprehensif WTI Crude Oil\n\n"
-                "<i>Menjawab 12 pertanyaan kausal mendalam (Makro, Kebijakan, Geopolitik, Yield, Flow, Teknikal, S/R & Parameter OP/SL/TP).</i>"
+                "<i>Menjawab 12 pertanyaan kausal mendalam (Makro, Kebijakan, Geopolitik, Yield, Flow, Teknikal, S/R & Parameter OP/SL/TP).</i>\n\n"
+                "💡 <i>Ketik <code>/38 xauusd</code> untuk analisis lengkap 38 Pertanyaan Inti.</i>"
             )
             await message.answer(prompt_text, reply_markup=get_narrative_menu_keyboard(), parse_mode="HTML")
+
+    @dp.message(Command("38", "qa", "pertanyaan38", "analisis38"))
+    async def cmd_38_questions(message: Message):
+        if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
+            return
+        parts = message.text.strip().split()
+        sym = parts[1] if len(parts) >= 2 else "XAUUSD"
+        await do_send_38_questions(message, sym)
 
     # =========================================================================
     # CALLBACK QUERY HANDLER (INTERACTIVE BUTTONS)
@@ -370,6 +394,11 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
             sym = action.split("menu:nr:")[1]
             await callback.answer(f"⏳ Menyusun narasi {sym.upper()}...")
             await do_send_narrative(target_msg, sym)
+
+        elif action.startswith("menu:38:"):
+            sym = action.split("menu:38:")[1] if len(action.split("menu:38:")) > 1 else "XAUUSD"
+            await callback.answer(f"⏳ Menyusun 38 Pertanyaan Inti {sym.upper()}...")
+            await do_send_38_questions(target_msg, sym)
 
         elif action == "menu:back":
             await callback.answer()
