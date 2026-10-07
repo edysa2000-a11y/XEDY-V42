@@ -260,19 +260,19 @@ def generate_money_flow_radar_card(radar_data: dict, now_wib: datetime = None) -
         # Card Middle Divider
         draw.line([(cx1 + 10, cy1 + 155), (cx2 - 10, cy1 + 155)], fill=(12, 35, 75), width=1)
         
-        # Daily Low - High Horizontal Range Slider
-        d_low = d.get("low", price_val * 0.99)
-        d_high = d.get("high", price_val * 1.01)
+        # Support & Resistance Horizontal Range Slider (Weekly SNR)
+        d_supp = d.get("support", d.get("low", price_val * 0.99))
+        d_res = d.get("resistance", d.get("high", price_val * 1.01))
         
         # Tags above bar
-        draw.rounded_rectangle([(cx1 + 12, cy1 + 162), (cx1 + 72, cy1 + 178)], radius=3, fill=(10, 45, 30))
-        draw.text((cx1 + 42, cy1 + 170), "Daily Low", fill=(0, 255, 136), font=get_font(9, bold=True), anchor="mm")
+        draw.rounded_rectangle([(cx1 + 12, cy1 + 162), (cx1 + 80, cy1 + 178)], radius=3, fill=(10, 45, 30))
+        draw.text((cx1 + 46, cy1 + 170), "SUPPORT", fill=(0, 255, 136), font=get_font(9, bold=True), anchor="mm")
         
-        draw.rounded_rectangle([(cx2 - 72, cy1 + 162), (cx2 - 12, cy1 + 178)], radius=3, fill=(50, 15, 20))
-        draw.text((cx2 - 42, cy1 + 170), "Daily High", fill=(255, 80, 80), font=get_font(9, bold=True), anchor="mm")
+        draw.rounded_rectangle([(cx2 - 86, cy1 + 162), (cx2 - 12, cy1 + 178)], radius=3, fill=(50, 15, 20))
+        draw.text((cx2 - 49, cy1 + 170), "RESISTANCE", fill=(255, 80, 80), font=get_font(9, bold=True), anchor="mm")
         
-        draw.text((cx1 + 12, cy1 + 185), f"{d_low:,.{digits}f}", fill=(0, 255, 136), font=f_bar_num)
-        draw.text((cx2 - 12, cy1 + 185), f"{d_high:,.{digits}f}", fill=(255, 80, 80), font=f_bar_num, anchor="ra")
+        draw.text((cx1 + 12, cy1 + 185), f"{d_supp:,.{digits}f}", fill=(0, 255, 136), font=f_bar_num)
+        draw.text((cx2 - 12, cy1 + 185), f"{d_res:,.{digits}f}", fill=(255, 80, 80), font=f_bar_num, anchor="ra")
         
         # Slider Track
         sx1, sx2 = cx1 + 14, cx2 - 14
@@ -292,13 +292,13 @@ def generate_money_flow_radar_card(radar_data: dict, now_wib: datetime = None) -
                 col = (int(210 + 35 * ((t-0.75)/0.25)), int(200 - 130 * ((t-0.75)/0.25)), int(0 + 50 * ((t-0.75)/0.25)))
             draw.line([(x, sy1), (x, sy2)], fill=col, width=1)
             
-        # Range % position
-        pct_range = (price_val - d_low) / (d_high - d_low) * 100.0 if d_high > d_low else 50.0
+        # Range % position relative to Support & Resistance
+        pct_range = (price_val - d_supp) / (d_res - d_supp) * 100.0 if d_res > d_supp else 50.0
         pct_clamp = max(0.0, min(100.0, pct_range))
         pin_x = sx1 + int(sw * (pct_clamp / 100.0))
         
         # Tooltip badge on slider
-        draw.rounded_rectangle([(pin_x - 22, sy1 - 22), (pin_x + 22, sy1 - 4)], radius=4, fill=(255, 214, 0))
+        draw.rounded_rectangle([(pin_x - 24, sy1 - 22), (pin_x + 24, sy1 - 4)], radius=4, fill=(255, 214, 0))
         draw.text((pin_x, sy1 - 13), f"{pct_range:.1f}%", fill=(0, 0, 0), font=get_font(9, bold=True), anchor="mm")
         draw.line([(pin_x, sy1 - 4), (pin_x, sy2)], fill=(255, 214, 0), width=2)
         draw.ellipse([(pin_x - 5, (sy1+sy2)//2 - 5), (pin_x + 5, (sy1+sy2)//2 + 5)], fill=(0, 180, 255), outline=(255, 255, 255))
@@ -310,7 +310,7 @@ def generate_money_flow_radar_card(radar_data: dict, now_wib: datetime = None) -
         draw.text((sx1 + int(sw*0.75), sy2 + 4), "75%", fill=(120, 160, 215), font=get_font(8, bold=False), anchor="ma")
         draw.text((sx2, sy2 + 4), "100%", fill=(120, 160, 215), font=get_font(8, bold=False), anchor="ra")
         
-        draw.text(((sx1+sx2)//2, sy2 + 20), f"Live Price: {price_val:,.{digits}f} ({pct_range:.1f}% dari Low)", fill=(160, 205, 255), font=get_font(10, bold=False), anchor="mm")
+        draw.text(((sx1+sx2)//2, sy2 + 20), f"Live: {price_val:,.{digits}f} (%SNR: {pct_range:.1f}%)", fill=(160, 205, 255), font=get_font(10, bold=False), anchor="mm")
         
         # Card Bottom Divider
         draw.line([(cx1 + 10, cy1 + 258), (cx2 - 10, cy1 + 258)], fill=(12, 35, 75), width=1)

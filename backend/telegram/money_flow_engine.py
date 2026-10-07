@@ -110,10 +110,22 @@ class MoneyFlowRadarEngine:
                 outflow = int(240 + abs(score) * 1.8)
                 verdict = "INSTITUTIONAL DISTRIBUTION"
                 
+            # S/R levels for the week
+            snr_map = {
+                "XAUUSD": (3855.0, 4230.0),
+                "USDJPY": (156.20, 159.40),
+                "EURUSD": (1.1100, 1.1320),
+                "GBPUSD": (1.3020, 1.3320),
+                "OIL": (87.90, 99.10),
+            }
+            supp_val, res_val = snr_map.get(k, (low, high))
+
             radar[k] = {
                 "price": price,
                 "high": high,
                 "low": low,
+                "support": supp_val,
+                "resistance": res_val,
                 "change_val": chg_val,
                 "change_pct": chg_pct,
                 "score": score,
