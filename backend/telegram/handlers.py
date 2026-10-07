@@ -23,14 +23,35 @@ def get_dashboard_menu_keyboard() -> InlineKeyboardMarkup:
         ],
         [
             InlineKeyboardButton(text="🌊 Money Flow Radar (16:9)", callback_data="menu:flow"),
-            InlineKeyboardButton(text="⚙️ Level S/R Aktif", callback_data="menu:setsnr")
+            InlineKeyboardButton(text="📜 Narasi Analisis Pasar", callback_data="menu:nr_menu")
         ],
         [
-            InlineKeyboardButton(text="📖 Legend Grade & Status", callback_data="menu:legend"),
+            InlineKeyboardButton(text="⚙️ Level S/R Aktif", callback_data="menu:setsnr"),
             InlineKeyboardButton(text="📈 Ringkasan Metrik", callback_data="menu:status")
         ],
         [
-            InlineKeyboardButton(text="🚀 Kirim Semua Dashboard (3-in-1)", callback_data="menu:all")
+            InlineKeyboardButton(text="📖 Legend Grade & Status", callback_data="menu:legend"),
+            InlineKeyboardButton(text="🚀 Kirim Semua (3-in-1)", callback_data="menu:all")
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+def get_narrative_menu_keyboard() -> InlineKeyboardMarkup:
+    """
+    Inline buttons for 1-click individual pair narrative selection.
+    """
+    buttons = [
+        [
+            InlineKeyboardButton(text="📜 Narasi XAUUSD (Gold)", callback_data="menu:nr:xauusd"),
+            InlineKeyboardButton(text="📜 Narasi USDJPY", callback_data="menu:nr:usdjpy")
+        ],
+        [
+            InlineKeyboardButton(text="📜 Narasi EURUSD", callback_data="menu:nr:eurusd"),
+            InlineKeyboardButton(text="📜 Narasi GBPUSD", callback_data="menu:nr:gbpusd")
+        ],
+        [
+            InlineKeyboardButton(text="📜 Narasi OIL (WTI)", callback_data="menu:nr:oil"),
+            InlineKeyboardButton(text="🔙 Kembali ke Menu", callback_data="menu:back")
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -99,7 +120,15 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
             await target.answer_photo(photo=input_file, caption=summary, parse_mode="HTML")
         except Exception as e:
             logger.error(f"Error generating money flow radar: {e}")
-            await target.answer(f"⚠️ Gagal memuat Money Flow Radar: {e}")
+    async def do_send_narrative(target: Message, symbol: str):
+        try:
+            from backend.telegram.narrative_engine import build_narrative_text
+            loop = asyncio.get_running_loop()
+            text = await loop.run_in_executor(None, build_narrative_text, symbol)
+            await target.answer(text, parse_mode="HTML")
+        except Exception as e:
+            logger.error(f"Error sending narrative for {symbol}: {e}")
+            await target.answer(f"⚠️ Gagal menyusun narasi untuk {symbol}: {e}")
 
     async def do_send_legend(target: Message):
         legend_text = (
@@ -280,6 +309,28 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
         else:
             await message.answer("⚠️ S/R Monitor Engine belum diinisialisasi.")
 
+    @dp.message(Command("nr", "narasi", "narrative"))
+    async def cmd_narrative(message: Message):
+        if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
+            return
+        parts = message.text.strip().split()
+        if len(parts) >= 2:
+            raw_sym = parts[1]
+            await do_send_narrative(message, raw_sym)
+        else:
+            prompt_text = (
+                "📜 <b>XEDY AI — INSTITUTIONAL MARKET NARRATIVE</b>\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "Pilih instrumen di bawah ini atau ketik langsung perintah:\n\n"
+                "• <code>/nr xauusd</code> — Narasi komprehensif Gold Spot\n"
+                "• <code>/nr usdjpy</code> — Narasi komprehensif USD/JPY\n"
+                "• <code>/nr eurusd</code> — Narasi komprehensif EUR/USD\n"
+                "• <code>/nr gbpusd</code> — Narasi komprehensif GBP/USD\n"
+                "• <code>/nr oil</code> — Narasi komprehensif WTI Crude Oil\n\n"
+                "<i>Menjawab 12 pertanyaan kausal mendalam (Makro, Kebijakan, Geopolitik, Yield, Flow, Teknikal, S/R & Parameter OP/SL/TP).</i>"
+            )
+            await message.answer(prompt_text, reply_markup=get_narrative_menu_keyboard(), parse_mode="HTML")
+
     # =========================================================================
     # CALLBACK QUERY HANDLER (INTERACTIVE BUTTONS)
     # =========================================================================
@@ -305,6 +356,29 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
         elif action == "menu:flow":
             await callback.answer("⏳ Mengumpulkan Capital Money Flow Data...")
             await do_send_flow(target_msg)
+
+        elif action == "menu:nr_menu":
+            await callback.answer("📜 Membuka menu narasi pasar...")
+            prompt_text = (
+                "📜 <b>PILIH NARASI PASAR INSTITUTIONAL</b>\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "Pilih instrumen yang ingin dianalisis secara kausal mendalam:"
+            )
+            await target_msg.answer(prompt_text, reply_markup=get_narrative_menu_keyboard(), parse_mode="HTML")
+
+        elif action.startswith("menu:nr:"):
+            sym = action.split("menu:nr:")[1]
+            await callback.answer(f"⏳ Menyusun narasi {sym.upper()}...")
+            await do_send_narrative(target_msg, sym)
+
+        elif action == "menu:back":
+            await callback.answer()
+            menu_text = (
+                "🏛️ <b>XEDY AI MISSION CONTROL — EXECUTIVE MENU</b>\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "Pilih menu interaktif di bawah ini:"
+            )
+            await target_msg.answer(menu_text, reply_markup=get_dashboard_menu_keyboard(), parse_mode="HTML")
 
         elif action == "menu:setsnr":
             await callback.answer("⚙️ Membuka parameter S/R aktif...")
