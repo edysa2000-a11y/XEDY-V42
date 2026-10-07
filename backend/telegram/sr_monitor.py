@@ -276,6 +276,19 @@ class SRMonitorEngine:
                         await self.money_flow_engine.send_scheduled_radar(now_wib)
                     except Exception as err_radar:
                         logger.error(f"Error sending 30m Money Flow Radar: {err_radar}")
+
+                # 4. 30-Minute Scheduled XEDY AI Precision Trading Engine Report (:00 dan :30 WIB)
+                if not hasattr(self, "precision_engine"):
+                    from backend.telegram.precision_engine import PrecisionTradingEngine
+                    self.precision_engine = PrecisionTradingEngine(bot=self.bot, admin_id=self.admin_id)
+                
+                engine_slot = (now_wib.hour, now_wib.minute // 30)
+                if getattr(self, "last_engine_slot", None) != engine_slot:
+                    try:
+                        self.last_engine_slot = engine_slot
+                        await self.precision_engine.send_scheduled_engine(now_wib)
+                    except Exception as err_engine:
+                        logger.error(f"Error sending 30m Precision Trading Engine: {err_engine}")
                     
             except Exception as e:
                 logger.error(f"Error in SRMonitorEngine loop: {e}", exc_info=True)

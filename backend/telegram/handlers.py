@@ -44,12 +44,13 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
             "• 🟣 <b>USDJPY</b> (USD/JPY)\n\n"
             "<b>Perintah Tersedia:</b>\n"
             "⚡ <b>/popup</b> atau <b>/sr</b> — Request instan Dashboard 16:9 Bloomberg S/R\n"
+            "🧠 <b>/engine</b> atau <b>/xedyai</b> — Request instan Dashboard 16:9 XEDY AI Precision Trading Engine (5 Aset)\n"
             "🌊 <b>/flow</b> atau <b>/moneyflow</b> — Request instan Dashboard 16:9 Money Flow Radar (Jillywosy & TradingView)\n"
             "📖 <b>/legend</b> — Penjelasan lengkap Grade (A+, A, B, C, D) & 15 Final Status\n"
             "⚙️ <b>/setsnr</b> — Merubah level Support & Resistance lewat Telegram\n"
             "📊 <b>/status</b> — Ringkasan teks metrik harga & status S/R\n"
             "🆔 <b>/id</b> — Mengetahui Chat ID & User ID\n\n"
-            "💡 <i>Update otomatis terkirim setiap 15 menit (S/R Card) dan setiap 30 menit (Money Flow Radar), serta alert instan jika harga mengenai batas SNR.</i>"
+            "💡 <i>Update otomatis terkirim setiap 15 menit (S/R Card) dan setiap 30 menit (XEDY AI Precision Engine & Money Flow Radar), serta alert instan jika harga mengenai batas SNR.</i>"
         )
         await message.answer(help_text, parse_mode="HTML")
 
@@ -149,6 +150,33 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
         except Exception as e:
             logger.error(f"Error generating money flow radar on-demand: {e}")
             await message.answer(f"⚠️ Gagal memuat Money Flow Radar: {e}")
+
+    @dp.message(Command("engine", "precision", "xedyai", "master"))
+    async def cmd_engine(message: Message):
+        """
+        Request XEDY AI Precision Trading Engine 1-page 16:9 dashboard card on demand.
+        Executes Multi-Agent analysis across 5 assets and returns the decision matrix.
+        """
+        if not is_authorized(message):
+            return
+        
+        now_wib = datetime.now(WIB)
+        try:
+            from backend.telegram.precision_engine import PrecisionTradingEngine
+            engine = getattr(sr_monitor, "precision_engine", None)
+            if not engine:
+                engine = PrecisionTradingEngine()
+                
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, engine.fetch_live_data)
+            photo_bytes = engine.generate_current_card_bytes(now_wib)
+            summary = engine.get_current_summary()
+            
+            input_file = BufferedInputFile(photo_bytes, filename="xedy_precision_engine.png")
+            await message.answer_photo(photo=input_file, caption=summary, parse_mode="HTML")
+        except Exception as e:
+            logger.error(f"Error generating precision engine on-demand: {e}")
+            await message.answer(f"⚠️ Gagal memuat Precision Trading Engine: {e}")
 
     @dp.message(Command("setsnr", "snr", "ubahsnr"))
     async def cmd_setsnr(message: Message):
