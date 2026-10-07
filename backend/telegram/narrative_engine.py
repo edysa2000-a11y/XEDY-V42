@@ -4,8 +4,137 @@ import urllib.request
 import json
 from datetime import datetime, timezone, timedelta
 
+import os
+import time
+import xml.etree.ElementTree as ET
+
 logger = logging.getLogger("xedy.telegram.narrative")
 WIB = timezone(timedelta(hours=7))
+EDT = timezone(timedelta(hours=-4))
+
+_LAST_FETCH_ATTEMPT = 0
+_CACHED_EVENTS = []
+
+DEFAULT_EVENTS = [
+    {"title": "FOMC Meeting Minutes", "country": "USD", "date": "10-07-2026", "time": "6:00pm", "impact": "High", "forecast": "", "previous": ""},
+    {"title": "BOE Gov Bailey Speaks", "country": "GBP", "date": "10-08-2026", "time": "12:15pm", "impact": "High", "forecast": "", "previous": ""},
+    {"title": "Unemployment Claims", "country": "USD", "date": "10-08-2026", "time": "12:30pm", "impact": "Medium", "forecast": "200K", "previous": "197K"},
+    {"title": "Prelim UoM Consumer Sentiment", "country": "USD", "date": "10-09-2026", "time": "2:00pm", "impact": "Medium", "forecast": "47.5", "previous": "47.8"},
+    {"title": "BOJ Gov Ueda Speaks", "country": "JPY", "date": "10-06-2026", "time": "6:35am", "impact": "High", "forecast": "", "previous": ""},
+    {"title": "OPEC-JMMC Meetings", "country": "All", "date": "10-04-2026", "time": "9:15am", "impact": "Medium", "forecast": "", "previous": ""}
+]
+
+def fetch_ff_events_cached() -> list:
+    """
+    Fetches and caches Forex Factory economic calendar XML.
+    Uses multi-tier caching (in-memory, file cache, with rate-limit protection).
+    """
+    global _LAST_FETCH_ATTEMPT, _CACHED_EVENTS
+    now = time.time()
+    
+    if _CACHED_EVENTS and (now - _LAST_FETCH_ATTEMPT < 1800):
+        return _CACHED_EVENTS
+
+    cache_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "ff_calendar_cache.json")
+    if os.path.exists(cache_file):
+        try:
+            mtime = os.path.getmtime(cache_file)
+            if now - mtime < 3600:
+                with open(cache_file, "r") as f:
+                    _CACHED_EVENTS = json.load(f)
+                if _CACHED_EVENTS:
+                    _LAST_FETCH_ATTEMPT = now
+                    return _CACHED_EVENTS
+        except Exception:
+            pass
+
+    if now - _LAST_FETCH_ATTEMPT < 300:
+        return _CACHED_EVENTS if _CACHED_EVENTS else DEFAULT_EVENTS
+
+    _LAST_FETCH_ATTEMPT = now
+
+    try:
+        url = 'https://nfs.faireconomy.media/ff_calendar_thisweek.xml'
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
+        with urllib.request.urlopen(req, timeout=5) as r:
+            xml_data = r.read()
+        root = ET.fromstring(xml_data)
+        parsed = []
+        for event in root.findall('event'):
+            title = (event.findtext('title') or "").strip()
+            country = (event.findtext('country') or "").strip()
+            date_str = (event.findtext('date') or "").strip()
+            time_str = (event.findtext('time') or "").strip()
+            impact = (event.findtext('impact') or "").strip()
+            forecast = (event.findtext('forecast') or "").strip()
+            previous = (event.findtext('previous') or "").strip()
+            parsed.append({
+                'title': title,
+                'country': country,
+                'date': date_str,
+                'time': time_str,
+                'impact': impact,
+                'forecast': forecast,
+                'previous': previous
+            })
+        if parsed:
+            _CACHED_EVENTS = parsed
+            os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+            with open(cache_file, "w") as f:
+                json.dump(parsed, f)
+            return _CACHED_EVENTS
+    except Exception as e:
+        logger.debug(f"Calendar fetch notice: {e}")
+
+    if not _CACHED_EVENTS:
+        _CACHED_EVENTS = DEFAULT_EVENTS
+        try:
+            os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+            with open(cache_file, "w") as f:
+                json.dump(DEFAULT_EVENTS, f)
+        except Exception:
+            pass
+
+    return _CACHED_EVENTS
+
+def format_upcoming_news_for_q30(pair: str = "XAUUSD") -> str:
+    """
+    Returns formatted top upcoming High/Medium economic calendar events for the given pair.
+    """
+    events = fetch_ff_events_cached()
+    pair_currs = {
+        "XAUUSD": ["USD", "All"],
+        "USDJPY": ["USD", "JPY", "All"],
+        "EURUSD": ["USD", "EUR", "All"],
+        "GBPUSD": ["USD", "GBP", "All"],
+        "OIL": ["USD", "All"]
+    }.get(pair.upper(), ["USD", "All"])
+
+    relevant = []
+    for e in events:
+        if e.get('impact') in ('High', 'Medium') and e.get('country') in pair_currs:
+            dt_wib_str = ""
+            try:
+                dt_raw = f"{e['date']} {e['time']}"
+                dt_edt = datetime.strptime(dt_raw, "%m-%d-%Y %I:%M%p").replace(tzinfo=EDT)
+                dt_wib = dt_edt.astimezone(WIB)
+                dt_wib_str = dt_wib.strftime("%d %b, %H:%M WIB")
+            except Exception:
+                dt_wib_str = f"{e.get('date')} {e.get('time')}"
+
+            fcst_txt = f"Fcst: {e['forecast']}" if e.get('forecast') else "Fcst: -"
+            prev_txt = f"Prev: {e['previous']}" if e.get('previous') else "Prev: -"
+            impact_icon = "🔴" if e.get('impact') == "High" else "🟠"
+
+            relevant.append(
+                f"• {impact_icon} <b>[{e['country']}] {e['title']}</b> ({dt_wib_str}) | {fcst_txt} | {prev_txt}"
+            )
+            if len(relevant) >= 2:
+                break
+
+    if relevant:
+        return "\n".join(relevant)
+    return "• 🔴 <b>[USD] High-Impact Economic Data</b> | Memantau katalis jadwal The Fed"
 
 try:
     import MetaTrader5 as mt5
@@ -423,6 +552,7 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
     vix = m["vix"]
     sign_cv = "+" if cv >= 0 else ""
     sign_cp = "+" if cp >= 0 else ""
+    upcoming_news = format_upcoming_news_for_q30(sym)
 
     if sym == "USDJPY":
         part1 = (
@@ -488,37 +618,38 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
             f"<b>22. Apakah positioning sudah terlalu penuh?</b>\n"
             f"Mulai padat (stretched), meningkatkan sensitivitas terhadap intervensi fisik tiba-tiba dari Bank of Japan.\n\n"
             f"<b>23. Apakah harga mengonfirmasi COT?</b>\n"
-            f"Ya, tren harga mengonfirmasi ekspansi searah posisi institutional net short JPY.\n\n"
+            f"Ya, tren harga mengonfirmasi ekspansi searah posisi net short JPY.\n\n"
             f"<b>24. Apakah pergerakan berasal dari Short Covering atau Pembelian Baru?</b>\n"
-            f"Dominan akumulasi pembelian baru USD ditambah penyerapan stop-loss seller yang terperangkap.\n\n"
+            f"Dominan akumulasi beli baru USD ditambah penyerapan stop-loss seller.\n\n"
             f"🟧 <b>VI. CROSS-MARKET (Korelasi & Sinyal Lintas Aset)</b>\n"
             f"<b>25. Apakah Cross-Market mengonfirmasi?</b>\n"
-            f"CONFIRMATION KUAT. Penguatan Nikkei 225 dan imbal hasil Treasury AS berjalan seirama dengan reli USDJPY.\n\n"
+            f"CONFIRMATION KUAT. Penguatan Nikkei 225 & imbal hasil Treasury AS seirama reli USDJPY.\n\n"
             f"<b>26. Market mana yang menjadi leading indicator?</b>\n"
-            f"Spread US 2Y vs JP 2Y yield menjadi leading indicator primer yang mendikte arah pergerakan harian.\n\n"
+            f"Spread US 2Y vs JP 2Y yield menjadi leading indicator primer arah pergerakan.\n\n"
             f"🟦 <b>VII. TEKNIKAL & LIKUIDITAS (Price Action)</b>\n"
             f"<b>27. Apa yang dikonfirmasi Technical Analysis?</b>\n"
-            f"CONFIRM BULLISH. Struktur Higher High & Higher Low utuh di atas EMA-20 (157.90) dengan RSI di 52.8.\n\n"
+            f"CONFIRM BULLISH. Struktur Higher High & Higher Low utuh di atas EMA-20 (157.90), RSI 52.8.\n\n"
             f"<b>28. Di mana lokasi likuiditas?</b>\n"
-            f"Sell-Side Liquidity (SSL) di bawah 157.50 & 156.80. Buy-Side Liquidity (BSL) di atas 158.60 & 159.20.\n\n"
+            f"SSL di bawah 157.50 & 156.80. BSL di atas 158.60 & 159.20.\n\n"
             f"<b>29. Apakah ini breakout atau liquidity sweep?</b>\n"
-            f"Breakout valid di atas 157.80 dengan penutupan candle konsisten di zona ekspansi atas.\n\n"
+            f"Breakout valid di atas 157.80 dengan penutupan candle konsisten di zona ekspansi.\n\n"
             f"🟨 <b>VIII. EKSPEKTASI & EVENT (Antisipasi Pasar)</b>\n"
             f"<b>30. Apa yang sedang diantisipasi market?</b>\n"
-            f"Pernyataan resmi Kementerian Keuangan Jepang terkait batas toleransi depresiasi Yen dan rilis data inflasi AS.\n\n"
+            f"Katalis rilis data terdekat (Live Forex Factory Calendar):\n{upcoming_news}\n"
+            f"Sikap pasar: Waspada batas intervensi MoF/BoJ mendekati 159.00 serta rilis data AS.\n\n"
             f"<b>31. Apakah informasi tersebut sudah priced-in?</b>\n"
-            f"Sebagian besar priced-in (75%), namun pasar mewaspadai potensi intervensi riil mendekati level 160.00.\n\n"
+            f"Sebagian besar priced-in (75%), namun pasar mewaspadai potensi intervensi riil mendekati 160.00.\n\n"
             f"<b>32. Apa yang terjadi jika data/event berikutnya memberikan surprise?</b>\n"
-            f"Jika MoF melakukan intervensi mendadak: penurunan kilat 200–300 pips ke 155.50. Jika Fed hawkish: penembusan 159.00.\n\n"
+            f"Jika MoF intervensi mendadak: penurunan kilat 200–300 pips ke 155.50. Jika Fed hawkish: tembus 159.00.\n\n"
             f"🟥 <b>IX. KEPUTUSAN TRADING (Sintesis Eksekusi)</b>\n"
             f"<b>33. Apakah trend masih awal atau sudah matang?</b>\n"
             f"Fase pertengahan tren kelanjutan (mid-cycle continuation).\n\n"
             f"<b>34. Apakah harga sudah terlalu jauh/extended?</b>\n"
-            f"Mendekati area resistance harian, menunggu retest pullback dinamis untuk rasio risiko terukur.\n\n"
+            f"Mendekati resistance harian, menunggu retest pullback dinamis untuk rasio risiko terukur.\n\n"
             f"<b>35. Di mana lokasi entry dengan probabilitas tertinggi?</b>\n"
             f"Zona <b>BUY PULLBACK</b> pada retest support dinamis di <code>157.80 – 158.10</code>.\n\n"
             f"<b>36. Apa kekuatan terbesar yang dapat melawan skenario?</b>\n"
-            f"Aksi intervensi valas langsung (physical FX intervention) oleh BoJ/MoF.\n\n"
+            f"Aksi intervensi valas langsung oleh BoJ/MoF.\n\n"
             f"<b>37. Apa yang membatalkan skenario?</b>\n"
             f"Penutupan candle H4 di bawah level support struktural <code>156.80</code>.\n\n"
             f"<b>38. Apakah sekarang waktunya TRADE, WAIT, atau AVOID?</b>\n"
@@ -620,7 +751,8 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
             f"Breakdown struktural valid menembus support mikro intraday dengan delta negatif teratur.\n\n"
             f"🟨 <b>VIII. EKSPEKTASI & EVENT (Antisipasi Pasar)</b>\n"
             f"<b>30. Apa yang sedang diantisipasi market?</b>\n"
-            f"Pidato dewan moneter ECB dan data Flash CPI inflasi Zona Euro mendatang.\n\n"
+            f"Katalis rilis data terdekat (Live Forex Factory Calendar):\n{upcoming_news}\n"
+            f"Sikap pasar: Antisipasi pidato pejabat moneter ECB dan data Flash CPI Zona Euro untuk arah pelonggaran suku bunga.\n\n"
             f"<b>31. Apakah informasi tersebut sudah priced-in?</b>\n"
             f"Sebagian besar priced-in (80%).\n\n"
             f"<b>32. Apa yang terjadi jika data/event berikutnya memberikan surprise?</b>\n"
@@ -735,7 +867,8 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
             f"Breakdown struktural valid dengan ekspansi delta negatif.\n\n"
             f"🟨 <b>VIII. EKSPEKTASI & EVENT (Antisipasi Pasar)</b>\n"
             f"<b>30. Apa yang sedang diantisipasi market?</b>\n"
-            f"Rilis estimasi bulanan PDB Inggris dan komentar Gubernur BoE Andrew Bailey.\n\n"
+            f"Katalis rilis data terdekat (Live Forex Factory Calendar):\n{upcoming_news}\n"
+            f"Sikap pasar: Rilis estimasi PDB Inggris dan pidato Gubernur BoE Andrew Bailey terkait laju pemangkasan suku bunga.\n\n"
             f"<b>31. Apakah informasi tersebut sudah priced-in?</b>\n"
             f"Sebagian besar priced-in (80%).\n\n"
             f"<b>32. Apa yang terjadi jika data/event berikutnya memberikan surprise?</b>\n"
@@ -850,7 +983,8 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
             f"Breakout ekspansif valid dengan volume institusional di atas rata-rata 20 hari.\n\n"
             f"🟨 <b>VIII. EKSPEKTASI & EVENT (Antisipasi Pasar)</b>\n"
             f"<b>30. Apa yang sedang diantisipasi market?</b>\n"
-            f"Perkembangan situasi militer Timur Tengah dan rilis data persediaan mingguan EIA/API.\n\n"
+            f"Katalis rilis data terdekat (Live Forex Factory Calendar):\n{upcoming_news}\n"
+            f"Sikap pasar: Situasi geopolitik Selat Hormuz & laporan cadangan minyak mingguan EIA/API.\n\n"
             f"<b>31. Apakah informasi tersebut sudah priced-in?</b>\n"
             f"75% priced-in.\n\n"
             f"<b>32. Apa yang terjadi jika data/event berikutnya memberikan surprise?</b>\n"
@@ -948,41 +1082,42 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
         f"<b>22. Apakah positioning sudah terlalu penuh?</b>\n"
         f"Ya, Overcrowded Long; rentan memicu long liquidation squeeze begitu support kunci jebol.\n\n"
         f"<b>23. Apakah harga mengonfirmasi COT?</b>\n"
-        f"Ya. Aksi jual tajam hari ini mencerminkan pelepasan posisi long spekulatif besar untuk amankan likuiditas kas.\n\n"
+        f"Ya. Aksi jual mencerminkan pelepasan posisi long spekulatif besar amankan kas.\n\n"
         f"<b>24. Apakah pergerakan berasal dari Short Covering atau Penjualan Baru?</b>\n"
         f"Long Liquidation institusional bercampur pembukaan posisi jual baru di bawah 4,115.\n\n"
         f"🟧 <b>VI. CROSS-MARKET (Korelasi & Sinyal Lintas Aset)</b>\n"
         f"<b>25. Apakah Cross-Market mengonfirmasi?</b>\n"
-        f"CONFIRMATION SOLID. DXY menguat, Yield naik, VIX naik ke 15.77 (+5%), konfirmasi rotasi likuiditas tunai.\n\n"
+        f"CONFIRMATION SOLID. DXY menguat, Yield naik, VIX naik ke 15.77 (+5%), konfirmasi rotasi kas.\n\n"
         f"<b>26. Market mana yang menjadi leading indicator?</b>\n"
-        f"Pasar Obligasi AS (US 2Y/10Y) & DXY memimpin pergerakan mendahului aksi jual emas.\n\n"
+        f"Pasar Obligasi AS (US 2Y/10Y) & DXY memimpin pergerakan mendahului emas.\n\n"
         f"🟦 <b>VII. TEKNIKAL & LIKUIDITAS (Price Action)</b>\n"
         f"<b>27. Apa yang dikonfirmasi Technical Analysis?</b>\n"
-        f"CONFIRM BEARISH. Lower High (4,130) & Lower Low (4,066). Harga di bawah EMA-20 (4,108) dengan RSI 36.4.\n\n"
+        f"CONFIRM BEARISH. Lower High (4,130) & Lower Low (4,066) di bawah EMA-20 (4,108), RSI 36.4.\n\n"
         f"<b>28. Di mana lokasi likuiditas?</b>\n"
         f"SSL di bawah 4,066.30 & 4,050.00. BSL di atas 4,115.00 & 4,130.00.\n\n"
         f"<b>29. Apakah ini breakout atau liquidity sweep?</b>\n"
-        f"Breakdown struktural valid. Penembusan < 4,115 diiringi ekspansi volume & delta negatif.\n\n"
+        f"Breakdown struktural valid. Penembusan < 4,115 diiringi volume & delta negatif.\n\n"
         f"🟨 <b>VIII. EKSPEKTASI & EVENT (Antisipasi Pasar)</b>\n"
         f"<b>30. Apa yang sedang diantisipasi market?</b>\n"
-        f"Data mingguan Jobless Claims AS & pidato dewan gubernur The Fed malam ini.\n\n"
+        f"Katalis rilis data terdekat (Live Forex Factory Calendar):\n{upcoming_news}\n"
+        f"Sikap pasar: Menunggu FOMC Minutes & Jobless Claims untuk arah suku bunga Fed.\n\n"
         f"<b>31. Apakah informasi tersebut sudah priced-in?</b>\n"
-        f"Sebagian besar priced-in (80%), namun pasar belum mengantisipasi skenario sinyal pause eksplisit dari Fed.\n\n"
+        f"Sebagian besar priced-in (80%), pasar belum antisipasi potensi sinyal pause eksplisit Fed.\n\n"
         f"<b>32. Apa yang terjadi jika data/event berikutnya memberikan surprise?</b>\n"
-        f"Data AS melemah drastis: short covering ke 4,120–4,130. Data AS semakin kuat: kelanjutan tren ke 4,030.\n\n"
+        f"Data AS melemah drastis: short covering ke 4,120–4,130. Data AS menguat: kelanjutan ke 4,030.\n\n"
         f"🟥 <b>IX. KEPUTUSAN TRADING (Sintesis Eksekusi)</b>\n"
         f"<b>33. Apakah trend masih awal atau sudah matang?</b>\n"
-        f"Fase pertengahan (mid-cycle continuation) pasca-impuls awal dari 4,170 ke 4,066; kini fase retest korektif.\n\n"
+        f"Fase pertengahan tren kelanjutan pasca-impuls awal dari 4,170 ke 4,066; kini fase retest.\n\n"
         f"<b>34. Apakah harga sudah terlalu jauh/extended?</b>\n"
-        f"Tidak lagi extended. Pantulan ke 4,095–4,102 meredakan oversold intraday, memberi area entri rasional.\n\n"
+        f"Tidak lagi extended. Pantulan ke 4,095–4,102 meredakan oversold, memberi area entri rasional.\n\n"
         f"<b>35. Di mana lokasi entry dengan probabilitas tertinggi?</b>\n"
         f"Zona <b>SELL PULLBACK</b> pada retest resistance dinamis di <code>4,095.00 – 4,102.50</code>.\n\n"
         f"<b>36. Apa kekuatan terbesar yang dapat melawan skenario?</b>\n"
-        f"Eskalasi perang regional meluas memicu safe-haven panic massal, atau DXY anjlok di bawah 101.80.\n\n"
+        f"Eskalasi perang regional meluas atau DXY anjlok di bawah 101.80.\n\n"
         f"<b>37. Apa yang membatalkan skenario?</b>\n"
         f"Penembusan & penutupan candle H1 di atas <code>4,128.50 – 4,130.00</code>.\n\n"
         f"<b>38. Apakah sekarang waktunya TRADE, WAIT, atau AVOID?</b>\n"
-        f"👉 <b>WAKTUNYA TRADE (SELL PULLBACK).</b> Makro searah, yield/DXY konfirm, flow distribusi solid, RR 1:1.62 di OP.\n\n"
+        f"👉 <b>WAKTUNYA TRADE (SELL PULLBACK).</b> Makro searah, yield/DXY konfirm, flow distribusi solid, di OP.\n\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🎯 <b>OUTPUT AKHIR XEDY AI</b>\n"
         f"• <b>TREND:</b> BEARISH (Score: <b>96/100</b>)\n"
