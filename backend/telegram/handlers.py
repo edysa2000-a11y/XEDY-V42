@@ -38,22 +38,19 @@ def get_dashboard_menu_keyboard() -> InlineKeyboardMarkup:
 
 def get_narrative_menu_keyboard() -> InlineKeyboardMarkup:
     """
-    Inline buttons for 1-click individual pair narrative selection.
+    Inline buttons for 1-click individual pair 38 Core Questions selection.
     """
     buttons = [
         [
-            InlineKeyboardButton(text="📜 Narasi XAUUSD (Gold)", callback_data="menu:nr:xauusd"),
-            InlineKeyboardButton(text="📜 Narasi USDJPY", callback_data="menu:nr:usdjpy")
+            InlineKeyboardButton(text="📜 38 Pertanyaan: XAUUSD", callback_data="menu:nr:xauusd"),
+            InlineKeyboardButton(text="📜 38 Pertanyaan: USDJPY", callback_data="menu:nr:usdjpy")
         ],
         [
-            InlineKeyboardButton(text="📜 Narasi EURUSD", callback_data="menu:nr:eurusd"),
-            InlineKeyboardButton(text="📜 Narasi GBPUSD", callback_data="menu:nr:gbpusd")
+            InlineKeyboardButton(text="📜 38 Pertanyaan: EURUSD", callback_data="menu:nr:eurusd"),
+            InlineKeyboardButton(text="📜 38 Pertanyaan: GBPUSD", callback_data="menu:nr:gbpusd")
         ],
         [
-            InlineKeyboardButton(text="📜 Narasi OIL (WTI)", callback_data="menu:nr:oil"),
-            InlineKeyboardButton(text="🧩 38 Pertanyaan Inti", callback_data="menu:38:xauusd")
-        ],
-        [
+            InlineKeyboardButton(text="📜 38 Pertanyaan: OIL (WTI)", callback_data="menu:nr:oil"),
             InlineKeyboardButton(text="🔙 Kembali ke Menu Utama", callback_data="menu:back")
         ]
     ]
@@ -324,36 +321,17 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
         else:
             await message.answer("⚠️ S/R Monitor Engine belum diinisialisasi.")
 
-    @dp.message(Command("nr", "narasi", "narrative"))
+    @dp.message(Command("nr", "narasi", "narrative", "38", "qa", "pertanyaan38", "analisis38"))
     async def cmd_narrative(message: Message):
         if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
             return
         parts = message.text.strip().split()
         if len(parts) >= 2:
             raw_sym = parts[1]
-            await do_send_narrative(message, raw_sym)
+            await do_send_38_questions(message, raw_sym)
         else:
-            prompt_text = (
-                "📜 <b>XEDY AI — INSTITUTIONAL MARKET NARRATIVE</b>\n"
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                "Pilih instrumen di bawah ini atau ketik langsung perintah:\n\n"
-                "• <code>/nr xauusd</code> — Narasi komprehensif Gold Spot\n"
-                "• <code>/nr usdjpy</code> — Narasi komprehensif USD/JPY\n"
-                "• <code>/nr eurusd</code> — Narasi komprehensif EUR/USD\n"
-                "• <code>/nr gbpusd</code> — Narasi komprehensif GBP/USD\n"
-                "• <code>/nr oil</code> — Narasi komprehensif WTI Crude Oil\n\n"
-                "<i>Menjawab 12 pertanyaan kausal mendalam (Makro, Kebijakan, Geopolitik, Yield, Flow, Teknikal, S/R & Parameter OP/SL/TP).</i>\n\n"
-                "💡 <i>Ketik <code>/38 xauusd</code> untuk analisis lengkap 38 Pertanyaan Inti.</i>"
-            )
-            await message.answer(prompt_text, reply_markup=get_narrative_menu_keyboard(), parse_mode="HTML")
-
-    @dp.message(Command("38", "qa", "pertanyaan38", "analisis38"))
-    async def cmd_38_questions(message: Message):
-        if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
-            return
-        parts = message.text.strip().split()
-        sym = parts[1] if len(parts) >= 2 else "XAUUSD"
-        await do_send_38_questions(message, sym)
+            # Default langsung kirimkan analisis 38 pertanyaan lengkap untuk XAUUSD
+            await do_send_38_questions(message, "XAUUSD")
 
     # =========================================================================
     # CALLBACK QUERY HANDLER (INTERACTIVE BUTTONS)
@@ -382,21 +360,16 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
             await do_send_flow(target_msg)
 
         elif action == "menu:nr_menu":
-            await callback.answer("📜 Membuka menu narasi pasar...")
+            await callback.answer("📜 Membuka menu 38 Pertanyaan Inti...")
             prompt_text = (
-                "📜 <b>PILIH NARASI PASAR INSTITUTIONAL</b>\n"
+                "📜 <b>38 PERTANYAAN INTI — CAUSAL MARKET INTELLIGENCE</b>\n"
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                "Pilih instrumen yang ingin dianalisis secara kausal mendalam:"
+                "Pilih instrumen yang ingin dianalisis secara lengkap (38 Pertanyaan Inti):"
             )
             await target_msg.answer(prompt_text, reply_markup=get_narrative_menu_keyboard(), parse_mode="HTML")
 
-        elif action.startswith("menu:nr:"):
-            sym = action.split("menu:nr:")[1]
-            await callback.answer(f"⏳ Menyusun narasi {sym.upper()}...")
-            await do_send_narrative(target_msg, sym)
-
-        elif action.startswith("menu:38:"):
-            sym = action.split("menu:38:")[1] if len(action.split("menu:38:")) > 1 else "XAUUSD"
+        elif action.startswith("menu:nr:") or action.startswith("menu:38:"):
+            sym = action.split(":")[-1]
             await callback.answer(f"⏳ Menyusun 38 Pertanyaan Inti {sym.upper()}...")
             await do_send_38_questions(target_msg, sym)
 
