@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import json
+import time
 import urllib.request
 import uuid
 import math
@@ -249,12 +250,48 @@ class SRMonitorEngine:
             if caption:
                 await self._send_safe(caption)
 
+    def update_github_heartbeat(self):
+        """
+        Updates GitHub repository variable LOCAL_DAEMON_LAST_SEEN via GitHub REST API.
+        Informs GitHub Actions that Local Daemon is ALIVE (First Priority).
+        """
+        pat = os.environ.get("GITHUB_PAT")
+        if not pat:
+            return
+        repo = "edysa2000-a11y/XEDY-V42"
+        url = f"https://api.github.com/repos/{repo}/actions/variables/LOCAL_DAEMON_LAST_SEEN"
+        data = json.dumps({"name": "LOCAL_DAEMON_LAST_SEEN", "value": str(int(time.time()))}).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=data,
+            headers={
+                "Authorization": f"token {pat}",
+                "User-Agent": "XEDY-Local-Daemon",
+                "Content-Type": "application/json"
+            },
+            method="PATCH"
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=5.0) as resp:
+                if resp.status in (200, 204):
+                    logger.debug("GitHub heartbeat updated successfully.")
+        except Exception as e:
+            logger.debug(f"GitHub heartbeat notice: {e}")
+
     async def _monitor_loop(self):
         logger.info("Bloomberg S/R Monitor Loop Active. Scanning every 30s...")
+        # Send initial heartbeat on loop start
+        self.update_github_heartbeat()
         while self._running:
             try:
                 now_wib = datetime.now(WIB)
                 
+                # 0. Sync Heartbeat to GitHub (every 3 minutes) so GitHub Actions knows Local Daemon is active
+                now_ts = time.time()
+                if (now_ts - getattr(self, "_last_heartbeat_time", 0)) > 180:
+                    self._last_heartbeat_time = now_ts
+                    asyncio.get_running_loop().run_in_executor(None, self.update_github_heartbeat)
+
                 # 1. Fetch live prices, tick volumes, trend & check SNR touch / breakout
                 await self.check_all_symbols(now_wib)
                 
@@ -263,6 +300,7 @@ class SRMonitorEngine:
                 if self.last_scheduled_slot != current_slot:
                     await self.send_scheduled_report(now_wib)
                     self.last_scheduled_slot = current_slot
+                    asyncio.get_running_loop().run_in_executor(None, self.update_github_heartbeat)
 
                 # 3. 30-Minute Scheduled Money Flow Radar Report (:00 dan :30 WIB)
                 if not hasattr(self, "money_flow_engine"):

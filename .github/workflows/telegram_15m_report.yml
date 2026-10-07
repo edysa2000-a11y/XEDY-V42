@@ -26,9 +26,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install Pillow python-dotenv
 
-      - name: Run Bloomberg S/R Push
+      - name: Run Bloomberg S/R Push (Failover Gate)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '8670995678:AAEvTX6Ii222QVCW4AIlRhzQYKbOR-lj06c' }}
           TELEGRAM_ADMIN_ID: ${{ secrets.TELEGRAM_ADMIN_ID || '-1003468917523' }}
+          LOCAL_DAEMON_LAST_SEEN: ${{ vars.LOCAL_DAEMON_LAST_SEEN }}
+          GITHUB_PAT: ${{ secrets.GITHUB_PAT || secrets.GITHUB_TOKEN }}
         run: |
           python backend/scripts/run_github_cron_push.py
