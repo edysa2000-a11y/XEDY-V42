@@ -40,6 +40,23 @@ class TelegramEcosystem:
         # Registrasi routing
         register_handlers(self.dp, self.admin_id, sr_monitor=self.sr_monitor)
         
+        # Registrasi menu tombol resmi Telegram
+        try:
+            from aiogram.types import BotCommand
+            commands = [
+                BotCommand(command="menu", description="📱 Menu Dashboard Interaktif"),
+                BotCommand(command="sr", description="📊 Bloomberg S/R Live Dashboard (16:9)"),
+                BotCommand(command="engine", description="🧠 XEDY AI Precision Engine (16:9)"),
+                BotCommand(command="flow", description="🌊 Money Flow Radar Dashboard (16:9)"),
+                BotCommand(command="setsnr", description="⚙️ Pengaturan Level Support & Resistance"),
+                BotCommand(command="legend", description="📖 Panduan Signal Grade & Status"),
+                BotCommand(command="status", description="📈 Ringkasan Metrik Pasar"),
+            ]
+            await self.bot.set_my_commands(commands)
+            logger.info("Official Telegram Bot Command Menu registered successfully.")
+        except Exception as e:
+            logger.warning(f"Could not set bot commands: {e}")
+        
         # Mulai long-polling sebagai background task
         self._polling_task = asyncio.create_task(self._poll())
 

@@ -1,63 +1,107 @@
+import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
-from aiogram.types import Message, BufferedInputFile
+from aiogram.types import (
+    Message, BufferedInputFile,
+    InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+)
 import os
 
 logger = logging.getLogger("xedy.telegram.handlers")
 WIB = timezone(timedelta(hours=7))
 
+def get_dashboard_menu_keyboard() -> InlineKeyboardMarkup:
+    """
+    Creates institutional inline buttons for 1-click dashboard access.
+    """
+    buttons = [
+        [
+            InlineKeyboardButton(text="📊 Bloomberg S/R Live (16:9)", callback_data="menu:sr"),
+            InlineKeyboardButton(text="🧠 Precision Engine (16:9)", callback_data="menu:engine")
+        ],
+        [
+            InlineKeyboardButton(text="🌊 Money Flow Radar (16:9)", callback_data="menu:flow"),
+            InlineKeyboardButton(text="⚙️ Level S/R Aktif", callback_data="menu:setsnr")
+        ],
+        [
+            InlineKeyboardButton(text="📖 Legend Grade & Status", callback_data="menu:legend"),
+            InlineKeyboardButton(text="📈 Ringkasan Metrik", callback_data="menu:status")
+        ],
+        [
+            InlineKeyboardButton(text="🚀 Kirim Semua Dashboard (3-in-1)", callback_data="menu:all")
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
 def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
     """
-    Registers all bot commands.
+    Registers all bot commands and callback query handlers.
     Secured by comparing chat ID or user ID with admin_id.
     """
-    def is_authorized(message: Message) -> bool:
+    def is_authorized(user_or_chat_id: int) -> bool:
         if not admin_id or admin_id == 0:
             return True
-        # Allow if chat is the authorized group/channel or direct from admin
-        if message.chat.id == admin_id or message.from_user.id == admin_id:
+        if user_or_chat_id == admin_id:
             return True
         return False
-    
-    @dp.message(Command("id"))
-    async def cmd_id(message: Message):
-        await message.answer(
-            f"🆔 <b>Chat ID:</b> <code>{message.chat.id}</code>\n"
-            f"👤 <b>User ID:</b> <code>{message.from_user.id}</code>\n"
-            f"Rezim Chat: <b>{message.chat.type.upper()}</b>",
-            parse_mode="HTML"
-        )
 
-    @dp.message(Command("start", "help"))
-    async def cmd_start(message: Message):
-        if not is_authorized(message):
+    async def do_send_sr(target: Message):
+        if not sr_monitor:
+            await target.answer("⚠️ S/R Monitor Engine belum diinisialisasi.")
             return
-        help_text = (
-            "🤖 <b>XEDY MASTER S/R MONITOR BOT ACTIVE</b>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
-            "Memantau 4 Aset Kunci secara Real-Time:\n"
-            "• 🟡 <b>GOLD</b> (XAUUSD)\n"
-            "• 🔵 <b>EURUSD</b> (EUR/USD)\n"
-            "• ⚫ <b>OIL</b> (WTI CRUDE)\n"
-            "• 🟣 <b>USDJPY</b> (USD/JPY)\n\n"
-            "<b>Perintah Tersedia:</b>\n"
-            "⚡ <b>/popup</b> atau <b>/sr</b> — Request instan Dashboard 16:9 Bloomberg S/R\n"
-            "🧠 <b>/engine</b> atau <b>/xedyai</b> — Request instan Dashboard 16:9 XEDY AI Precision Trading Engine (5 Aset)\n"
-            "🌊 <b>/flow</b> atau <b>/moneyflow</b> — Request instan Dashboard 16:9 Money Flow Radar (Jillywosy & TradingView)\n"
-            "📖 <b>/legend</b> — Penjelasan lengkap Grade (A+, A, B, C, D) & 15 Final Status\n"
-            "⚙️ <b>/setsnr</b> — Merubah level Support & Resistance lewat Telegram\n"
-            "📊 <b>/status</b> — Ringkasan teks metrik harga & status S/R\n"
-            "🆔 <b>/id</b> — Mengetahui Chat ID & User ID\n\n"
-            "💡 <i>Update otomatis terkirim setiap 15 menit (S/R Card) dan setiap 30 menit (XEDY AI Precision Engine & Money Flow Radar), serta alert instan jika harga mengenai batas SNR.</i>"
-        )
-        await message.answer(help_text, parse_mode="HTML")
+        now_wib = datetime.now(WIB)
+        try:
+            await sr_monitor.check_all_symbols(now_wib)
+            summary = sr_monitor.get_current_status_summary()
+            photo_bytes = sr_monitor.generate_current_photo_card()
+            input_file = BufferedInputFile(photo_bytes, filename="bloomberg_live.png")
+            await target.answer_photo(photo=input_file, caption=summary, parse_mode="HTML")
+        except Exception as e:
+            logger.error(f"Error on sr popup: {e}")
+            summary = sr_monitor.get_current_status_summary()
+            await target.answer(summary, parse_mode="HTML")
 
-    @dp.message(Command("legend", "rules", "grade", "rule"))
-    async def cmd_legend(message: Message):
-        if not is_authorized(message):
-            return
+    async def do_send_engine(target: Message):
+        now_wib = datetime.now(WIB)
+        try:
+            from backend.telegram.precision_engine import PrecisionTradingEngine
+            engine = getattr(sr_monitor, "precision_engine", None)
+            if not engine:
+                engine = PrecisionTradingEngine()
+                
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, engine.fetch_live_data)
+            photo_bytes = engine.generate_current_card_bytes(now_wib)
+            summary = engine.get_current_summary()
+            
+            input_file = BufferedInputFile(photo_bytes, filename="xedy_precision_engine.png")
+            await target.answer_photo(photo=input_file, caption=summary, parse_mode="HTML")
+        except Exception as e:
+            logger.error(f"Error generating precision engine: {e}")
+            await target.answer(f"⚠️ Gagal memuat Precision Trading Engine: {e}")
+
+    async def do_send_flow(target: Message):
+        now_wib = datetime.now(WIB)
+        try:
+            from backend.telegram.money_flow_engine import MoneyFlowRadarEngine
+            engine = getattr(sr_monitor, "money_flow_engine", None)
+            if not engine:
+                engine = MoneyFlowRadarEngine()
+                
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, engine.fetch_live_market_data)
+            photo_bytes = engine.generate_current_radar_card(now_wib)
+            summary = engine.get_current_radar_summary()
+            
+            input_file = BufferedInputFile(photo_bytes, filename="money_flow_radar.png")
+            await target.answer_photo(photo=input_file, caption=summary, parse_mode="HTML")
+        except Exception as e:
+            logger.error(f"Error generating money flow radar: {e}")
+            await target.answer(f"⚠️ Gagal memuat Money Flow Radar: {e}")
+
+    async def do_send_legend(target: Message):
         legend_text = (
             "🏛️ <b>LEGEND SIGNAL GRADE &amp; FINAL STATUS</b>\n"
             "━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -97,94 +141,100 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
             "━━━━━━━━━━━━━━━━━━━━━━\n"
             "💡 <i>Ketik /popup untuk melihat kartu Bloomberg live dengan legend visual di bagian bawah.</i>"
         )
-        await message.answer(legend_text, parse_mode="HTML")
+        await target.answer(legend_text, parse_mode="HTML")
+
+    async def do_send_setsnr_info(target: Message):
+        if not sr_monitor:
+            await target.answer("⚠️ S/R Monitor Engine belum diinisialisasi.")
+            return
+        lines = [
+            "⚙️ <b>PENGATURAN LEVEL SUPPORT &amp; RESISTANCE (S/R)</b>",
+            "━━━━━━━━━━━━━━━━━━━━━━",
+            "<b>Level S/R Aktif Saat Ini:</b>"
+        ]
+        for sym, cfg in sr_monitor.CONFIG.items():
+            digits = cfg["digits"]
+            lines.append(f"• <b>{cfg['name']}</b> ({cfg['subtitle']}): S = <code>{cfg['support']:,.{digits}f}</code> | R = <code>{cfg['resistance']:,.{digits}f}</code>")
+        
+        lines.extend([
+            "━━━━━━━━━━━━━━━━━━━━━━",
+            "<b>Cara Merubah Level S/R:</b>",
+            "Ketik perintah: <code>/setsnr &lt;PAIR&gt; &lt;SUPPORT&gt; &lt;RESISTANCE&gt;</code>\n",
+            "<b>Contoh:</b>",
+            "• <code>/setsnr GOLD 3855 4230</code>",
+            "• <code>/setsnr USDJPY 156.20 159.40</code>",
+            "• <code>/setsnr EURUSD 1.1100 1.1320</code>",
+            "• <code>/setsnr OIL 87.90 99.10</code>\n",
+            "💡 <i>Setelah diupdate, kartu visual Bloomberg terbaru akan langsung dikirimkan seketika!</i>"
+        ])
+        await target.answer("\n".join(lines), parse_mode="HTML")
+
+    # =========================================================================
+    # COMMAND HANDLERS
+    # =========================================================================
+
+    @dp.message(Command("id"))
+    async def cmd_id(message: Message):
+        await message.answer(
+            f"🆔 <b>Chat ID:</b> <code>{message.chat.id}</code>\n"
+            f"👤 <b>User ID:</b> <code>{message.from_user.id}</code>\n"
+            f"Rezim Chat: <b>{message.chat.type.upper()}</b>",
+            parse_mode="HTML"
+        )
+
+    @dp.message(Command("menu", "start", "help"))
+    async def cmd_menu(message: Message):
+        if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
+            return
+        now_wib = datetime.now(WIB)
+        menu_text = (
+            "🏛️ <b>XEDY AI MISSION CONTROL — DASHBOARD MENU</b>\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "<i>Sistem Monitoring Institutional-Grade Multi-Asset (Full HD 16:9)</i>\n"
+            f"⏰ Waktu: <b>{now_wib.strftime('%d %b %Y, %H:%M:%S WIB')}</b>\n\n"
+            "<b>Pilih Dashboard / Aksi melalui tombol interaktif di bawah:</b>\n\n"
+            "1️⃣ 📊 <b>Bloomberg S/R Live</b>\n"
+            "   Live tick flow, volume donut ratio, delta, action score & signal grade.\n\n"
+            "2️⃣ 🧠 <b>XEDY AI Precision Engine</b>\n"
+            "   25 Multi-Agent Engine, independent decision matrix & horizontal range.\n\n"
+            "3️⃣ 🌊 <b>Money Flow Radar</b>\n"
+            "   Capital flow map, Jillywosy basket, commodity/yield & multi-asset heatmap.\n\n"
+            "4️⃣ ⚙️ <b>Level S/R Aktif</b>\n"
+            "   Cek & sesuaikan parameter batas Support & Resistance mingguan.\n\n"
+            "5️⃣ 📖 <b>Legend Grade & Status</b>\n"
+            "   Penjelasan matriks Confidence, Action Score, Grade A+ s/d D, dan 15 Final Status.\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "💡 <i>Update otomatis terkirim setiap 15 menit (S/R) & 30 menit (Engine + Radar), atau klik tombol di bawah untuk melihat live on-demand.</i>"
+        )
+        await message.answer(menu_text, reply_markup=get_dashboard_menu_keyboard(), parse_mode="HTML")
+
+    @dp.message(Command("legend", "rules", "grade", "rule"))
+    async def cmd_legend(message: Message):
+        if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
+            return
+        await do_send_legend(message)
         
     @dp.message(Command("sr", "popup", "dashboard", "now"))
     async def cmd_popup(message: Message):
-        """
-        Request popup on demand without waiting for scheduled interval.
-        Fetches fresh cloud prices and immediately generates the latest 16:9 card.
-        """
-        if not is_authorized(message):
+        if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
             return
-        if not sr_monitor:
-            await message.answer("⚠️ S/R Monitor Engine belum diinisialisasi.")
-            return
-
-        now_wib = datetime.now(WIB)
-        try:
-            # Rescan live market immediately from cloud
-            await sr_monitor.check_all_symbols(now_wib)
-            summary = sr_monitor.get_current_status_summary()
-            photo_bytes = sr_monitor.generate_current_photo_card()
-            input_file = BufferedInputFile(photo_bytes, filename="bloomberg_live.png")
-            await message.answer_photo(photo=input_file, caption=summary, parse_mode="HTML")
-        except Exception as e:
-            logger.error(f"Error on on-demand popup: {e}")
-            summary = sr_monitor.get_current_status_summary()
-            await message.answer(summary, parse_mode="HTML")
+        await do_send_sr(message)
 
     @dp.message(Command("flow", "moneyflow", "radar"))
     async def cmd_flow(message: Message):
-        """
-        Request Money Flow Radar card on demand.
-        Fetches live data matching Jillywosy & TradingView and returns the 16:9 card.
-        """
-        if not is_authorized(message):
+        if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
             return
-        
-        now_wib = datetime.now(WIB)
-        try:
-            from backend.telegram.money_flow_engine import MoneyFlowRadarEngine
-            engine = getattr(sr_monitor, "money_flow_engine", None)
-            if not engine:
-                engine = MoneyFlowRadarEngine()
-                
-            loop = asyncio.get_running_loop()
-            await loop.run_in_executor(None, engine.fetch_live_market_data)
-            photo_bytes = engine.generate_current_radar_card(now_wib)
-            summary = engine.get_current_radar_summary()
-            
-            input_file = BufferedInputFile(photo_bytes, filename="money_flow_radar.png")
-            await message.answer_photo(photo=input_file, caption=summary, parse_mode="HTML")
-        except Exception as e:
-            logger.error(f"Error generating money flow radar on-demand: {e}")
-            await message.answer(f"⚠️ Gagal memuat Money Flow Radar: {e}")
+        await do_send_flow(message)
 
     @dp.message(Command("engine", "precision", "xedyai", "master"))
     async def cmd_engine(message: Message):
-        """
-        Request XEDY AI Precision Trading Engine 1-page 16:9 dashboard card on demand.
-        Executes Multi-Agent analysis across 5 assets and returns the decision matrix.
-        """
-        if not is_authorized(message):
+        if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
             return
-        
-        now_wib = datetime.now(WIB)
-        try:
-            from backend.telegram.precision_engine import PrecisionTradingEngine
-            engine = getattr(sr_monitor, "precision_engine", None)
-            if not engine:
-                engine = PrecisionTradingEngine()
-                
-            loop = asyncio.get_running_loop()
-            await loop.run_in_executor(None, engine.fetch_live_data)
-            photo_bytes = engine.generate_current_card_bytes(now_wib)
-            summary = engine.get_current_summary()
-            
-            input_file = BufferedInputFile(photo_bytes, filename="xedy_precision_engine.png")
-            await message.answer_photo(photo=input_file, caption=summary, parse_mode="HTML")
-        except Exception as e:
-            logger.error(f"Error generating precision engine on-demand: {e}")
-            await message.answer(f"⚠️ Gagal memuat Precision Trading Engine: {e}")
+        await do_send_engine(message)
 
     @dp.message(Command("setsnr", "snr", "ubahsnr"))
     async def cmd_setsnr(message: Message):
-        """
-        Set or update Support & Resistance for any pair directly from Telegram.
-        Usage: /setsnr <PAIR> <SUPPORT> <RESISTANCE>
-        """
-        if not is_authorized(message):
+        if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
             return
         if not sr_monitor:
             await message.answer("⚠️ S/R Monitor Engine belum diinisialisasi.")
@@ -218,32 +268,11 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
             else:
                 await message.answer(msg, parse_mode="HTML")
         else:
-            # Display current SNR levels and clear instructions
-            lines = [
-                "⚙️ <b>PENGATURAN LEVEL SUPPORT & RESISTANCE (S/R)</b>",
-                "━━━━━━━━━━━━━━━━━━━━━━",
-                "<b>Level S/R Aktif Saat Ini:</b>"
-            ]
-            for sym, cfg in sr_monitor.CONFIG.items():
-                digits = cfg["digits"]
-                lines.append(f"• <b>{cfg['name']}</b> ({cfg['subtitle']}): S = <code>{cfg['support']:,.{digits}f}</code> | R = <code>{cfg['resistance']:,.{digits}f}</code>")
-            
-            lines.extend([
-                "━━━━━━━━━━━━━━━━━━━━━━",
-                "<b>Cara Merubah Level:</b>",
-                "Ketik: <code>/setsnr &lt;PAIR&gt; &lt;SUPPORT&gt; &lt;RESISTANCE&gt;</code>\n",
-                "<b>Contoh Perintah:</b>",
-                "• <code>/setsnr GOLD 3900 4250</code>",
-                "• <code>/setsnr USDJPY 156.50 159.80</code>",
-                "• <code>/setsnr EURUSD 1.1120 1.1350</code>",
-                "• <code>/setsnr OIL 88.00 98.50</code>\n",
-                "💡 <i>Setelah diupdate, kartu visual Bloomberg terbaru akan langsung dikirimkan seketika!</i>"
-            ])
-            await message.answer("\n".join(lines), parse_mode="HTML")
+            await do_send_setsnr_info(message)
 
     @dp.message(Command("status"))
     async def cmd_status(message: Message):
-        if not is_authorized(message):
+        if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
             return
         if sr_monitor:
             summary = sr_monitor.get_current_status_summary()
@@ -251,5 +280,53 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
         else:
             await message.answer("⚠️ S/R Monitor Engine belum diinisialisasi.")
 
-    logger.info("Telegram handlers registered successfully.")
+    # =========================================================================
+    # CALLBACK QUERY HANDLER (INTERACTIVE BUTTONS)
+    # =========================================================================
+    @dp.callback_query()
+    async def on_menu_callback(callback: CallbackQuery):
+        user_id = callback.from_user.id
+        chat_id = callback.message.chat.id if callback.message else user_id
+        if not is_authorized(chat_id) and not is_authorized(user_id):
+            await callback.answer("⚠️ Akses tidak diizinkan.", show_alert=True)
+            return
 
+        action = callback.data
+        target_msg = callback.message
+
+        if action == "menu:sr":
+            await callback.answer("⏳ Memuat Bloomberg S/R Dashboard...")
+            await do_send_sr(target_msg)
+
+        elif action == "menu:engine":
+            await callback.answer("⏳ Menganalisis 5 Pair dengan Multi-Agent Engine...")
+            await do_send_engine(target_msg)
+
+        elif action == "menu:flow":
+            await callback.answer("⏳ Mengumpulkan Capital Money Flow Data...")
+            await do_send_flow(target_msg)
+
+        elif action == "menu:setsnr":
+            await callback.answer("⚙️ Membuka parameter S/R aktif...")
+            await do_send_setsnr_info(target_msg)
+
+        elif action == "menu:legend":
+            await callback.answer("📖 Memuat panduan Grade & Status...")
+            await do_send_legend(target_msg)
+
+        elif action == "menu:status":
+            await callback.answer("📈 Memuat ringkasan harga...")
+            if sr_monitor:
+                summary = sr_monitor.get_current_status_summary()
+                await target_msg.answer(summary, parse_mode="HTML")
+
+        elif action == "menu:all":
+            await callback.answer("🚀 Mengirim seluruh dashboard (3-in-1)...")
+            await do_send_sr(target_msg)
+            await do_send_engine(target_msg)
+            await do_send_flow(target_msg)
+
+        else:
+            await callback.answer()
+
+    logger.info("Telegram handlers registered successfully.")
