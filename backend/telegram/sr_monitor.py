@@ -41,8 +41,8 @@ class SRMonitorEngine:
             "name": "GOLD",
             "subtitle": "XAUUSD",
             "icon_type": "gold",
-            "support": 4220.0,
-            "resistance": 4580.0,
+            "support": 3855.0,
+            "resistance": 4230.0,
             "near_pct": 0.003, # 0.3% near/touch threshold
             "digits": 2
         },
@@ -68,8 +68,8 @@ class SRMonitorEngine:
             "name": "USDJPY",
             "subtitle": "USD/JPY",
             "icon_type": "japan",
-            "support": 152.80,
-            "resistance": 158.30,
+            "support": 156.20,
+            "resistance": 159.40,
             "near_pct": 0.003, # 0.3%
             "digits": 2
         }
