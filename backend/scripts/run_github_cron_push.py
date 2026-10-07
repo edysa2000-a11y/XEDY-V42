@@ -26,14 +26,20 @@ async def main():
     print("Generating and sending 16:9 Bloomberg dashboard card to Telegram...")
     await engine.send_scheduled_report(now_wib)
     
-    # If minute is :00 or :30, also push the Money Flow Radar and XEDY AI Precision Engine
-    if now_wib.minute in [0, 30] or (len(sys.argv) > 1 and sys.argv[1] in ["--flow", "--all"]):
+    # Tolerance window for GitHub Actions cron scheduler delay (+- 7 minutes around :00 and :30)
+    m = now_wib.minute
+    is_30m_slot = (m in range(0, 8) or m in range(28, 38) or m >= 58)
+    force_all = len(sys.argv) > 1 and sys.argv[1] in ["--all"]
+    force_flow = len(sys.argv) > 1 and sys.argv[1] in ["--flow", "--all"]
+    force_engine = len(sys.argv) > 1 and sys.argv[1] in ["--engine", "--all"]
+
+    if is_30m_slot or force_flow:
         print("Generating and sending 30-Minute Money Flow Radar to Telegram...")
         from backend.telegram.money_flow_engine import MoneyFlowRadarEngine
         flow_engine = MoneyFlowRadarEngine()
         await flow_engine.send_scheduled_radar(now_wib)
         
-    if now_wib.minute in [0, 30] or (len(sys.argv) > 1 and sys.argv[1] in ["--engine", "--all"]):
+    if is_30m_slot or force_engine:
         print("Generating and sending 30-Minute XEDY AI Precision Trading Engine to Telegram...")
         from backend.telegram.precision_engine import PrecisionTradingEngine
         prec_engine = PrecisionTradingEngine()
