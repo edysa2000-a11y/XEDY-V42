@@ -1,9 +1,9 @@
 name: Telegram 15-Minute Bloomberg Dashboard
 
 on:
-  schedule:
-    # Runs every 15 minutes: at :00, :15, :30, and :45 of every hour
-    - cron: '0,15,30,45 * * * *'
+  # schedule:
+  #   # Runs every 15 minutes: at :00, :15, :30, and :45 of every hour
+  #   - cron: '0,15,30,45 * * * *'
   workflow_dispatch:
 
 jobs:
