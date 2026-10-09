@@ -45,6 +45,7 @@ class TelegramEcosystem:
             from aiogram.types import BotCommand
             commands = [
                 BotCommand(command="menu", description="📱 Menu Dashboard Interaktif"),
+                BotCommand(command="rk", description="🎯 Rekomendasi D1 & H4 (/rk <pair>)"),
                 BotCommand(command="set", description="🔔 Pasang Reminder (/set USDJPY > 158.2 \"SELL...\")"),
                 BotCommand(command="stop", description="🛑 Matikan & Hapus Reminder (/stop USDJPY)"),
                 BotCommand(command="reminders", description="📋 Lihat Daftar Reminder Aktif"),

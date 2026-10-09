@@ -1,0 +1,42 @@
+name: XEDY D1 & H4 Telegram Forecast Cron
+
+on:
+  schedule:
+    # 23:00 UTC = 06:00 WIB (Sesi Subuh / Awal Lilin D1)
+    - cron: '0 23 * * 0-4'
+    # 06:30 UTC = 13:30 WIB (Sesi London Open ⭐ / Waktu Emas Eksekusi)
+    - cron: '30 6 * * 1-5'
+    # 13:00 UTC = 20:00 WIB (Sesi New York Peak / Wall Street Open)
+    - cron: '0 13 * * 1-5'
+  workflow_dispatch: # Memungkinkan eksekusi manual kapan saja via tombol Run Workflow
+
+concurrency:
+  group: d1h4-telegram-forecast
+  cancel-in-progress: true
+
+jobs:
+  send-telegram-forecast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install aiogram python-dotenv
+
+      - name: Send D1 & H4 Recommendations to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '8670995678:AAEvTX6Ii222QVCW4AIlRhzQYKbOR-lj06c' }}
+          TELEGRAM_ADMIN_ID: ${{ secrets.TELEGRAM_ADMIN_ID || '-1003468917523' }}
+        run: |
+          python backend/scripts/send_d1h4_telegram.py
