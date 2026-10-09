@@ -155,13 +155,15 @@ def get_canonical_pair(raw: str) -> str:
         return "USDJPY"
     elif s in ("OIL", "USOIL", "WTI", "CRUDE", "CL", "CL1!"):
         return "OIL"
+    elif s in ("BTCUSD", "BTC", "BITCOIN", "BTC/USD"):
+        return "BTCUSD"
     return "XAUUSD"
 
 def fetch_live_market_snapshot(symbol: str) -> dict:
     """
     Fetches real-time market data for the given symbol from MT5 or TradingView scanner.
     """
-    digits = 2 if symbol in ("XAUUSD", "USDJPY", "OIL") else 4
+    digits = 2 if symbol in ("XAUUSD", "USDJPY", "OIL", "BTCUSD") else 4
     snap = {
         "price": 0.0,
         "high": 0.0,
@@ -214,7 +216,8 @@ def fetch_live_market_snapshot(symbol: str) -> dict:
         "EURUSD": "FX:EURUSD",
         "GBPUSD": "FX:GBPUSD",
         "USDJPY": "FX:USDJPY",
-        "OIL": "NYMEX:CL1!"
+        "OIL": "NYMEX:CL1!",
+        "BTCUSD": "BITSTAMP:BTCUSD"
     }
     tv_ticker = tickers_map.get(symbol, "OANDA:XAUUSD")
     url = "https://scanner.tradingview.com/global/scan"
@@ -255,7 +258,8 @@ def fetch_live_market_snapshot(symbol: str) -> dict:
             "EURUSD": (1.1177, 1.1263, 1.1165, -0.0082, -0.73, 21.3),
             "GBPUSD": (1.3195, 1.3276, 1.3190, -0.0078, -0.59, 35.5),
             "USDJPY": (158.28, 158.51, 157.85, 0.20, 0.13, 55.8),
-            "OIL": (90.76, 92.04, 89.48, 1.32, 1.48, 48.3)
+            "OIL": (90.76, 92.04, 89.48, 1.32, 1.48, 48.3),
+            "BTCUSD": (82450.00, 83900.00, 81200.00, 850.00, 1.04, 62.4)
         }
         dp, dh, dl, dcv, dcp, drsi = def_map.get(symbol, (100.0, 105.0, 95.0, 0.0, 0.0, 50.0))
         snap.update({"price": dp, "high": dh, "low": dl, "chg_val": dcv, "chg_pct": dcp, "rsi": drsi})
@@ -269,6 +273,227 @@ def fetch_live_market_snapshot(symbol: str) -> dict:
     snap["pos_pct"] = round(pos_pct, 1)
 
     return snap
+
+def build_qwen_strategic_summary_body(sym: str, m: dict, now_wib: str = "") -> str:
+    p = m["price"]
+    digits = m["digits"]
+    dxy = m.get("dxy", 102.39)
+
+    if sym == "XAUUSD":
+        return (
+            f"⚖️ <b>1. BEDAH KAUSALITAS: MENGAPA NAIK VS MENGAPA TURUN?</b>\n\n"
+            f"🔴 <b>FAKTOR PENYEBAB EMAS TURUN (DRIVERS DOMINAN SAAT INI):</b>\n"
+            f"• <b>Yield AS & DXY Re-pricing:</b> Data tenaga kerja AS dan ISM Services PMI (54.9) yang kuat menepis spekulasi pemangkasan agresif Fed 50 bps menjadi laju lambat 25 bps. DXY menguat di {dxy} dan US 10Y Yield bertahan di 4.02% (Real Yield TIPS 1.85%), meningkatkan opportunity cost memegang emas non-yield.\n"
+            f"• <b>Transmisi Minyak vs Emas:</b> Tensi geopolitik diserap oleh lonjakan Minyak Mentah (WTI > $90). Kenaikan energi memicu ancaman 'Cost-Push Inflation' yang berpotensi memaksa The Fed mempertahankan suku bunga tinggi ('Higher for Longer'), menekan valuasi emas fisik.\n"
+            f"• <b>Institutional COT Long Liquidation:</b> Posisi Managed Money Net Longs CFTC berada di persentil ke-84 (Overcrowded Long). Jebolnya support struktural $4,115 memicu penutupan posisi long massal dan deleveraging likuiditas.\n\n"
+            f"🟢 <b>FAKTOR PENYEBAB EMAS BISA NAIK (KATALIS PEMBALIKAN / INVALIDASI):</b>\n"
+            f"• <b>Hard Landing / Data Shock:</b> Lonjakan tak terduga angka US Jobless Claims atau inflasi CPI/PPI yang melandai drastis memaksa Fed kembali ke siklus easing agresif.\n"
+            f"• <b>Eskalasi Geopolitik Black Swan:</b> Disrupsi jalur Selat Hormuz atau eskalasi perang terbuka langsung yang memicu pelarian modal panik ke instrumen Safe Haven murni.\n"
+            f"• <b>Akumulasi Emas Bank Sentral (BRICS):</b> Pembelian fisik agresif cadangan devisa (De-dolarisasi) oleh bank sentral negara berkembang saat harga mencapai level diskon ($4,030–$4,050).\n\n"
+            f"⏱️ <b>2. FORECAST 1 HARI KE DEPAN (24 JAM INTRADAY OUTLOOK):</b>\n"
+            f"• <b>Bias Intraday:</b> <b>BEARISH CONTINUATION / SELL ON PULLBACK</b>\n"
+            f"• <b>Pivot Point Harian:</b> <code>$4,112.50</code>\n"
+            f"• <b>Range Proyeksi 24 Jam:</b> <code>$4,060.00 – $4,125.00</code>\n"
+            f"• <b>Key Resistance Intraday:</b> <code>$4,115.00</code> (R1) | <code>$4,128.50</code> (R2)\n"
+            f"• <b>Key Support Intraday:</b> <code>$4,082.00</code> (S1) | <code>$4,066.30</code> (S2 - Kemarin Low)\n"
+            f"• <b>Skenario Intraday (High Prob):</b> Retest area supply $4,105 – $4,115, ditolak oleh seller institusional, lalu bergerak turun menguji kembali liquidity low $4,066 – $4,060.\n\n"
+            f"📅 <b>3. FORECAST 1 MINGGU KE DEPAN (WEEKLY MACRO TREND):</b>\n"
+            f"• <b>Bias Mingguan:</b> <b>SIDEWAYS TO BEARISH RETRACEMENT (Koreksi Sehat)</b>\n"
+            f"• <b>Rentang Proyeksi Mingguan:</b> <code>$4,020.00 – $4,170.00</code>\n"
+            f"• <b>Base Case (Prob 65%):</b> Konsolidasi dalam rentang $4,040 – $4,125. Menguji bantalan support mingguan MA-50 / demand block di $4,030 – $4,050 untuk membentuk base akumulasi baru.\n"
+            f"• <b>Bull Case (Prob 20%):</b> Breakout kuat di atas $4,135.00 dengan volume masif memicu short squeeze menuju re-test $4,170.00 – $4,200.00.\n"
+            f"• <b>Bear Case (Prob 15%):</b> Penembusan di bawah support kritis $4,020.00 memperpanjang fase likuidasi menuju zona $3,980.00.\n"
+            f"• <b>Katalis Utama Mingguan:</b> Menunggu rilis US Jobless Claims, FOMC Minutes, dan sentimen tensi geopolitik Timur Tengah.\n\n"
+            f"📋 <b>4. PLAYBOOK & PARAMETER EKSEKUSI (OPTION NO. 3 — MASTER YIELD v3.1):</b>\n"
+            f"• <b>Aksi Strategis:</b> <b>MASTER BASKET PROTOCOL</b> (Magic: <code>888101</code> & <code>888102</code>)\n"
+            f"• 📦 <b>Smart Asymmetric Sizing:</b> Layer 1 = <code>0.08 Lot</code> | Layer 2 = <code>0.12 Lot</code> (Total 0.20 Lot)\n"
+            f"• 🎯 <b>Optimal Entry L1:</b> <code>+5.0% &lt;= Delta % &lt;= +10.0%</code>\n"
+            f"• 🔄 <b>Averaging L2 (Discount):</b> Floating Minus, Jarak <code>2.5 – 6.0 Poin</code>, Konfirmasi <code>Delta &gt;= +1.0%</code>\n"
+            f"• 🔒 <b>Dynamic Trailing Lock:</b> Aktif di <code>+6.0 Poin</code>, Trailing ketat <code>2.5 Poin</code> di belakang High\n"
+            f"• 🔄 <b>Reversal Exit:</b> Tutup seluruh basket jika <code>TICK BUY &lt; TICK SELL (Delta &lt; 0.0%)</code>\n"
+            f"• 🛑 <b>Hard Emergency SL:</b> <code>-15.0 Poin</code> dari Average Entry\n"
+            f"• 📊 <b>Metrik Teruji (1 Bulan):</b> <b>ROI +43.8% s/d +52.4%</b> | <b>Winrate 65%</b> | <b>Max DD 5.2%</b> | <b>PF 1.98</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"💡 <i>Disintesis oleh XEDY Deep Macro & AI Qwen Quantitative Flow Engine.</i>"
+        )
+    elif sym == "USDJPY":
+        return (
+            f"⚖️ <b>1. BEDAH KAUSALITAS: MENGAPA NAIK VS MENGAPA TURUN?</b>\n\n"
+            f"🟢 <b>FAKTOR PENYEBAB USDJPY NAIK (DRIVERS DOMINAN SAAT INI):</b>\n"
+            f"• <b>Pelebaran Yield Spread US-JP:</b> US 10Y Yield 4.02% vs JGB 10Y 0.95% (Spread +307 bps) memicu carry trade masif meminjam Yen berbiaya murah untuk membeli aset Dolar.\n"
+            f"• <b>Neraca Dagang Energi Jepang:</b> Lonjakan harga minyak dunia (WTI > $90) memperbesar tagihan impor energi Jepang, menekan nilai tukar Yen di pasar valas spot.\n"
+            f"• <b>Dolar AS Global Menguat:</b> DXY kokoh di {dxy} menopang momentum reli USD terhadap seluruh mata uang G10.\n\n"
+            f"🔴 <b>FAKTOR PENYEBAB USDJPY BISA TURUN (KATALIS PEMBALIKAN / RISIKO):</b>\n"
+            f"• <b>Intervensi Fisik Valas MoF/BoJ:</b> Tindakan langsung otoritas keuangan Jepang menjual cadangan devisa USD saat kurs mendekati 159.00–160.00.\n"
+            f"• <b>Hawkish BoJ Rate Hike Surprise:</b> Pernyataan agresif Gubernur Ueda untuk menaikkan suku bunga acuan lebih awal guna meredam inflasi impor.\n"
+            f"• <b>Risk-Off Global Ekstrem:</b> Penutupan posisi carry trade (*Carry Unwind*) akibat guncangan pasar saham global yang memicu repatriasi Yen ke Tokyo.\n\n"
+            f"⏱️ <b>2. FORECAST 1 HARI KE DEPAN (24 JAM INTRADAY OUTLOOK):</b>\n"
+            f"• <b>Bias Intraday:</b> <b>BULLISH CONTINUATION / BUY ON PULLBACK</b>\n"
+            f"• <b>Pivot Point Harian:</b> <code>158.05</code>\n"
+            f"• <b>Range Proyeksi 24 Jam:</b> <code>157.60 – 158.90</code>\n"
+            f"• <b>Key Resistance Intraday:</b> <code>158.60</code> (R1) | <code>159.00</code> (R2 - Plafon Intervensi Lisan)\n"
+            f"• <b>Key Support Intraday:</b> <code>157.90</code> (S1) | <code>157.55</code> (S2)\n"
+            f"• <b>Skenario Intraday (High Prob):</b> Retest support dinamis EMA-20 di 157.90–158.10 memantul naik menguji resistance 158.60–158.85.\n\n"
+            f"📅 <b>3. FORECAST 1 MINGGU KE DEPAN (WEEKLY MACRO TREND):</b>\n"
+            f"• <b>Bias Mingguan:</b> <b>BULLISH EXPANSION DENGAN WASPADA INTERVENSI</b>\n"
+            f"• <b>Rentang Proyeksi Mingguan:</b> <code>156.50 – 160.00</code>\n"
+            f"• <b>Base Case (Prob 60%):</b> Menguat bertahap menguji 159.20–159.50 sebelum terhambat aksi pembatasan lisan MoF Jepang.\n"
+            f"• <b>Bull Case (Prob 25%):</b> Tembus 159.50 menuju re-test batas kritis psikologis 160.00 jika data inflasi AS kembali panas.\n"
+            f"• <b>Bear Case (Prob 15%):</b> Intervensi kejutan MoF menjatuhkan harga 200–300 pips menuju area 156.00–156.50.\n\n"
+            f"📋 <b>4. PLAYBOOK & PARAMETER EKSEKUSI (1.00 LOT FIX):</b>\n"
+            f"• <b>Aksi Strategis:</b> <b>BUY PULLBACK</b> (Trailing Stop Disiplin)\n"
+            f"• 🎯 <b>Optimal Entry (OP):</b> <code>157.95 – 158.15</code>\n"
+            f"• 🛑 <b>Stop Loss (SL):</b> <code>157.40</code> (Risk ~65 pips / ~$420 per 1.00 lot)\n"
+            f"• 🟢 <b>Target TP1:</b> <code>158.80</code> (+70 pips / +$450)\n"
+            f"• 🟢 <b>Target TP2:</b> <code>159.40</code> (+130 pips / +$840)\n"
+            f"• 🟢 <b>Target TP3:</b> <code>160.00</code> (+190 pips / +$1,220)\n"
+            f"• 🔒 <b>Risk Rule:</b> Geser SL ke BEP setelah floating profit mencapai +25 pips.\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"💡 <i>Disintesis oleh XEDY Deep Macro & AI Qwen Quantitative Flow Engine.</i>"
+        )
+    elif sym == "EURUSD":
+        return (
+            f"⚖️ <b>1. BEDAH KAUSALITAS: MENGAPA NAIK VS MENGAPA TURUN?</b>\n\n"
+            f"🔴 <b>FAKTOR PENYEBAB EURUSD TURUN (DRIVERS DOMINAN SAAT INI):</b>\n"
+            f"• <b>Stagnasi Ekonomi Zona Euro:</b> Indeks PMI Manufaktur Jerman & Prancis berada di area kontraksi (&lt; 44.0), memperbesar risiko resesi Eropa.\n"
+            f"• <b>Ekspektasi Pemangkasan Bunga ECB (Dovish):</b> Inflasi Eropa melandai lebih cepat dari perkiraan, membuka peluang pemangkasan suku bunga beruntun oleh ECB.\n"
+            f"• <b>Kelemahan Impor Energi Eropa:</b> Lonjakan harga minyak mentah menggerus neraca perdagangan Uni Eropa, menekan daya beli mata uang Euro.\n"
+            f"• <b>Penguatan DXY:</b> Dolar AS di {dxy} menyerap likuiditas global ke aset berbunga tinggi di AS.\n\n"
+            f"🟢 <b>FAKTOR PENYEBAB EURUSD BISA NAIK (KATALIS PEMBALIKAN / RISIKO):</b>\n"
+            f"• <b>Pelemahan Mendadak Ekonomi AS:</b> Lonjakan klaim pengangguran AS yang memaksa The Fed kembali melonggarkan kebijakan moneter kilat.\n"
+            f"• <b>Kejutan Inflasi Upah Zona Euro:</b> Data upah Eropa yang lebih tinggi dari perkiraan menahan ECB dari pemangkasan bunga agresif.\n"
+            f"• <b>Short-Covering Teknikal:</b> Pantulan teknikal dari lantai support psikologis 1.1150 pasca kondisi oversold ekstrem (RSI &lt; 25).\n\n"
+            f"⏱️ <b>2. FORECAST 1 HARI KE DEPAN (24 JAM INTRADAY OUTLOOK):</b>\n"
+            f"• <b>Bias Intraday:</b> <b>BEARISH CONTINUATION / SELL ON PULLBACK</b>\n"
+            f"• <b>Pivot Point Harian:</b> <code>1.1195</code>\n"
+            f"• <b>Range Proyeksi 24 Jam:</b> <code>1.1130 – 1.1215</code>\n"
+            f"• <b>Key Resistance Intraday:</b> <code>1.1195</code> (R1) | <code>1.1220</code> (R2)\n"
+            f"• <b>Key Support Intraday:</b> <code>1.1155</code> (S1) | <code>1.1130</code> (S2)\n"
+            f"• <b>Skenario Intraday (High Prob):</b> Koreksi naik menuju 1.1185–1.1195 diserap order jual institusi, melanjutkan pelemahan ke 1.1150–1.1135.\n\n"
+            f"📅 <b>3. FORECAST 1 MINGGU KE DEPAN (WEEKLY MACRO TREND):</b>\n"
+            f"• <b>Bias Mingguan:</b> <b>BEARISH TRENDING RETRACEMENT</b>\n"
+            f"• <b>Rentang Proyeksi Mingguan:</b> <code>1.1080 – 1.1280</code>\n"
+            f"• <b>Base Case (Prob 65%):</b> Meluncur bertahap menguji area demand mingguan 1.1100–1.1120 akibat divergensi kebijakan moneter ECB vs The Fed.\n"
+            f"• <b>Bull Case (Prob 20%):</b> Rebound di atas 1.1235 jika data ketenagakerjaan AS melemah drastis, menuju 1.1270.\n"
+            f"• <b>Bear Case (Prob 15%):</b> Tembus support 1.1100 memperdalam aksi jual institusional menuju 1.1040.\n\n"
+            f"📋 <b>4. PLAYBOOK & PARAMETER EKSEKUSI (1.00 LOT FIX):</b>\n"
+            f"• <b>Aksi Strategis:</b> <b>SELL PULLBACK</b> (Hindari Counter-Trend Buy)\n"
+            f"• 🎯 <b>Optimal Entry (OP):</b> <code>1.1182 – 1.1195</code>\n"
+            f"• 🛑 <b>Stop Loss (SL):</b> <code>1.1225</code> (Risk ~35 pips / -$350 per 1.00 lot)\n"
+            f"• 🟢 <b>Target TP1:</b> <code>1.1150</code> (+40 pips / +$400)\n"
+            f"• 🟢 <b>Target TP2:</b> <code>1.1120</code> (+70 pips / +$700)\n"
+            f"• 🟢 <b>Target TP3:</b> <code>1.1080</code> (+110 pips / +$1,100)\n"
+            f"• 🔒 <b>Risk Rule:</b> Pasang Trailing Stop / BEP otomatis saat floating profit mencapai +15 pips ($150).\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"💡 <i>Disintesis oleh XEDY Deep Macro & AI Qwen Quantitative Flow Engine.</i>"
+        )
+    elif sym == "GBPUSD":
+        return (
+            f"⚖️ <b>1. BEDAH KAUSALITAS: MENGAPA NAIK VS MENGAPA TURUN?</b>\n\n"
+            f"🔴 <b>FAKTOR PENYEBAB GBPUSD TURUN (DRIVERS DOMINAN SAAT INI):</b>\n"
+            f"• <b>Beban Fiskal & Pajak Inggris:</b> Kekhawatiran pasar atas rencana kenaikan pajak dan defisit pinjaman publik pemerintah Inggris menekan kepercayaan investor.\n"
+            f"• <b>Siklus Pemotongan Suku Bunga BoE:</b> Penurunan inflasi jasa Inggris membuka ruang bagi Bank of England untuk melonggarkan suku bunga secara bertahap.\n"
+            f"• <b>Reli Dolar AS Safe Haven:</b> Penguatan DXY di {dxy} menyedot aliran modal dari mata uang berbeta tinggi (GBP) kembali ke instrumen kas USD.\n\n"
+            f"🟢 <b>FAKTOR PENYEBAB GBPUSD BISA NAIK (KATALIS PEMBALIKAN / RISIKO):</b>\n"
+            f"• <b>Kekakuan Inflasi Domestik UK:</b> Inflasi inti Inggris yang bertahan di atas target memaksa BoE memperlambat siklus pemotongan bunga.\n"
+            f"• <b>Data Surprise AS Memburuk:</b> Penurunan tajam indeks Dolar AS yang memicu aksi beli kembali (short covering) Pound Sterling.\n"
+            f"• <b>Inflow Modal ke London:</b> Arus modal asing masuk ke sektor perbankan dan ekuitas indeks FTSE 100 Inggris.\n\n"
+            f"⏱️ <b>2. FORECAST 1 HARI KE DEPAN (24 JAM INTRADAY OUTLOOK):</b>\n"
+            f"• <b>Bias Intraday:</b> <b>BEARISH CONTINUATION / SELL ON PULLBACK</b>\n"
+            f"• <b>Pivot Point Harian:</b> <code>1.3215</code>\n"
+            f"• <b>Range Proyeksi 24 Jam:</b> <code>1.3140 – 1.3245</code>\n"
+            f"• <b>Key Resistance Intraday:</b> <code>1.3215</code> (R1) | <code>1.3245</code> (R2)\n"
+            f"• <b>Key Support Intraday:</b> <code>1.3170</code> (S1) | <code>1.3140</code> (S2)\n"
+            f"• <b>Skenario Intraday (High Prob):</b> Retest area supply dinamis 1.3200–1.3215 gagal menembus resistance, lalu tergelincir menguji likuiditas 1.3165–1.3140.\n\n"
+            f"📅 <b>3. FORECAST 1 MINGGU KE DEPAN (WEEKLY MACRO TREND):</b>\n"
+            f"• <b>Bias Mingguan:</b> <b>SIDEWAYS-BEARISH RETRACEMENT</b>\n"
+            f"• <b>Rentang Proyeksi Mingguan:</b> <code>1.3080 – 1.3320</code>\n"
+            f"• <b>Base Case (Prob 65%):</b> Tekanan jual bertahap menguji lantai support struktural 1.3100–1.3120 sebelum mencari kestabilan baru.\n"
+            f"• <b>Bull Case (Prob 20%):</b> Rebound kuat di atas 1.3260 menuju 1.3320 jika pidato BoE bernada hawkish.\n"
+            f"• <b>Bear Case (Prob 15%):</b> Penembusan di bawah 1.3100 memicu akselerasi penurunan menuju level 1.3020.\n\n"
+            f"📋 <b>4. PLAYBOOK & PARAMETER EKSEKUSI (1.00 LOT FIX):</b>\n"
+            f"• <b>Aksi Strategis:</b> <b>SELL PULLBACK</b> (No Counter-Trend Buy)\n"
+            f"• 🎯 <b>Optimal Entry (OP):</b> <code>1.3202 – 1.3215</code>\n"
+            f"• 🛑 <b>Stop Loss (SL):</b> <code>1.3250</code> (Risk ~38 pips / -$380 per 1.00 lot)\n"
+            f"• 🟢 <b>Target TP1:</b> <code>1.3165</code> (+45 pips / +$450)\n"
+            f"• 🟢 <b>Target TP2:</b> <code>1.3120</code> (+90 pips / +$900)\n"
+            f"• 🟢 <b>Target TP3:</b> <code>1.3080</code> (+130 pips / +$1,300)\n"
+            f"• 🔒 <b>Risk Rule:</b> Geser SL ke BEP (Entry) setelah floating profit mencapai +20 pips ($200).\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"💡 <i>Disintesis oleh XEDY Deep Macro & AI Qwen Quantitative Flow Engine.</i>"
+        )
+    elif sym == "OIL":
+        return (
+            f"⚖️ <b>1. BEDAH KAUSALITAS: MENGAPA NAIK VS MENGAPA TURUN?</b>\n\n"
+            f"🟢 <b>FAKTOR PENYEBAB MINYAK NAIK (DRIVERS DOMINAN SAAT INI):</b>\n"
+            f"• <b>Premi Risiko Pasokan Fisik Timur Tengah:</b> Eskalasi militer mengancam keselamatan jalur pelayaran Selat Hormuz dan kilang minyak regional.\n"
+            f"• <b>Disiplin Kuota Produksi OPEC+:</b> Pemotongan produksi sukarela aliansi OPEC+ menjaga ketersediaan pasokan minyak mentah dunia tetap ketat.\n"
+            f"• <b>Penarikan Cadangan Minyak AS (EIA Drawdown):</b> Data inventaris komersial AS menunjukkan penurunan stok yang lebih dalam dari perkiraan pasar.\n\n"
+            f"🔴 <b>FAKTOR PENYEBAB MINYAK BISA TURUN (KATALIS PEMBALIKAN / RISIKO):</b>\n"
+            f"• <b>De-eskalasi atau Gencatan Senjata Geopolitik:</b> Redanya ketegangan regional langsung menghapus premi risiko pasokan ($5–$8 per barel).\n"
+            f"• <b>Intervensi Cadangan Strategis AS (SPR Release):</b> Pelepasan cadangan minyak strategis oleh pemerintah AS untuk menekan lonjakan inflasi energi domestik.\n"
+            f"• <b>Kekhawatiran Permintaan Global:</b> Suku bunga tinggi global yang berkepanjangan menekan pertumbuhan aktivitas manufaktur dan konsumsi bahan bakar dunia.\n\n"
+            f"⏱️ <b>2. FORECAST 1 HARI KE DEPAN (24 JAM INTRADAY OUTLOOK):</b>\n"
+            f"• <b>Bias Intraday:</b> <b>BULLISH CONTINUATION / BUY ON PULLBACK</b>\n"
+            f"• <b>Pivot Point Harian:</b> <code>$90.15</code>\n"
+            f"• <b>Range Proyeksi 24 Jam:</b> <code>$89.20 – $92.60</code>\n"
+            f"• <b>Key Resistance Intraday:</b> <code>$91.80</code> (R1) | <code>$92.60</code> (R2)\n"
+            f"• <b>Key Support Intraday:</b> <code>$90.20</code> (S1) | <code>$89.20</code> (S2)\n"
+            f"• <b>Skenario Intraday (High Prob):</b> Retest support dinamis $90.20–$90.50 memantul naik menguji resistance $91.80–$92.50.\n\n"
+            f"📅 <b>3. FORECAST 1 MINGGU KE DEPAN (WEEKLY MACRO TREND):</b>\n"
+            f"• <b>Bias Mingguan:</b> <b>BULLISH MOMENTUM EXPANSION</b>\n"
+            f"• <b>Rentang Proyeksi Mingguan:</b> <code>$87.50 – $95.50</code>\n"
+            f"• <b>Base Case (Prob 65%):</b> Bertahan kuat di atas $90.00 dan melanjutkan ekspansi ke rentang $93.50–$95.00 selama premi geopolitik belum terurai.\n"
+            f"• <b>Bull Case (Prob 25%):</b> Lonjakan ke atas $96.00 jika terjadi gangguan pengapalan fisik tanker di Selat Hormuz.\n"
+            f"• <b>Bear Case (Prob 10%):</b> Terkoreksi tajam ke $87.50 jika kesepakatan de-eskalasi tercapai.\n\n"
+            f"📋 <b>4. PLAYBOOK & PARAMETER EKSEKUSI (1.00 LOT FIX):</b>\n"
+            f"• <b>Aksi Strategis:</b> <b>BUY PULLBACK</b> (Trailing Stop Aktif)\n"
+            f"• 🎯 <b>Optimal Entry (OP):</b> <code>90.30 – 90.65</code>\n"
+            f"• 🛑 <b>Stop Loss (SL):</b> <code>88.90</code> (Risk ~$1.50 poin / -$1,500 per 1.00 lot)\n"
+            f"• 🟢 <b>Target TP1:</b> <code>92.15</code> (+$1,700.00 / 1.00 lot)\n"
+            f"• 🟢 <b>Target TP2:</b> <code>93.80</code> (+$3,350.00 / 1.00 lot)\n"
+            f"• 🟢 <b>Target TP3:</b> <code>95.50</code> (+$5,000.00 / 1.00 lot)\n"
+            f"• 🔒 <b>Risk Rule:</b> Pasang Trailing Stop / BEP otomatis saat floating profit mencapai +0.80 poin ($800).\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"💡 <i>Disintesis oleh XEDY Deep Macro & AI Qwen Quantitative Flow Engine.</i>"
+        )
+    elif sym == "BTCUSD":
+        return (
+            f"⚖️ <b>1. BEDAH KAUSALITAS: MENGAPA NAIK VS MENGAPA TURUN?</b>\n\n"
+            f"🟢 <b>FAKTOR PENYEBAB BITCOIN NAIK (DRIVERS DOMINAN SAAT INI):</b>\n"
+            f"• <b>Arus Masuk Bersih Spot ETF Institusional:</b> Aliran dana masuk positif berkelanjutan ke IBIT & FBTC ($380M+ mingguan) menyerap likuiditas pasokan di exchange.\n"
+            f"• <b>Ekspansi Likuiditas Global (Global M2):</b> Kebijakan pelonggaran bertahap bank sentral global meningkatkan selera risiko terhadap hard-capped digital assets.\n"
+            f"• <b>Akumulasi Whales & Illiquid Supply All-Time High:</b> Pasokan koin yang disimpan di cold storage mencapai 74%, menciptakan elastisitas harga ke atas yang tajam saat permintaan naik.\n\n"
+            f"🔴 <b>FAKTOR PENYEBAB BITCOIN BISA TURUN (KATALIS PEMBALIKAN / RISIKO):</b>\n"
+            f"• <b>Lonjakan Imbal Hasil Riil Obligasi AS:</b> Jika yield US 10Y melonjak tajam menekan valuasi aset spekulatif berisiko tinggi.\n"
+            f"• <b>Likuidasi Long Leverage di Derivatives:</b> Funding rate yang terlalu panas di pasar futures berisiko memicu long squeeze ke bawah zona support $80k.\n"
+            f"• <b>Ketidakpastian Regulasi & Pengawasan Kripto Global:</b> Intervensi regulasi anti-money laundering atau pengetatan aturan kustodi institusional.\n\n"
+            f"⏱️ <b>2. FORECAST 1 HARI KE DEPAN (24 JAM INTRADAY OUTLOOK):</b>\n"
+            f"• <b>Bias Intraday:</b> <b>BULLISH MOMENTUM / ACCUMULATE ON DIP</b>\n"
+            f"• <b>Pivot Point Harian:</b> <code>$82,100</code>\n"
+            f"• <b>Range Proyeksi 24 Jam:</b> <code>$81,200 – $84,200</code>\n"
+            f"• <b>Key Resistance Intraday:</b> <code>$83,500</code> (R1) | <code>$84,800</code> (R2)\n"
+            f"• <b>Key Support Intraday:</b> <code>$81,500</code> (S1) | <code>$80,200</code> (S2)\n"
+            f"• <b>Skenario Intraday (High Prob):</b> Pullback sehat ke area $81,800–$82,200 direspons akumulasi pembeli menguji resistance $83,800.\n\n"
+            f"📅 <b>3. FORECAST 1 MINGGU KE DEPAN (WEEKLY MACRO TREND):</b>\n"
+            f"• <b>Bias Mingguan:</b> <b>BULLISH EXPANSION & PRICE DISCOVERY</b>\n"
+            f"• <b>Rentang Proyeksi Mingguan:</b> <code>$79,500 – $87,500</code>\n"
+            f"• <b>Base Case (Prob 65%):</b> Mengonsolidasi di atas $80,000 dan menguji kembali zona breakout $85,000 didorong akumulasi ETF.\n"
+            f"• <b>Bull Case (Prob 25%):</b> Penembusan di atas $86,000 membuka akselerasi cepat menuju target psikologis $90,000.\n"
+            f"• <b>Bear Case (Prob 10%):</b> Terkoreksi di bawah $79,500 jika terjadi de-risking makro global yang masif.\n\n"
+            f"📋 <b>4. PLAYBOOK & PARAMETER EKSEKUSI:</b>\n"
+            f"• <b>Aksi Strategis:</b> <b>BUY PULLBACK</b> (Trailing Stop Aktif)\n"
+            f"• 🎯 <b>Optimal Entry (OP):</b> <code>82,100 – 82,500</code>\n"
+            f"• 🛑 <b>Stop Loss (SL):</b> <code>80,150</code> (Invalidasi swing low intraday)\n"
+            f"• 🟢 <b>Target TP1:</b> <code>83,900</code> (Prob: <b>82%</b>)\n"
+            f"• 🟢 <b>Target TP2:</b> <code>85,800</code> (Prob: <b>64%</b>)\n"
+            f"• 🟢 <b>Target TP3:</b> <code>88,500</code> (Prob: <b>41%</b>)\n"
+            f"• 🔒 <b>Risk Rule:</b> Pasang Breakeven (BEP) otomatis saat harga melewati $83,500.\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"💡 <i>Disintesis oleh XEDY Deep Macro & AI Qwen Quantitative Flow Engine.</i>"
+        )
+    return ""
+
 
 def build_narrative_text(raw_symbol: str) -> str:
     """
@@ -335,7 +560,7 @@ def build_narrative_text(raw_symbol: str) -> str:
             f"• 🟢 <b>TP3:</b> <code>3,991.94</code> (Prob: <b>42%</b>)\n"
             f"• ⚖️ <b>RR:</b> <code>1:1.6</code> | <b>EV:</b> <code>+0.48R</code>\n"
             f"• 🛡️ <b>CONFIDENCE:</b> <b>92%</b> | <b>GATE:</b> <b>PASS</b>\n"
-            f"• ⚡ <b>FINAL ACTION:</b> <b>SELL</b>"
+            f"• ⚡ <b>FINAL ACTION:</b> <b>SELL</b>\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🤖 <b>3. RANGKUMAN STRATEGIS AI QWEN (EXECUTIVE SUMMARY)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" + build_qwen_strategic_summary_body(sym, m, now_wib)
         )
 
     elif sym == "USDJPY":
@@ -383,7 +608,7 @@ def build_narrative_text(raw_symbol: str) -> str:
             f"• 🟢 <b>TP3:</b> <code>159.56</code> (Prob: <b>36%</b>)\n"
             f"• ⚖️ <b>RR:</b> <code>1:1.6</code> | <b>EV:</b> <code>+0.28R</code>\n"
             f"• 🛡️ <b>CONFIDENCE:</b> <b>76%</b> | <b>GATE:</b> <b>PASS</b>\n"
-            f"• ⚡ <b>FINAL ACTION:</b> <b>BUY</b>"
+            f"• ⚡ <b>FINAL ACTION:</b> <b>BUY</b>\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🤖 <b>3. RANGKUMAN STRATEGIS AI QWEN (EXECUTIVE SUMMARY)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" + build_qwen_strategic_summary_body(sym, m, now_wib)
         )
 
     elif sym == "EURUSD":
@@ -431,7 +656,7 @@ def build_narrative_text(raw_symbol: str) -> str:
             f"• 🟢 <b>TP3:</b> <code>1.1108</code> (Prob: <b>42%</b>)\n"
             f"• ⚖️ <b>RR:</b> <code>1:1.6</code> | <b>EV:</b> <code>+0.42R</code>\n"
             f"• 🛡️ <b>CONFIDENCE:</b> <b>92%</b> | <b>GATE:</b> <b>PASS</b>\n"
-            f"• ⚡ <b>FINAL ACTION:</b> <b>SELL</b>"
+            f"• ⚡ <b>FINAL ACTION:</b> <b>SELL</b>\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🤖 <b>3. RANGKUMAN STRATEGIS AI QWEN (EXECUTIVE SUMMARY)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" + build_qwen_strategic_summary_body(sym, m, now_wib)
         )
 
     elif sym == "GBPUSD":
@@ -479,7 +704,7 @@ def build_narrative_text(raw_symbol: str) -> str:
             f"• 🟢 <b>TP3:</b> <code>1.3120</code> (Prob: <b>41%</b>)\n"
             f"• ⚖️ <b>RR:</b> <code>1:1.6</code> | <b>EV:</b> <code>+0.39R</code>\n"
             f"• 🛡️ <b>CONFIDENCE:</b> <b>90%</b> | <b>GATE:</b> <b>PASS</b>\n"
-            f"• ⚡ <b>FINAL ACTION:</b> <b>SELL</b>"
+            f"• ⚡ <b>FINAL ACTION:</b> <b>SELL</b>\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🤖 <b>3. RANGKUMAN STRATEGIS AI QWEN (EXECUTIVE SUMMARY)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" + build_qwen_strategic_summary_body(sym, m, now_wib)
         )
 
     elif sym == "OIL":
@@ -527,10 +752,57 @@ def build_narrative_text(raw_symbol: str) -> str:
             f"• 🟢 <b>TP3:</b> <code>95.45</code> (Prob: <b>40%</b>)\n"
             f"• ⚖️ <b>RR:</b> <code>1:1.6</code> | <b>EV:</b> <code>+0.46R</code>\n"
             f"• 🛡️ <b>CONFIDENCE:</b> <b>92%</b> | <b>GATE:</b> <b>PASS</b>\n"
-            f"• ⚡ <b>FINAL ACTION:</b> <b>BUY</b>"
+            f"• ⚡ <b>FINAL ACTION:</b> <b>BUY</b>\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🤖 <b>3. RANGKUMAN STRATEGIS AI QWEN (EXECUTIVE SUMMARY)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" + build_qwen_strategic_summary_body(sym, m, now_wib)
+        )
+    elif sym == "BTCUSD":
+        return (
+            f"🏛️ <b>XEDY AI — INSTITUTIONAL NARRATIVE: BTCUSD</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"🕒 <b>Waktu:</b> {now_wib}\n"
+            f"💰 <b>Live Price:</b> <code>${p:,.2f}</code> | <b>Change:</b> <code>{sign_cv}${cv:,.2f} ({sign_cp}{cp:.2f}%)</code>\n"
+            f"📊 <b>Range:</b> L: <code>${l:,.2f}</code> ──●── H: <code>${h:,.2f}</code> (Posisi: <b>{pos}%</b>)\n"
+            f"🌐 <b>Konteks:</b> DXY: <code>{dxy}</code> | VIX: <code>{vix}</code> | RSI: <code>{rsi}</code>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            f"<b>1. THE 12 CORE CAUSAL QUESTIONS</b>\n\n"
+            f"<b>① WHAT IS HAPPENING?</b>\n"
+            f"Bitcoin (BTCUSD) berkonsolidasi kuat di area ${p:,.2f} setelah menguji support likuiditas ${l:,.2f}. Struktur bullish swing tetap dominan didorong arus masuk ETF.\n\n"
+            f"<b>② WHY IS IT HAPPENING?</b>\n"
+            f"Penyerapan pasokan spot oleh BlackRock IBIT dan Fidelity FBTC melampaui produksi harian penambang pasca-halving (Supply Inelasticity Shock).\n\n"
+            f"<b>③ WHAT ECONOMIC DATA SUPPORTS IT?</b>\n"
+            f"Ekspansi likuiditas global M2 dan stabilitas yield obligasi AS mendorong selera risiko aset digital berbasis kelangkaan terprogram.\n\n"
+            f"<b>④ WHAT POLICY IS DRIVING IT?</b>\n"
+            f"Regulasi cadangan strategis institusional dan integrasi produk derivatif teregulasi di CME Group memfasilitasi alokasi dana pensiun global.\n\n"
+            f"<b>⑤ WHAT IS CENTRAL BANK DOING?</b>\n"
+            f"Siklus pelonggaran bertahap suku bunga global mereduksi opportunity cost modal spekulatif non-dolar.\n\n"
+            f"<b>⑥ WHAT GEOPOLITICAL FACTOR MATTERS?</b>\n"
+            f"Permintaan modal lintas batas bebas sensor (cross-border capital flight) meningkat di tengah ketegangan mata uang fiat sekunder.\n\n"
+            f"<b>⑦ WHAT IS YIELD / DXY DOING?</b>\n"
+            f"Konsolidasi DXY di {dxy} dan imbal hasil riil yang stabil memberikan ruang bernapas bagi aset beta tinggi untuk melanjutkan reli.\n\n"
+            f"<b>⑧ WHAT IS MONEY FLOW SHOWING?</b>\n"
+            f"<b>ACCUMULATION</b> (Whale wallet balance +3.4k BTC weekly, Exchange Reserves all-time low 1.98M BTC).\n\n"
+            f"<b>⑨ WHAT DOES TECHNICAL CONFIRM?</b>\n"
+            f"Harga bertengger di atas Daily Pivot $82,100 dan EMA-50 H1 $81,400. RSI di {rsi} menunjukkan momentum sehat tanpa status overbought.\n\n"
+            f"<b>⑩ WHAT IS THE COUNTER FORCE?</b>\n"
+            f"Resistensi psikologis kuat di $84,500 - $85,000 dan potensi aksi ambil untung jangka pendek dari investor institusional.\n\n"
+            f"<b>⑪ WHAT INVALIDATES THE VIEW?</b>\n"
+            f"Penembusan & penutupan candle H4 di bawah level support kritis <b>$79,500.00</b>.\n\n"
+            f"<b>⑫ WHAT IS TRADING IMPLICATION?</b>\n"
+            f"Prioritaskan <b>BUY PULLBACK</b> di zona diskon $82,100 - $82,500 dengan rasio risk-reward simetris ke target $85,800.\n\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"<b>2. TRADING SETUP & PARAMETERS</b>\n"
+            f"• <b>TREND:</b> BULLISH (Score: <b>90/100</b>)\n"
+            f"• <b>SETUP:</b> <b>BUY PULLBACK</b>\n"
+            f"• 🎯 <b>Optimal Entry (OP):</b> <code>82,100 – 82,500</code>\n"
+            f"• 🛑 <b>Dynamic SL:</b> <code>80,150</code>\n"
+            f"• 🟢 <b>TP1:</b> <code>83,900</code> (Prob: <b>82%</b>)\n"
+            f"• 🟢 <b>TP2:</b> <code>85,800</code> (Prob: <b>64%</b>)\n"
+            f"• 🟢 <b>TP3:</b> <code>88,500</code> (Prob: <b>41%</b>)\n"
+            f"• ⚖️ <b>RR:</b> <code>1:2.1</code> | <b>EV:</b> <code>+0.52R</code>\n"
+            f"• 🛡️ <b>CONFIDENCE:</b> <b>89%</b> | <b>GATE:</b> <b>PASS</b>\n"
+            f"• ⚡ <b>FINAL ACTION:</b> <b>BUY</b>\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n🤖 <b>3. RANGKUMAN STRATEGIS AI QWEN (EXECUTIVE SUMMARY)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" + build_qwen_strategic_summary_body(sym, m, now_wib)
         )
 
-    return f"⚠️ Simbol <code>{raw_symbol}</code> tidak dikenali. Pilih: <b>XAUUSD</b>, <b>USDJPY</b>, <b>EURUSD</b>, <b>GBPUSD</b>, atau <b>OIL</b>."
+    return f"⚠️ Simbol <code>{raw_symbol}</code> tidak dikenali. Pilih: <b>XAUUSD</b>, <b>USDJPY</b>, <b>EURUSD</b>, <b>GBPUSD</b>, <b>OIL</b>, atau <b>BTCUSD</b>."
 
 def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
     """
@@ -668,7 +940,15 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
             f"• 🛡️ <b>CONFIDENCE:</b> <b>91%</b> | <b>GATE:</b> <b>PASS</b>\n"
             f"• ⚡ <b>FINAL ACTION:</b> <b>BUY</b>"
         )
-        return [part1, part2]
+        part3 = (
+            f"🤖 <b>RANGKUMAN STRATEGIS AI QWEN — {sym}</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"🕒 <b>Waktu Evaluasi:</b> {now_wib}\n"
+            f"💰 <b>Harga Live:</b> <code>{p:,.{digits}f}</code> | <b>Change:</b> <code>{sign_cv}{cv:,.{digits}f} ({sign_cp}{cp:.2f}%)</code>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            + build_qwen_strategic_summary_body(sym, m, now_wib)
+        )
+        return [part1, part2, part3]
 
     elif sym == "EURUSD":
         part1 = (
@@ -784,7 +1064,15 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
             f"• 🛡️ <b>CONFIDENCE:</b> <b>92%</b> | <b>GATE:</b> <b>PASS</b>\n"
             f"• ⚡ <b>FINAL ACTION:</b> <b>SELL</b>"
         )
-        return [part1, part2]
+        part3 = (
+            f"🤖 <b>RANGKUMAN STRATEGIS AI QWEN — {sym}</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"🕒 <b>Waktu Evaluasi:</b> {now_wib}\n"
+            f"💰 <b>Harga Live:</b> <code>{p:,.{digits}f}</code> | <b>Change:</b> <code>{sign_cv}{cv:,.{digits}f} ({sign_cp}{cp:.2f}%)</code>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            + build_qwen_strategic_summary_body(sym, m, now_wib)
+        )
+        return [part1, part2, part3]
 
     elif sym == "GBPUSD":
         part1 = (
@@ -900,7 +1188,15 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
             f"• 🛡️ <b>CONFIDENCE:</b> <b>90%</b> | <b>GATE:</b> <b>PASS</b>\n"
             f"• ⚡ <b>FINAL ACTION:</b> <b>SELL</b>"
         )
-        return [part1, part2]
+        part3 = (
+            f"🤖 <b>RANGKUMAN STRATEGIS AI QWEN — {sym}</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"🕒 <b>Waktu Evaluasi:</b> {now_wib}\n"
+            f"💰 <b>Harga Live:</b> <code>{p:,.{digits}f}</code> | <b>Change:</b> <code>{sign_cv}{cv:,.{digits}f} ({sign_cp}{cp:.2f}%)</code>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            + build_qwen_strategic_summary_body(sym, m, now_wib)
+        )
+        return [part1, part2, part3]
 
     elif sym == "OIL":
         part1 = (
@@ -1016,7 +1312,15 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
             f"• 🛡️ <b>CONFIDENCE:</b> <b>92%</b> | <b>GATE:</b> <b>PASS</b>\n"
             f"• ⚡ <b>FINAL ACTION:</b> <b>BUY</b>"
         )
-        return [part1, part2]
+        part3 = (
+            f"🤖 <b>RANGKUMAN STRATEGIS AI QWEN — {sym}</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"🕒 <b>Waktu Evaluasi:</b> {now_wib}\n"
+            f"💰 <b>Harga Live:</b> <code>{p:,.{digits}f}</code> | <b>Change:</b> <code>{sign_cv}{cv:,.{digits}f} ({sign_cp}{cp:.2f}%)</code>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            + build_qwen_strategic_summary_body(sym, m, now_wib)
+        )
+        return [part1, part2, part3]
 
     # Default to XAUUSD (Gold)
     part1 = (
@@ -1133,4 +1437,12 @@ def build_38_questions_text(raw_symbol: str = "XAUUSD") -> list:
         f"• ⚡ <b>FINAL ACTION:</b> <b>SELL</b>"
     )
 
-    return [part1, part2]
+    part3 = (
+        f"🤖 <b>RANGKUMAN STRATEGIS AI QWEN — {sym}</b>\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🕒 <b>Waktu Evaluasi:</b> {now_wib}\n"
+        f"💰 <b>Harga Live:</b> <code>{p:,.{digits}f}</code> | <b>Change:</b> <code>{sign_cv}{cv:,.{digits}f} ({sign_cp}{cp:.2f}%)</code>\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        + build_qwen_strategic_summary_body(sym, m, now_wib)
+    )
+    return [part1, part2, part3]

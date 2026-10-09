@@ -45,6 +45,12 @@ class TelegramEcosystem:
             from aiogram.types import BotCommand
             commands = [
                 BotCommand(command="menu", description="📱 Menu Dashboard Interaktif"),
+                BotCommand(command="set", description="🔔 Pasang Reminder (/set USDJPY > 158.2 \"SELL...\")"),
+                BotCommand(command="stop", description="🛑 Matikan & Hapus Reminder (/stop USDJPY)"),
+                BotCommand(command="reminders", description="📋 Lihat Daftar Reminder Aktif"),
+                BotCommand(command="op", description="⚡ Rekomendasi OP USDJPY (Sell 158.20 / TP 157.70)"),
+                BotCommand(command="sinyal", description="🎯 Sinyal H1 Qwen Live (OP / TP / SL)"),
+                BotCommand(command="history", description="📋 Rekap History OP & Hit TP/SL (05:00 WIB)"),
                 BotCommand(command="sr", description="📊 Bloomberg S/R Live Dashboard (16:9)"),
                 BotCommand(command="engine", description="🧠 XEDY AI Precision Engine (16:9)"),
                 BotCommand(command="flow", description="🌊 Money Flow Radar Dashboard (16:9)"),

@@ -90,22 +90,118 @@ class SRMonitorEngine:
         self.last_alert_sent_time = {s: 0.0 for s in self.CONFIG}
         self.last_scheduled_slot = None
         self.load_custom_snr()
+
+        # Mode Pengiriman Pesan: False = Hanya On-Demand (Semua interval waktu terjadwal OFF)
+        self.scheduled_reports_enabled = False
+        self.instant_snr_alerts_enabled = False
+
+        # Dynamic Multi-Pair Price Reminders System
+        self.price_reminders = []
+        self.load_price_reminders()
         try:
             self.sync_check_all_symbols()
         except Exception as e:
             logger.warning(f"Initial price check notice: {e}")
 
     def canonical_symbol(self, raw: str) -> str:
-        s = raw.upper().strip().replace("/", "")
+        if not raw:
+            return ""
+        s = raw.upper().strip().replace("/", "").replace(" ", "").replace("_", "")
         if s in ("GOLD", "XAUUSD", "XAU", "EMAS"):
             return "XAUUSD"
         elif s in ("EURUSD", "EUR"):
             return "EURUSD"
-        elif s in ("OIL", "USOIL", "WTI", "CRUDE"):
+        elif s in ("OIL", "USOIL", "WTI", "CRUDE", "CL", "CL1!"):
             return "OIL"
         elif s in ("USDJPY", "JPY"):
             return "USDJPY"
-        return None
+        elif s in ("GBPUSD", "GBP"):
+            return "GBPUSD"
+        elif s in ("AUDUSD", "AUD"):
+            return "AUDUSD"
+        elif s in ("NZDUSD", "NZD"):
+            return "NZDUSD"
+        elif s in ("USDCAD", "CAD"):
+            return "USDCAD"
+        elif s in ("USDCHF", "CHF"):
+            return "USDCHF"
+        elif s in ("BTCUSD", "BTC", "BITCOIN"):
+            return "BTCUSD"
+        elif s in ("ETHUSD", "ETH"):
+            return "ETHUSD"
+        return s
+
+    def load_price_reminders(self):
+        rem_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "price_reminders.json")
+        if os.path.exists(rem_file):
+            try:
+                with open(rem_file, "r") as f:
+                    self.price_reminders = json.load(f)
+                logger.info(f"Loaded {len(self.price_reminders)} price reminders from {rem_file}")
+            except Exception as e:
+                logger.warning(f"Failed to load price reminders: {e}")
+                self.price_reminders = []
+        else:
+            self.price_reminders = []
+
+    def save_price_reminders(self):
+        rem_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "price_reminders.json")
+        os.makedirs(os.path.dirname(rem_file), exist_ok=True)
+        try:
+            with open(rem_file, "w") as f:
+                json.dump(self.price_reminders, f, indent=4)
+            logger.info(f"Saved {len(self.price_reminders)} price reminders to {rem_file}")
+        except Exception as e:
+            logger.error(f"Failed to save price reminders: {e}")
+
+    def add_price_reminder(self, symbol: str, operator: str, target_price: float, custom_message: str, cooldown: int = 600) -> tuple:
+        sym = self.canonical_symbol(symbol)
+        # Remove any existing reminder for this pair
+        self.price_reminders = [r for r in self.price_reminders if r.get("symbol") != sym]
+        
+        rem_entry = {
+            "id": f"{sym}_{operator}_{target_price}",
+            "symbol": sym,
+            "operator": operator,
+            "target_price": target_price,
+            "message": custom_message.strip(),
+            "cooldown": cooldown,
+            "last_sent": 0.0,
+            "sent_message_ids": [],
+            "created_at": datetime.now(WIB).strftime("%d %b %Y %H:%M:%S WIB"),
+            "active": True
+        }
+        self.price_reminders.append(rem_entry)
+        self.save_price_reminders()
+        return True, f"Reminder untuk {sym} berhasil disimpan.", rem_entry
+
+    async def remove_price_reminder(self, symbol: str) -> tuple:
+        sym = self.canonical_symbol(symbol) if symbol.upper() != "ALL" else "ALL"
+        matched = [r for r in self.price_reminders if r.get("symbol") == sym or sym == "ALL"]
+        if not matched:
+            return False, f"⚠️ Tidak ada reminder aktif untuk pair <b>{symbol.upper()}</b>.", []
+        
+        deleted_ids = []
+        admin_id = self.admin_id or int(os.environ.get("TELEGRAM_ADMIN_ID", "0"))
+        for rem in matched:
+            for mid in rem.get("sent_message_ids", []):
+                try:
+                    if self.bot and admin_id:
+                        await self.bot.delete_message(chat_id=admin_id, message_id=mid)
+                        deleted_ids.append(mid)
+                except Exception as e:
+                    logger.debug(f"Delete message {mid} note: {e}")
+                    
+        if sym == "ALL":
+            self.price_reminders = []
+        else:
+            self.price_reminders = [r for r in self.price_reminders if r.get("symbol") != sym]
+            
+        self.save_price_reminders()
+        return True, f"✅ Reminder untuk <b>{sym}</b> berhasil dimatikan dan {len(deleted_ids)} pesan terkait telah dihapus.", deleted_ids
+
+    def get_active_reminders(self) -> list:
+        return [r for r in self.price_reminders if r.get("active", True)]
 
     def load_custom_snr(self):
         snr_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "custom_snr.json")
@@ -299,38 +395,61 @@ class SRMonitorEngine:
                 # 1. Fetch live prices, tick volumes, trend & check SNR touch / breakout
                 await self.check_all_symbols(now_wib)
                 
-                # 2. 15-Minute Scheduled Report (Setiap 15 menit sekali: :00, :15, :30, :45 WIB)
-                current_slot = (now_wib.hour, now_wib.minute // 15)
-                if self.last_scheduled_slot != current_slot:
-                    await self.send_scheduled_report(now_wib)
-                    self.last_scheduled_slot = current_slot
-                    asyncio.get_running_loop().run_in_executor(None, self.update_github_heartbeat)
+                # 2 - 5: Scheduled Reports (Semua Interval Waktu OFF jika scheduled_reports_enabled = False)
+                if self.scheduled_reports_enabled:
+                    # 2. 15-Minute Scheduled Report (Setiap 15 menit sekali: :00, :15, :30, :45 WIB)
+                    current_slot = (now_wib.hour, now_wib.minute // 15)
+                    if self.last_scheduled_slot != current_slot:
+                        await self.send_scheduled_report(now_wib)
+                        self.last_scheduled_slot = current_slot
+                        asyncio.get_running_loop().run_in_executor(None, self.update_github_heartbeat)
 
-                # 3. 30-Minute Scheduled Money Flow Radar Report (:00 dan :30 WIB)
-                if not hasattr(self, "money_flow_engine"):
-                    from backend.telegram.money_flow_engine import MoneyFlowRadarEngine
-                    self.money_flow_engine = MoneyFlowRadarEngine(bot=self.bot, admin_id=self.admin_id)
-                
-                radar_slot = (now_wib.hour, now_wib.minute // 30)
-                if getattr(self, "last_radar_slot", None) != radar_slot:
-                    try:
-                        self.last_radar_slot = radar_slot
-                        await self.money_flow_engine.send_scheduled_radar(now_wib)
-                    except Exception as err_radar:
-                        logger.error(f"Error sending 30m Money Flow Radar: {err_radar}")
+                    # 3. 30-Minute Scheduled Money Flow Radar Report (:00 dan :30 WIB)
+                    if not hasattr(self, "money_flow_engine"):
+                        from backend.telegram.money_flow_engine import MoneyFlowRadarEngine
+                        self.money_flow_engine = MoneyFlowRadarEngine(bot=self.bot, admin_id=self.admin_id)
+                    
+                    radar_slot = (now_wib.hour, now_wib.minute // 30)
+                    if getattr(self, "last_radar_slot", None) != radar_slot:
+                        try:
+                            self.last_radar_slot = radar_slot
+                            await self.money_flow_engine.send_scheduled_radar(now_wib)
+                        except Exception as err_radar:
+                            logger.error(f"Error sending 30m Money Flow Radar: {err_radar}")
 
-                # 4. 30-Minute Scheduled XEDY AI Precision Trading Engine Report (:00 dan :30 WIB)
-                if not hasattr(self, "precision_engine"):
-                    from backend.telegram.precision_engine import PrecisionTradingEngine
-                    self.precision_engine = PrecisionTradingEngine(bot=self.bot, admin_id=self.admin_id)
-                
-                engine_slot = (now_wib.hour, now_wib.minute // 30)
-                if getattr(self, "last_engine_slot", None) != engine_slot:
+                    # 4. 30-Minute Scheduled XEDY AI Precision Trading Engine Report (:00 dan :30 WIB)
+                    if not hasattr(self, "precision_engine"):
+                        from backend.telegram.precision_engine import PrecisionTradingEngine
+                        self.precision_engine = PrecisionTradingEngine(bot=self.bot, admin_id=self.admin_id)
+                    
+                    engine_slot = (now_wib.hour, now_wib.minute // 30)
+                    if getattr(self, "last_engine_slot", None) != engine_slot:
+                        try:
+                            self.last_engine_slot = engine_slot
+                            await self.precision_engine.send_scheduled_engine(now_wib)
+                        except Exception as err_engine:
+                            logger.error(f"Error sending 30m Precision Trading Engine: {err_engine}")
+
+                    # 5. Qwen AI Session Intelligence Engine (Pendekatan 2)
+                    if not hasattr(self, "qwen_session_engine"):
+                        from backend.telegram.qwen_session_engine import QwenSessionEngine
+                        self.qwen_session_engine = QwenSessionEngine(bot=self.bot, admin_id=self.admin_id)
+                    
                     try:
-                        self.last_engine_slot = engine_slot
-                        await self.precision_engine.send_scheduled_engine(now_wib)
-                    except Exception as err_engine:
-                        logger.error(f"Error sending 30m Precision Trading Engine: {err_engine}")
+                        xau_data = self.last_price_data.get("XAUUSD", {})
+                        xau_p = xau_data.get("price", 4087.0)
+                        xau_trend = xau_data.get("trend", "NEUTRAL")
+                        
+                        # A. Evaluasi sinyal jam baru (Asia - London - New York)
+                        await self.qwen_session_engine.evaluate_hourly_candle(now_wib, live_price=xau_p, trend_bias=xau_trend)
+                        
+                        # B. Monitoring real-time open trade terhadap Hit TP / Hit SL
+                        await self.qwen_session_engine.monitor_open_trades(live_price=xau_p)
+                        
+                        # C. Laporan otomatis rekap History OP & Hit TP/SL setiap jam 05:00 WIB
+                        await self.qwen_session_engine.check_daily_0500_report(now_wib)
+                    except Exception as err_qwen:
+                        logger.error(f"Error in Qwen Session Engine execution: {err_qwen}")
                     
             except Exception as e:
                 logger.error(f"Error in SRMonitorEngine loop: {e}", exc_info=True)
@@ -339,14 +458,20 @@ class SRMonitorEngine:
 
     def fetch_tradingview_prices(self) -> dict:
         url = "https://scanner.tradingview.com/global/scan"
+        tickers = [
+            "OANDA:XAUUSD", "FX_IDC:XAUUSD",
+            "FX:EURUSD", "OANDA:EURUSD",
+            "NYMEX:CL1!", "TVC:USOIL",
+            "FX:USDJPY", "OANDA:USDJPY"
+        ]
+        for rem in getattr(self, "price_reminders", []):
+            sym = rem.get("symbol", "").upper()
+            if sym and sym not in ("XAUUSD", "EURUSD", "OIL", "USDJPY"):
+                tickers.extend([f"FX:{sym}", f"OANDA:{sym}", f"BINANCE:{sym}"])
+
         payload = {
             "symbols": {
-                "tickers": [
-                    "OANDA:XAUUSD", "FX_IDC:XAUUSD",
-                    "FX:EURUSD", "OANDA:EURUSD",
-                    "NYMEX:CL1!", "TVC:USOIL",
-                    "FX:USDJPY", "OANDA:USDJPY"
-                ]
+                "tickers": tickers
             },
             "columns": ["close", "bid", "ask", "change", "change_abs", "high", "low", "volume", "Recommend.All", "RSI"]
         }
@@ -391,6 +516,11 @@ class SRMonitorEngine:
                             prices["OIL"] = record
                         elif "USDJPY" in ticker and "USDJPY" not in prices:
                             prices["USDJPY"] = record
+                        else:
+                            for rem in getattr(self, "price_reminders", []):
+                                r_sym = rem.get("symbol", "").upper()
+                                if r_sym and r_sym not in prices and (r_sym in ticker or ticker.endswith(r_sym)):
+                                    prices[r_sym] = record
         except Exception as e:
             logger.warning(f"TradingView cloud price fetch exception: {e}")
         return prices
@@ -771,12 +901,105 @@ class SRMonitorEngine:
             cooldown_expired = (now_ts - self.last_alert_sent_time.get(symbol, 0)) > 1800 # 30 min cooldown
             
             if is_touch_event:
-                if raw_state != prev_state or cooldown_expired:
+                if self.instant_snr_alerts_enabled and (raw_state != prev_state or cooldown_expired):
                     self.current_state[symbol] = raw_state
                     self.last_alert_sent_time[symbol] = now_ts
                     await self.send_instant_touch_alert(symbol, raw_state, status, status_sub, price, supp, res, pct_snr, delta, buy_pct, sell_pct, now_wib)
+                else:
+                    self.current_state[symbol] = raw_state
             else:
                 self.current_state[symbol] = raw_state
+
+            # CHECK CUSTOM PRICE REMINDERS (MULTI-PAIR: USDJPY, GOLD, EURUSD, OIL, etc.)
+        try:
+            await self._check_all_custom_reminders(tv_prices, mt5_active, now_wib)
+        except Exception as e_rem:
+            logger.error(f"Error checking custom reminders: {e_rem}")
+
+    async def _check_all_custom_reminders(self, tv_prices: dict, mt5_active: bool, now_wib: datetime):
+        now_ts = datetime.now().timestamp()
+        for rem in list(getattr(self, "price_reminders", [])):
+            if not rem.get("active", True):
+                continue
+            sym = rem.get("symbol", "").upper()
+            
+            # Cari harga terkini untuk simbol ini
+            price = 0.0
+            if sym in self.last_price_data:
+                price = self.last_price_data[sym].get("price", 0.0)
+            elif sym in tv_prices:
+                price = tv_prices[sym].get("price", 0.0)
+            elif mt5_active and mt5 is not None:
+                try:
+                    t = mt5.symbol_info_tick(sym)
+                    if t:
+                        price = t.bid if t.bid > 0 else t.ask
+                except Exception:
+                    pass
+
+            if price <= 0.0:
+                continue
+
+            trig_p = float(rem.get("target_price", 0.0))
+            op = rem.get("operator", ">")
+
+            is_hit = False
+            if op == ">":
+                is_hit = price > trig_p
+            elif op in (">=", "=>"):
+                is_hit = price >= trig_p
+            elif op == "<":
+                is_hit = price < trig_p
+            elif op in ("<=", "=<"):
+                is_hit = price <= trig_p
+            elif op in ("=", "=="):
+                tol = 0.05 if price > 10 else 0.0005
+                is_hit = abs(price - trig_p) <= tol
+
+            if is_hit:
+                cooldown = rem.get("cooldown", 600)
+                if (now_ts - rem.get("last_sent", 0.0)) > cooldown:
+                    rem["last_sent"] = now_ts
+                    await self.send_custom_reminder_alert(rem, price, now_wib)
+                    self.save_price_reminders()
+
+    async def send_custom_reminder_alert(self, rem: dict, current_price: float, now_wib: datetime):
+        time_str = now_wib.strftime("%d %b %Y • %H:%M:%S WIB")
+        sym = rem.get("symbol", "USDJPY")
+        op = rem.get("operator", ">")
+        target_p = rem.get("target_price", 0.0)
+        custom_msg = rem.get("message", "")
+
+        text_msg = (
+            f"🔔 <b>{custom_msg}</b>\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"💎 <b>Pair:</b> <code>{sym}</code>\n"
+            f"⚡ <b>Kondisi Trigger:</b> Harga {op} <code>{target_p:,.2f}</code>\n"
+            f"💰 <b>Harga Pasar Live:</b> <code>{current_price:,.2f}</code>\n"
+            f"🕒 <b>Waktu:</b> {time_str}\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"🛑 <i>Ketik <code>/stop {sym}</code> untuk mematikan dan menghapus pesan reminder ini.</i>"
+        )
+        admin_id = self.admin_id or int(os.environ.get("TELEGRAM_ADMIN_ID", "0"))
+        msg_id = None
+        try:
+            if self.bot and admin_id:
+                sent_msg = await self.bot.send_message(chat_id=admin_id, text=text_msg, parse_mode="HTML")
+                if sent_msg:
+                    msg_id = sent_msg.message_id
+            else:
+                await self._send_safe(text_msg)
+        except Exception as e:
+            logger.error(f"Failed to send custom reminder: {e}")
+            await self._send_safe(text_msg)
+
+        if msg_id:
+            if "sent_message_ids" not in rem:
+                rem["sent_message_ids"] = []
+            rem["sent_message_ids"].append(msg_id)
+            rem["sent_message_ids"] = rem["sent_message_ids"][-10:]
+            self.save_price_reminders()
+            logger.info(f"Custom reminder alert sent for {sym} (msg_id={msg_id}): {custom_msg}")
 
     async def send_instant_touch_alert(self, symbol: str, state: str, status: str, status_sub: str, price: float, supp: float, res: float, pct_snr: float, delta: int, buy_pct: float, sell_pct: float, now_wib: datetime):
         """

@@ -32,8 +32,8 @@ async def main():
     logger.info("🚀 XEDY MASTER S/R REAL-TIME MONITOR DAEMON STARTED")
     logger.info("📍 Timezone: WIB (UTC+7)")
     logger.info("📊 Assets: GOLD (XAUUSD), EURUSD, OIL (WTI), USDJPY")
-    logger.info("⏱️ Scheduled Report: Setiap 15 Menit Sekali (:00, :15, :30, :45)")
-    logger.info("🚨 Instant Alert: Langsung saat harga mengenai SNR!")
+    logger.info("⏱️ Scheduled Interval: OFF (SEMUA INTERVAL WAKTU NONAKTIF)")
+    logger.info("📱 Operational Mode: HANYA ON-DEMAND AKTIF (/menu, /op, /sr, /set, dll.)")
     logger.info("==================================================")
     
     ecosystem = TelegramEcosystem()
