@@ -165,18 +165,31 @@ D1H4_RECOMMENDATIONS_MAP = {
 }
 
 def get_rk_pair_keyboard(current_symbol: str = None) -> InlineKeyboardMarkup:
+    cur = (current_symbol or "").upper()
+    if cur in ['GOLD', 'XAU']: cur = 'XAUUSD'
+    elif cur in ['CRUDE', 'WTI']: cur = 'OIL'
+    elif cur in ['BTC']: cur = 'BTCUSD'
+    elif cur in ['YEN', 'JPY']: cur = 'USDJPY'
+    elif cur in ['EU', 'EURO']: cur = 'EURUSD'
+    elif cur in ['GU', 'POUND']: cur = 'GBPUSD'
+
+    def btn_label(code: str, name: str, flag: str) -> str:
+        if cur == code:
+            return f"▶ {flag} {name} (Aktif)"
+        return f"{flag} {name}"
+
     rows = [
         [
-            InlineKeyboardButton(text="🇯🇵 USDJPY", callback_data="rk:USDJPY"),
-            InlineKeyboardButton(text="🥇 XAUUSD", callback_data="rk:XAUUSD")
+            InlineKeyboardButton(text=btn_label("USDJPY", "USDJPY", "🇯🇵"), callback_data="rk:USDJPY"),
+            InlineKeyboardButton(text=btn_label("XAUUSD", "GOLD (XAU)", "🥇"), callback_data="rk:XAUUSD")
         ],
         [
-            InlineKeyboardButton(text="🇪🇺 EURUSD", callback_data="rk:EURUSD"),
-            InlineKeyboardButton(text="🇬🇧 GBPUSD", callback_data="rk:GBPUSD")
+            InlineKeyboardButton(text=btn_label("EURUSD", "EURUSD", "🇪🇺"), callback_data="rk:EURUSD"),
+            InlineKeyboardButton(text=btn_label("GBPUSD", "GBPUSD", "🇬🇧"), callback_data="rk:GBPUSD")
         ],
         [
-            InlineKeyboardButton(text="🛢️ CRUDE OIL", callback_data="rk:OIL"),
-            InlineKeyboardButton(text="⚡ BITCOIN", callback_data="rk:BTCUSD")
+            InlineKeyboardButton(text=btn_label("OIL", "CRUDE OIL", "🛢️"), callback_data="rk:OIL"),
+            InlineKeyboardButton(text=btn_label("BTCUSD", "BITCOIN", "⚡"), callback_data="rk:BTCUSD")
         ],
         [
             InlineKeyboardButton(text="📊 SEMUA 6 PAIR", callback_data="rk:ALL"),
@@ -309,6 +322,9 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
         if not admin_id or admin_id == 0:
             return True
         if user_or_chat_id == admin_id:
+            return True
+        # If admin_id is a Telegram supergroup/channel (< 0), allow direct private chats and members
+        if admin_id < 0:
             return True
         return False
 
@@ -755,10 +771,14 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
 
     
     @dp.message(Command("rk", "rekomendasi", "d1h4"))
+    @dp.message(lambda msg: msg.text and any(msg.text.strip().lower().startswith(p) for p in ['/rk', '/rekomendasi', '/d1h4']))
     async def cmd_rk(message: Message):
         if not is_authorized(message.chat.id) and not is_authorized(message.from_user.id):
             return
-        parts = message.text.strip().split()
+        raw_text = message.text.strip()
+        # Clean any bot mention like /rk@xedy_bot usdjpy
+        clean_text = re.sub(r'(/rk|/rekomendasi|/d1h4)@[a-zA-Z0-9_]+', r'\1', raw_text, flags=re.IGNORECASE)
+        parts = clean_text.split()
         if len(parts) >= 2:
             sym_arg = parts[1].upper()
             if sym_arg in ['ALL', 'SEMUA', 'MASTER', '6']:
@@ -954,34 +974,49 @@ def register_handlers(dp: Dispatcher, admin_id: int, sr_monitor=None):
         target_msg = callback.message
 
         if action == "menu:rk":
-            await callback.answer("🎯 Memuat Menu Rekomendasi D1 & H4...")
+            await callback.answer()
             intro_text = (
                 "🎯 <b>XEDY AI • MENU REKOMENDASI D1 &amp; H4</b>\n"
                 "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 "🤖 <i>Divalidasi Adaptif oleh AI Qwen 3.7</i>\n\n"
                 "<b>Pilih pair di bawah untuk melihat rekomendasi:</b>"
             )
-            await target_msg.answer(
-                text=intro_text,
-                reply_markup=get_rk_pair_keyboard(),
-                parse_mode="HTML"
-            )
+            try:
+                await target_msg.edit_text(
+                    text=intro_text,
+                    reply_markup=get_rk_pair_keyboard(),
+                    parse_mode="HTML"
+                )
+            except Exception:
+                await target_msg.answer(
+                    text=intro_text,
+                    reply_markup=get_rk_pair_keyboard(),
+                    parse_mode="HTML"
+                )
             return
 
         elif action.startswith("rk:"):
             target_sym = action.split(":")[-1].upper()
+            await callback.answer()
             if target_sym == "ALL":
-                await callback.answer("📊 Mengirim Rekomendasi 6 Pair...")
                 from backend.scripts.send_d1h4_telegram import send_d1h4_recommendations
                 await send_d1h4_recommendations()
             else:
-                await callback.answer(f"🎯 Memuat Rekomendasi {target_sym}...")
                 msg_text = format_single_pair_rk_msg(target_sym)
-                await target_msg.answer(
-                    text=msg_text,
-                    reply_markup=get_rk_pair_keyboard(target_sym),
-                    parse_mode="HTML"
-                )
+                kb = get_rk_pair_keyboard(target_sym)
+                try:
+                    await target_msg.edit_text(
+                        text=msg_text,
+                        reply_markup=kb,
+                        parse_mode="HTML"
+                    )
+                except Exception as e:
+                    if "message is not modified" not in str(e).lower():
+                        await target_msg.answer(
+                            text=msg_text,
+                            reply_markup=kb,
+                            parse_mode="HTML"
+                        )
             return
 
 
