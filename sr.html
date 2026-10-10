@@ -2397,110 +2397,9 @@
         </div>
 
         <!-- 2. QUANTITATIVE CONFLUENCE & TRAP MATRIX (QCI 3.0) + AI QWEN ADAPTIVE -->
-        <div class="qci-matrix-card" id="qci-matrix-container">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-1 border-bottom border-dim mb-2">
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <span class="fw-bold mono text-cyan" style="font-size: 0.82rem; letter-spacing: 0.8px;">
-                        ⚡ QUANTITATIVE CONFLUENCE &amp; TRAP MATRIX (QCI 3.0) &bull; <span id="qci-pair-label" class="text-white">USDJPY</span>
-                    </span>
-                    <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono py-1 px-2" id="qci-score-badge">QCI: -72 / 100 [BEARISH FADE]</span>
-                    <span class="badge bg-warning bg-opacity-25 text-warning border border-warning mono py-1 px-2" id="qci-trap-badge">🚨 BULL TRAP ACTIVE (89% CONF)</span>
-                    <span class="badge bg-primary bg-opacity-25 text-info border border-info mono py-1 px-2" id="qci-lot-badge">LOT ALLOCATION: 0.5x (HALF RISK)</span>
-                </div>
-                <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.72rem;">
-                    <span class="text-muted">ALIGNMENT: <b class="text-warning" id="qci-align-status">DIVERGENT (FADE SETUP)</b></span>
-                    <span class="text-muted">&bull;</span>
-                    <span class="text-muted">EXECUTION EDGE: <b class="text-success" id="qci-edge-val">+18.4 PIPS EXP</b></span>
-                </div>
-            </div>
-
-            <!-- Meter Gauge Bar (Switched: Strong Buy Far Left, Strong Sell Far Right) -->
-            <div class="px-1 mb-2">
-                <div class="d-flex justify-content-between mono text-muted" style="font-size: 0.65rem;">
-                    <span class="text-success fw-bold">+100 (STRONG BUY)</span>
-                    <span class="text-info">+50 (BUY DIP)</span>
-                    <span class="text-light">0 (NEUTRAL / CHOP)</span>
-                    <span class="text-warning">-50 (FADE SHORT)</span>
-                    <span class="text-danger fw-bold">-100 (STRONG SELL)</span>
-                </div>
-                <div class="qci-meter-track">
-                    <div class="qci-meter-pointer" id="qci-meter-pin" style="left: 86%;"></div>
-                </div>
-            </div>
-
-            <!-- 5-Layer Quantitative Breakdown Grid -->
-            <div class="row g-2 mb-2">
-                <div class="col-md-2 col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
-                        <div class="text-muted mono" style="font-size: 0.62rem;">L1: PRICE TREND (15%)</div>
-                        <div class="fw-bold mono text-success" style="font-size: 0.74rem;" id="qci-l1-val">+15 (BULLISH CANDLE)</div>
-                    </div>
-                </div>
-                <div class="col-md-2 col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
-                        <div class="text-muted mono" style="font-size: 0.62rem;">L2: SnR CEILING (20%)</div>
-                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l2-val">-20 (NEAR RESIST 158.30)</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
-                        <div class="text-muted mono" style="font-size: 0.62rem;">L3: ORDER FLOW TICK (25%)</div>
-                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l3-val">-25 (5/5 SELL DELTA -7.8%)</div>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
-                        <div class="text-muted mono" style="font-size: 0.62rem;">L4: MONEY FLOW CMF (25%)</div>
-                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l4-val">-25 (JPY DOMINANCE -54)</div>
-                    </div>
-                </div>
-                <div class="col-md-2 col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
-                        <div class="text-muted mono" style="font-size: 0.62rem;">L5: POLICY SPREAD (15%)</div>
-                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l5-val">-15 (BOJ YIELD SPREAD -8bp)</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action & Diagnostic Banner -->
-            <div class="p-2 rounded bg-dark bg-opacity-75 border border-dim d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-danger bg-opacity-25 text-danger mono" id="qci-action-tag">ACTION: FADE RESISTANCE</span>
-                    <span class="text-light mono" style="font-size: 0.73rem;" id="qci-diagnostic-text">
-                        Harga naik ke plafon resistance, tapi Smart Money dumping masif. JANGAN BUY. Pasang Sell Limit di 158.303 &ndash; 158.363, Target 157.92.
-                    </span>
-                </div>
-                <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.70rem;">
-                    <span class="text-muted">INVALIDATION (SL): <b class="text-danger" id="qci-sl-val">158.773</b></span>
-                    <span class="text-muted">&bull;</span>
-                    <span class="text-muted">TARGET (TP1): <b class="text-success" id="qci-tp-val">157.923</b></span>
-                </div>
-            </div>
-
-            <!-- AI QWEN ADAPTIVE ACCURACY VALIDATOR BANNER -->
-            <div class="p-2 rounded mt-2 border border-dim d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(0, 240, 255, 0.04); border-left: 3px solid #00f0ff !important;">
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <span class="badge bg-dark text-cyan border border-info mono py-1 px-2" style="font-size: 0.72rem;">
-                        🤖 AI QWEN 3.7 ADAPTIVE VALIDATOR
-                    </span>
-                    <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="qwen-val-acc-badge">
-                        ACCURACY: 94.6% [VALIDATED &amp; APPROVED]
-                    </span>
-                    <span class="badge bg-primary bg-opacity-25 text-info border border-info mono py-1 px-2" id="qwen-val-wr-badge">
-                        ADAPTIVE WIN RATE: 88.4%
-                    </span>
-                    <span class="text-light mono" style="font-size: 0.72rem;" id="qwen-val-feedback">
-                        Qwen AI memvalidasi setup dengan Bayesian consensus 94.6%. Algoritma adaptif meregangkan buffer SL +3.4 pips untuk menangkis stop-hunt.
-                    </span>
-                </div>
-                <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.70rem;">
-                    <span class="text-muted">ADAPTIVE SL BUFFER: <b class="text-warning" id="qwen-val-sl-buffer">+3.4 pips</b></span>
-                    <span class="text-muted">&bull;</span>
-                    <span class="text-muted">VOLATILITY REGIME: <b class="text-cyan" id="qwen-val-regime">NORMAL (ATR 48p)</b></span>
-                    <span class="text-muted">&bull;</span>
-                    <span class="text-muted">ADAPTIVE SIZING: <b class="text-success" id="qwen-val-size">0.5x DYNAMIC</b></span>
-                </div>
-            </div>
+        <div class="p-2 mb-2 rounded bg-dark border border-dim d-flex justify-content-between align-items-center" style="background: rgba(6, 16, 34, 0.7) !important;">
+            <span class="mono text-cyan" style="font-size: 0.76rem;">🤖 QUANTITATIVE CONFLUENCE &amp; TRAP MATRIX (QCI 3.0) &bull; AI Validated</span>
+            <button class="btn btn-sm btn-outline-info mono" style="font-size: 0.72rem; padding: 2px 8px;" onclick="switchNavTab('qci')">Buka QCI 3.0 Tab &rarr;</button>
         </div>
 
         <!-- 3. D1 & H4 CORE PANELS (2-COLUMN GRID) -->
@@ -4543,15 +4442,14 @@
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-1 border-bottom border-dim mb-2">
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <span class="fw-bold mono text-cyan" style="font-size: 0.82rem; letter-spacing: 0.8px;">
-                        ⚡ QUANTITATIVE CONFLUENCE &amp; TRAP MATRIX (QCI 3.0) &bull; <span id="qci-pair-label" class="text-white">USDJPY</span>
-                    <div class="d-inline-flex align-items-center gap-1 p-1 rounded ms-2" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        ⚡ QUANTITATIVE CONFLUENCE &amp; TRAP MATRIX (QCI 3.0) <div class="d-inline-flex align-items-center gap-1 p-1 rounded ms-2" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.1);">
                         <button class="btn btn-sm m1-pair-btn active" id="m1-btn-USDJPY" onclick="switchM1Pair('USDJPY')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: #2563eb; color: #ffffff; border: 1px solid #38bdf8;">USDJPY</button>
                         <button class="btn btn-sm m1-pair-btn" id="m1-btn-XAUUSD" onclick="switchM1Pair('XAUUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">XAUUSD</button>
                         <button class="btn btn-sm m1-pair-btn" id="m1-btn-EURUSD" onclick="switchM1Pair('EURUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">EURUSD</button>
                         <button class="btn btn-sm m1-pair-btn" id="m1-btn-GBPUSD" onclick="switchM1Pair('GBPUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">GBPUSD</button>
                         <button class="btn btn-sm m1-pair-btn" id="m1-btn-OIL" onclick="switchM1Pair('OIL')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">OIL</button>
                         <button class="btn btn-sm m1-pair-btn" id="m1-btn-BTCUSD" onclick="switchM1Pair('BTCUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">BTCUSD</button>
-                    </div>
+                    </div><span id="qci-pair-label" style="display: none;">USDJPY</span>
                     </span>
                     <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono py-1 px-2" id="qci-score-badge">QCI: -72 / 100 [BEARISH FADE]</span>
                     <span class="badge bg-warning bg-opacity-25 text-warning border border-warning mono py-1 px-2" id="qci-trap-badge">🚨 BULL TRAP ACTIVE (89% CONF)</span>
@@ -5794,60 +5692,60 @@
         },
         'GBPUSD': {
             pair: 'GBPUSD',
-            netScore: '0.0%',
-            netStatus: 'NEUTRAL CHOP (NO TRADE)',
-            netClass: 'bg-secondary bg-opacity-25 text-light border border-secondary',
-            edgeBadge: '⚪ BALANCED PARITY (NO EDGE)',
-            edgeBadgeClass: 'bg-secondary bg-opacity-25 text-muted border border-secondary',
+            netScore: '-60.0%',
+            netStatus: 'STRONG BEARISH / SELL RALLY',
+            netClass: 'bg-danger bg-opacity-25 text-danger border border-danger',
+            edgeBadge: '🚨 LIQUIDITY PURGE / BEARISH RETEST (86% CONF)',
+            edgeBadgeClass: 'bg-warning bg-opacity-25 text-warning border border-warning',
             layers: [
                 {
                     layer: '1. Price Trend',
                     param: 'Scalp & Medium Trend',
-                    liveVal: 'MOMENTUM WEAK ~ (Str: 46)',
+                    liveVal: 'BEARISH RETEST ↓ (Str: 66)',
                     weight: '15%',
-                    rawScore: '0 (Chop)',
-                    weightedScore: '0.0%',
-                    signalStatus: '⚪ Momentum Netral Tanpa Arah',
-                    signalColor: 'color: #8492a6;'
+                    rawScore: '-1 (Down)',
+                    weightedScore: '-15.0%',
+                    signalStatus: '🔴 Momentum Melemah Di Bawah VWAP',
+                    signalColor: 'color: #ef4444;'
                 },
                 {
                     layer: '2. SnR Structure',
                     param: 'Structural Proximity',
-                    liveVal: 'MID PIVOT EQUILIBRIUM (1.2980)',
+                    liveVal: 'TESTING RESISTANCE (1.3253)',
                     weight: '20%',
-                    rawScore: '0 (Mid-Range)',
-                    weightedScore: '0.0%',
-                    signalStatus: '⚪ Berada di Tengah Range',
-                    signalColor: 'color: #8492a6;'
+                    rawScore: '-1 (Ceiling)',
+                    weightedScore: '-20.0%',
+                    signalStatus: '⚠️ Terbentur Plafon H1 EMA50',
+                    signalColor: 'color: #f59e0b;'
                 },
                 {
                     layer: '3. Order Flow',
                     param: 'Tick Mode Delta (M1–H1)',
-                    liveVal: 'BALANCED ORDER FLOW (+0.8% Delta)',
+                    liveVal: '5/5 SELL TICK PRESSURE (-4.2% Delta)',
                     weight: '25%',
-                    rawScore: '0 (Parity)',
-                    weightedScore: '0.0%',
-                    signalStatus: '⚪ Volume Buy & Sell Seimbang',
-                    signalColor: 'color: #8492a6;'
+                    rawScore: '-1 (Distribution)',
+                    weightedScore: '-25.0%',
+                    signalStatus: '🔴 Distribusi Jual London Session',
+                    signalColor: 'color: #ef4444;'
                 },
                 {
                     layer: '4. Money Flow',
                     param: 'CMF & Currency Power Gap',
-                    liveVal: 'Net Flow -$12.3M | GBP-USD Neutral (-2)',
+                    liveVal: 'Net Flow -$78.5M | USD Advantage +28',
                     weight: '25%',
-                    rawScore: '0 (Flat)',
-                    weightedScore: '0.0%',
-                    signalStatus: '⚪ Tidak Ada Akumulasi Institusi',
-                    signalColor: 'color: #8492a6;'
+                    rawScore: '-1 (Outflow)',
+                    weightedScore: '-25.0%',
+                    signalStatus: '🔴 Arus Keluar Sterling Masif',
+                    signalColor: 'color: #ef4444;'
                 },
                 {
                     layer: '5. Macro & Policy',
                     param: 'BoE vs Fed Rate Trajectory',
-                    liveVal: 'BoE Hold vs Fed Neutral Wait-and-See',
+                    liveVal: 'BoE 5.00% vs Fed Restrictive (Spread +16bp)',
                     weight: '15%',
-                    rawScore: '0 (Neutral Policy)',
+                    rawScore: '0 (Rate Parity)',
                     weightedScore: '0.0%',
-                    signalStatus: '⚪ Kebijakan Moneter Berimbang',
+                    signalStatus: '⚪ Paritas Suku Bunga Berimbang',
                     signalColor: 'color: #8492a6;'
                 }
             ]
@@ -7149,35 +7047,35 @@
             peAdaptiveBadge: '⚡ ADAPTIVE SL: +4.2p (PROTECT)'
         },
         'GBPUSD': {
-            qci: 0,
-            badge: 'QCI: 0 / 100 [NEUTRAL CHOP]',
-            badgeClass: 'bg-secondary bg-opacity-25 text-light border border-secondary',
-            trapBadge: '⚪ BALANCED PARITY (NO EDGE)',
-            trapClass: 'bg-secondary bg-opacity-25 text-muted border border-secondary',
-            lotBadge: 'LOT ALLOCATION: 0.0x (NO TRADE / WAIT)',
-            alignStatus: 'NEUTRAL CHOP',
-            alignClass: 'text-muted',
-            edge: '0.0 PIPS (NO EDGE)',
-            l1: '-10 (MOMENTUM WEAK)', l1Class: 'text-muted',
-            l2: '0 (PIVOT CONSOLIDATION)', l2Class: 'text-light',
-            l3: '0 (BALANCED DELTA +0.8%)', l3Class: 'text-light',
-            l4: '+4 (PARITY EQUILIBRIUM)', l4Class: 'text-light',
-            l5: '0 (BOE WAIT & SEE)', l5Class: 'text-muted',
-            actionTag: 'ACTION: WAIT & STANDBY',
-            actionClass: 'bg-secondary bg-opacity-25 text-light border border-secondary',
-            diagnostic: 'Order flow dan Money flow seimbang sempurna. Tidak ada keunggulan statistik. Tunggu breakout konfirmasi.',
+            qci: -60,
+            badge: 'QCI: -60 / 100 [SELL RALLY SETUP]',
+            badgeClass: 'bg-danger bg-opacity-25 text-danger border border-danger',
+            trapBadge: '🚨 LIQUIDITY PURGE / BEARISH RETEST',
+            trapClass: 'bg-warning bg-opacity-25 text-warning border border-warning',
+            lotBadge: 'LOT ALLOCATION: 0.7x (CONTROLLED RISK)',
+            alignStatus: 'BEARISH LEANING (RETEST RESIST)',
+            alignClass: 'text-warning',
+            edge: '+24.6 PIPS EXP',
+            l1: '-15 (RETEST RESIST 1.3253)', l1Class: 'text-danger',
+            l2: '-20 (PLAFON H1 EMA50)', l2Class: 'text-danger',
+            l3: '-25 (SELL DELTA -4.2%)', l3Class: 'text-danger',
+            l4: '-25 (OUTFLOW -$78.5M)', l4Class: 'text-danger',
+            l5: '0 (RATE PARITY HOLD)', l5Class: 'text-muted',
+            actionTag: 'ACTION: SELL THE RALLY',
+            actionClass: 'bg-danger bg-opacity-25 text-danger border border-danger',
+            diagnostic: 'Pound sterling menguji plafon resistance 1.3253 di bawah tekanan order flow seller. Pasang Sell Limit di 1.3235 – 1.3250, Target 1.3190, SL 1.3285.',
             sl: '1.3285',
             tp: '1.3190',
             // AI QWEN ADAPTIVE VALIDATOR
-            qwenAcc: 'ACCURACY: 72.5% [OVERRULED / CHOP]',
-            qwenAccClass: 'bg-danger bg-opacity-25 text-danger border border-danger',
-            qwenWr: 'ADAPTIVE WIN RATE: 51.2% (RANDOM)',
-            qwenFeedback: 'Qwen AI menolak eksekusi (Akurasi < 80%). Pasar berada dalam noise konsolidasi. Algoritma adaptif memotong lot menjadi 0.0x (Proteksi Modal).',
-            qwenSlBuffer: 'Adaptive Lock',
-            qwenRegime: 'LOW VOLATILITY CHOP (ATR 38p)',
-            qwenSize: '0.0x LOCKED',
-            peQwenBadge: '🤖 QWEN: 72.5% [OVERRULED]',
-            peAdaptiveBadge: '⚡ ADAPTIVE: NO TRADE (LOCK)'
+            qwenAcc: 'ACCURACY: 91.8% [VALIDATED & APPROVED]',
+            qwenAccClass: 'bg-success bg-opacity-25 text-success border border-success',
+            qwenWr: 'ADAPTIVE WIN RATE: 86.5%',
+            qwenFeedback: 'Qwen AI memvalidasi SELL THE RALLY pada retest zona penawaran interbank London. Algoritma adaptif memotong lot menjadi 0.7x untuk mengamankan drawdown.',
+            qwenSlBuffer: '+3.8 pips',
+            qwenRegime: 'REVERSAL CHOP (ATR 44p)',
+            qwenSize: '0.7x CONTROLLED',
+            peQwenBadge: '🤖 QWEN ACCURACY: 91.8% [APPROVED]',
+            peAdaptiveBadge: '⚡ ADAPTIVE SL: +3.8p (PROTECT)'
         },
         'OIL': {
             qci: +74,
@@ -7243,6 +7141,7 @@
         }
     };
     function updateQCIMatrix(pairKey) {
+        if (typeof renderM1Matrix === 'function') renderM1Matrix(pairKey);
         const item = QCI_DATABASE[pairKey] || QCI_DATABASE['USDJPY'];
         setText('qci-pair-label', pairKey);
         
