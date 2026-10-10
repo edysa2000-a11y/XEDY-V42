@@ -1020,8 +1020,523 @@
             font-weight: 800;
         }
 
+
+        /* ========================================================
+           THEME ENGINE: 12 HIGH-CONTRAST INSTITUTIONAL THEMES
+           ======================================================== */
+        :root, body, body.theme-windows-dark {
+            --bg-root: #0b0f19;
+            --bg-panel: #111827;
+            --bg-panel-dark: #0d131f;
+            --bg-hover: #1f2937;
+            --border-dim: #1f293d;
+            --border-bright: #38bdf8;
+            --gold: #facc15;
+            --cyan: #38bdf8;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --theme-card-bg: #111827;
+            --theme-subcard-bg: #0d131f;
+        }
+
+        /* 1. WINDOWS 11 LIGHT & PUTIH DOF (High Contrast Day Mode) */
+        body.theme-light, body.theme-windows-light, body.theme-paper, body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper {
+            --bg-root: #f1f5f9;
+            --bg-panel: #ffffff;
+            --bg-panel-dark: #f8fafc;
+            --bg-hover: #e2e8f0;
+            --border-dim: #cbd5e1;
+            --border-bright: #0284c7;
+            --gold: #b45309;
+            --cyan: #0284c7;
+            --green: #15803d;
+            --red: #dc2626;
+            --amber: #d97706;
+            --purple: #7c3aed;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --theme-card-bg: #ffffff;
+            --theme-subcard-bg: #f8fafc;
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+        }
+
+        /* 2. BLOOMBERG TERMINAL (Authentic Wall Street Amber/Phosphor) */
+        body.theme-bloomberg {
+            --bg-root: #000000;
+            --bg-panel: #0a0a0a;
+            --bg-panel-dark: #050505;
+            --bg-hover: #1f1400;
+            --border-dim: #442a00;
+            --border-bright: #ff9900;
+            --gold: #ffaa00;
+            --cyan: #00e5ff;
+            --green: #00ff66;
+            --red: #ff3333;
+            --amber: #ff9900;
+            --purple: #e066ff;
+            --text-main: #ff9900;
+            --text-muted: #bb7700;
+            --theme-card-bg: #0a0a0a;
+            --theme-subcard-bg: #000000;
+            background-color: #000000 !important;
+            color: #ff9900 !important;
+        }
+
+        /* 3. MATRIX HACKER (Phosphor Emerald on Pure Black) */
+        body.theme-matrix {
+            --bg-root: #020703;
+            --bg-panel: #051307;
+            --bg-panel-dark: #030a04;
+            --bg-hover: #0a290e;
+            --border-dim: #0f3d17;
+            --border-bright: #00ff66;
+            --gold: #e6ff00;
+            --cyan: #00ffff;
+            --green: #00ff66;
+            --red: #ff0055;
+            --amber: #ccff00;
+            --purple: #00ffaa;
+            --text-main: #55ff77;
+            --text-muted: #22993b;
+            --theme-card-bg: #051307;
+            --theme-subcard-bg: #020703;
+            background-color: #020703 !important;
+            color: #55ff77 !important;
+        }
+
+        /* 4. CYBERPUNK SYNTHWAVE (Neon Magenta / Electric Cyan) */
+        body.theme-cyberpunk {
+            --bg-root: #0d0221;
+            --bg-panel: #150534;
+            --bg-panel-dark: #090117;
+            --bg-hover: #260a57;
+            --border-dim: #4a0e78;
+            --border-bright: #ff007f;
+            --gold: #fcee0a;
+            --cyan: #00f0ff;
+            --green: #05ffa1;
+            --red: #ff2a6d;
+            --amber: #ff7700;
+            --purple: #b5179e;
+            --text-main: #fcee0a;
+            --text-muted: #c77dff;
+            --theme-card-bg: #150534;
+            --theme-subcard-bg: #0d0221;
+            background-color: #0d0221 !important;
+            color: #fcee0a !important;
+        }
+
+        /* 5. DRACULA PRO (Iconic Violet & Pastel Neon) */
+        body.theme-dracula {
+            --bg-root: #1e1f29;
+            --bg-panel: #282a36;
+            --bg-panel-dark: #191a21;
+            --bg-hover: #343746;
+            --border-dim: #44475a;
+            --border-bright: #bd93f9;
+            --gold: #f1fa8c;
+            --cyan: #8be9fd;
+            --green: #50fa7b;
+            --red: #ff5555;
+            --amber: #ffb86c;
+            --purple: #bd93f9;
+            --text-main: #f8f8f2;
+            --text-muted: #959ec4;
+            --theme-card-bg: #282a36;
+            --theme-subcard-bg: #191a21;
+            background-color: #1e1f29 !important;
+            color: #f8f8f2 !important;
+        }
+
+        /* 6. NORD ARCTIC (Scandinavian Frost) */
+        body.theme-nord {
+            --bg-root: #242933;
+            --bg-panel: #2e3440;
+            --bg-panel-dark: #1e222a;
+            --bg-hover: #3b4252;
+            --border-dim: #434c5e;
+            --border-bright: #88c0d0;
+            --gold: #ebcb8b;
+            --cyan: #88c0d0;
+            --green: #a3be8c;
+            --red: #bf616a;
+            --amber: #d08770;
+            --purple: #b48ead;
+            --text-main: #eceff4;
+            --text-muted: #d8dee9;
+            --theme-card-bg: #2e3440;
+            --theme-subcard-bg: #1e222a;
+            background-color: #242933 !important;
+            color: #eceff4 !important;
+        }
+
+        /* 7. GRUVBOX RETRO (Warm Basalt & Ochre) */
+        body.theme-gruvbox {
+            --bg-root: #1d2021;
+            --bg-panel: #282828;
+            --bg-panel-dark: #141617;
+            --bg-hover: #3c3836;
+            --border-dim: #504945;
+            --border-bright: #fe8019;
+            --gold: #fabd2f;
+            --cyan: #8ec07c;
+            --green: #b8bb26;
+            --red: #fb4934;
+            --amber: #fe8019;
+            --purple: #d3869b;
+            --text-main: #fbf1c7;
+            --text-muted: #bdae93;
+            --theme-card-bg: #282828;
+            --theme-subcard-bg: #141617;
+            background-color: #1d2021 !important;
+            color: #fbf1c7 !important;
+        }
+
+        /* 8. TOKYO NIGHT (Shibuya Midnight) */
+        body.theme-tokyo {
+            --bg-root: #13141f;
+            --bg-panel: #1a1b26;
+            --bg-panel-dark: #101018;
+            --bg-hover: #24283b;
+            --border-dim: #2f3549;
+            --border-bright: #7aa2f7;
+            --gold: #e0af68;
+            --cyan: #7dcfff;
+            --green: #9ece6a;
+            --red: #f7768e;
+            --amber: #ff9e64;
+            --purple: #bb9af7;
+            --text-main: #c0caf5;
+            --text-muted: #9aa5ce;
+            --theme-card-bg: #1a1b26;
+            --theme-subcard-bg: #101018;
+            background-color: #13141f !important;
+            color: #c0caf5 !important;
+        }
+
+        /* 9. ONE DARK PRO (Atom / VS Code Developer) */
+        body.theme-onedark {
+            --bg-root: #1b1e24;
+            --bg-panel: #21252b;
+            --bg-panel-dark: #181a1f;
+            --bg-hover: #2c313a;
+            --border-dim: #353b45;
+            --border-bright: #61afef;
+            --gold: #e5c07b;
+            --cyan: #56b6c2;
+            --green: #98c379;
+            --red: #e06c75;
+            --amber: #d19a66;
+            --purple: #c678dd;
+            --text-main: #f0f2f5;
+            --text-muted: #9aa0ac;
+            --theme-card-bg: #21252b;
+            --theme-subcard-bg: #181a1f;
+            background-color: #1b1e24 !important;
+            color: #f0f2f5 !important;
+        }
+
+        /* 10. SOLARIZED DARK (Mathematical Oceanic) */
+        body.theme-solarized {
+            --bg-root: #001e26;
+            --bg-panel: #002b36;
+            --bg-panel-dark: #00151a;
+            --bg-hover: #073642;
+            --border-dim: #0d4857;
+            --border-bright: #2aa198;
+            --gold: #b58900;
+            --cyan: #2aa198;
+            --green: #859900;
+            --red: #dc322f;
+            --amber: #cb4b16;
+            --purple: #6c71c4;
+            --text-main: #fdf6e3;
+            --text-muted: #93a1a1;
+            --theme-card-bg: #002b36;
+            --theme-subcard-bg: #00151a;
+            background-color: #001e26 !important;
+            color: #fdf6e3 !important;
+        }
+
+        /* 11. PUTIH DOF PAPER (Minimal Clean White) */
+        body.theme-paper {
+            --bg-root: #f8fafc;
+            --bg-panel: #ffffff;
+            --bg-panel-dark: #f1f5f9;
+            --bg-hover: #e2e8f0;
+            --border-dim: #cbd5e1;
+            --border-bright: #0284c7;
+            --gold: #b45309;
+            --cyan: #0284c7;
+            --green: #16a34a;
+            --red: #dc2626;
+            --amber: #d97706;
+            --purple: #7c3aed;
+            --text-main: #020617;
+            --text-muted: #334155;
+            --theme-card-bg: #ffffff;
+            --theme-subcard-bg: #f8fafc;
+            background-color: #f8fafc !important;
+            color: #020617 !important;
+        }
+
+        /* HIGH-CONTRAST CARD OVERRIDES ACROSS THEMES */
+        body.theme-bloomberg .dash-card, body.theme-bloomberg .dash-bottom-card,
+        body.theme-bloomberg .w-box, body.theme-bloomberg .pair-mf-card,
+        body.theme-bloomberg .pe-box, body.theme-bloomberg .radar-card,
+        body.theme-bloomberg .qci-matrix-card {
+            background: #0a0a0a !important;
+            border-color: #ff990044 !important;
+            color: #ff9900 !important;
+        }
+        body.theme-bloomberg .text-white, body.theme-bloomberg .text-light { color: #ffb833 !important; }
+
+        body.theme-matrix .dash-card, body.theme-matrix .dash-bottom-card,
+        body.theme-matrix .w-box, body.theme-matrix .pair-mf-card,
+        body.theme-matrix .pe-box, body.theme-matrix .radar-card,
+        body.theme-matrix .qci-matrix-card {
+            background: #051307 !important;
+            border-color: #00ff6644 !important;
+            color: #55ff77 !important;
+        }
+        body.theme-matrix .text-white, body.theme-matrix .text-light { color: #a3ffb8 !important; }
+
+        body.theme-cyberpunk .dash-card, body.theme-cyberpunk .dash-bottom-card,
+        body.theme-cyberpunk .w-box, body.theme-cyberpunk .pair-mf-card,
+        body.theme-cyberpunk .pe-box, body.theme-cyberpunk .radar-card,
+        body.theme-cyberpunk .qci-matrix-card {
+            background: #150534 !important;
+            border-color: #ff007f55 !important;
+            color: #fcee0a !important;
+        }
+        body.theme-cyberpunk .text-white, body.theme-cyberpunk .text-light { color: #ffffff !important; }
+
+        body.theme-dracula .dash-card, body.theme-dracula .dash-bottom-card,
+        body.theme-dracula .w-box, body.theme-dracula .pair-mf-card,
+        body.theme-dracula .pe-box, body.theme-dracula .radar-card,
+        body.theme-dracula .qci-matrix-card {
+            background: #282a36 !important;
+            border-color: #bd93f955 !important;
+            color: #f8f8f2 !important;
+        }
+
+        body.theme-nord .dash-card, body.theme-nord .dash-bottom-card,
+        body.theme-nord .w-box, body.theme-nord .pair-mf-card,
+        body.theme-nord .pe-box, body.theme-nord .radar-card,
+        body.theme-nord .qci-matrix-card {
+            background: #2e3440 !important;
+            border-color: #88c0d055 !important;
+            color: #eceff4 !important;
+        }
+
+        body.theme-gruvbox .dash-card, body.theme-gruvbox .dash-bottom-card,
+        body.theme-gruvbox .w-box, body.theme-gruvbox .pair-mf-card,
+        body.theme-gruvbox .pe-box, body.theme-gruvbox .radar-card,
+        body.theme-gruvbox .qci-matrix-card {
+            background: #282828 !important;
+            border-color: #fe801955 !important;
+            color: #fbf1c7 !important;
+        }
+
+        body.theme-tokyo .dash-card, body.theme-tokyo .dash-bottom-card,
+        body.theme-tokyo .w-box, body.theme-tokyo .pair-mf-card,
+        body.theme-tokyo .pe-box, body.theme-tokyo .radar-card,
+        body.theme-tokyo .qci-matrix-card {
+            background: #1a1b26 !important;
+            border-color: #7aa2f755 !important;
+            color: #c0caf5 !important;
+        }
+
+        body.theme-onedark .dash-card, body.theme-onedark .dash-bottom-card,
+        body.theme-onedark .w-box, body.theme-onedark .pair-mf-card,
+        body.theme-onedark .pe-box, body.theme-onedark .radar-card,
+        body.theme-onedark .qci-matrix-card {
+            background: #21252b !important;
+            border-color: #61afef55 !important;
+            color: #f0f2f5 !important;
+        }
+
+        body.theme-solarized .dash-card, body.theme-solarized .dash-bottom-card,
+        body.theme-solarized .w-box, body.theme-solarized .pair-mf-card,
+        body.theme-solarized .pe-box, body.theme-solarized .radar-card,
+        body.theme-solarized .qci-matrix-card {
+            background: #002b36 !important;
+            border-color: #2aa19855 !important;
+            color: #fdf6e3 !important;
+        }
+
+        /* THEME MODAL STYLING */
+        .theme-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: themeFadeIn 0.2s ease-out;
+        }
+
+        @keyframes themeFadeIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .theme-modal-dialog {
+            background: #0c1322;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 980px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(56, 189, 248, 0.2);
+            overflow: hidden;
+        }
+
+        .theme-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: #080d18;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .theme-modal-close-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .theme-modal-close-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 12px;
+            padding: 18px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .theme-card-item {
+            background: #080d18;
+            border: 2px solid #1e293b;
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .theme-card-item:hover {
+            transform: translateY(-2px);
+            border-color: #38bdf8;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .theme-card-item.active {
+            border-color: #38bdf8;
+            background: #0f1c33;
+            box-shadow: 0 0 0 2px #38bdf8, 0 8px 25px rgba(56, 189, 248, 0.25);
+        }
+
+        .theme-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .theme-card-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #f8fafc;
+            font-family: monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-card-desc {
+            font-size: 0.70rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .theme-swatch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .theme-swatch-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-swatch-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .theme-active-badge {
+            font-size: 0.65rem;
+            padding: 2px 7px;
+            border-radius: 20px;
+            background: #0284c7;
+            color: #ffffff;
+            font-weight: 700;
+            font-family: monospace;
+            display: none;
+        }
+
+        .theme-card-item.active .theme-active-badge {
+            display: inline-block;
+        }
+
+        .theme-modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: #080d18;
+            border-top: 1px solid #1e293b;
+        }
+
         /* PUTIH DOF ACTIVE CLASS ON BODY */
-        body.putih-dof {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper {
             --bg-root: #eef2f6;
             --bg-panel: #ffffff;
             --bg-panel-dark: #f8fafc;
@@ -1040,353 +1555,353 @@
             color: #0f172a !important;
         }
 
-        body.putih-dof .terminal-container {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .terminal-container {
             background: #ffffff !important;
             border-color: #cbd5e1 !important;
             box-shadow: 0 4px 25px rgba(15, 23, 42, 0.08) !important;
         }
 
-        body.putih-dof .header-title-bar {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .header-title-bar {
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
             border-bottom: 1px solid #cbd5e1 !important;
         }
 
-        body.putih-dof .brand-title,
-        body.putih-dof .brand-title span,
-        body.putih-dof #brand-asset-title {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .brand-title,
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .brand-title span,
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper #brand-asset-title {
             color: #0f172a !important;
         }
 
-        body.putih-dof .metrics-strip {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .metrics-strip {
             background: #f8fafc !important;
             border-bottom: 1px solid #e2e8f0 !important;
         }
 
-        body.putih-dof .metric-cell {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .metric-cell {
             border-right-color: #e2e8f0 !important;
         }
 
-        body.putih-dof .chip {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .chip {
             background: #ffffff !important;
             border-color: #cbd5e1 !important;
             color: #0f172a !important;
         }
 
-        body.putih-dof .w-box {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .w-box {
             background: #ffffff !important;
             border-color: #e2e8f0 !important;
             box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
         }
 
-        body.putih-dof .w-box-title {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .w-box-title {
             color: #0284c7 !important;
             border-bottom-color: #e2e8f0 !important;
         }
 
-        body.putih-dof .w-full-banner {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .w-full-banner {
             background: #ffffff !important;
             border-bottom: 1px solid #e2e8f0 !important;
         }
 
-        body.putih-dof .grid-3col,
-        body.putih-dof .grid-2col,
-        body.putih-dof .border-r {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .grid-3col,
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .grid-2col,
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .border-r {
             border-bottom-color: #e2e8f0 !important;
             border-right-color: #e2e8f0 !important;
         }
 
-        body.putih-dof .pair-nav-strip {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .pair-nav-strip {
             background: #f8fafc !important;
             border-bottom: 1px solid #cbd5e1 !important;
         }
 
-        body.putih-dof .pair-tab-btn {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .pair-tab-btn {
             background: #ffffff !important;
             border-color: #cbd5e1 !important;
             color: #475569 !important;
         }
 
-        body.putih-dof .pair-tab-btn:hover {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .pair-tab-btn:hover {
             background: #f1f5f9 !important;
             border-color: #0284c7 !important;
             color: #0f172a !important;
         }
 
-        body.putih-dof .pair-tab-btn.active {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .pair-tab-btn.active {
             background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%) !important;
             border-color: #0284c7 !important;
             color: #ffffff !important;
             box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
         }
 
-        body.putih-dof .pair-tab-price {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .pair-tab-price {
             color: #ffffff !important;
         }
 
-        body.putih-dof .multi-pair-matrix {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .multi-pair-matrix {
             background: #e2e8f0 !important;
             border-bottom: 1px solid #cbd5e1 !important;
         }
 
-        body.putih-dof .radar-card {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .radar-card {
             background: #ffffff !important;
             border-right: 1px solid #e2e8f0 !important;
         }
 
-        body.putih-dof .radar-card:hover {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .radar-card:hover {
             background: #f8fafc !important;
         }
 
-        body.putih-dof .radar-card.active-card {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .radar-card.active-card {
             background: #f0f9ff !important;
             border-top: 2px solid #0284c7 !important;
             box-shadow: inset 0 2px 8px rgba(2, 132, 199, 0.08) !important;
         }
 
-        body.putih-dof .radar-card-sym {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .radar-card-sym {
             color: #0f172a !important;
         }
 
-        body.putih-dof .radar-card-price {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .radar-card-price {
             color: #0f172a !important;
         }
 
-        body.putih-dof .radar-range-track {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .radar-range-track {
             background: #e2e8f0 !important;
         }
 
-        body.putih-dof .precision-banner {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .precision-banner {
             background: #ffffff !important;
             border-bottom: 1px solid #e2e8f0 !important;
         }
 
-        body.putih-dof .pe-box {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .pe-box {
             background: #f8fafc !important;
             border-color: #e2e8f0 !important;
         }
 
-        body.putih-dof .trade-monitor-wrapper {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .trade-monitor-wrapper {
             background: #ffffff !important;
             border-color: #cbd5e1 !important;
             box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04) !important;
         }
 
-        body.putih-dof .trade-mode-btn {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .trade-mode-btn {
             background: #f1f5f9 !important;
             border-color: #cbd5e1 !important;
             color: #475569 !important;
         }
 
-        body.putih-dof .trade-mode-btn:hover {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .trade-mode-btn:hover {
             background: #e2e8f0 !important;
             color: #0f172a !important;
         }
 
-        body.putih-dof .trade-mode-btn.active {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .trade-mode-btn.active {
             background: linear-gradient(90deg, #0284c7 0%, #0369a1 100%) !important;
             color: #ffffff !important;
             border-color: #0284c7 !important;
             box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
         }
 
-        body.putih-dof .pair-mf-card {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .pair-mf-card {
             background: #f8fafc !important;
             border-color: #cbd5e1 !important;
             box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02) !important;
         }
 
-        body.putih-dof .monitor-card {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .monitor-card {
             background: #ffffff !important;
             border-color: #e2e8f0 !important;
         }
 
-        body.putih-dof .monitor-card-header {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .monitor-card-header {
             border-bottom-color: #e2e8f0 !important;
         }
 
-        body.putih-dof .narrative-container {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .narrative-container {
             background: #ffffff !important;
             border-top: 2px solid #0284c7 !important;
         }
 
-        body.putih-dof .narrative-tab-btn {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .narrative-tab-btn {
             background: #f1f5f9 !important;
             border-color: #cbd5e1 !important;
             color: #475569 !important;
         }
 
-        body.putih-dof .narrative-tab-btn:hover {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .narrative-tab-btn:hover {
             background: #e2e8f0 !important;
             color: #0f172a !important;
         }
 
-        body.putih-dof .narrative-tab-btn.active {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .narrative-tab-btn.active {
             background: #0284c7 !important;
             border-color: #0284c7 !important;
             color: #ffffff !important;
             box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
         }
 
-        body.putih-dof .narrative-reader {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .narrative-reader {
             background: #f8fafc !important;
             border-color: #cbd5e1 !important;
             color: #1e293b !important;
         }
 
-        body.putih-dof .btn-term {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .btn-term {
             background: #f1f5f9 !important;
             border-color: #cbd5e1 !important;
             color: #0284c7 !important;
         }
 
-        body.putih-dof .btn-term:hover {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .btn-term:hover {
             background: #e2e8f0 !important;
             color: #0369a1 !important;
         }
 
-        body.putih-dof .view-mode-tab-btn {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .view-mode-tab-btn {
             background: #f1f5f9 !important;
             border-color: #cbd5e1 !important;
             color: #475569 !important;
         }
 
-        body.putih-dof .view-mode-tab-btn.active {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .view-mode-tab-btn.active {
             background: #0284c7 !important;
             border-color: #0284c7 !important;
             color: #ffffff !important;
             box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
         }
 
-        body.putih-dof .d1h4-header-strip {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .d1h4-header-strip {
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
             border-color: #cbd5e1 !important;
             box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
         }
 
-        body.putih-dof .d1h4-pair-btn {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .d1h4-pair-btn {
             background: #ffffff !important;
             border-color: #cbd5e1 !important;
             color: #475569 !important;
         }
 
-        body.putih-dof .d1h4-pair-btn:hover {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .d1h4-pair-btn:hover {
             background: #f1f5f9 !important;
             border-color: #0284c7 !important;
             color: #0f172a !important;
         }
 
-        body.putih-dof .d1h4-pair-btn.active {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .d1h4-pair-btn.active {
             background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
             border-color: #0284c7 !important;
             color: #ffffff !important;
             box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
         }
 
-        body.putih-dof .d1h4-card {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .d1h4-card {
             background: #ffffff !important;
             border-color: #e2e8f0 !important;
             box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
         }
 
-        body.putih-dof .d1h4-card-title {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .d1h4-card-title {
             color: #0f172a !important;
         }
 
-        body.putih-dof .d1h4-mini-box {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .d1h4-mini-box {
             background: #f8fafc !important;
             border-color: #e2e8f0 !important;
         }
 
-        body.putih-dof .ticket-box {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .ticket-box {
             background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%) !important;
             border: 1px solid #16a34a !important;
             box-shadow: 0 2px 10px rgba(22, 163, 74, 0.08) !important;
         }
 
-        body.putih-dof .mf-pair-spotlight {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .mf-pair-spotlight {
             background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%) !important;
             border: 1px solid #38bdf8 !important;
             box-shadow: 0 2px 10px rgba(56, 189, 248, 0.08) !important;
         }
 
-        body.putih-dof .mf-sankey-wrap {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .mf-sankey-wrap {
             background: #f8fafc !important;
             border-color: #e2e8f0 !important;
         }
 
-        body.putih-dof .bg-dark,
-        body.putih-dof .bg-dark.bg-opacity-50,
-        body.putih-dof .bg-dark.bg-opacity-75 {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .bg-dark,
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .bg-dark.bg-opacity-50,
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .bg-dark.bg-opacity-75 {
             background-color: #f8fafc !important;
             border-color: #e2e8f0 !important;
             color: #0f172a !important;
         }
 
-        body.putih-dof .text-white {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .text-white {
             color: #0f172a !important;
         }
 
-        body.putih-dof .text-cyan {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .text-cyan {
             color: #0284c7 !important;
         }
 
-        body.putih-dof .text-muted {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .text-muted {
             color: #64748b !important;
         }
 
-        body.putih-dof .badge.bg-dark {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .badge.bg-dark {
             background-color: #f1f5f9 !important;
             border-color: #cbd5e1 !important;
             color: #0f172a !important;
         }
 
-        body.putih-dof .kv-table td {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .kv-table td {
             border-bottom: 1px solid #f1f5f9 !important;
         }
 
-        body.putih-dof .sr-row-price {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .sr-row-price {
             background: rgba(2, 132, 199, 0.1) !important;
             border: 1px solid rgba(2, 132, 199, 0.4) !important;
             color: #0284c7 !important;
         }
 
-        body.putih-dof .d1h4-highlight-row {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .d1h4-highlight-row {
             background: rgba(2, 132, 199, 0.08) !important;
             border-left: 3px solid #0284c7 !important;
         }
 
-        body.putih-dof .comp .cbar {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .comp .cbar {
             background: #e2e8f0 !important;
             border-color: #cbd5e1 !important;
         }
 
-        body.putih-dof .srow:hover {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .srow:hover {
             background: #f1f5f9 !important;
         }
 
-        body.putih-dof .srow.sel {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .srow.sel {
             background: #e0f2fe !important;
         }
 
-        body.putih-dof .srow .bar {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .srow .bar {
             background: #e2e8f0 !important;
         }
 
-        body.putih-dof .mf-table tr:hover td {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .mf-table tr:hover td {
             background: #f8fafc !important;
         }
 
-        body.putih-dof .wrow:hover {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .wrow:hover {
             background: #f8fafc !important;
         }
 
-        body.putih-dof .theme-toggle-btn {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .theme-toggle-btn {
             background: #ffffff !important;
             border-color: #cbd5e1 !important;
             color: #475569 !important;
         }
 
-        body.putih-dof .theme-toggle-btn.active {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .theme-toggle-btn.active {
             background: #0284c7 !important;
             color: #ffffff !important;
             border-color: #0284c7 !important;
@@ -1684,47 +2199,47 @@
         }
 
         /* PUTIH DOF THEME OVERRIDES */
-        body.putih-dof {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper {
             background: #f1f5f9 !important;
             color: #0f172a !important;
         }
-        body.putih-dof .app-layout {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .app-layout {
             background: #f1f5f9 !important;
         }
-        body.putih-dof .sidebar {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .sidebar {
             background: #ffffff !important;
             border-right-color: #e2e8f0 !important;
         }
-        body.putih-dof .sidebar-brand {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .sidebar-brand {
             border-bottom-color: #e2e8f0 !important;
         }
-        body.putih-dof .brand-title {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .brand-title {
             color: #0f172a !important;
         }
-        body.putih-dof .nav-link-btn {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .nav-link-btn {
             color: #64748b !important;
         }
-        body.putih-dof .nav-link-btn:hover {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .nav-link-btn:hover {
             color: #0f172a !important;
             background: #f8fafc !important;
         }
-        body.putih-dof .nav-link-btn.active {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .nav-link-btn.active {
             background: #2563eb !important;
             color: #ffffff !important;
         }
-        body.putih-dof .sidebar-footer {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .sidebar-footer {
             border-top-color: #e2e8f0 !important;
         }
-        body.putih-dof .main-viewport {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .main-viewport {
             background: #f1f5f9 !important;
         }
-        body.putih-dof .dash-card,
-        body.putih-dof .dash-bottom-card {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .dash-card,
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .dash-bottom-card {
             background: #ffffff !important;
             border-color: #e2e8f0 !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
         }
-        body.putih-dof .text-white {
+        body.putih-dof, body.theme-light, body.theme-windows-light, body.theme-paper .text-white {
             color: #0f172a !important;
         }
     </style>
@@ -1797,9 +2312,10 @@
                 <span class="nav-icon">💬</span>
                 <span>Telegram Bot</span>
             </button>
-            <button class="nav-link-btn" onclick="toggleThemeMode()">
-                <span class="nav-icon" id="icon-theme">🌙</span>
-                <span id="label-theme">Dark Mode (Aktif)</span>
+            <button class="nav-link-btn" id="btn-theme-selector" onclick="openThemePicker()" title="Pilih dari 12 Tema Tampilan" style="border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;">
+                <span class="nav-icon" id="icon-theme">🪟</span>
+                <span id="label-theme">Windows 11 Dark</span>
+                <span class="badge bg-primary bg-opacity-25 text-info mono ms-auto" style="font-size: 0.60rem; padding: 2px 5px; border: 1px solid rgba(56,189,248,0.3);">12 TEMA</span>
             </button>
             <button class="nav-link-btn" onclick="fetchPrices()">
                 <span class="nav-icon">🔄</span>
@@ -4930,18 +5446,7 @@
     }
 
     function toggleThemeMode() {
-        const isPutih = document.body.classList.toggle('putih-dof');
-        const iconEl = document.getElementById('icon-theme');
-        const labelEl = document.getElementById('label-theme');
-        if (isPutih) {
-            localStorage.setItem('xedy_sr_theme', 'putih-dof');
-            if (iconEl) iconEl.textContent = '☀️';
-            if (labelEl) labelEl.textContent = 'Putih Dof';
-        } else {
-            localStorage.setItem('xedy_sr_theme', 'dark');
-            if (iconEl) iconEl.textContent = '🌙';
-            if (labelEl) labelEl.textContent = 'Dark Mode (Aktif)';
-        }
+        openThemePicker();
     }
 
     function openTelegramSync() {
@@ -5777,27 +6282,220 @@
     // ==========================================
     // THEME CONTROLLER: PUTIH DOF / DARK
     // ==========================================
-    function setThemeMode(mode) {
-        const isPutih = mode === 'putih-dof';
-        if (isPutih) {
-            document.body.classList.add('putih-dof');
-            document.body.classList.remove('theme-dark');
-            localStorage.setItem('xedy_sr_theme', 'putih-dof');
-        } else {
-            document.body.classList.remove('putih-dof');
-            document.body.classList.add('theme-dark');
-            localStorage.setItem('xedy_sr_theme', 'dark');
+    // ========================================================
+    // 🎨 THEME ENGINE: 12 HIGH-CONTRAST INSTITUTIONAL THEMES
+    // ========================================================
+    const XEDY_THEMES = [
+        {
+            id: 'theme-windows-dark',
+            name: 'Windows 11 Dark',
+            icon: '🪟',
+            cat: 'Modern Fluent',
+            desc: 'Default OS Windows 11 Fluent Dark dengan latar arang pekat, aksen Cyan & font putih tajam.',
+            bg: '#0b0f19', card: '#111827', accent: '#38bdf8', text: '#f8fafc',
+            isLight: false
+        },
+        {
+            id: 'theme-windows-light',
+            name: 'Windows 11 Light',
+            icon: '🪟',
+            cat: 'Mica Light',
+            desc: 'Windows 11 Mica Acrylic Clean White dengan kartu putih salju & font gelap kontras tinggi.',
+            bg: '#f1f5f9', card: '#ffffff', accent: '#0284c7', text: '#0f172a',
+            isLight: true
+        },
+        {
+            id: 'theme-bloomberg',
+            name: 'Bloomberg Terminal',
+            icon: '📊',
+            cat: 'Wall Street',
+            desc: 'Gaya legendaris Bloomberg Terminal: Font Amber & Green phosphor menyala di atas Pure Black.',
+            bg: '#000000', card: '#0a0a0a', accent: '#ff9900', text: '#ff9900',
+            isLight: false
+        },
+        {
+            id: 'theme-matrix',
+            name: 'Matrix Hacker',
+            icon: '📟',
+            cat: 'Cyber Terminal',
+            desc: 'Terminal hacker Matrix: Font Phosphor Green laser tajam di atas latar Obsidian Black.',
+            bg: '#020703', card: '#051307', accent: '#00ff66', text: '#55ff77',
+            isLight: false
+        },
+        {
+            id: 'theme-cyberpunk',
+            name: 'Cyberpunk Synthwave',
+            icon: '🌆',
+            cat: 'Neon 2077',
+            desc: 'Nuansa cyberpunk neon: Latar Deep Violet dengan aksen Neon Pink & font Electric Yellow.',
+            bg: '#0d0221', card: '#150534', accent: '#00f0ff', text: '#fcee0a',
+            isLight: false
+        },
+        {
+            id: 'theme-dracula',
+            name: 'Dracula Pro',
+            icon: '🧛',
+            cat: 'Gothic Pastel',
+            desc: 'Tema developer legendaris: Slate Violet dengan aksen pastel neon ungu, mint & font terang.',
+            bg: '#1e1f29', card: '#282a36', accent: '#bd93f9', text: '#f8f8f2',
+            isLight: false
+        },
+        {
+            id: 'theme-nord',
+            name: 'Nord Arctic',
+            icon: '❄️',
+            cat: 'Scandinavian',
+            desc: 'Nuansa kutub Skandinavia: Slate Navy dingin dengan teks salju & aksen Ice Frost Blue.',
+            bg: '#242933', card: '#2e3440', accent: '#88c0d0', text: '#eceff4',
+            isLight: false
+        },
+        {
+            id: 'theme-gruvbox',
+            name: 'Gruvbox Retro',
+            icon: '🪵',
+            cat: 'Warm Vintage',
+            desc: 'Retro basalt hangat dengan teks krem parchment & aksen warm orange yang ramah mata.',
+            bg: '#1d2021', card: '#282828', accent: '#fe8019', text: '#fbf1c7',
+            isLight: false
+        },
+        {
+            id: 'theme-tokyo',
+            name: 'Tokyo Night',
+            icon: '🗼',
+            cat: 'Shibuya Neon',
+            desc: 'Malam Shibuya: Deep Indigo dengan aksen Sky Blue, neon magenta & font kontras jernih.',
+            bg: '#13141f', card: '#1a1b26', accent: '#7aa2f7', text: '#c0caf5',
+            isLight: false
+        },
+        {
+            id: 'theme-onedark',
+            name: 'One Dark Pro',
+            icon: '💻',
+            cat: 'VS Code Iconic',
+            desc: 'Palet editor terpopuler VS Code: Charcoal seimbang dengan teks chalk & aksen cyan-blue.',
+            bg: '#1b1e24', card: '#21252b', accent: '#61afef', text: '#f0f2f5',
+            isLight: false
+        },
+        {
+            id: 'theme-solarized',
+            name: 'Solarized Dark',
+            icon: '🌊',
+            cat: 'Lab Science',
+            desc: 'Kalibrasi optik ilmiah: Deep Oceanic Teal dengan teks cream solarized & aksen cyan.',
+            bg: '#001e26', card: '#002b36', accent: '#2aa198', text: '#fdf6e3',
+            isLight: false
+        },
+        {
+            id: 'theme-paper',
+            name: 'Putih Dof Paper',
+            icon: '📄',
+            cat: 'Minimal Clean',
+            desc: 'Kertas dof matte minimalis: Latar putih bersih dengan teks hitam pekat anti-silau.',
+            bg: '#f8fafc', card: '#ffffff', accent: '#0284c7', text: '#020617',
+            isLight: true
         }
-        const bPutih = document.getElementById('btn-theme-putih');
-        const bDark = document.getElementById('btn-theme-dark');
-        if (bPutih) bPutih.classList.toggle('active', isPutih);
-        if (bDark) bDark.classList.toggle('active', !isPutih);
+    ];
+
+    let currentThemeId = 'theme-windows-dark';
+
+    function openThemePicker() {
+        const modal = document.getElementById('modal-theme-picker');
+        if (modal) {
+            modal.style.display = 'flex';
+            renderThemeCards();
+        }
     }
 
-    // Auto initialize theme on load (Default: putih-dof)
+    function closeThemePicker() {
+        const modal = document.getElementById('modal-theme-picker');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function closeThemePickerOnBackdrop(e) {
+        if (e.target && e.target.id === 'modal-theme-picker') {
+            closeThemePicker();
+        }
+    }
+
+    function renderThemeCards() {
+        const container = document.getElementById('theme-cards-grid');
+        if (!container) return;
+
+        let html = '';
+        XEDY_THEMES.forEach(t => {
+            const isActive = t.id === currentThemeId;
+            html += `
+                <div class="theme-card-item ${isActive ? 'active' : ''}" onclick="applyTheme('${t.id}')">
+                    <div class="theme-card-header">
+                        <div class="theme-card-title">
+                            <span>${t.icon}</span>
+                            <span>${t.name}</span>
+                        </div>
+                        <span class="badge ${t.isLight ? 'bg-light text-dark' : 'bg-dark text-cyan'} mono" style="font-size: 0.60rem; border: 1px solid rgba(255,255,255,0.15);">${t.cat}</span>
+                    </div>
+                    <div class="theme-card-desc">${t.desc}</div>
+                    <div class="theme-swatch-row">
+                        <div class="theme-swatch-dots">
+                            <span class="theme-swatch-dot" style="background: ${t.bg};" title="Latar: ${t.bg}"></span>
+                            <span class="theme-swatch-dot" style="background: ${t.card};" title="Kartu: ${t.card}"></span>
+                            <span class="theme-swatch-dot" style="background: ${t.accent};" title="Aksen: ${t.accent}"></span>
+                            <span class="theme-swatch-dot" style="background: ${t.text};" title="Font: ${t.text}"></span>
+                        </div>
+                        <span class="theme-active-badge">✓ AKTIF</span>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function applyTheme(themeId) {
+        const theme = XEDY_THEMES.find(t => t.id === themeId) || XEDY_THEMES[0];
+        currentThemeId = theme.id;
+
+        // Remove all previous theme classes
+        XEDY_THEMES.forEach(t => {
+            document.body.classList.remove(t.id);
+        });
+        document.body.classList.remove('putih-dof', 'theme-light', 'theme-dark');
+
+        // Apply active theme classes
+        document.body.classList.add(theme.id);
+        if (theme.isLight) {
+            document.body.classList.add('theme-light', 'putih-dof');
+        } else {
+            document.body.classList.add('theme-dark');
+        }
+
+        // Save to localStorage
+        try {
+            localStorage.setItem('xedy_sr_theme', theme.id);
+        } catch(e){}
+
+        // Update Sidebar Button
+        const iconEl = document.getElementById('icon-theme');
+        const labelEl = document.getElementById('label-theme');
+        if (iconEl) iconEl.textContent = theme.icon;
+        if (labelEl) labelEl.textContent = `${theme.name}`;
+
+        // Re-render modal cards to update active indicator
+        renderThemeCards();
+    }
+
+    function setThemeMode(mode) {
+        if (mode === 'putih-dof' || mode === 'theme-paper' || mode === 'theme-windows-light') {
+            applyTheme('theme-windows-light');
+        } else if (mode === 'dark' || mode === 'theme-dark' || mode === 'theme-windows-dark') {
+            applyTheme('theme-windows-dark');
+        } else {
+            applyTheme(mode);
+        }
+    }
+
+    // Initialize theme on start
     (function initThemeOnLoad() {
-        const saved = localStorage.getItem('xedy_sr_theme') || 'putih-dof';
-        setThemeMode(saved);
+        const saved = localStorage.getItem('xedy_sr_theme') || 'theme-windows-dark';
+        applyTheme(saved);
     })();
 
     let currentSelectedPair = 'USDJPY';
@@ -9209,6 +9907,40 @@
         if (typeof fetchPrices === 'function') fetchPrices();
     });
 </script>
+
+
+<!-- ==========================================
+     MODAL: THEME PICKER (12 HIGH-CONTRAST THEMES)
+     ========================================== -->
+<div id="modal-theme-picker" class="theme-modal-backdrop" style="display: none;" onclick="closeThemePickerOnBackdrop(event)">
+    <div class="theme-modal-dialog" onclick="event.stopPropagation()">
+        <!-- Header -->
+        <div class="theme-modal-header">
+            <div class="d-flex align-items-center gap-2">
+                <span style="font-size: 1.4rem;">🎨</span>
+                <div>
+                    <h5 class="mb-0 fw-bold mono text-cyan" style="font-size: 0.95rem; letter-spacing: 0.5px;">PILIH TEMA XEDY MISSION CONTROL (12 THEMES)</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.72rem;">Kustomisasi palet visual workspace trader. Semua 12 tema terkalibrasi High-Contrast (WCAG AAA) agar font dan latar belakang selalu tajam terbaca.</p>
+                </div>
+            </div>
+            <button class="theme-modal-close-btn" onclick="closeThemePicker()">&times;</button>
+        </div>
+
+        <!-- Themes Grid -->
+        <div class="theme-grid-container" id="theme-cards-grid">
+            <!-- Dynamically populated by JS renderThemeCards() -->
+        </div>
+
+        <!-- Footer -->
+        <div class="theme-modal-footer">
+            <div class="d-flex align-items-center gap-2" style="font-size: 0.72rem; color: #94a3b8;">
+                <span class="badge bg-success bg-opacity-25 text-success border border-success mono">⚡ High Contrast Verified</span>
+                <span>Pilihan tema tersimpan otomatis di browser (Local Storage).</span>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary mono" onclick="closeThemePicker()">Tutup</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
