@@ -1988,6 +1988,24 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(cfg, ensure_ascii=False).encode('utf-8'))
             return
 
+        if self.path.startswith('/api/telegram_ping') or self.path.startswith('/api/test_ping'):
+            now_wib = datetime.now(timezone(timedelta(hours=7))).strftime('%H:%M:%S WIB • %d/%m/%Y')
+            msg = (
+                "🤖 <b>XEDY MISSION CONTROL • TELEGRAM BOT PING</b>\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "✅ <b>Koneksi Bot Telegram (@XEDYSgold_bot) Aktif &amp; Terhubung!</b>\n"
+                f"🕒 Waktu Server: <code>{now_wib}</code>\n"
+                "📡 Feed Harga MT5 &amp; Alert Engine: <b>ONLINE</b>\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            )
+            success = send_telegram_direct_message(msg)
+            resp = {"status": "ok" if success else "failed", "sent": success}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp).encode('utf-8'))
+            return
+
         if self.path == '/sr':
             self.path = '/sr.html'
         return super().do_GET()
@@ -2069,7 +2087,7 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(resp).encode('utf-8'))
             return
 
-        if self.path.startswith('/api/telegram_ping'):
+        if self.path.startswith('/api/telegram_ping') or self.path.startswith('/api/test_ping'):
             now_wib = datetime.now(timezone(timedelta(hours=7))).strftime('%H:%M:%S WIB • %d/%m/%Y')
             msg = (
                 "🤖 <b>XEDY MISSION CONTROL • TELEGRAM BOT PING</b>\n"

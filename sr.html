@@ -4683,20 +4683,20 @@
                     </div>
                 </div>
 
-                <!-- Box 2: Interpretasi Divergensi (Contoh Kasus USDJPY Bull Trap) -->
+                <!-- Box 2: Interpretasi Divergensi (Dinamis Sesuai Pair Terpilih) -->
                 <div class="col-md-6">
                     <div class="p-3 rounded h-100" style="background: rgba(15, 27, 51, 0.6); border: 1px solid rgba(255, 255, 255, 0.08);">
                         <div class="d-flex align-items-center gap-2 mb-2">
-                            <span style="font-size: 1rem;">🚨</span>
-                            <h6 class="fw-bold text-warning mb-0" style="font-size: 0.85rem; font-family: monospace;">INTERPRETASI DIVERGENSI: KASUS USDJPY BULL TRAP</h6>
+                            <span style="font-size: 1rem;" id="m1-divergence-icon">🚨</span>
+                            <h6 class="fw-bold text-warning mb-0" id="m1-divergence-title" style="font-size: 0.85rem; font-family: monospace;">INTERPRETASI DIVERGENSI: KASUS USDJPY BULL TRAP</h6>
                         </div>
-                        <p class="text-muted" style="font-size: 0.74rem; line-height: 1.5; margin-bottom: 8px;">
+                        <p class="text-muted" id="m1-divergence-paradox" style="font-size: 0.74rem; line-height: 1.5; margin-bottom: 8px;">
                             Perhatikan paradoks pada data USDJPY: <b>Price Trend bernilai BULLISH (+15.0%)</b>, namun total sinyal adalah <b>-70.0% STRONG BEARISH FADE</b>:
                         </p>
-                        <div class="p-2 rounded mb-2" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.72rem; color: #fca5a5;">
+                        <div class="p-2 rounded mb-2" id="m1-divergence-why" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.72rem; color: #fca5a5;">
                             <b>Mengapa Dilarang BUY?</b> Retail melihat harga naik kencang (FOMO Buy). Namun, harga justru sedang mendekati batas plafon Resistance 158.30 (-20%). Smart Money memanfaatkan likuiditas beli retail untuk melakukan <i>Institutional Dumping</i> (-25% Tick Delta &amp; -$340.2M Outflow), didukung Yield Spread US-JP yang turun (-15%).
                         </div>
-                        <div class="p-2 rounded" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.72rem; color: #86efac;">
+                        <div class="p-2 rounded" id="m1-divergence-action" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.72rem; color: #86efac;">
                             <b>Keputusan Institusi:</b> JANGAN IKUTI TREND HARGA. Lakukan <b>Fade Resistance (Sell Limit)</b> di plafon 158.303 – 158.363 untuk menunggangi pembalikan arah tajam saat likuiditas buyer retail terkuras habis.
                         </div>
                     </div>
@@ -5517,57 +5517,22 @@
             netClass: 'bg-danger bg-opacity-25 text-danger border border-danger',
             edgeBadge: '🚨 BULL TRAP ACTIVE (89% CONF)',
             edgeBadgeClass: 'bg-warning bg-opacity-25 text-warning border border-warning',
+            divergence: {
+                icon: '🚨',
+                title: 'INTERPRETASI DIVERGENSI: KASUS USDJPY BULL TRAP',
+                titleClass: 'text-warning',
+                paradox: 'Perhatikan paradoks pada data USDJPY: <b>Price Trend bernilai BULLISH (+15.0%)</b>, namun total sinyal adalah <b>-70.0% STRONG BEARISH FADE</b>:',
+                whyHtml: '<b>Mengapa Dilarang BUY?</b> Retail melihat harga naik kencang (FOMO Buy). Namun, harga justru sedang mendekati batas plafon Resistance 158.30 (-20%). Smart Money memanfaatkan likuiditas beli retail untuk melakukan <i>Institutional Dumping</i> (-25% Tick Delta & -$340.2M Outflow), didukung Yield Spread US-JP yang turun (-15%).',
+                whyStyle: 'background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.72rem; color: #fca5a5;',
+                actionHtml: '<b>Keputusan Institusi:</b> JANGAN IKUTI TREND HARGA. Lakukan <b>Fade Resistance (Sell Limit)</b> di plafon 158.303 – 158.363 untuk menunggangi pembalikan arah tajam saat likuiditas buyer retail terkuras habis.',
+                actionStyle: 'background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.72rem; color: #86efac;'
+            },
             layers: [
-                {
-                    layer: '1. Price Trend',
-                    param: 'Scalp & Medium Trend',
-                    liveVal: 'BULLISH ↑ (Str: 72)',
-                    weight: '15%',
-                    rawScore: '+1 (Up)',
-                    weightedScore: '+15.0%',
-                    signalStatus: '🟢 Trend Harga Naik',
-                    signalColor: 'color: #10b981;'
-                },
-                {
-                    layer: '2. SnR Structure',
-                    param: 'Structural Proximity',
-                    liveVal: 'NEAR RESISTANCE (158.30)',
-                    weight: '20%',
-                    rawScore: '-1 (Ceiling)',
-                    weightedScore: '-20.0%',
-                    signalStatus: '⚠️ Mentok Dinding Jual',
-                    signalColor: 'color: #f59e0b;'
-                },
-                {
-                    layer: '3. Order Flow',
-                    param: 'Tick Mode Delta (M1–H1)',
-                    liveVal: '5/5 BEARISH PRESSURE (-7.8% Delta)',
-                    weight: '25%',
-                    rawScore: '-1 (Dumping)',
-                    weightedScore: '-25.0%',
-                    signalStatus: '🔴 Tekanan Jual Nyata',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '4. Money Flow',
-                    param: 'CMF & Currency Power Gap',
-                    liveVal: 'Net Outflow -$340.2M | JPY +82%',
-                    weight: '25%',
-                    rawScore: '-1 (Outflow)',
-                    weightedScore: '-25.0%',
-                    signalStatus: '🔴 Modal Institusi Keluar',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '5. Macro & Policy',
-                    param: 'Fed-BOJ & 10Y Yield Spread',
-                    liveVal: 'US-JP Yield Spread ↓ 3.77% (-8bp)',
-                    weight: '15%',
-                    rawScore: '-1 (Hawkish BOJ)',
-                    weightedScore: '-15.0%',
-                    signalStatus: '🔴 Suku Bunga Yen Naik',
-                    signalColor: 'color: #ef4444;'
-                }
+                { layer: '1. Price Trend', param: 'Scalp & Medium Trend', liveVal: 'BULLISH ↑ (Str: 72)', weight: '15%', rawScore: '+1 (Up)', weightedScore: '+15.0%', signalStatus: '🟢 Trend Harga Naik', signalColor: 'color: #10b981;' },
+                { layer: '2. SnR Structure', param: 'Structural Proximity', liveVal: 'NEAR RESISTANCE (158.30)', weight: '20%', rawScore: '-1 (Ceiling)', weightedScore: '-20.0%', signalStatus: '⚠️ Mentok Dinding Jual', signalColor: 'color: #f59e0b;' },
+                { layer: '3. Order Flow', param: 'Tick Mode Delta (M1–H1)', liveVal: '5/5 BEARISH PRESSURE (-7.8% Delta)', weight: '25%', rawScore: '-1 (Dumping)', weightedScore: '-25.0%', signalStatus: '🔴 Tekanan Jual Nyata', signalColor: 'color: #ef4444;' },
+                { layer: '4. Money Flow', param: 'CMF & Currency Power Gap', liveVal: 'Net Outflow -$340.2M | JPY +82%', weight: '25%', rawScore: '-1 (Outflow)', weightedScore: '-25.0%', signalStatus: '🔴 Modal Institusi Keluar', signalColor: 'color: #ef4444;' },
+                { layer: '5. Macro & Policy', param: 'Fed-BOJ & 10Y Yield Spread', liveVal: 'US-JP Yield Spread ↓ 3.77% (-8bp)', weight: '15%', rawScore: '-1 (Hawkish BOJ)', weightedScore: '-15.0%', signalStatus: '🔴 Suku Bunga Yen Naik', signalColor: 'color: #ef4444;' }
             ]
         },
         'XAUUSD': {
@@ -5577,177 +5542,72 @@
             netClass: 'bg-success bg-opacity-25 text-success border border-success',
             edgeBadge: '💎 BEAR TRAP / INFLOW ABSORPTION (92% CONF)',
             edgeBadgeClass: 'bg-info bg-opacity-25 text-info border border-info',
+            divergence: {
+                icon: '💎',
+                title: 'INTERPRETASI DIVERGENSI: KASUS XAUUSD BEAR TRAP (ABSORPTION)',
+                titleClass: 'text-success',
+                paradox: 'Perhatikan paradoks pada data XAUUSD: <b>Price Trend intraday mengalami PULLBACK DIP (-15.0%)</b>, namun skor komprehensif adalah <b>+70.0% STRONG BUY THE DIP</b>:',
+                whyHtml: '<b>Mengapa Dilarang SELL?</b> Penurunan jangka pendek memicu retail panik menjual di support. Namun, harga tertahan di Demand Base $2,638 - $2,645 (+20%). Smart Money menyerap seluruh penawaran ritel dengan <i>Institutional Absorption</i> (+25% Tick Delta & +$890.4M Safe-Haven Inflow), didukung penurunan Real Yield AS (-6bp).',
+                whyStyle: 'background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.72rem; color: #fca5a5;',
+                actionHtml: '<b>Keputusan Institusi:</b> MANFAATKAN PULLBACK. Lakukan <b>Buy Limit / Buy the Dip</b> di zona demand $2,638 – $2,645 dengan target ekspansi menguji rekor tertinggi baru saat likuiditas seller habis terabsorpsi.',
+                actionStyle: 'background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.72rem; color: #86efac;'
+            },
             layers: [
-                {
-                    layer: '1. Price Trend',
-                    param: 'Scalp & Medium Trend',
-                    liveVal: 'PULLBACK DIP ↓ (Str: 58)',
-                    weight: '15%',
-                    rawScore: '-1 (Dip)',
-                    weightedScore: '-15.0%',
-                    signalStatus: '🔴 Koreksi Jangka Pendek',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '2. SnR Structure',
-                    param: 'Structural Proximity',
-                    liveVal: 'NEAR DEMAND BASE ($2,638 - $2,645)',
-                    weight: '20%',
-                    rawScore: '+1 (Floor)',
-                    weightedScore: '+20.0%',
-                    signalStatus: '🛡️ Tertahan Lantai Beli Kuat',
-                    signalColor: 'color: #10b981;'
-                },
-                {
-                    layer: '3. Order Flow',
-                    param: 'Tick Mode Delta (M1–H1)',
-                    liveVal: '5/5 BUY DELTA SURGE (+14.2% Delta)',
-                    weight: '25%',
-                    rawScore: '+1 (Absorption)',
-                    weightedScore: '+25.0%',
-                    signalStatus: '🟢 Penyerapan Beli Agresif',
-                    signalColor: 'color: #10b981;'
-                },
-                {
-                    layer: '4. Money Flow',
-                    param: 'CMF & Currency Power Gap',
-                    liveVal: 'Net Inflow +$890.4M | GOLD +94%',
-                    weight: '25%',
-                    rawScore: '+1 (Heavy Inflow)',
-                    weightedScore: '+25.0%',
-                    signalStatus: '🟢 Modal Safe-Haven Masuk',
-                    signalColor: 'color: #10b981;'
-                },
-                {
-                    layer: '5. Macro & Policy',
-                    param: 'Fed-BOJ & Real Rates Spread',
-                    liveVal: 'US 10Y Real Yield ↓ -6bp | Geo Risk HIGH',
-                    weight: '15%',
-                    rawScore: '+1 (Tailwind Gold)',
-                    weightedScore: '+15.0%',
-                    signalStatus: '🟢 Makro Mendukung Emas',
-                    signalColor: 'color: #10b981;'
-                }
+                { layer: '1. Price Trend', param: 'Scalp & Medium Trend', liveVal: 'PULLBACK DIP ↓ (Str: 58)', weight: '15%', rawScore: '-1 (Dip)', weightedScore: '-15.0%', signalStatus: '🔴 Koreksi Jangka Pendek', signalColor: 'color: #ef4444;' },
+                { layer: '2. SnR Structure', param: 'Structural Proximity', liveVal: 'NEAR DEMAND BASE ($2,638 - $2,645)', weight: '20%', rawScore: '+1 (Floor)', weightedScore: '+20.0%', signalStatus: '🛡️ Tertahan Lantai Beli Kuat', signalColor: 'color: #10b981;' },
+                { layer: '3. Order Flow', param: 'Tick Mode Delta (M1–H1)', liveVal: '5/5 BUY DELTA SURGE (+14.2% Delta)', weight: '25%', rawScore: '+1 (Absorption)', weightedScore: '+25.0%', signalStatus: '🟢 Penyerapan Beli Agresif', signalColor: 'color: #10b981;' },
+                { layer: '4. Money Flow', param: 'CMF & Currency Power Gap', liveVal: 'Net Inflow +$890.4M | GOLD +94%', weight: '25%', rawScore: '+1 (Heavy Inflow)', weightedScore: '+25.0%', signalStatus: '🟢 Modal Safe-Haven Masuk', signalColor: 'color: #10b981;' },
+                { layer: '5. Macro & Policy', param: 'Fed-BOJ & Real Rates Spread', liveVal: 'US 10Y Real Yield ↓ -6bp | Geo Risk HIGH', weight: '15%', rawScore: '+1 (Tailwind Gold)', weightedScore: '+15.0%', signalStatus: '🟢 Makro Mendukung Emas', signalColor: 'color: #10b981;' }
             ]
         },
         'EURUSD': {
             pair: 'EURUSD',
-            netScore: '-95.0%',
-            netStatus: 'STRONG SHORT ACCELERATION',
+            netScore: '-70.0%',
+            netStatus: 'STRONG BEARISH SELL THE RALLY',
             netClass: 'bg-danger bg-opacity-25 text-danger border border-danger',
-            edgeBadge: '✅ CLEAN TREND CONFIRMATION (NO TRAP)',
-            edgeBadgeClass: 'bg-success bg-opacity-25 text-success border border-success',
+            edgeBadge: '🚨 BULL TRAP / SUPPLY OVERHANG (88% CONF)',
+            edgeBadgeClass: 'bg-warning bg-opacity-25 text-warning border border-warning',
+            divergence: {
+                icon: '🚨',
+                title: 'INTERPRETASI DIVERGENSI: KASUS EURUSD DEAD CAT BOUNCE',
+                titleClass: 'text-danger',
+                paradox: 'Perhatikan paradoks pada data EURUSD: <b>Price Trend sempat memantul retest (+15.0%)</b>, namun total sinyal adalah <b>-70.0% STRONG BEARISH SELL THE RALLY</b>:',
+                whyHtml: '<b>Mengapa Dilarang BUY?</b> Pantulan koreksi naik hanyalah penyesuaian posisi (short covering) menjelang benturan di plafon Resistance 1.1265 (-20%). Smart Money terus mendistribusikan Euro (-25% Tick Delta & -$280.5M Outflow) akibat resesi manufaktur Jerman dan divergensi pemangkasan suku bunga agresif ECB (-15%).',
+                whyStyle: 'background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.72rem; color: #fca5a5;',
+                actionHtml: '<b>Keputusan Institusi:</b> IKUTI ARUS DANA MAKRO. Lakukan <b>Sell the Rally</b> di zona supply 1.1250 – 1.1265 dengan target pelemahan kelanjutan ke 1.1150–1.1120 seiring dominasi yield DXY.',
+                actionStyle: 'background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.72rem; color: #86efac;'
+            },
             layers: [
-                {
-                    layer: '1. Price Trend',
-                    param: 'Scalp & Medium Trend',
-                    liveVal: 'BEARISH DOWNTREND ↓ (Str: 81)',
-                    weight: '15%',
-                    rawScore: '-1 (Down)',
-                    weightedScore: '-15.0%',
-                    signalStatus: '🔴 Trend Harga Turun Jelas',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '2. SnR Structure',
-                    param: 'Structural Proximity',
-                    liveVal: 'DEFENDING RESISTANCE (1.0870)',
-                    weight: '20%',
-                    rawScore: '-1 (Ceiling)',
-                    weightedScore: '-20.0%',
-                    signalStatus: '⚠️ Plafon Penjual Kokoh',
-                    signalColor: 'color: #f59e0b;'
-                },
-                {
-                    layer: '3. Order Flow',
-                    param: 'Tick Mode Delta (M1–H1)',
-                    liveVal: '4/5 SELL DELTA (-9.4% Delta)',
-                    weight: '25%',
-                    rawScore: '-1 (Distribution)',
-                    weightedScore: '-25.0%',
-                    signalStatus: '🔴 Tekanan Distribusi Konstan',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '4. Money Flow',
-                    param: 'CMF & Currency Power Gap',
-                    liveVal: 'Net Outflow -$512.6M | USD Dominance +83%',
-                    weight: '25%',
-                    rawScore: '-1 (Heavy Outflow)',
-                    weightedScore: '-25.0%',
-                    signalStatus: '🔴 Euro Ditinggalkan Institusi',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '5. Macro & Policy',
-                    param: 'Fed-ECB Policy Divergence',
-                    liveVal: 'ECB Rate Cut Cycle vs Sticky Fed',
-                    weight: '15%',
-                    rawScore: '-1 (Dovish ECB)',
-                    weightedScore: '-15.0%',
-                    signalStatus: '🔴 Disparitas Suku Bunga Lebar',
-                    signalColor: 'color: #ef4444;'
-                }
+                { layer: '1. Price Trend', param: 'Scalp & Medium Trend', liveVal: 'CORRECTIVE BOUNCE ↑ (Str: 60)', weight: '15%', rawScore: '+1 (Up)', weightedScore: '+15.0%', signalStatus: '🟢 Pantulan Retest Sementara', signalColor: 'color: #10b981;' },
+                { layer: '2. SnR Structure', param: 'Structural Proximity', liveVal: 'NEAR RESISTANCE SUPPLY (1.1265)', weight: '20%', rawScore: '-1 (Ceiling)', weightedScore: '-20.0%', signalStatus: '⚠️ Tertahan Plafon Supply', signalColor: 'color: #f59e0b;' },
+                { layer: '3. Order Flow', param: 'Tick Mode Delta (M1–H1)', liveVal: '5/5 SELL PRESSURE DELTA (-6.5% Delta)', weight: '25%', rawScore: '-1 (Dumping)', weightedScore: '-25.0%', signalStatus: '🔴 Tekanan Jual Institusi', signalColor: 'color: #ef4444;' },
+                { layer: '4. Money Flow', param: 'CMF & Currency Power Gap', liveVal: 'Net Outflow -$280.5M | USD Advantage +83', weight: '25%', rawScore: '-1 (Outflow)', weightedScore: '-25.0%', signalStatus: '🔴 Modal Keluar dari Euro', signalColor: 'color: #ef4444;' },
+                { layer: '5. Macro & Policy', param: 'ECB Easing vs Fed Holding', liveVal: 'German PMI 40.6 & ECB Cut Risk HIGH', weight: '15%', rawScore: '-1 (Dovish ECB)', weightedScore: '-15.0%', signalStatus: '🔴 Kebijakan ECB Longgar', signalColor: 'color: #ef4444;' }
             ]
         },
         'GBPUSD': {
             pair: 'GBPUSD',
             netScore: '-60.0%',
-            netStatus: 'STRONG BEARISH / SELL RALLY',
+            netStatus: 'BEARISH SELL THE RALLY',
             netClass: 'bg-danger bg-opacity-25 text-danger border border-danger',
-            edgeBadge: '🚨 LIQUIDITY PURGE / BEARISH RETEST (86% CONF)',
+            edgeBadge: '🚨 LIQUIDITY PURGE / BEARISH RETEST (85% CONF)',
             edgeBadgeClass: 'bg-warning bg-opacity-25 text-warning border border-warning',
+            divergence: {
+                icon: '⚠️',
+                title: 'INTERPRETASI DIVERGENSI: KASUS GBPUSD RESISTANCE REJECTION',
+                titleClass: 'text-warning',
+                paradox: 'Perhatikan paradoks pada data GBPUSD: <b>Price Trend berada dalam fase BEARISH RETEST (-15.0%)</b> dengan sinyal terkonfirmasi <b>-60.0% BEARISH SELL THE RALLY</b>:',
+                whyHtml: '<b>Mengapa Dilarang BUY?</b> Reli tertahan plafon dinamis H1 EMA50 di 1.3253 (-20%). Sesi perdagangan London merekam distribusi jual (-25% Tick Delta & -$78.5M Outflow Sterling), sementara kekhawatiran anggaran fiskal UK membatasi ruang kenaikan nilai tukar Pound terhadap USD.',
+                whyStyle: 'background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.72rem; color: #fca5a5;',
+                actionHtml: '<b>Keputusan Institusi:</b> EKSEKUSI DI AREA SUPPLY. Pasang <b>Sell Limit / Fade Retest</b> di 1.3245 – 1.3255 dengan Stop Loss ketat di atas 1.3285 dan target likuidasi pada support 1.3170–1.3140.',
+                actionStyle: 'background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.72rem; color: #86efac;'
+            },
             layers: [
-                {
-                    layer: '1. Price Trend',
-                    param: 'Scalp & Medium Trend',
-                    liveVal: 'BEARISH RETEST ↓ (Str: 66)',
-                    weight: '15%',
-                    rawScore: '-1 (Down)',
-                    weightedScore: '-15.0%',
-                    signalStatus: '🔴 Momentum Melemah Di Bawah VWAP',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '2. SnR Structure',
-                    param: 'Structural Proximity',
-                    liveVal: 'TESTING RESISTANCE (1.3253)',
-                    weight: '20%',
-                    rawScore: '-1 (Ceiling)',
-                    weightedScore: '-20.0%',
-                    signalStatus: '⚠️ Terbentur Plafon H1 EMA50',
-                    signalColor: 'color: #f59e0b;'
-                },
-                {
-                    layer: '3. Order Flow',
-                    param: 'Tick Mode Delta (M1–H1)',
-                    liveVal: '5/5 SELL TICK PRESSURE (-4.2% Delta)',
-                    weight: '25%',
-                    rawScore: '-1 (Distribution)',
-                    weightedScore: '-25.0%',
-                    signalStatus: '🔴 Distribusi Jual London Session',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '4. Money Flow',
-                    param: 'CMF & Currency Power Gap',
-                    liveVal: 'Net Flow -$78.5M | USD Advantage +28',
-                    weight: '25%',
-                    rawScore: '-1 (Outflow)',
-                    weightedScore: '-25.0%',
-                    signalStatus: '🔴 Arus Keluar Sterling Masif',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '5. Macro & Policy',
-                    param: 'BoE vs Fed Rate Trajectory',
-                    liveVal: 'BoE 5.00% vs Fed Restrictive (Spread +16bp)',
-                    weight: '15%',
-                    rawScore: '0 (Rate Parity)',
-                    weightedScore: '0.0%',
-                    signalStatus: '⚪ Paritas Suku Bunga Berimbang',
-                    signalColor: 'color: #8492a6;'
-                }
+                { layer: '1. Price Trend', param: 'Scalp & Medium Trend', liveVal: 'BEARISH RETEST ↓ (Str: 66)', weight: '15%', rawScore: '-1 (Down)', weightedScore: '-15.0%', signalStatus: '🔴 Momentum Melemah Di Bawah VWAP', signalColor: 'color: #ef4444;' },
+                { layer: '2. SnR Structure', param: 'Structural Proximity', liveVal: 'TESTING RESISTANCE (1.3253)', weight: '20%', rawScore: '-1 (Ceiling)', weightedScore: '-20.0%', signalStatus: '⚠️ Terbentur Plafon H1 EMA50', signalColor: 'color: #f59e0b;' },
+                { layer: '3. Order Flow', param: 'Tick Mode Delta (M1–H1)', liveVal: '5/5 SELL TICK PRESSURE (-4.2% Delta)', weight: '25%', rawScore: '-1 (Distribution)', weightedScore: '-25.0%', signalStatus: '🔴 Distribusi Jual London Session', signalColor: 'color: #ef4444;' },
+                { layer: '4. Money Flow', param: 'CMF & Currency Power Gap', liveVal: 'Net Flow -$78.5M | USD Advantage +28', weight: '25%', rawScore: '-1 (Outflow)', weightedScore: '-25.0%', signalStatus: '🔴 Arus Keluar Sterling Masif', signalColor: 'color: #ef4444;' },
+                { layer: '5. Macro & Policy', param: 'BoE vs Fed Rate Trajectory', liveVal: 'BoE 5.00% vs Fed Restrictive (Spread +16bp)', weight: '15%', rawScore: '0 (Rate Parity)', weightedScore: '0.0%', signalStatus: '⚪ Paritas Suku Bunga Berimbang', signalColor: 'color: #8492a6;' }
             ]
         },
         'OIL': {
@@ -5757,57 +5617,22 @@
             netClass: 'bg-success bg-opacity-25 text-success border border-success',
             edgeBadge: '💎 BEAR TRAP / SUPPLY DEFICIT (87% CONF)',
             edgeBadgeClass: 'bg-info bg-opacity-25 text-info border border-info',
+            divergence: {
+                icon: '🛢️',
+                title: 'INTERPRETASI DIVERGENSI: KASUS OIL CRUDE DEFICIT EXPANSION',
+                titleClass: 'text-success',
+                paradox: 'Perhatikan pergerakan data OIL (WTI): <b>Price Trend sempat mengalami retracement teknikal (-15.0%)</b>, namun akumulasi institusi mencapai <b>+65.0% STRONG BUY DIP EXPANSION</b>:',
+                whyHtml: '<b>Mengapa Dilarang SELL?</b> Penurunan harga tertahan tepat di Strong Demand Base $70.20 - $70.80 (+20%). Order flow merekam penyerapan beli institusional masif (+25% Tick Delta & +$420.5M Inflow) diperkuat pemangkasan kuota OPEC+ dan premi risiko jalur maritim Timur Tengah (+15%).',
+                whyStyle: 'background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.72rem; color: #fca5a5;',
+                actionHtml: '<b>Keputusan Institusi:</b> AKUMULASI PADA PULLBACK. Lakukan <b>Buy the Dip</b> di rentang $70.20 – $70.80 menargetkan ekspansi penembusan resistance menuju $72.80–$74.50.',
+                actionStyle: 'background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.72rem; color: #86efac;'
+            },
             layers: [
-                {
-                    layer: '1. Price Trend',
-                    param: 'Scalp & Medium Trend',
-                    liveVal: 'MINOR RETRACEMENT ↓ (Str: 55)',
-                    weight: '15%',
-                    rawScore: '-1 (Dip)',
-                    weightedScore: '-15.0%',
-                    signalStatus: '🔴 Pullback Menuju Support',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '2. SnR Structure',
-                    param: 'Structural Proximity',
-                    liveVal: 'STRONG SUPPORT BASE ($70.20 - $70.80)',
-                    weight: '20%',
-                    rawScore: '+1 (Base)',
-                    weightedScore: '+20.0%',
-                    signalStatus: '🛡️ Fondasi Permintaan Kuat',
-                    signalColor: 'color: #10b981;'
-                },
-                {
-                    layer: '3. Order Flow',
-                    param: 'Tick Mode Delta (M1–H1)',
-                    liveVal: '5/5 BUY DELTA PRESSURE (+11.2% Delta)',
-                    weight: '25%',
-                    rawScore: '+1 (Inflow)',
-                    weightedScore: '+25.0%',
-                    signalStatus: '🟢 Smart Money Mengisi Beli',
-                    signalColor: 'color: #10b981;'
-                },
-                {
-                    layer: '4. Money Flow',
-                    param: 'CMF & Currency Power Gap',
-                    liveVal: 'Net Inflow +$420.5M | Crude Demand +94%',
-                    weight: '25%',
-                    rawScore: '+1 (Accumulation)',
-                    weightedScore: '+25.0%',
-                    signalStatus: '🟢 Likuiditas Fisik Defisit',
-                    signalColor: 'color: #10b981;'
-                },
-                {
-                    layer: '5. Macro & Policy',
-                    param: 'OPEC+ & Geopolitical Supply Cut',
-                    liveVal: 'OPEC+ Extension Deficit + Mid-East Risk',
-                    weight: '15%',
-                    rawScore: '+1 (Bullish Supply)',
-                    weightedScore: '+15.0%',
-                    signalStatus: '🟢 Fundamental Suplai Ketat',
-                    signalColor: 'color: #10b981;'
-                }
+                { layer: '1. Price Trend', param: 'Scalp & Medium Trend', liveVal: 'MINOR RETRACEMENT ↓ (Str: 55)', weight: '15%', rawScore: '-1 (Dip)', weightedScore: '-15.0%', signalStatus: '🔴 Pullback Menuju Support', signalColor: 'color: #ef4444;' },
+                { layer: '2. SnR Structure', param: 'Structural Proximity', liveVal: 'STRONG SUPPORT BASE ($70.20 - $70.80)', weight: '20%', rawScore: '+1 (Base)', weightedScore: '+20.0%', signalStatus: '🛡️ Fondasi Permintaan Kuat', signalColor: 'color: #10b981;' },
+                { layer: '3. Order Flow', param: 'Tick Mode Delta (M1–H1)', liveVal: '5/5 BUY DELTA PRESSURE (+11.2% Delta)', weight: '25%', rawScore: '+1 (Inflow)', weightedScore: '+25.0%', signalStatus: '🟢 Smart Money Mengisi Beli', signalColor: 'color: #10b981;' },
+                { layer: '4. Money Flow', param: 'CMF & Currency Power Gap', liveVal: 'Net Inflow +$420.5M | Crude Demand +94%', weight: '25%', rawScore: '+1 (Accumulation)', weightedScore: '+25.0%', signalStatus: '🟢 Likuiditas Fisik Defisit', signalColor: 'color: #10b981;' },
+                { layer: '5. Macro & Policy', param: 'OPEC+ & Geopolitical Supply Cut', liveVal: 'OPEC+ Extension Deficit + Mid-East Risk', weight: '15%', rawScore: '+1 (Bullish Supply)', weightedScore: '+15.0%', signalStatus: '🟢 Fundamental Suplai Ketat', signalColor: 'color: #10b981;' }
             ]
         },
         'BTCUSD': {
@@ -5817,57 +5642,22 @@
             netClass: 'bg-success bg-opacity-25 text-success border border-success',
             edgeBadge: '💎 BEAR TRAP / ETF ABSORPTION (94% CONF)',
             edgeBadgeClass: 'bg-info bg-opacity-25 text-info border border-info',
+            divergence: {
+                icon: '⚡',
+                title: 'INTERPRETASI DIVERGENSI: KASUS BTCUSD WHALE ACCUMULATION',
+                titleClass: 'text-success',
+                paradox: 'Perhatikan anomali data BTCUSD: <b>Price Trend mengalami shakeout koreksi kilat (-15.0%)</b>, namun skor konfluensi institusi mencapai <b>+70.0% AGGRESSIVE ACCUMULATION</b>:',
+                whyHtml: '<b>Mengapa Dilarang SELL?</b> Koreksi tajam hanyalah aksi \'liquidating late longs\' di atas Whale Demand Pool $62,400 - $63,100 (+20%). Spot ETF mencatat arus masuk masif (+25% Money Flow & +$1,240M Inflow) dengan dominasi transaksi beli spot institusi (+25% Tick Delta).',
+                whyStyle: 'background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.72rem; color: #fca5a5;',
+                actionHtml: '<b>Keputusan Institusi:</b> IKUTI WHALE INFLOW. Lakukan <b>Aggressive Accumulation / Buy Dip</b> di area demand $62,400 – $63,100 menuju target ekspansi likuiditas di $66,000–$68,500.',
+                actionStyle: 'background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.72rem; color: #86efac;'
+            },
             layers: [
-                {
-                    layer: '1. Price Trend',
-                    param: 'Scalp & Medium Trend',
-                    liveVal: 'SHORT SHAKEOUT DIP ↓ (Str: 61)',
-                    weight: '15%',
-                    rawScore: '-1 (Dip)',
-                    weightedScore: '-15.0%',
-                    signalStatus: '🔴 Koreksi Cepat Buang Retail',
-                    signalColor: 'color: #ef4444;'
-                },
-                {
-                    layer: '2. SnR Structure',
-                    param: 'Structural Proximity',
-                    liveVal: 'DEMAND POOL SUPPORT ($62,400 - $63,100)',
-                    weight: '20%',
-                    rawScore: '+1 (Whale Floor)',
-                    weightedScore: '+20.0%',
-                    signalStatus: '🛡️ Kolam Likuiditas Whale Kokoh',
-                    signalColor: 'color: #10b981;'
-                },
-                {
-                    layer: '3. Order Flow',
-                    param: 'Tick Mode Delta (M1–H1)',
-                    liveVal: '5/5 BUY DELTA SHARP (+18.5% Delta)',
-                    weight: '25%',
-                    rawScore: '+1 (Whale Sweep)',
-                    weightedScore: '+25.0%',
-                    signalStatus: '🟢 Pembelian Agresif Pasar Spot',
-                    signalColor: 'color: #10b981;'
-                },
-                {
-                    layer: '4. Money Flow',
-                    param: 'CMF & Currency Power Gap',
-                    liveVal: 'Net Inflow +$1,240M | Spot ETF Alpha +116',
-                    weight: '25%',
-                    rawScore: '+1 (Massive Inflow)',
-                    weightedScore: '+25.0%',
-                    signalStatus: '🟢 Arus Masuk ETF & Institusi',
-                    signalColor: 'color: #10b981;'
-                },
-                {
-                    layer: '5. Macro & Policy',
-                    param: 'Global Liquidity & Fed Rate Cut',
-                    liveVal: 'Global M2 Expansion & US Treasury Bid',
-                    weight: '15%',
-                    rawScore: '+1 (Macro Bid)',
-                    weightedScore: '+15.0%',
-                    signalStatus: '🟢 Likuiditas Global Melimpah',
-                    signalColor: 'color: #10b981;'
-                }
+                { layer: '1. Price Trend', param: 'Scalp & Medium Trend', liveVal: 'SHORT SHAKEOUT DIP ↓ (Str: 61)', weight: '15%', rawScore: '-1 (Dip)', weightedScore: '-15.0%', signalStatus: '🔴 Koreksi Cepat Buang Retail', signalColor: 'color: #ef4444;' },
+                { layer: '2. SnR Structure', param: 'Structural Proximity', liveVal: 'DEMAND POOL SUPPORT ($62,400 - $63,100)', weight: '20%', rawScore: '+1 (Whale Floor)', weightedScore: '+20.0%', signalStatus: '🛡️ Kolam Likuiditas Whale Kokoh', signalColor: 'color: #10b981;' },
+                { layer: '3. Order Flow', param: 'Tick Mode Delta (M1–H1)', liveVal: '5/5 BUY DELTA SHARP (+18.5% Delta)', weight: '25%', rawScore: '+1 (Whale Sweep)', weightedScore: '+25.0%', signalStatus: '🟢 Pembelian Agresif Pasar Spot', signalColor: 'color: #10b981;' },
+                { layer: '4. Money Flow', param: 'CMF & Currency Power Gap', liveVal: 'Net Inflow +$1,240M | Spot ETF Alpha +116', weight: '25%', rawScore: '+1 (Massive Inflow)', weightedScore: '+25.0%', signalStatus: '🟢 Arus Masuk ETF & Institusi', signalColor: 'color: #10b981;' },
+                { layer: '5. Macro & Policy', param: 'Global Liquidity & Fed Rate Cut', liveVal: 'Global M2 Expansion & US Treasury Bid', weight: '15%', rawScore: '+1 (Macro Bid)', weightedScore: '+15.0%', signalStatus: '🟢 Likuiditas Global Melimpah', signalColor: 'color: #10b981;' }
             ]
         }
     };
@@ -5940,6 +5730,33 @@
         const footStatus = document.getElementById('m1-foot-status');
         if (footStatus) {
             footStatus.innerHTML = '<span class="badge ' + item.netClass + ' py-1 px-2" style="font-size: 0.78rem;">' + item.netStatus + '</span>';
+        }
+
+        // 5. Update Divergence Interpretation Box (Box 2 Dynamic Pair Synchronizer)
+        if (item.divergence) {
+            const div = item.divergence;
+            const iconEl = document.getElementById('m1-divergence-icon');
+            if (iconEl && div.icon) iconEl.textContent = div.icon;
+
+            const divTitle = document.getElementById('m1-divergence-title');
+            if (divTitle) {
+                divTitle.textContent = div.title;
+                divTitle.className = 'fw-bold mb-0 ' + (div.titleClass || 'text-warning');
+            }
+            const divParadox = document.getElementById('m1-divergence-paradox');
+            if (divParadox) divParadox.innerHTML = div.paradox;
+
+            const divWhy = document.getElementById('m1-divergence-why');
+            if (divWhy) {
+                divWhy.innerHTML = div.whyHtml;
+                if (div.whyStyle) divWhy.setAttribute('style', div.whyStyle);
+            }
+
+            const divAction = document.getElementById('m1-divergence-action');
+            if (divAction) {
+                divAction.innerHTML = div.actionHtml;
+                if (div.actionStyle) divAction.setAttribute('style', div.actionStyle);
+            }
         }
     }
 
@@ -7247,6 +7064,7 @@
     function renderActivePair() {
         if (!lastReceivedData) return;
         updateQCIMatrix(currentSelectedPair);
+        if (typeof updatePairSpotlightFlow === 'function') updatePairSpotlightFlow();
 
         const data = lastReceivedData;
         const pairs = data.pairs || {};
@@ -8121,9 +7939,8 @@
 
         let baseKey = 'USD';
         let quoteKey = 'JPY';
-        let baseTitle = 'BASE: USD';
-        let quoteTitle = 'QUOTE: JPY';
-        let pairLabel = currentSelectedPair;
+        let baseTitle = 'BASE: USD (Dolar AS)';
+        let quoteTitle = 'QUOTE: JPY (Yen Jepang)';
 
         if (currentSelectedPair === 'USDJPY') {
             baseKey = 'USD'; quoteKey = 'JPY';
@@ -8149,15 +7966,65 @@
         setText('mf-base-name', baseTitle);
         setText('mf-quote-name', quoteTitle);
 
-        const baseScore = baseKey === 'OIL' ? 48.0 : (sc[baseKey] || 0);
-        const quoteScore = sc[quoteKey] || 0;
-        const basePct = baseKey === 'OIL' ? 1.45 : (st[baseKey] || 0);
-        const quotePct = st[quoteKey] || 0;
+        // Harmonize directly with authentic institutional Money Flow Radar (run_local_server / api/prices)
+        const pData = (lastReceivedData && lastReceivedData.pairs && lastReceivedData.pairs[currentSelectedPair]) ? lastReceivedData.pairs[currentSelectedPair] : null;
+        const meta = (typeof PAIR_METADATA !== 'undefined' && PAIR_METADATA[currentSelectedPair]) ? PAIR_METADATA[currentSelectedPair] : null;
+        const mfr = (pData && pData.money_flow_radar) ? pData.money_flow_radar : (meta && meta.money_flow_radar ? meta.money_flow_radar : null);
+
+        let baseScore = 0;
+        let quoteScore = 0;
+        let netFlowScore = 0;
+        let biasLabel = 'NEUTRAL / RANGING';
+        let biasClass = 'text-warning';
+
+        if (mfr) {
+            baseScore = parseFloat(mfr.base_flow) || 0;
+            quoteScore = parseFloat(mfr.quote_flow) || 0;
+
+            if (currentSelectedPair === 'USDJPY') {
+                netFlowScore = baseScore - quoteScore; // 28 - 82 = -54 (Bearish JPY dominance)
+            } else if (currentSelectedPair === 'EURUSD') {
+                netFlowScore = baseScore - quoteScore; // -45 - 38 = -83 (Bearish USD dominance)
+            } else if (currentSelectedPair === 'GBPUSD') {
+                netFlowScore = baseScore - quoteScore; // 32 - 28 = +4 (Balanced Parity)
+            } else if (currentSelectedPair === 'XAUUSD') {
+                netFlowScore = baseScore - quoteScore; // 84 - (-32) = +116 (Bullish XAU dominance)
+            } else if (currentSelectedPair === 'OIL') {
+                netFlowScore = baseScore - quoteScore; // 76 - (-18) = +94 (Bullish Crude dominance)
+            } else if (currentSelectedPair === 'BTCUSD') {
+                netFlowScore = baseScore - quoteScore; // 92 - (-24) = +116 (Bullish Crypto dominance)
+            } else {
+                netFlowScore = baseScore - quoteScore;
+            }
+
+            if (mfr.status) {
+                biasLabel = mfr.status;
+                biasClass = mfr.net_flow_pos ? 'text-success' : 'text-danger';
+                if (currentSelectedPair === 'GBPUSD') biasClass = 'text-warning';
+            }
+        } else {
+            baseScore = baseKey === 'OIL' ? 48.0 : (sc[baseKey] || 0);
+            quoteScore = sc[quoteKey] || 0;
+            netFlowScore = baseScore - quoteScore;
+            if (netFlowScore > 25) {
+                biasLabel = 'STRONG BULLISH FLOW (ACCUMULATION)';
+                biasClass = 'text-success';
+            } else if (netFlowScore > 8) {
+                biasLabel = 'MILD BULLISH BIAS';
+                biasClass = 'text-success';
+            } else if (netFlowScore < -25) {
+                biasLabel = 'STRONG BEARISH FLOW (DISTRIBUTION)';
+                biasClass = 'text-danger';
+            } else if (netFlowScore < -8) {
+                biasLabel = 'MILD BEARISH BIAS';
+                biasClass = 'text-danger';
+            }
+        }
 
         const [baseTag, baseTagClass] = getMFTag(baseScore);
         const [quoteTag, quoteTagClass] = getMFTag(quoteScore);
 
-        setText('mf-base-pct', `${basePct > 0 ? '+' : ''}${basePct.toFixed(2)}%`);
+        setText('mf-base-pct', `${baseScore > 0 ? '+' : ''}${baseScore.toFixed(0)}%`);
         setText('mf-base-score', `Score: ${baseScore > 0 ? '+' : ''}${baseScore.toFixed(0)}`);
         const bTagEl = document.getElementById('mf-base-tag');
         if (bTagEl) {
@@ -8165,7 +8032,7 @@
             bTagEl.className = `badge ${baseTagClass} mono`;
         }
 
-        setText('mf-quote-pct', `${quotePct > 0 ? '+' : ''}${quotePct.toFixed(2)}%`);
+        setText('mf-quote-pct', `${quoteScore > 0 ? '+' : ''}${quoteScore.toFixed(0)}%`);
         setText('mf-quote-score', `Score: ${quoteScore > 0 ? '+' : ''}${quoteScore.toFixed(0)}`);
         const qTagEl = document.getElementById('mf-quote-tag');
         if (qTagEl) {
@@ -8173,48 +8040,37 @@
             qTagEl.className = `badge ${quoteTagClass} mono`;
         }
 
-        // Net Pair Flow Score
-        const netFlowScore = baseScore - quoteScore;
         const sign = netFlowScore > 0 ? '+' : '';
-        let biasLabel = 'NEUTRAL / RANGING';
-        let biasClass = 'text-warning';
-
-        if (netFlowScore > 25) {
-            biasLabel = 'STRONG BULLISH FLOW (ACCUMULATION)';
-            biasClass = 'text-success';
-        } else if (netFlowScore > 8) {
-            biasLabel = 'MILD BULLISH BIAS';
-            biasClass = 'text-success';
-        } else if (netFlowScore < -25) {
-            biasLabel = 'STRONG BEARISH FLOW (DISTRIBUTION)';
-            biasClass = 'text-danger';
-        } else if (netFlowScore < -8) {
-            biasLabel = 'MILD BEARISH BIAS';
-            biasClass = 'text-danger';
-        }
-
         setText('mf-pair-net-score', `${sign}${netFlowScore.toFixed(0)}`);
         setText('mf-pair-bias', biasLabel);
         const biasEl = document.getElementById('mf-pair-bias');
         if (biasEl) biasEl.className = biasClass;
 
-        // Dynamic Direction Banner
+        // Dynamic Direction Banner & Institutional Context
         const dirBanner = document.getElementById('mf-direction-banner');
         const impactTxt = document.getElementById('mf-pair-impact-txt');
 
         if (netFlowScore >= 0) {
             if (dirBanner) {
-                dirBanner.innerHTML = `<span class="text-danger">${quoteKey} (KELUAR ${quoteScore.toFixed(0)})</span> <span class="text-warning"> ➔ </span> <span class="text-success">${baseKey} (MASUK +${baseScore.toFixed(0)})</span>`;
+                dirBanner.innerHTML = `<span class="text-danger">${quoteKey} (KELUAR ${quoteScore.toFixed(0)}%)</span> <span class="text-warning"> ➔ </span> <span class="text-success">${baseKey} (MASUK +${baseScore.toFixed(0)}%)</span>`;
             }
             if (impactTxt) {
-                impactTxt.innerHTML = `Modal mengalir meninggalkan ${quoteKey} dan diakumulasi ke dalam ${baseKey}. Memberikan dorongan apresiasi harga <b class="text-success">BULLISH (+${netFlowScore.toFixed(0)})</b> bagi ${currentSelectedPair}.`;
+                if (mfr && mfr.base_driver) {
+                    impactTxt.innerHTML = `Modal terakumulasi ke dalam ${baseKey} (${mfr.base_driver}). Memberikan dorongan apresiasi harga <b class="text-success">BULLISH (+${netFlowScore.toFixed(0)})</b> bagi ${currentSelectedPair}.`;
+                } else {
+                    impactTxt.innerHTML = `Modal mengalir meninggalkan ${quoteKey} dan diakumulasi ke dalam ${baseKey}. Memberikan dorongan apresiasi harga <b class="text-success">BULLISH (+${netFlowScore.toFixed(0)})</b> bagi ${currentSelectedPair}.`;
+                }
             }
         } else {
             if (dirBanner) {
-                dirBanner.innerHTML = `<span class="text-danger">${baseKey} (KELUAR ${baseScore.toFixed(0)})</span> <span class="text-warning"> ➔ </span> <span class="text-success">${quoteKey} (MASUK +${quoteScore.toFixed(0)})</span>`;
+                dirBanner.innerHTML = `<span class="text-danger">${baseKey} (${baseScore > 0 ? '+' : ''}${baseScore.toFixed(0)}%)</span> <span class="text-warning"> ➔ </span> <span class="text-success">${quoteKey} (DOMINAN +${quoteScore.toFixed(0)}%)</span>`;
             }
             if (impactTxt) {
-                impactTxt.innerHTML = `Modal terdistribusi keluar dari ${baseKey} dan mengalir ke ${quoteKey}. Memberikan tekanan koreksi <b class="text-danger">BEARISH (${netFlowScore.toFixed(0)})</b> bagi ${currentSelectedPair}.`;
+                if (mfr && mfr.quote_driver) {
+                    impactTxt.innerHTML = `Modal institusi terdistribusi keluar dari ${baseKey} dan terserap ke ${quoteKey} (${mfr.quote_driver}). Memberikan tekanan koreksi <b class="text-danger">BEARISH (${netFlowScore.toFixed(0)})</b> bagi ${currentSelectedPair}.`;
+                } else {
+                    impactTxt.innerHTML = `Modal terdistribusi keluar dari ${baseKey} dan mengalir ke ${quoteKey}. Memberikan tekanan koreksi <b class="text-danger">BEARISH (${netFlowScore.toFixed(0)})</b> bagi ${currentSelectedPair}.`;
+                }
             }
         }
     }
@@ -8493,7 +8349,7 @@
             MF_TFS.forEach(tf => {
                 let chg = 0;
                 if (a === 'USD') {
-                    chg = 0;
+                    chg = (Q['TVC:DXY'] && Q['TVC:DXY'][tf.col] !== undefined) ? Q['TVC:DXY'][tf.col] : 0;
                 } else {
                     const leg = MF_LEG[a];
                     if (leg && Q[leg[0]]) {
