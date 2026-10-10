@@ -1666,15 +1666,48 @@ def poll_market_data():
                     acc = mt5.account_info()
 
                     if term and term.connected and acc:
+                        positions = mt5.positions_get()
+                        pos_list = []
+                        if positions:
+                            for p in positions:
+                                pos_list.append({
+                                    "ticket": p.ticket,
+                                    "symbol": p.symbol,
+                                    "type": "BUY" if p.type == 0 else "SELL",
+                                    "volume": p.volume,
+                                    "price_open": p.price_open,
+                                    "sl": p.sl,
+                                    "tp": p.tp,
+                                    "profit": round(p.profit, 2)
+                                })
+
+                        bal = round(acc.balance, 2)
+                        eq = round(acc.equity, 2)
+                        prof = round(acc.profit, 2)
+                        daily_limit = round(bal * 0.05, 2)
+                        max_dd_limit = round(bal * 0.10, 2)
+                        floating_loss = max(0.0, round(bal - eq, 2))
+
                         PRICE_CACHE["mt5_bridge"] = {
                             "connected": True,
                             "broker": term.name,
                             "server": acc.server,
                             "login": acc.login,
                             "name": acc.name,
-                            "balance": round(acc.balance, 2),
-                            "equity": round(acc.equity, 2),
-                            "ping": round(term.ping_last / 1000.0, 1)
+                            "balance": bal,
+                            "equity": eq,
+                            "profit": prof,
+                            "margin": round(acc.margin, 2),
+                            "margin_free": round(acc.margin_free, 2),
+                            "leverage": acc.leverage,
+                            "currency": acc.currency,
+                            "ping": round(term.ping_last / 1000.0, 1),
+                            "daily_limit": daily_limit,
+                            "daily_loss_used": floating_loss,
+                            "max_dd_limit": max_dd_limit,
+                            "max_dd_used": floating_loss,
+                            "positions_count": len(pos_list),
+                            "positions": pos_list
                         }
 
                         for sym_k in ["USDJPY", "XAUUSD", "EURUSD", "GBPUSD"]:

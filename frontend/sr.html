@@ -1829,20 +1829,20 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 14px;">
                     <div style="display: flex; align-items: center; gap: 6px; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 8px; padding: 5px 10px; font-size: 0.75rem; color: #8492a6;">
-                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
-                        <span style="color: #ffffff; font-weight: 600;">Prop Evaluator #42901</span>
-                        <span style="color: #38bdf8; font-weight: 700;">($50,000 Step 2)</span>
+                        <span id="dash-status-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+                        <span id="dash-acc-login" style="color: #ffffff; font-weight: 600;">Prop Evaluator #113893895</span>
+                        <span id="dash-acc-server" style="color: #38bdf8; font-weight: 700;">(MetaQuotes-Demo)</span>
                     </div>
                     <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--border-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #8492a6;" onclick="switchNavTab('telegram')">
                         🔔
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px; padding-left: 4px;">
-                        <div style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #1d4ed8 0%, #06b6d4 100%); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.80rem; color: #ffffff; box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);">
-                            ET
+                        <div id="dash-user-avatar" style="width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, #1d4ed8 0%, #06b6d4 100%); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.80rem; color: #ffffff; box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);">
+                            ES
                         </div>
                         <div style="line-height: 1.2;">
-                            <div style="font-size: 0.78rem; font-weight: 700; color: #ffffff;">Executive Trader</div>
-                            <div style="font-size: 0.65rem; color: #10b981; font-weight: 600;">● Live MT5 Connected</div>
+                            <div id="dash-user-name" style="font-size: 0.78rem; font-weight: 700; color: #ffffff;">Edy Sa</div>
+                            <div id="dash-user-conn" style="font-size: 0.65rem; color: #10b981; font-weight: 600;">● Live MT5 Connected</div>
                         </div>
                     </div>
                 </div>
@@ -1854,12 +1854,12 @@
                 <div class="dash-card">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 0.78rem; font-weight: 600; color: #8492a6;">Current Balance</span>
-                        <span class="stat-badge-green">+5.2%</span>
+                        <span id="dash-balance-badge" class="stat-badge-green">+0.0%</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                         <div>
-                            <div style="font-size: 1.45rem; font-weight: 800; color: #ffffff; font-family: 'JetBrains Mono', monospace;">$50,000</div>
-                            <div style="font-size: 0.68rem; color: #8492a6;">Starting Initial: $50,000.00</div>
+                            <div id="dash-balance-val" style="font-size: 1.45rem; font-weight: 800; color: #ffffff; font-family: 'JetBrains Mono', monospace;">$10,000.00</div>
+                            <div id="dash-balance-sub" style="font-size: 0.68rem; color: #8492a6;">Equity: $10,000.00</div>
                         </div>
                         <svg width="44" height="28" viewBox="0 0 44 28" fill="none">
                             <line x1="8" y1="2" x2="8" y2="26" stroke="#10b981" stroke-width="1.2"/>
@@ -1876,12 +1876,12 @@
                 <div class="dash-card">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 0.78rem; font-weight: 600; color: #8492a6;">Total Profit / Loss</span>
-                        <span class="stat-badge-blue">+1.0%</span>
+                        <span id="dash-pnl-badge" class="stat-badge-blue">+$0.00</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                         <div>
-                            <div style="font-size: 1.45rem; font-weight: 800; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">+$500</div>
-                            <div style="font-size: 0.68rem; color: #8492a6;">Profit Target: $5,000 (10%)</div>
+                            <div id="dash-pnl-val" style="font-size: 1.45rem; font-weight: 800; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">+$0.00</div>
+                            <div id="dash-pnl-sub" style="font-size: 0.68rem; color: #8492a6;">Profit Target: $1,000.00 (10%)</div>
                         </div>
                         <svg width="44" height="28" viewBox="0 0 44 28" fill="none">
                             <line x1="8" y1="4" x2="8" y2="24" stroke="#38bdf8" stroke-width="1.2"/>
@@ -1898,12 +1898,12 @@
                 <div class="dash-card">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 0.78rem; font-weight: 600; color: #8492a6;">Daily Loss Limit</span>
-                        <span class="stat-badge-green">Safe (16%)</span>
+                        <span id="dash-daily-loss-badge" class="stat-badge-green">Safe (0%)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                         <div>
-                            <div style="font-size: 1.45rem; font-weight: 800; color: #ffffff; font-family: 'JetBrains Mono', monospace;">$400</div>
-                            <div style="font-size: 0.68rem; color: #8492a6;">Max Daily Limit: $2,500 (5%)</div>
+                            <div id="dash-daily-loss-val" style="font-size: 1.45rem; font-weight: 800; color: #ffffff; font-family: 'JetBrains Mono', monospace;">$0.00</div>
+                            <div id="dash-daily-loss-sub" style="font-size: 0.68rem; color: #8492a6;">Max Daily Limit: $500.00 (5%)</div>
                         </div>
                         <svg width="44" height="28" viewBox="0 0 44 28" fill="none">
                             <line x1="8" y1="5" x2="8" y2="22" stroke="#f59e0b" stroke-width="1.2"/>
@@ -1920,12 +1920,12 @@
                 <div class="dash-card">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 0.78rem; font-weight: 600; color: #8492a6;">Max Drawdown</span>
-                        <span class="stat-badge-amber">Safe (25%)</span>
+                        <span id="dash-drawdown-badge" class="stat-badge-green">Safe (0%)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                         <div>
-                            <div style="font-size: 1.45rem; font-weight: 800; color: #ffffff; font-family: 'JetBrains Mono', monospace;">$1,400</div>
-                            <div style="font-size: 0.68rem; color: #8492a6;">Max Trailing: $5,500 (11%)</div>
+                            <div id="dash-drawdown-val" style="font-size: 1.45rem; font-weight: 800; color: #ffffff; font-family: 'JetBrains Mono', monospace;">$0.00</div>
+                            <div id="dash-drawdown-sub" style="font-size: 0.68rem; color: #8492a6;">Max Trailing: $1,000.00 (10%)</div>
                         </div>
                         <svg width="44" height="28" viewBox="0 0 44 28" fill="none">
                             <line x1="8" y1="3" x2="8" y2="25" stroke="#ef4444" stroke-width="1.2"/>
@@ -1988,11 +1988,11 @@
                             <circle cx="360" cy="90" r="4.5" fill="#2563eb" stroke="#ffffff" stroke-width="1.5"/>
                             <g transform="translate(325, 5)">
                                 <rect width="95" height="42" rx="6" fill="#0b1324" stroke="rgba(56,189,248,0.4)" stroke-width="1"/>
-                                <text x="8" y="14" fill="#ffffff" font-size="9" font-weight="700">Equity : $2,000</text>
+                                <text id="dash-chart-eq-tip" x="8" y="14" fill="#ffffff" font-size="9" font-weight="700">Equity : $10,000</text>
                                 <circle cx="10" cy="24" r="2.5" fill="#2563eb"/>
-                                <text x="17" y="27" fill="#8492a6" font-size="8">Balance : $1,500</text>
+                                <text id="dash-chart-bal-tip" x="17" y="27" fill="#8492a6" font-size="8">Balance : $10,000</text>
                                 <circle cx="10" cy="34" r="2.5" fill="#38bdf8"/>
-                                <text x="17" y="37" fill="#8492a6" font-size="8">Profit/Loss : +$500</text>
+                                <text id="dash-chart-pnl-tip" x="17" y="37" fill="#8492a6" font-size="8">Profit/Loss : +$0.00</text>
                             </g>
                             <text x="50" y="146" fill="#526075" font-size="9" text-anchor="middle">Jan</text>
                             <text x="100" y="146" fill="#526075" font-size="9" text-anchor="middle">Feb</text>
@@ -2021,11 +2021,11 @@
                             <span style="font-size: 0.8rem; color: #8492a6; background: #0e1526; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">↗</span>
                         </div>
                         <div style="width: 100%; height: 8px; background: #111a2f; border-radius: 999px; overflow: hidden;">
-                            <div style="height: 100%; width: 15%; background: linear-gradient(90deg, #1d4ed8 0%, #38bdf8 100%); border-radius: 999px;"></div>
+                            <div id="dash-rules-daily-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #1d4ed8 0%, #38bdf8 100%); border-radius: 999px; transition: width 0.4s ease;"></div>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem;">
-                            <span style="color: #8492a6; font-family: monospace;">$400 / $2,500 Used (15%)</span>
-                            <span style="font-size: 0.68rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span> Safe</span>
+                            <span id="dash-rules-daily-text" style="color: #8492a6; font-family: monospace;">$0.00 / $500.00 Used (0%)</span>
+                            <span id="dash-rules-daily-status" style="font-size: 0.68rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span> Safe</span>
                         </div>
                     </div>
 
@@ -2035,11 +2035,11 @@
                             <span style="font-size: 0.8rem; color: #8492a6; background: #0e1526; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">↗</span>
                         </div>
                         <div style="width: 100%; height: 8px; background: #111a2f; border-radius: 999px; overflow: hidden;">
-                            <div style="height: 100%; width: 24%; background: linear-gradient(90deg, #10b981 0%, #f59e0b 60%, #ef4444 100%); border-radius: 999px;"></div>
+                            <div id="dash-rules-dd-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #10b981 0%, #f59e0b 60%, #ef4444 100%); border-radius: 999px; transition: width 0.4s ease;"></div>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem;">
-                            <span style="color: #8492a6; font-family: monospace;">$1,400 / $5,500 used (24%)</span>
-                            <span style="font-size: 0.68rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span> Safe</span>
+                            <span id="dash-rules-dd-text" style="color: #8492a6; font-family: monospace;">$0.00 / $1,000.00 Used (0%)</span>
+                            <span id="dash-rules-dd-status" style="font-size: 0.68rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 4px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; display: inline-block;"></span> Safe</span>
                         </div>
                     </div>
                 </div>
@@ -2130,11 +2130,11 @@
                             </div>
                             <div style="text-align: center; margin: 4px 0;">
                                 <div style="font-size: 0.68rem; color: #8492a6;">Net P&L</div>
-                                <div style="font-size: 1.15rem; font-weight: 800; color: #38bdf8; font-family: monospace;">+$500.00</div>
+                                <div id="dash-cal-pnl" style="font-size: 1.15rem; font-weight: 800; color: #38bdf8; font-family: monospace;">+$0.00</div>
                             </div>
                             <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #38bdf8; border-top: 1px solid rgba(56,189,248,0.2); pt: 4px;">
-                                <span>1 Open Pos</span>
-                                <span style="font-weight: 700;">USDJPY FADE</span>
+                                <span id="dash-cal-pos-cnt">0 Open Pos</span>
+                                <span id="dash-cal-pos-desc" style="font-weight: 700;">FLAT STANDBY</span>
                             </div>
                         </div>
 
@@ -2167,11 +2167,11 @@
                         <div style="font-size: 0.72rem; font-weight: 800; color: #38bdf8;">WEEKLY EVALUATION</div>
                         <div>
                             <div style="font-size: 0.68rem; color: #8492a6;">Net Weekly Gain</div>
-                            <div style="font-size: 1.15rem; font-weight: 800; color: #10b981; font-family: monospace;">+$500.00</div>
+                            <div id="dash-weekly-gain" style="font-size: 1.15rem; font-weight: 800; color: #10b981; font-family: monospace;">+$0.00</div>
                         </div>
                         <div style="font-size: 0.68rem; color: #8492a6; line-height: 1.4;">
                             <div>Min Trading Days: <b style="color: #ffffff;">5 / 5 Done</b></div>
-                            <div>Drawdown Status: <b style="color: #10b981;">Nominal</b></div>
+                            <div id="dash-free-margin">Free Margin: <b style="color: #ffffff;">$10,000.00</b></div>
                         </div>
                     </div>
                 </div>
@@ -2190,36 +2190,12 @@
                                 <th style="padding: 6px;">Status</th>
                             </tr>
                         </thead>
-                        <tbody style="font-family: monospace; color: #ffffff;">
+                        <tbody id="dash-trading-history-tbody" style="font-family: monospace; color: #ffffff;">
                             <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                                <td style="padding: 6px; color: #8492a6;">#948201</td>
-                                <td style="padding: 6px; font-weight: 700; color: #38bdf8;">USDJPY</td>
-                                <td style="padding: 6px; color: #ef4444; font-weight: 700;">SELL LIMIT</td>
-                                <td style="padding: 6px;">0.50</td>
-                                <td style="padding: 6px;">153.250</td>
-                                <td style="padding: 6px; color: #8492a6;">153.600 / 152.400</td>
-                                <td style="padding: 6px; color: #10b981; font-weight: 700;">+$285.40</td>
-                                <td style="padding: 6px;"><span class="stat-badge-green">TP HIT</span></td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                                <td style="padding: 6px; color: #8492a6;">#948194</td>
-                                <td style="padding: 6px; font-weight: 700; color: #f59e0b;">XAUUSD</td>
-                                <td style="padding: 6px; color: #10b981; font-weight: 700;">BUY STOP</td>
-                                <td style="padding: 6px;">0.30</td>
-                                <td style="padding: 6px;">2,645.20</td>
-                                <td style="padding: 6px; color: #8492a6;">2,638.00 / 2,662.00</td>
-                                <td style="padding: 6px; color: #10b981; font-weight: 700;">+$214.60</td>
-                                <td style="padding: 6px;"><span class="stat-badge-green">CLOSED</span></td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
-                                <td style="padding: 6px; color: #8492a6;">#948182</td>
-                                <td style="padding: 6px; font-weight: 700; color: #38bdf8;">EURUSD</td>
-                                <td style="padding: 6px; color: #ef4444; font-weight: 700;">SELL</td>
-                                <td style="padding: 6px;">0.40</td>
-                                <td style="padding: 6px;">1.08450</td>
-                                <td style="padding: 6px; color: #8492a6;">1.08700 / 1.07900</td>
-                                <td style="padding: 6px; color: #10b981; font-weight: 700;">+$142.00</td>
-                                <td style="padding: 6px;"><span class="stat-badge-blue">CLOSED</span></td>
+                                <td colspan="8" style="padding: 16px; text-align: center; color: #8492a6;">
+                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; margin-right: 6px;"></span>
+                                    Live MT5 Connected (#113893895 - Edy Sa). No open positions currently (Standby Mode).
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -2230,7 +2206,7 @@
                         <b style="color: #38bdf8;">🔔 Qwen AI Signal:</b> USDJPY Bull Trap terdeteksi di 153.250 dengan confluence 89%. Auto cut-loss guard aktif.
                     </div>
                     <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; padding: 8px; color: #ffffff;">
-                        <b style="color: #10b981;">🛡️ Risk Guard:</b> Daily drawdown aman di $400 (15% dari kuota maksimal $2,500). Akun memenuhi syarat evaluasi prop firm.
+                        <b style="color: #10b981;">🛡️ Risk Guard:</b> Daily drawdown aman di $0.00 (0% dari kuota maksimal $500.00). Akun memenuhi syarat evaluasi prop firm.
                     </div>
                 </div>
             </div>
@@ -5224,6 +5200,196 @@
 
 
 
+    /* Live Sync MT5 Account with Executive Dashboard */
+    function syncDashboardWithMT5(bridge) {
+        if (!bridge) return;
+
+        // 1. Account Credentials & Status
+        const login = bridge.login || 113893895;
+        const server = bridge.server || 'MetaQuotes-Demo';
+        const name = bridge.name || 'Edy Sa';
+        const ping = bridge.ping ? bridge.ping + 'ms' : 'Live';
+
+        const accLoginEl = document.getElementById('dash-acc-login');
+        if (accLoginEl) accLoginEl.textContent = 'Prop Evaluator #' + login;
+
+        const accServerEl = document.getElementById('dash-acc-server');
+        if (accServerEl) accServerEl.textContent = '(' + server + ')';
+
+        const userNameEl = document.getElementById('dash-user-name');
+        if (userNameEl) userNameEl.textContent = name;
+
+        const userConnEl = document.getElementById('dash-user-conn');
+        const statusDotEl = document.getElementById('dash-status-dot');
+        if (userConnEl) {
+            if (bridge.connected) {
+                userConnEl.innerHTML = '● Live MT5 Connected (' + ping + ')';
+                userConnEl.style.color = '#10b981';
+                if (statusDotEl) statusDotEl.style.background = '#10b981';
+            } else {
+                userConnEl.innerHTML = '○ MT5 Offline';
+                userConnEl.style.color = '#ef4444';
+                if (statusDotEl) statusDotEl.style.background = '#ef4444';
+            }
+        }
+
+        const userAvatarEl = document.getElementById('dash-user-avatar');
+        if (userAvatarEl && name) {
+            const parts = name.trim().split(' ');
+            const inits = parts.length > 1 ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
+            userAvatarEl.textContent = inits;
+        }
+
+        // 2. Balances & Floating Metrics
+        const bal = Number(bridge.balance || 0);
+        const eq = Number(bridge.equity || 0);
+        const prof = Number(bridge.profit || 0);
+        const balFormatted = '$' + bal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const eqFormatted = '$' + eq.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const profSign = prof >= 0 ? '+' : '';
+        const profFormatted = profSign + '$' + prof.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const balValEl = document.getElementById('dash-balance-val');
+        if (balValEl) balValEl.textContent = balFormatted;
+
+        const balSubEl = document.getElementById('dash-balance-sub');
+        if (balSubEl) balSubEl.textContent = 'Equity: ' + eqFormatted;
+
+        const pnlValEl = document.getElementById('dash-pnl-val');
+        if (pnlValEl) {
+            pnlValEl.textContent = profFormatted;
+            pnlValEl.style.color = prof >= 0 ? '#10b981' : '#ef4444';
+        }
+
+        const pnlBadgeEl = document.getElementById('dash-pnl-badge');
+        if (pnlBadgeEl) {
+            pnlBadgeEl.textContent = profFormatted;
+            pnlBadgeEl.className = prof >= 0 ? 'stat-badge-green' : 'stat-badge-red';
+        }
+
+        // Daily limit & Drawdown
+        const dailyLimit = Number(bridge.daily_limit || (bal * 0.05));
+        const dailyUsed = Number(bridge.daily_loss_used || 0);
+        const dailyPct = dailyLimit > 0 ? Math.min(100, Math.round((dailyUsed / dailyLimit) * 100)) : 0;
+
+        const dailyValEl = document.getElementById('dash-daily-loss-val');
+        if (dailyValEl) dailyValEl.textContent = '$' + dailyUsed.toFixed(2);
+
+        const dailySubEl = document.getElementById('dash-daily-loss-sub');
+        if (dailySubEl) dailySubEl.textContent = 'Max Daily Limit: $' + dailyLimit.toFixed(2) + ' (5%)';
+
+        const dailyBadgeEl = document.getElementById('dash-daily-loss-badge');
+        if (dailyBadgeEl) {
+            dailyBadgeEl.textContent = dailyPct > 80 ? 'Warning (' + dailyPct + '%)' : 'Safe (' + dailyPct + '%)';
+            dailyBadgeEl.className = dailyPct > 80 ? 'stat-badge-red' : (dailyPct > 50 ? 'stat-badge-amber' : 'stat-badge-green');
+        }
+
+        const maxDdLimit = Number(bridge.max_dd_limit || (bal * 0.10));
+        const maxDdUsed = Number(bridge.max_dd_used || 0);
+        const maxDdPct = maxDdLimit > 0 ? Math.min(100, Math.round((maxDdUsed / maxDdLimit) * 100)) : 0;
+
+        const ddValEl = document.getElementById('dash-drawdown-val');
+        if (ddValEl) ddValEl.textContent = '$' + maxDdUsed.toFixed(2);
+
+        const ddSubEl = document.getElementById('dash-drawdown-sub');
+        if (ddSubEl) ddSubEl.textContent = 'Max Trailing: $' + maxDdLimit.toFixed(2) + ' (10%)';
+
+        const ddBadgeEl = document.getElementById('dash-drawdown-badge');
+        if (ddBadgeEl) {
+            ddBadgeEl.textContent = maxDdPct > 80 ? 'Danger (' + maxDdPct + '%)' : 'Safe (' + maxDdPct + '%)';
+            ddBadgeEl.className = maxDdPct > 80 ? 'stat-badge-red' : (maxDdPct > 50 ? 'stat-badge-amber' : 'stat-badge-green');
+        }
+
+        // Rules Progress bars
+        const dailyBarEl = document.getElementById('dash-rules-daily-bar');
+        if (dailyBarEl) dailyBarEl.style.width = dailyPct + '%';
+
+        const dailyTextEl = document.getElementById('dash-rules-daily-text');
+        if (dailyTextEl) dailyTextEl.textContent = '$' + dailyUsed.toFixed(2) + ' / $' + dailyLimit.toFixed(2) + ' Used (' + dailyPct + '%)';
+
+        const ddBarEl = document.getElementById('dash-rules-dd-bar');
+        if (ddBarEl) ddBarEl.style.width = maxDdPct + '%';
+
+        const ddTextEl = document.getElementById('dash-rules-dd-text');
+        if (ddTextEl) ddTextEl.textContent = '$' + maxDdUsed.toFixed(2) + ' / $' + maxDdLimit.toFixed(2) + ' Used (' + maxDdPct + '%)';
+
+        // Revenue Wave Tooltip
+        const tipEq = document.getElementById('dash-chart-eq-tip');
+        if (tipEq) tipEq.textContent = 'Equity : ' + eqFormatted;
+
+        const tipBal = document.getElementById('dash-chart-bal-tip');
+        if (tipBal) tipBal.textContent = 'Balance : ' + balFormatted;
+
+        const tipPnl = document.getElementById('dash-chart-pnl-tip');
+        if (tipPnl) tipPnl.textContent = 'Profit/Loss : ' + profFormatted;
+
+        // Calendar Today & Weekly
+        const calPnl = document.getElementById('dash-cal-pnl');
+        if (calPnl) {
+            calPnl.textContent = profFormatted;
+            calPnl.style.color = prof >= 0 ? '#38bdf8' : '#ef4444';
+        }
+
+        const posCount = bridge.positions_count || (bridge.positions ? bridge.positions.length : 0);
+        const calPosCnt = document.getElementById('dash-cal-pos-cnt');
+        if (calPosCnt) calPosCnt.textContent = posCount + ' Open Pos';
+
+        const calPosDesc = document.getElementById('dash-cal-pos-desc');
+        if (calPosDesc) {
+            if (posCount > 0 && bridge.positions && bridge.positions[0]) {
+                calPosDesc.textContent = bridge.positions[0].symbol + ' ' + bridge.positions[0].type;
+            } else {
+                calPosDesc.textContent = 'FLAT STANDBY';
+            }
+        }
+
+        const weeklyGain = document.getElementById('dash-weekly-gain');
+        if (weeklyGain) {
+            weeklyGain.textContent = profFormatted;
+            weeklyGain.style.color = prof >= 0 ? '#10b981' : '#ef4444';
+        }
+
+        const freeMarginEl = document.getElementById('dash-free-margin');
+        if (freeMarginEl && bridge.margin_free !== undefined) {
+            freeMarginEl.innerHTML = 'Free Margin: <b style="color: #ffffff;">$' + Number(bridge.margin_free).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</b>';
+        }
+
+        // 3. Open Positions / Trading History Table
+        const tbody = document.getElementById('dash-trading-history-tbody');
+        if (tbody) {
+            if (bridge.positions && bridge.positions.length > 0) {
+                let rowsHtml = '';
+                bridge.positions.forEach(p => {
+                    const pProf = Number(p.profit || 0);
+                    const pSign = pProf >= 0 ? '+' : '';
+                    const pColor = pProf >= 0 ? '#10b981' : '#ef4444';
+                    const pTypeColor = p.type === 'BUY' ? '#10b981' : '#ef4444';
+                    const symDec = p.symbol.includes('JPY') ? 3 : (p.symbol.includes('XAU') ? 2 : 5);
+                    rowsHtml += '<tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">' +
+                        '<td style="padding: 6px; color: #8492a6;">#' + p.ticket + '</td>' +
+                        '<td style="padding: 6px; font-weight: 700; color: #38bdf8;">' + p.symbol + '</td>' +
+                        '<td style="padding: 6px; color: ' + pTypeColor + '; font-weight: 700;">' + p.type + '</td>' +
+                        '<td style="padding: 6px;">' + Number(p.volume).toFixed(2) + '</td>' +
+                        '<td style="padding: 6px;">' + Number(p.price_open).toFixed(symDec) + '</td>' +
+                        '<td style="padding: 6px; color: #8492a6;">' + Number(p.sl || 0).toFixed(symDec) + ' / ' + Number(p.tp || 0).toFixed(symDec) + '</td>' +
+                        '<td style="padding: 6px; color: ' + pColor + '; font-weight: 700;">' + pSign + '$' + pProf.toFixed(2) + '</td>' +
+                        '<td style="padding: 6px;"><span class="stat-badge-blue">OPEN</span></td>' +
+                    '</tr>';
+                });
+                tbody.innerHTML = rowsHtml;
+            } else {
+                tbody.innerHTML = '<tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">' +
+                    '<td colspan="8" style="padding: 16px; text-align: center; color: #8492a6;">' +
+                        '<span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; margin-right: 6px;"></span>' +
+                        'Live MT5 Connected (#' + login + ' - ' + name + '). No open positions currently (Standby Mode).' +
+                    '</td>' +
+                '</tr>';
+            }
+        }
+    }
+
+
+
     // ==========================================
     // THEME CONTROLLER: PUTIH DOF / DARK
     // ==========================================
@@ -6104,7 +6270,6 @@
         });
 
         if (lastReceivedData) {
-            if (typeof checkRealtimePriceAlerts === "function") checkRealtimePriceAlerts(lastReceivedData);
             renderActivePair();
         }
 
@@ -6137,6 +6302,8 @@
         }
 
         if (data.mt5_bridge) {
+            if (typeof syncDashboardWithMT5 === "function") syncDashboardWithMT5(data.mt5_bridge);
+            if (typeof checkRealtimePriceAlerts === "function") checkRealtimePriceAlerts(data);
             const b = data.mt5_bridge;
             const el = document.getElementById('mt5-status-pill');
             if (el) {
