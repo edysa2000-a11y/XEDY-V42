@@ -4544,6 +4544,14 @@
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <span class="fw-bold mono text-cyan" style="font-size: 0.82rem; letter-spacing: 0.8px;">
                         ⚡ QUANTITATIVE CONFLUENCE &amp; TRAP MATRIX (QCI 3.0) &bull; <span id="qci-pair-label" class="text-white">USDJPY</span>
+                    <div class="d-inline-flex align-items-center gap-1 p-1 rounded ms-2" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <button class="btn btn-sm m1-pair-btn active" id="m1-btn-USDJPY" onclick="switchM1Pair('USDJPY')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: #2563eb; color: #ffffff; border: 1px solid #38bdf8;">USDJPY</button>
+                        <button class="btn btn-sm m1-pair-btn" id="m1-btn-XAUUSD" onclick="switchM1Pair('XAUUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">XAUUSD</button>
+                        <button class="btn btn-sm m1-pair-btn" id="m1-btn-EURUSD" onclick="switchM1Pair('EURUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">EURUSD</button>
+                        <button class="btn btn-sm m1-pair-btn" id="m1-btn-GBPUSD" onclick="switchM1Pair('GBPUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">GBPUSD</button>
+                        <button class="btn btn-sm m1-pair-btn" id="m1-btn-OIL" onclick="switchM1Pair('OIL')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">OIL</button>
+                        <button class="btn btn-sm m1-pair-btn" id="m1-btn-BTCUSD" onclick="switchM1Pair('BTCUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">BTCUSD</button>
+                    </div>
                     </span>
                     <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono py-1 px-2" id="qci-score-badge">QCI: -72 / 100 [BEARISH FADE]</span>
                     <span class="badge bg-warning bg-opacity-25 text-warning border border-warning mono py-1 px-2" id="qci-trap-badge">🚨 BULL TRAP ACTIVE (89% CONF)</span>
@@ -4672,14 +4680,8 @@
                     </p>
                 </div>
 
-                <!-- Pair Navigation Tabs (Tiap Pair Terpisah) -->
-                <div class="d-flex align-items-center gap-1 p-1 rounded" style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <button class="btn btn-sm m1-pair-btn active" id="m1-btn-USDJPY" onclick="switchM1Pair('USDJPY')" style="font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-family: monospace; background: #2563eb; color: #ffffff; border: 1px solid #38bdf8;">USDJPY</button>
-                    <button class="btn btn-sm m1-pair-btn" id="m1-btn-XAUUSD" onclick="switchM1Pair('XAUUSD')" style="font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">XAUUSD</button>
-                    <button class="btn btn-sm m1-pair-btn" id="m1-btn-EURUSD" onclick="switchM1Pair('EURUSD')" style="font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">EURUSD</button>
-                    <button class="btn btn-sm m1-pair-btn" id="m1-btn-GBPUSD" onclick="switchM1Pair('GBPUSD')" style="font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">GBPUSD</button>
-                    <button class="btn btn-sm m1-pair-btn" id="m1-btn-OIL" onclick="switchM1Pair('OIL')" style="font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">OIL</button>
-                    <button class="btn btn-sm m1-pair-btn" id="m1-btn-BTCUSD" onclick="switchM1Pair('BTCUSD')" style="font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">BTCUSD</button>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-dark text-cyan border border-info mono py-1 px-2" style="font-size: 0.72rem;">INSTITUTIONAL WEIGHTING</span>
                 </div>
             </div>
 
