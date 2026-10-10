@@ -64,7 +64,7 @@ D1H4_RECOMMENDATIONS_MAP = {
         'qwen_accuracy': '95.8% [APPROVED 🟢]',
         'win_rate': '91.4%',
         'qwen_feedback': 'Qwen AI memvalidasi BUY THE DIP. Smart Money menyerap likuiditas di 4,178. Algoritma adaptif menyetujui ukuran posisi penuh (1.0x).',
-        'tip': 'Beli saat lilin H4 menyentuh demand 4,178–4,182. Batalkan jika H4 close < 4,165.50.'
+        'tip': 'Beli saat lilin H4 menyentuh demand 4,178–4,182. Batalkan jika H4 close &lt; 4,165.50.'
     },
     'EURUSD': {
         'name': 'EUR/USD (Euro / US Dollar)',
@@ -88,7 +88,7 @@ D1H4_RECOMMENDATIONS_MAP = {
         'qwen_accuracy': '93.4% [APPROVED 🟢]',
         'win_rate': '89.1%',
         'qwen_feedback': 'Qwen AI memvalidasi TREND FOLLOWING SHORT dengan konvergensi makro 100%. Buffer SL dipatok di atas 1.1265.',
-        'tip': 'Sell retest di 1.1215–1.1235. Batalkan jika H4 close > 1.1265.'
+        'tip': 'Sell retest di 1.1215–1.1235. Batalkan jika H4 close &gt; 1.1265.'
     },
     'GBPUSD': {
         'name': 'GBP/USD (British Pound / US Dollar)',
@@ -111,7 +111,7 @@ D1H4_RECOMMENDATIONS_MAP = {
         'lot': '0.0x LOCKED (Proteksi Modal)',
         'qwen_accuracy': '72.5% [REJECT / OVERRULED 🔴]',
         'win_rate': '51.2%',
-        'qwen_feedback': 'Qwen AI menolak eksekusi (Akurasi < 80%). Pasar berada dalam noise konsolidasi. Algoritma adaptif memotong lot menjadi 0.0x.',
+        'qwen_feedback': 'Qwen AI menolak eksekusi (Akurasi &lt; 80%). Pasar berada dalam noise konsolidasi. Algoritma adaptif memotong lot menjadi 0.0x.',
         'tip': 'Tahan diri. Tunggu breakout konfirmasi di atas 1.3295 atau di bawah 1.3160.'
     },
     'OIL': {
@@ -136,7 +136,7 @@ D1H4_RECOMMENDATIONS_MAP = {
         'qwen_accuracy': '92.1% [APPROVED 🟢]',
         'win_rate': '86.7%',
         'qwen_feedback': 'Qwen AI memvalidasi BUY DIP EXPANSION didukung kuota OPEC+. Algoritma adaptif menetapkan buffer SL +$0.45/bbl.',
-        'tip': 'Beli di area 90.00–90.30 saat sesi Eropa. Batalkan jika H4 close < 89.40.'
+        'tip': 'Beli di area 90.00–90.30 saat sesi Eropa. Batalkan jika H4 close &lt; 89.40.'
     },
     'BTCUSD': {
         'name': 'BITCOIN (BTC/USD Crypto Alpha)',
@@ -160,7 +160,7 @@ D1H4_RECOMMENDATIONS_MAP = {
         'qwen_accuracy': '96.2% [APPROVED 🟢]',
         'win_rate': '93.0%',
         'qwen_feedback': 'Qwen AI mengonfirmasi akumulasi masif spot ETF institusi. Algoritma adaptif meregangkan buffer SL $650 untuk volatilitas kripto.',
-        'tip': 'Akumulasi saat shakeout ke 82,000–82,400 menjelang sesi Wall Street. Batalkan jika H4 close < 81,200.'
+        'tip': 'Akumulasi saat shakeout ke 82,000–82,400 menjelang sesi Wall Street. Batalkan jika H4 close &lt; 81,200.'
     }
 }
 
