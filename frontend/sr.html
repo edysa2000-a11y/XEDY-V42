@@ -5944,8 +5944,15 @@
     }
 
     function switchM1Pair(pairKey) {
-        if (typeof renderM1Matrix === 'function') renderM1Matrix(pairKey);
-        if (typeof updateQCIMatrix === 'function') updateQCIMatrix(pairKey);
+        if (!pairKey) return;
+        currentSelectedPair = pairKey;
+        try { localStorage.setItem('xedy_active_pair', pairKey); } catch(e){}
+        if (typeof selectPair === 'function') {
+            selectPair(pairKey);
+        } else {
+            if (typeof updateQCIMatrix === 'function') updateQCIMatrix(pairKey);
+            if (typeof renderM1Matrix === 'function') renderM1Matrix(pairKey);
+        }
     }
 
 
@@ -6817,7 +6824,9 @@
     }
 
     function selectPair(pairKey) {
+        if (!pairKey) return;
         currentSelectedPair = pairKey;
+        try { localStorage.setItem('xedy_active_pair', pairKey); } catch(e){}
 
         // Update active styling on tabs
         document.querySelectorAll('.pair-tab-btn').forEach(btn => {
@@ -6828,6 +6837,19 @@
         document.querySelectorAll('.radar-card').forEach(card => {
             card.classList.toggle('active-card', card.id === `radar-${pairKey}`);
         });
+
+        // Update active styling on QCI M1 pair buttons
+        document.querySelectorAll('.m1-pair-btn').forEach(btn => {
+            const isCur = btn.id === (`m1-btn-${pairKey}`);
+            btn.classList.toggle('active', isCur);
+            btn.style.background = isCur ? '#2563eb' : 'transparent';
+            btn.style.color = isCur ? '#ffffff' : '#8492a6';
+            btn.style.borderColor = isCur ? '#38bdf8' : 'transparent';
+        });
+
+        if (typeof renderM1Matrix === 'function') {
+            renderM1Matrix(pairKey);
+        }
 
         if (lastReceivedData) {
             renderActivePair();
@@ -9320,7 +9342,8 @@
             if (typeof updateD1H4View === 'function') updateD1H4View('USDJPY');
             if (typeof updateQCIMatrix === 'function') updateQCIMatrix('USDJPY');
             if (typeof fetchNarrativeForActivePair === 'function') fetchNarrativeForActivePair();
-            if (typeof selectPair === 'function') selectPair('USDJPY');
+            const initialActivePair = localStorage.getItem('xedy_active_pair') || 'USDJPY';
+        if (typeof selectPair === 'function') selectPair(initialActivePair);
             if (typeof loadAlertsConfig === 'function') loadAlertsConfig();
         } catch(e) {
             console.error('Pre-render error:', e);
