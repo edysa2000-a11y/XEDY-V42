@@ -3188,6 +3188,50 @@
 
         <!-- PANE 4: PRECISION ENGINE (FULL COMPONENT) -->
         <section id="pane-precision" class="subview-pane">
+    <!-- ================================================== -->
+    <!-- 🎯 ALL PAIR TOP SELECTOR STRIP (PRECISION ENGINE)   -->
+    <!-- ================================================== -->
+    <div class="pair-nav-strip mb-2" id="pe-pair-nav-strip" style="background: var(--bg-panel-dark); border: 1px solid var(--border-dim); border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="fw-bold mono text-cyan" style="font-size: 0.80rem; letter-spacing: 0.8px;">
+                🔀 PAIR SELECTOR · PRECISION ENGINE
+            </span>
+            <span class="badge bg-dark text-cyan border border-dim mono" style="font-size: 0.65rem;">KLIK UNTUK PINDAH PAIR</span>
+        </div>
+        <div class="d-flex align-items-center gap-1 flex-wrap" id="pe-pair-tabs-container">
+            <button class="pair-tab-btn active" id="pe-tab-USDJPY" onclick="selectPair('USDJPY')">
+                <span>🇺🇸🇯🇵 USDJPY</span>
+                <span class="pair-tab-price" id="pe-tab-price-USDJPY">--</span>
+                <span class="pair-tab-chg bg-danger bg-opacity-25 text-danger mono" id="pe-tab-chg-USDJPY">0.00%</span>
+            </button>
+            <button class="pair-tab-btn" id="pe-tab-XAUUSD" onclick="selectPair('XAUUSD')">
+                <span>🥇 GOLD (XAUUSD)</span>
+                <span class="pair-tab-price" id="pe-tab-price-XAUUSD">--</span>
+                <span class="pair-tab-chg bg-success bg-opacity-25 text-success mono" id="pe-tab-chg-XAUUSD">0.00%</span>
+            </button>
+            <button class="pair-tab-btn" id="pe-tab-EURUSD" onclick="selectPair('EURUSD')">
+                <span>🇪🇺🇺🇸 EURUSD</span>
+                <span class="pair-tab-price" id="pe-tab-price-EURUSD">--</span>
+                <span class="pair-tab-chg bg-danger bg-opacity-25 text-danger mono" id="pe-tab-chg-EURUSD">0.00%</span>
+            </button>
+            <button class="pair-tab-btn" id="pe-tab-GBPUSD" onclick="selectPair('GBPUSD')">
+                <span>🇬🇧🇺🇸 GBPUSD</span>
+                <span class="pair-tab-price" id="pe-tab-price-GBPUSD">--</span>
+                <span class="pair-tab-chg bg-warning bg-opacity-25 text-warning mono" id="pe-tab-chg-GBPUSD">0.00%</span>
+            </button>
+            <button class="pair-tab-btn" id="pe-tab-OIL" onclick="selectPair('OIL')">
+                <span>🛢️ CRUDE OIL</span>
+                <span class="pair-tab-price" id="pe-tab-price-OIL">--</span>
+                <span class="pair-tab-chg bg-success bg-opacity-25 text-success mono" id="pe-tab-chg-OIL">0.00%</span>
+            </button>
+            <button class="pair-tab-btn" id="pe-tab-BTCUSD" onclick="selectPair('BTCUSD')">
+                <span>⚡ BITCOIN</span>
+                <span class="pair-tab-price" id="pe-tab-price-BTCUSD">--</span>
+                <span class="pair-tab-chg bg-success bg-opacity-25 text-success mono" id="pe-tab-chg-BTCUSD">0.00%</span>
+            </button>
+        </div>
+    </div>
+
 <div class="precision-banner" id="precision-engine-card">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
             <div class="d-flex align-items-center gap-2">
@@ -3970,6 +4014,50 @@
 
         <!-- PANE 5: MONEY FLOW RADAR (FULL COMPONENT) -->
         <section id="pane-moneyflow" class="subview-pane">
+    <!-- ================================================== -->
+    <!-- 🌊 ALL PAIR TOP SELECTOR STRIP (MONEY FLOW)        -->
+    <!-- ================================================== -->
+    <div class="pair-nav-strip mb-2" id="mf-pair-nav-strip" style="background: var(--bg-panel-dark); border: 1px solid var(--border-dim); border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="fw-bold mono text-cyan" style="font-size: 0.80rem; letter-spacing: 0.8px;">
+                🔀 PAIR SELECTOR · MONEY FLOW RADAR
+            </span>
+            <span class="badge bg-dark text-cyan border border-dim mono" style="font-size: 0.65rem;">KLIK UNTUK PINDAH PAIR</span>
+        </div>
+        <div class="d-flex align-items-center gap-1 flex-wrap" id="mf-pair-tabs-container">
+            <button class="pair-tab-btn active" id="mf-tab-USDJPY" onclick="selectPair('USDJPY')">
+                <span>🇺🇸🇯🇵 USDJPY</span>
+                <span class="pair-tab-price" id="mf-tab-price-USDJPY">--</span>
+                <span class="pair-tab-chg bg-danger bg-opacity-25 text-danger mono" id="mf-tab-chg-USDJPY">0.00%</span>
+            </button>
+            <button class="pair-tab-btn" id="mf-tab-XAUUSD" onclick="selectPair('XAUUSD')">
+                <span>🥇 GOLD (XAUUSD)</span>
+                <span class="pair-tab-price" id="mf-tab-price-XAUUSD">--</span>
+                <span class="pair-tab-chg bg-success bg-opacity-25 text-success mono" id="mf-tab-chg-XAUUSD">0.00%</span>
+            </button>
+            <button class="pair-tab-btn" id="mf-tab-EURUSD" onclick="selectPair('EURUSD')">
+                <span>🇪🇺🇺🇸 EURUSD</span>
+                <span class="pair-tab-price" id="mf-tab-price-EURUSD">--</span>
+                <span class="pair-tab-chg bg-danger bg-opacity-25 text-danger mono" id="mf-tab-chg-EURUSD">0.00%</span>
+            </button>
+            <button class="pair-tab-btn" id="mf-tab-GBPUSD" onclick="selectPair('GBPUSD')">
+                <span>🇬🇧🇺🇸 GBPUSD</span>
+                <span class="pair-tab-price" id="mf-tab-price-GBPUSD">--</span>
+                <span class="pair-tab-chg bg-warning bg-opacity-25 text-warning mono" id="mf-tab-chg-GBPUSD">0.00%</span>
+            </button>
+            <button class="pair-tab-btn" id="mf-tab-OIL" onclick="selectPair('OIL')">
+                <span>🛢️ CRUDE OIL</span>
+                <span class="pair-tab-price" id="mf-tab-price-OIL">--</span>
+                <span class="pair-tab-chg bg-success bg-opacity-25 text-success mono" id="mf-tab-chg-OIL">0.00%</span>
+            </button>
+            <button class="pair-tab-btn" id="mf-tab-BTCUSD" onclick="selectPair('BTCUSD')">
+                <span>⚡ BITCOIN</span>
+                <span class="pair-tab-price" id="mf-tab-price-BTCUSD">--</span>
+                <span class="pair-tab-chg bg-success bg-opacity-25 text-success mono" id="mf-tab-chg-BTCUSD">0.00%</span>
+            </button>
+        </div>
+    </div>
+
 <div class="trade-monitor-wrapper" id="trade-monitor-section">
         <!-- TOP CONTROL BAR -->
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-2 mb-2 border-bottom border-dim">
@@ -7343,9 +7431,10 @@
         currentSelectedPair = pairKey;
         try { localStorage.setItem('xedy_active_pair', pairKey); } catch(e){}
 
-        // Update active styling on tabs
+        // Update active styling on tabs across all panes (Precision, Money Flow, S/R Ladder)
         document.querySelectorAll('.pair-tab-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.id === `tab-${pairKey}`);
+            const isMatch = btn.id === `tab-${pairKey}` || btn.id === `pe-tab-${pairKey}` || btn.id === `mf-tab-${pairKey}`;
+            btn.classList.toggle('active', isMatch);
         });
 
         // Update active styling on radar cards
@@ -7423,7 +7512,21 @@
             const chgStr = `${chgSign}${chg1d.toFixed(2)}%`;
             const isPos = chg1d >= 0;
 
-            // 1. Update Navigation Tab
+            // 1. Update Navigation Tabs across panes (Precision, Money Flow, S/R Ladder, D1H4)
+            setText(`pe-tab-price-${k}`, priceStr);
+            const peChgEl = document.getElementById(`pe-tab-chg-${k}`);
+            if (peChgEl) {
+                peChgEl.innerText = chgStr;
+                peChgEl.className = `pair-tab-chg mono ${isPos ? 'bg-success bg-opacity-25 text-success' : 'bg-danger bg-opacity-25 text-danger'}`;
+            }
+
+            setText(`mf-tab-price-${k}`, priceStr);
+            const mfChgEl = document.getElementById(`mf-tab-chg-${k}`);
+            if (mfChgEl) {
+                mfChgEl.innerText = chgStr;
+                mfChgEl.className = `pair-tab-chg mono ${isPos ? 'bg-success bg-opacity-25 text-success' : 'bg-danger bg-opacity-25 text-danger'}`;
+            }
+
             setText(`tab-price-${k}`, priceStr);
             setText(`d1h4-tag-${k}`, priceStr);
             const tabChgEl = document.getElementById(`tab-chg-${k}`);
