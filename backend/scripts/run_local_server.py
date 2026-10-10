@@ -1782,7 +1782,93 @@ def get_lan_ip():
         ip = '127.0.0.1'
     finally:
         s.close()
-    return ip
+def get_default_telegram_alerts():
+    return {
+        "USDJPY": {
+            "name": "USD/JPY (Dolar / Yen)",
+            "enabled": True,
+            "op": 158.300,
+            "tp": 157.900,
+            "direction": "SELL LIMIT",
+            "op_triggered": False,
+            "tp_triggered": False,
+            "note": "London Open Short Fade"
+        },
+        "XAUUSD": {
+            "name": "GOLD (XAU/USD)",
+            "enabled": True,
+            "op": 4180.00,
+            "tp": 4210.00,
+            "direction": "BUY PULLBACK",
+            "op_triggered": False,
+            "tp_triggered": False,
+            "note": "Whale Inflow Support Retest"
+        },
+        "EURUSD": {
+            "name": "EUR/USD (Euro / Dolar)",
+            "enabled": True,
+            "op": 1.12200,
+            "tp": 1.11600,
+            "direction": "SELL BREAKOUT",
+            "op_triggered": False,
+            "tp_triggered": False,
+            "note": "Downtrend Continuation"
+        },
+        "GBPUSD": {
+            "name": "GBP/USD (Pound / Dolar)",
+            "enabled": True,
+            "op": 1.33250,
+            "tp": 1.33850,
+            "direction": "BUY DIP",
+            "op_triggered": False,
+            "tp_triggered": False,
+            "note": "London Accumulation Zone"
+        },
+        "OIL": {
+            "name": "OIL (Crude Oil WTI)",
+            "enabled": False,
+            "op": 71.40,
+            "tp": 69.80,
+            "direction": "SELL RALLY",
+            "op_triggered": False,
+            "tp_triggered": False,
+            "note": "Supply Resistance Fade"
+        },
+        "BTCUSD": {
+            "name": "BITCOIN (BTC/USD)",
+            "enabled": False,
+            "op": 68500.0,
+            "tp": 71200.0,
+            "direction": "BUY BREAKOUT",
+            "op_triggered": False,
+            "tp_triggered": False,
+            "note": "Weekend Liquidity Push"
+        }
+    }
+
+def send_telegram_direct_message(text_html):
+    token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    admin_id = os.environ.get("TELEGRAM_ADMIN_ID", "-1003468917523")
+    if not token:
+        print("[TELEGRAM] Warning: No TELEGRAM_BOT_TOKEN configured.")
+        return False
+    try:
+        url = f"https://api.telegram.org/bot{token}/sendMessage"
+        payload = {
+            "chat_id": admin_id,
+            "text": text_html,
+            "parse_mode": "HTML"
+        }
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={'Content-Type': 'application/json'}
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return resp.status == 200
+    except Exception as e:
+        print(f"[TELEGRAM] Error sending message: {e}")
+        return False
 
 class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -1853,6 +1939,22 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(gs, ensure_ascii=False).encode('utf-8'))
             return
 
+        if self.path.startswith('/api/telegram_alerts_config'):
+            alerts_file = os.path.join(PROJECT_ROOT, "backend", "data", "telegram_alerts.json")
+            if os.path.exists(alerts_file):
+                try:
+                    with open(alerts_file, 'r', encoding='utf-8') as f:
+                        cfg = json.load(f)
+                except Exception:
+                    cfg = get_default_telegram_alerts()
+            else:
+                cfg = get_default_telegram_alerts()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(cfg, ensure_ascii=False).encode('utf-8'))
+            return
+
         if self.path == '/sr':
             self.path = '/sr.html'
         return super().do_GET()
@@ -1865,6 +1967,93 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps(val).encode('utf-8'))
             return
+
+        if self.path.startswith('/api/telegram_alerts_config'):
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length)
+            try:
+                data = json.loads(body.decode('utf-8'))
+                alerts_file = os.path.join(PROJECT_ROOT, "backend", "data", "telegram_alerts.json")
+                os.makedirs(os.path.dirname(alerts_file), exist_ok=True)
+                with open(alerts_file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2)
+                resp = {"status": "ok", "message": "Alert configuration saved successfully"}
+            except Exception as e:
+                resp = {"status": "error", "message": str(e)}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp).encode('utf-8'))
+            return
+
+        if self.path.startswith('/api/telegram_price_alert'):
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length)
+            try:
+                data = json.loads(body.decode('utf-8'))
+                pair = data.get('pair', 'USDJPY')
+                alert_type = data.get('alert_type', 'OP')
+                curr_price = data.get('current_price', 0)
+                target_price = data.get('target_price', 0)
+                direction = data.get('direction', '')
+                note = data.get('note', '')
+
+                icon = "🚨" if alert_type == "OP" else "🎯"
+                title = f"{icon} <b>PRICE ALERT: {pair} MELEWATI {alert_type}!</b>"
+                msg = (
+                    f"{title}\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"📈 <b>Harga Saat Ini:</b> <code>{curr_price}</code>\n"
+                    f"🎯 <b>Target {alert_type}:</b> <code>{target_price}</code>\n"
+                    f"⚡ <b>Arah / Setup:</b> <b>{direction}</b>\n"
+                    f"🕒 <b>Waktu:</b> {datetime.now(timezone(timedelta(hours=7))).strftime('%H:%M:%S WIB • %d/%m/%Y')}\n"
+                    f"🛡️ <i>XEDY Realtime Price Cross Engine</i>\n"
+                )
+                if note:
+                    msg += f"📝 <i>Catatan: {note}</i>\n"
+
+                success = send_telegram_direct_message(msg)
+                resp = {"status": "ok" if success else "failed", "sent": success}
+            except Exception as e:
+                resp = {"status": "error", "message": str(e)}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp).encode('utf-8'))
+            return
+
+        if self.path.startswith('/api/telegram_trigger_d1h4'):
+            try:
+                import asyncio
+                from backend.scripts.send_d1h4_telegram import send_d1h4_recommendations
+                success = asyncio.run(send_d1h4_recommendations())
+                resp = {"status": "ok" if success else "failed", "dispatched": success}
+            except Exception as e:
+                resp = {"status": "error", "message": str(e)}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp).encode('utf-8'))
+            return
+
+        if self.path.startswith('/api/telegram_ping'):
+            now_wib = datetime.now(timezone(timedelta(hours=7))).strftime('%H:%M:%S WIB • %d/%m/%Y')
+            msg = (
+                "🤖 <b>XEDY MISSION CONTROL • TELEGRAM BOT PING</b>\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "✅ <b>Koneksi Bot Telegram (@XEDYSgold_bot) Aktif &amp; Terhubung!</b>\n"
+                f"🕒 Waktu Server: <code>{now_wib}</code>\n"
+                "📡 Feed Harga MT5 &amp; Alert Engine: <b>ONLINE</b>\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            )
+            success = send_telegram_direct_message(msg)
+            resp = {"status": "ok" if success else "failed", "sent": success}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp).encode('utf-8'))
+            return
+
         return super().do_POST()
 
     def log_message(self, format, *args):
