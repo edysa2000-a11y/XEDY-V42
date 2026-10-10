@@ -81,8 +81,8 @@
         /* 1. LEFT SIDEBAR (ALL TABS IN LEFT SIDEBAR)         */
         /* ================================================== */
         .sidebar {
-            width: 220px;
-            min-width: 220px;
+            width: 230px;
+            min-width: 230px;
             height: 100vh;
             background: var(--bg-sidebar);
             border-right: 1px solid var(--border-card);
@@ -206,7 +206,7 @@
             flex-direction: column;
             padding: 14px 20px;
             gap: 10px;
-            background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.06), transparent 60%), var(--bg-body);
+            background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 60%), var(--bg-body);
         }
 
         /* Header Greeting Bar */
@@ -773,7 +773,7 @@
         }
     </style>
 </head>
-<body class="putih-dof">
+<body>
 
 <div class="app-layout">
 
@@ -838,8 +838,8 @@
                 <span>Telegram Bot</span>
             </button>
             <button class="nav-link-btn" onclick="toggleThemeMode()">
-                <span class="nav-icon" id="icon-theme">⚪</span>
-                <span id="label-theme">Putih Dof (Aktif)</span>
+                <span class="nav-icon" id="icon-theme">🌙</span>
+                <span id="label-theme">Dark Mode (Aktif)</span>
             </button>
             <button class="nav-link-btn" onclick="fetchLivePrices()">
                 <span class="nav-icon">🔄</span>
@@ -878,10 +878,10 @@
             <!-- 2. Quick Filter Pills -->
             <div class="dash-filter-row">
                 <div class="filter-pills-group">
-                    <button class="filter-pill active" onclick="setPairFilter('USDJPY')">Current Equity</button>
-                    <button class="filter-pill" onclick="setPairFilter('XAUUSD')">Profit Equity</button>
-                    <button class="filter-pill" onclick="setPairFilter('EURUSD')">Analytics</button>
-                    <button class="filter-pill" onclick="setPairFilter('GBPUSD')">Accounts</button>
+                    <button class="filter-pill active" onclick="setPairFilter('USDJPY', this)">Current Equity</button>
+                    <button class="filter-pill" onclick="setPairFilter('XAUUSD', this)">Profit Equity</button>
+                    <button class="filter-pill" onclick="setPairFilter('EURUSD', this)">Analytics</button>
+                    <button class="filter-pill" onclick="setPairFilter('GBPUSD', this)">Accounts</button>
                 </div>
                 <button class="btn-add-challenge" onclick="fetchLivePrices()">
                     <span>+ Add Another Challenge</span>
@@ -1124,7 +1124,7 @@
                             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                 <div>
                                     <div style="font-size: 0.65rem; color: #8492a6;">Profit</div>
-                                    <div class="day-profit-val text-green">+$79.78</div>
+                                    <div class="day-profit-val text-green" style="color: #10b981;">+$79.78</div>
                                 </div>
                                 <span class="day-num">1</span>
                             </div>
@@ -1179,6 +1179,19 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Notifications Pane -->
+                <div id="pane-trading-notif" style="display: none; flex: 1; overflow-y: auto; font-size: 0.76rem; font-family: 'JetBrains Mono', monospace; padding: 6px;">
+                    <div style="padding: 6px; border-bottom: 1px solid var(--border-sub); color: #10b981;">
+                        ● [06:00 WIB] Sesi Subuh: Analisis lilin D1 terbentuk. Rekomendasi siap dieksekusi.
+                    </div>
+                    <div style="padding: 6px; border-bottom: 1px solid var(--border-sub); color: #38bdf8;">
+                        ● [13:30 WIB] London Open: Pemicu H4 aktif untuk USDJPY (158.303) dan XAUUSD (4,178.00).
+                    </div>
+                    <div style="padding: 6px; color: #f59e0b;">
+                        ● [20:00 WIB] US Open: Volatilitas Wall Street terpantau stabil. Trailing drawdown 24% aman.
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -1211,7 +1224,7 @@
             <!-- QCI Slim Gauge Meter Card -->
             <div class="subview-card" style="height: 70px; display: flex; flex-direction: column; justify-content: space-between;">
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
-                    <span><b>AI QWEN 3.7 VALIDATOR:</b> <span id="d1h4-qwen-status" class="text-green fw-bold">94.6% [APPROVED 🟢]</span></span>
+                    <span><b>AI QWEN 3.7 VALIDATOR:</b> <span id="d1h4-qwen-status" style="color: #10b981; font-weight: 700;">94.6% [APPROVED 🟢]</span></span>
                     <span class="mono" style="color: var(--text-muted);">Calibrated with 5-Layer Macro Confluence</span>
                 </div>
                 <div class="gauge-meter-wrapper">
@@ -1244,9 +1257,9 @@
                     </div>
                     <!-- TP Levels -->
                     <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between;" class="mono">
-                        <div>TP1: <b id="d1h4-tp1" class="text-green">157.923</b></div>
-                        <div>TP2: <b id="d1h4-tp2" class="text-green">157.523</b></div>
-                        <div>TP3: <b id="d1h4-tp3" class="text-green">157.073</b></div>
+                        <div>TP1: <b id="d1h4-tp1" style="color: #10b981;">157.923</b></div>
+                        <div>TP2: <b id="d1h4-tp2" style="color: #10b981;">157.523</b></div>
+                        <div>TP3: <b id="d1h4-tp3" style="color: #10b981;">157.073</b></div>
                         <div>RR: <b id="d1h4-rr" style="color: #f59e0b;">1 : 1.9</b></div>
                     </div>
                 </div>
@@ -1453,7 +1466,7 @@
     // State
     let activeNavTab = 'dashboard';
     let currentPair = 'USDJPY';
-    let isPutihDof = true;
+    let isPutihDof = false; // Default: DARK MODE (matching user screenshot)
 
     // Pairs Data Map for live updates
     const PAIRS_DATA = {
@@ -1531,11 +1544,11 @@
         }
     };
 
-    // 1. Sidebar Tab Switcher
+    // 1. Sidebar Tab Switcher (Switches Right View Completely)
     function switchNavTab(tabKey) {
         activeNavTab = tabKey;
         // Update Sidebar active state
-        document.querySelectorAll('.nav-link-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.sidebar-nav .nav-link-btn').forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.getElementById('tab-' + tabKey);
         if (activeBtn) activeBtn.classList.add('active');
 
@@ -1553,21 +1566,31 @@
 
         const paneDays = document.getElementById('pane-calendar-days');
         const paneHistory = document.getElementById('pane-trading-history');
+        const paneNotif = document.getElementById('pane-trading-notif');
+
         if (tabKey === 'days') {
             if (paneDays) paneDays.style.display = 'flex';
             if (paneHistory) paneHistory.style.display = 'none';
-        } else {
+            if (paneNotif) paneNotif.style.display = 'none';
+        } else if (tabKey === 'history') {
             if (paneDays) paneDays.style.display = 'none';
             if (paneHistory) paneHistory.style.display = 'block';
+            if (paneNotif) paneNotif.style.display = 'none';
+        } else {
+            if (paneDays) paneDays.style.display = 'none';
+            if (paneHistory) paneHistory.style.display = 'none';
+            if (paneNotif) paneNotif.style.display = 'block';
         }
     }
 
     // 3. Quick Filter Pairs
-    function setPairFilter(pairKey) {
+    function setPairFilter(pairKey, btn) {
         currentPair = pairKey;
+        if (btn) {
+            btn.parentElement.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+        }
         const data = PAIRS_DATA[pairKey] || PAIRS_DATA['USDJPY'];
-        const valBal = document.getElementById('val-balance');
-        const valEq = document.getElementById('val-equity');
         const ladderP = document.getElementById('ladder-live-price');
         if (ladderP) ladderP.textContent = data.price;
         selectD1H4(pairKey);
@@ -1579,7 +1602,7 @@
         const data = PAIRS_DATA[pairKey] || PAIRS_DATA['USDJPY'];
         
         // Update Pills
-        document.querySelectorAll('.filter-pills-group .filter-pill').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('#pane-d1h4 .filter-pills-group .filter-pill').forEach(p => p.classList.remove('active'));
         const targetPill = document.getElementById('pill-d1-' + pairKey);
         if (targetPill) targetPill.classList.add('active');
 
@@ -1604,7 +1627,7 @@
         }
     }
 
-    // 5. Theme Toggle: Putih Dof / Dark
+    // 5. Theme Toggle: Dark Mode (Default) <-> Putih Dof
     function toggleThemeMode() {
         isPutihDof = !isPutihDof;
         const iconEl = document.getElementById('icon-theme');
@@ -1613,13 +1636,13 @@
         if (isPutihDof) {
             document.body.classList.add('putih-dof');
             localStorage.setItem('xedy_dash_theme', 'putih-dof');
-            if (iconEl) iconEl.textContent = '⚪';
-            if (labelEl) labelEl.textContent = 'Putih Dof (Aktif)';
+            if (iconEl) iconEl.textContent = '☀️';
+            if (labelEl) labelEl.textContent = 'Putih Dof';
         } else {
             document.body.classList.remove('putih-dof');
             localStorage.setItem('xedy_dash_theme', 'dark');
-            if (iconEl) iconEl.textContent = '⚫';
-            if (labelEl) labelEl.textContent = 'Dark Mode';
+            if (iconEl) iconEl.textContent = '🌙';
+            if (labelEl) labelEl.textContent = 'Dark Mode (Aktif)';
         }
     }
 
@@ -1636,31 +1659,32 @@
                 }
             }
         } catch (e) {
-            console.log('Background polling active...');
+            // Polling silently in background
         }
     }
 
     // 7. Telegram Sync Modal / Prompt
     function openTelegramSync() {
-        alert("🚀 Telegram Bot Ekosistem (@XEDYSgold_bot) aktif live!
-
-Ketik /rk di Telegram untuk membuka Tab Pair interaktif, atau gunakan /rk usdjpy, /rk xauusd, dll.");
+        alert("🚀 Telegram Bot Ekosistem (@XEDYSgold_bot) aktif live!\n\nKetik /rk di Telegram untuk membuka Tab Pair interaktif, atau gunakan /rk usdjpy, /rk xauusd, dll.");
     }
 
     // Initialization on window load
     window.addEventListener('DOMContentLoaded', () => {
-        // Load saved theme (Default: Putih Dof as requested earlier)
+        // Load saved theme (Default: Dark Mode as requested)
         const savedTheme = localStorage.getItem('xedy_dash_theme');
-        if (savedTheme === 'dark') {
-            isPutihDof = false;
-            document.body.classList.remove('putih-dof');
-            const iconEl = document.getElementById('icon-theme');
-            const labelEl = document.getElementById('label-theme');
-            if (iconEl) iconEl.textContent = '⚫';
-            if (labelEl) labelEl.textContent = 'Dark Mode';
-        } else {
+        const iconEl = document.getElementById('icon-theme');
+        const labelEl = document.getElementById('label-theme');
+
+        if (savedTheme === 'putih-dof') {
             isPutihDof = true;
             document.body.classList.add('putih-dof');
+            if (iconEl) iconEl.textContent = '☀️';
+            if (labelEl) labelEl.textContent = 'Putih Dof';
+        } else {
+            isPutihDof = false;
+            document.body.classList.remove('putih-dof');
+            if (iconEl) iconEl.textContent = '🌙';
+            if (labelEl) labelEl.textContent = 'Dark Mode (Aktif)';
         }
 
         // Initialize default view
