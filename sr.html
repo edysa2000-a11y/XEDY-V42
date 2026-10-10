@@ -1573,6 +1573,11 @@
             display: flex !important;
         }
 
+        .subview-pane > * {
+            flex-shrink: 0;
+            width: 100%;
+        }
+
         .subview-pane::-webkit-scrollbar {
             width: 5px;
         }
@@ -2672,8 +2677,6 @@
             </div>
         </div>
     </div>
-</div> <!-- Close terminal-container -->
-
         </section>
 
         <!-- PANE 3: PRECISION ENGINE (FULL COMPONENT) -->
@@ -4143,10 +4146,7 @@
 
         <!-- PANE 5: BLOOMBERG S/R LADDER (FULL COMPONENT) -->
         <section id="pane-srladder" class="subview-pane">
-            <div id="cockpit-srladder-wrap">
-
-<!-- ================================================== -->
-    <div class="pair-nav-strip" id="pair-nav-strip">
+<div class="pair-nav-strip" id="pair-nav-strip">
         <div class="pair-tab-btn active" id="tab-USDJPY" onclick="selectPair('USDJPY')">
             <span>🇺🇸🇯🇵 USDJPY</span>
             <span class="pair-tab-price" id="tab-price-USDJPY">--</span>
@@ -4439,7 +4439,6 @@
     <!-- 2A. 🕹️ METODE MONITOR TRADE & MONEY-FLOW RADAR      -->
     <!-- ================================================== -->
     
-            </div>
         </section>
 
         <!-- PANE 6: QWEN AI & QCI 3.0 (FULL COMPONENT) -->
@@ -4480,7 +4479,79 @@
             </div>
 
             <!-- 5-Layer Quantitative Breakdown Grid -->
-            
+            <div class="row g-2 mb-2">
+                <div class="col-md-2 col-6">
+                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
+                        <div class="text-muted mono" style="font-size: 0.62rem;">L1: PRICE TREND (15%)</div>
+                        <div class="fw-bold mono text-success" style="font-size: 0.74rem;" id="qci-l1-val">+15 (BULLISH CANDLE)</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6">
+                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
+                        <div class="text-muted mono" style="font-size: 0.62rem;">L2: SnR CEILING (20%)</div>
+                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l2-val">-20 (NEAR RESIST 158.30)</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
+                        <div class="text-muted mono" style="font-size: 0.62rem;">L3: ORDER FLOW TICK (25%)</div>
+                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l3-val">-25 (5/5 SELL DELTA -7.8%)</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
+                        <div class="text-muted mono" style="font-size: 0.62rem;">L4: MONEY FLOW CMF (25%)</div>
+                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l4-val">-25 (JPY DOMINANCE -54)</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6">
+                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
+                        <div class="text-muted mono" style="font-size: 0.62rem;">L5: POLICY SPREAD (15%)</div>
+                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l5-val">-15 (BOJ YIELD SPREAD -8bp)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action & Diagnostic Banner -->
+            <div class="p-2 rounded bg-dark bg-opacity-75 border border-dim d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-danger bg-opacity-25 text-danger mono" id="qci-action-tag">ACTION: FADE RESISTANCE</span>
+                    <span class="text-light mono" style="font-size: 0.73rem;" id="qci-diagnostic-text">
+                        Harga naik ke plafon resistance, tapi Smart Money dumping masif. JANGAN BUY. Pasang Sell Limit di 158.303 &ndash; 158.363, Target 157.92.
+                    </span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.70rem;">
+                    <span class="text-muted">INVALIDATION (SL): <b class="text-danger" id="qci-sl-val">158.773</b></span>
+                    <span class="text-muted">&bull;</span>
+                    <span class="text-muted">TARGET (TP1): <b class="text-success" id="qci-tp-val">157.923</b></span>
+                </div>
+            </div>
+
+            <!-- AI QWEN ADAPTIVE ACCURACY VALIDATOR BANNER -->
+            <div class="p-2 rounded mt-2 border border-dim d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(0, 240, 255, 0.04); border-left: 3px solid #00f0ff !important;">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge bg-dark text-cyan border border-info mono py-1 px-2" style="font-size: 0.72rem;">
+                        🤖 AI QWEN 3.7 ADAPTIVE VALIDATOR
+                    </span>
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="qwen-val-acc-badge">
+                        ACCURACY: 94.6% [VALIDATED &amp; APPROVED]
+                    </span>
+                    <span class="badge bg-primary bg-opacity-25 text-info border border-info mono py-1 px-2" id="qwen-val-wr-badge">
+                        ADAPTIVE WIN RATE: 88.4%
+                    </span>
+                    <span class="text-light mono" style="font-size: 0.72rem;" id="qwen-val-feedback">
+                        Qwen AI memvalidasi setup dengan Bayesian consensus 94.6%. Algoritma adaptif meregangkan buffer SL +3.4 pips untuk menangkis stop-hunt.
+                    </span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.70rem;">
+                    <span class="text-muted">ADAPTIVE SL BUFFER: <b class="text-warning" id="qwen-val-sl-buffer">+3.4 pips</b></span>
+                    <span class="text-muted">&bull;</span>
+                    <span class="text-muted">VOLATILITY REGIME: <b class="text-cyan" id="qwen-val-regime">NORMAL (ATR 48p)</b></span>
+                    <span class="text-muted">&bull;</span>
+                    <span class="text-muted">ADAPTIVE SIZING: <b class="text-success" id="qwen-val-size">0.5x DYNAMIC</b></span>
+                </div>
+            </div>
+        </div>
         </section>
 
         <!-- PANE 7: 38 CORE QUESTIONS (FULL COMPONENT) -->
@@ -4518,11 +4589,6 @@
             </div>
         </div>
     </div>
-
-</div>
-
-<!-- JavaScript Integration -->
-
         </section>
 
         <!-- PANE 8: RULES & LIMITS (FULL COMPONENT) -->
@@ -4585,28 +4651,33 @@
             activePane.style.display = 'flex';
         }
 
-        // 4. Trigger specific view lifecycle updaters
-        const pair = (typeof currentSelectedPair !== 'undefined' && currentSelectedPair) ? currentSelectedPair : 'USDJPY';
-        
-        if (tabKey === 'd1h4') {
-            const d1h4Inner = document.getElementById('d1h4-recommendations-view');
-            if (d1h4Inner) d1h4Inner.style.display = 'block';
-            if (typeof updateD1H4View === 'function') updateD1H4View(pair);
-        } else if (tabKey === 'moneyflow') {
-            if (typeof renderMoneyFlowRadar === 'function') renderMoneyFlowRadar();
-            if (typeof renderPark === 'function') renderPark();
-            if (typeof renderGSector === 'function') renderGSector();
-        } else if (tabKey === 'precision') {
-            if (typeof selectPair === 'function') selectPair(pair);
-        } else if (tabKey === 'srladder') {
-            if (typeof selectPair === 'function') selectPair(pair);
-        } else if (tabKey === 'qci') {
-            if (typeof updateQCIMatrix === 'function') updateQCIMatrix(pair);
-        } else if (tabKey === 'narrative') {
-            if (typeof switchNarrativePair === 'function') {
-                const narPair = (typeof currentNarrativePair !== 'undefined' && currentNarrativePair) ? currentNarrativePair : pair;
-                switchNarrativePair(narPair);
+        // 4. Trigger specific view lifecycle updaters safely
+        try {
+            const pair = (typeof currentSelectedPair !== 'undefined' && currentSelectedPair) ? currentSelectedPair : 'USDJPY';
+            
+            if (tabKey === 'd1h4') {
+                const d1h4Inner = document.getElementById('d1h4-recommendations-view');
+                if (d1h4Inner) d1h4Inner.style.display = 'block';
+                if (typeof updateD1H4View === 'function') updateD1H4View(pair);
+            } else if (tabKey === 'moneyflow') {
+                if (typeof renderMoneyFlowRadar === 'function') renderMoneyFlowRadar();
+                if (typeof renderPark === 'function') renderPark();
+                if (typeof renderGSector === 'function') renderGSector();
+                if (typeof updatePairSpotlightFlow === 'function') updatePairSpotlightFlow();
+            } else if (tabKey === 'precision') {
+                if (typeof selectPair === 'function') selectPair(pair);
+            } else if (tabKey === 'srladder') {
+                if (typeof selectPair === 'function') selectPair(pair);
+            } else if (tabKey === 'qci') {
+                if (typeof updateQCIMatrix === 'function') updateQCIMatrix(pair);
+            } else if (tabKey === 'narrative') {
+                if (typeof switchNarrativePair === 'function') {
+                    const narPair = (typeof currentNarrativePair !== 'undefined' && currentNarrativePair) ? currentNarrativePair : pair;
+                    switchNarrativePair(narPair);
+                }
             }
+        } catch (err) {
+            console.error('switchNavTab lifecycle error:', err);
         }
     }
 
@@ -8025,12 +8096,17 @@
         switchNavTab('dashboard');
 
         // Pre-render immediately with instant benchmark defaults so NO box is EVER blank
-        if (typeof renderMoneyFlowRadar === 'function') renderMoneyFlowRadar();
-        if (typeof renderPark === 'function') renderPark();
-        if (typeof renderGSector === 'function') renderGSector();
-        if (typeof updateD1H4View === 'function') updateD1H4View('USDJPY');
-        if (typeof updateQCIMatrix === 'function') updateQCIMatrix('USDJPY');
-        if (typeof fetchNarrativeForActivePair === 'function') fetchNarrativeForActivePair();
+        try {
+            if (typeof renderMoneyFlowRadar === 'function') renderMoneyFlowRadar();
+            if (typeof renderPark === 'function') renderPark();
+            if (typeof renderGSector === 'function') renderGSector();
+            if (typeof updateD1H4View === 'function') updateD1H4View('USDJPY');
+            if (typeof updateQCIMatrix === 'function') updateQCIMatrix('USDJPY');
+            if (typeof fetchNarrativeForActivePair === 'function') fetchNarrativeForActivePair();
+            if (typeof selectPair === 'function') selectPair('USDJPY');
+        } catch(e) {
+            console.error('Pre-render error:', e);
+        }
         
         // Initial data fetch
         if (typeof fetchPrices === 'function') fetchPrices();
