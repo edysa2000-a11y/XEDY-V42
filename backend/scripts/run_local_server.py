@@ -2006,6 +2006,42 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(resp).encode('utf-8'))
             return
 
+        if self.path.startswith('/api/forecast_h4'):
+            import urllib.parse
+            qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+            pair = qs.get('pair', ['USDJPY'])[0].upper()
+            try:
+                from backend.engines.qwen_forecast_engine import (
+                    calculate_h4_forecast_all_pairs,
+                    generate_h4_backtest_records,
+                    get_h4_wib_schedule_recommendation,
+                    load_or_init_params
+                )
+                live_p = PRICE_CACHE.get("pairs", {})
+                fc_data = calculate_h4_forecast_all_pairs(live_p)
+                bt_data = generate_h4_backtest_records(pair, 12)
+                sched_data = get_h4_wib_schedule_recommendation()
+                ai_params = load_or_init_params()
+                resp = {
+                    "status": "ok",
+                    "cycle_info": fc_data["cycle_info"],
+                    "forecasts": fc_data["forecasts"],
+                    "overall_mae_pips": fc_data["overall_mae_pips"],
+                    "qwen_accuracy_rate": fc_data["qwen_accuracy_rate"],
+                    "selected_pair": pair,
+                    "backtest": bt_data,
+                    "schedule": sched_data,
+                    "ai_params": ai_params,
+                    "timestamp": fc_data["timestamp"]
+                }
+            except Exception as e:
+                resp = {"status": "error", "error": str(e)}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
+            return
+
         if self.path == '/sr':
             self.path = '/sr.html'
         return super().do_GET()
@@ -2103,6 +2139,19 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
             self.wfile.write(json.dumps(resp).encode('utf-8'))
+            return
+
+        if self.path.startswith('/api/qwen_tune_forecast'):
+            try:
+                from backend.engines.qwen_forecast_engine import run_qwen_adaptive_learning_tuning
+                tuned = run_qwen_adaptive_learning_tuning()
+                resp = {"status": "ok", "tuned": tuned}
+            except Exception as e:
+                resp = {"status": "error", "error": str(e)}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
             return
 
         return super().do_POST()
