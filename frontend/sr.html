@@ -992,9 +992,408 @@
             border-radius: 8px;
             padding: 12px 14px;
         }
+
+        /* ================================================== */
+        /* ⚪ PUTIH DOF (MATTE WHITE INSTITUTIONAL THEME)      */
+        /* ================================================== */
+        .theme-toggle-btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 3px;
+            border: 1px solid var(--border-bright);
+            background: #091322;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .theme-toggle-btn:hover {
+            border-color: var(--cyan);
+            color: #ffffff;
+        }
+        .theme-toggle-btn.active {
+            background: var(--cyan);
+            color: #03070e;
+            border-color: var(--cyan);
+            font-weight: 800;
+        }
+
+        /* PUTIH DOF ACTIVE CLASS ON BODY */
+        body.putih-dof {
+            --bg-root: #eef2f6;
+            --bg-panel: #ffffff;
+            --bg-panel-dark: #f8fafc;
+            --bg-hover: #e2e8f0;
+            --border-dim: #cbd5e1;
+            --border-bright: #94a3b8;
+            --gold: #b45309;
+            --cyan: #0284c7;
+            --green: #15803d;
+            --red: #dc2626;
+            --amber: #d97706;
+            --purple: #7c3aed;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            background-color: #eef2f6 !important;
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .terminal-container {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 4px 25px rgba(15, 23, 42, 0.08) !important;
+        }
+
+        body.putih-dof .header-title-bar {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+            border-bottom: 1px solid #cbd5e1 !important;
+        }
+
+        body.putih-dof .brand-title,
+        body.putih-dof .brand-title span,
+        body.putih-dof #brand-asset-title {
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .metrics-strip {
+            background: #f8fafc !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        body.putih-dof .metric-cell {
+            border-right-color: #e2e8f0 !important;
+        }
+
+        body.putih-dof .chip {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .w-box {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+        }
+
+        body.putih-dof .w-box-title {
+            color: #0284c7 !important;
+            border-bottom-color: #e2e8f0 !important;
+        }
+
+        body.putih-dof .w-full-banner {
+            background: #ffffff !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        body.putih-dof .grid-3col,
+        body.putih-dof .grid-2col,
+        body.putih-dof .border-r {
+            border-bottom-color: #e2e8f0 !important;
+            border-right-color: #e2e8f0 !important;
+        }
+
+        body.putih-dof .pair-nav-strip {
+            background: #f8fafc !important;
+            border-bottom: 1px solid #cbd5e1 !important;
+        }
+
+        body.putih-dof .pair-tab-btn {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #475569 !important;
+        }
+
+        body.putih-dof .pair-tab-btn:hover {
+            background: #f1f5f9 !important;
+            border-color: #0284c7 !important;
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .pair-tab-btn.active {
+            background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%) !important;
+            border-color: #0284c7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
+        }
+
+        body.putih-dof .pair-tab-price {
+            color: #ffffff !important;
+        }
+
+        body.putih-dof .multi-pair-matrix {
+            background: #e2e8f0 !important;
+            border-bottom: 1px solid #cbd5e1 !important;
+        }
+
+        body.putih-dof .radar-card {
+            background: #ffffff !important;
+            border-right: 1px solid #e2e8f0 !important;
+        }
+
+        body.putih-dof .radar-card:hover {
+            background: #f8fafc !important;
+        }
+
+        body.putih-dof .radar-card.active-card {
+            background: #f0f9ff !important;
+            border-top: 2px solid #0284c7 !important;
+            box-shadow: inset 0 2px 8px rgba(2, 132, 199, 0.08) !important;
+        }
+
+        body.putih-dof .radar-card-sym {
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .radar-card-price {
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .radar-range-track {
+            background: #e2e8f0 !important;
+        }
+
+        body.putih-dof .precision-banner {
+            background: #ffffff !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        body.putih-dof .pe-box {
+            background: #f8fafc !important;
+            border-color: #e2e8f0 !important;
+        }
+
+        body.putih-dof .trade-monitor-wrapper {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04) !important;
+        }
+
+        body.putih-dof .trade-mode-btn {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+            color: #475569 !important;
+        }
+
+        body.putih-dof .trade-mode-btn:hover {
+            background: #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .trade-mode-btn.active {
+            background: linear-gradient(90deg, #0284c7 0%, #0369a1 100%) !important;
+            color: #ffffff !important;
+            border-color: #0284c7 !important;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
+        }
+
+        body.putih-dof .pair-mf-card {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02) !important;
+        }
+
+        body.putih-dof .monitor-card {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+        }
+
+        body.putih-dof .monitor-card-header {
+            border-bottom-color: #e2e8f0 !important;
+        }
+
+        body.putih-dof .narrative-container {
+            background: #ffffff !important;
+            border-top: 2px solid #0284c7 !important;
+        }
+
+        body.putih-dof .narrative-tab-btn {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+            color: #475569 !important;
+        }
+
+        body.putih-dof .narrative-tab-btn:hover {
+            background: #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .narrative-tab-btn.active {
+            background: #0284c7 !important;
+            border-color: #0284c7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
+        }
+
+        body.putih-dof .narrative-reader {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            color: #1e293b !important;
+        }
+
+        body.putih-dof .btn-term {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+            color: #0284c7 !important;
+        }
+
+        body.putih-dof .btn-term:hover {
+            background: #e2e8f0 !important;
+            color: #0369a1 !important;
+        }
+
+        body.putih-dof .view-mode-tab-btn {
+            background: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+            color: #475569 !important;
+        }
+
+        body.putih-dof .view-mode-tab-btn.active {
+            background: #0284c7 !important;
+            border-color: #0284c7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
+        }
+
+        body.putih-dof .d1h4-header-strip {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
+        }
+
+        body.putih-dof .d1h4-pair-btn {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #475569 !important;
+        }
+
+        body.putih-dof .d1h4-pair-btn:hover {
+            background: #f1f5f9 !important;
+            border-color: #0284c7 !important;
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .d1h4-pair-btn.active {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+            border-color: #0284c7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25) !important;
+        }
+
+        body.putih-dof .d1h4-card {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
+        }
+
+        body.putih-dof .d1h4-card-title {
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .d1h4-mini-box {
+            background: #f8fafc !important;
+            border-color: #e2e8f0 !important;
+        }
+
+        body.putih-dof .ticket-box {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%) !important;
+            border: 1px solid #16a34a !important;
+            box-shadow: 0 2px 10px rgba(22, 163, 74, 0.08) !important;
+        }
+
+        body.putih-dof .mf-pair-spotlight {
+            background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%) !important;
+            border: 1px solid #38bdf8 !important;
+            box-shadow: 0 2px 10px rgba(56, 189, 248, 0.08) !important;
+        }
+
+        body.putih-dof .mf-sankey-wrap {
+            background: #f8fafc !important;
+            border-color: #e2e8f0 !important;
+        }
+
+        body.putih-dof .bg-dark,
+        body.putih-dof .bg-dark.bg-opacity-50,
+        body.putih-dof .bg-dark.bg-opacity-75 {
+            background-color: #f8fafc !important;
+            border-color: #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .text-white {
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .text-cyan {
+            color: #0284c7 !important;
+        }
+
+        body.putih-dof .text-muted {
+            color: #64748b !important;
+        }
+
+        body.putih-dof .badge.bg-dark {
+            background-color: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+
+        body.putih-dof .kv-table td {
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+
+        body.putih-dof .sr-row-price {
+            background: rgba(2, 132, 199, 0.1) !important;
+            border: 1px solid rgba(2, 132, 199, 0.4) !important;
+            color: #0284c7 !important;
+        }
+
+        body.putih-dof .d1h4-highlight-row {
+            background: rgba(2, 132, 199, 0.08) !important;
+            border-left: 3px solid #0284c7 !important;
+        }
+
+        body.putih-dof .comp .cbar {
+            background: #e2e8f0 !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        body.putih-dof .srow:hover {
+            background: #f1f5f9 !important;
+        }
+
+        body.putih-dof .srow.sel {
+            background: #e0f2fe !important;
+        }
+
+        body.putih-dof .srow .bar {
+            background: #e2e8f0 !important;
+        }
+
+        body.putih-dof .mf-table tr:hover td {
+            background: #f8fafc !important;
+        }
+
+        body.putih-dof .wrow:hover {
+            background: #f8fafc !important;
+        }
+
+        body.putih-dof .theme-toggle-btn {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #475569 !important;
+        }
+
+        body.putih-dof .theme-toggle-btn.active {
+            background: #0284c7 !important;
+            color: #ffffff !important;
+            border-color: #0284c7 !important;
+            box-shadow: 0 1px 6px rgba(2, 132, 199, 0.25) !important;
+        }
 </style>
 </head>
-<body>
+<body class="putih-dof">
 
 <div class="terminal-container">
 
@@ -1023,6 +1422,10 @@
             <div class="d-flex align-items-center gap-1 border-start border-dim ps-2">
                 <button class="view-mode-tab-btn active" id="btn-mode-cockpit" onclick="switchMainView('cockpit')">📊 COCKPIT</button>
                 <button class="view-mode-tab-btn" id="btn-mode-d1h4" onclick="switchMainView('d1h4')">🎯 REKOMENDASI D1 &amp; H4</button>
+            </div>
+            <div class="d-flex align-items-center gap-1 border-start border-dim ps-2 ms-1">
+                <button class="theme-toggle-btn active" id="btn-theme-putih" onclick="setThemeMode('putih-dof')" title="Mode Background Putih Dof (Matte White)">⚪ PUTIH DOF</button>
+                <button class="theme-toggle-btn" id="btn-theme-dark" onclick="setThemeMode('dark')" title="Mode Dark Terminal">⚫ DARK</button>
             </div>
         </div>
     </div>
@@ -2815,6 +3218,32 @@
 
 <!-- JavaScript Integration -->
 <script>
+    // ==========================================
+    // THEME CONTROLLER: PUTIH DOF / DARK
+    // ==========================================
+    function setThemeMode(mode) {
+        const isPutih = mode === 'putih-dof';
+        if (isPutih) {
+            document.body.classList.add('putih-dof');
+            document.body.classList.remove('theme-dark');
+            localStorage.setItem('xedy_sr_theme', 'putih-dof');
+        } else {
+            document.body.classList.remove('putih-dof');
+            document.body.classList.add('theme-dark');
+            localStorage.setItem('xedy_sr_theme', 'dark');
+        }
+        const bPutih = document.getElementById('btn-theme-putih');
+        const bDark = document.getElementById('btn-theme-dark');
+        if (bPutih) bPutih.classList.toggle('active', isPutih);
+        if (bDark) bDark.classList.toggle('active', !isPutih);
+    }
+
+    // Auto initialize theme on load (Default: putih-dof)
+    (function initThemeOnLoad() {
+        const saved = localStorage.getItem('xedy_sr_theme') || 'putih-dof';
+        setThemeMode(saved);
+    })();
+
     let currentSelectedPair = 'USDJPY';
     let currentNarrativePair = 'USDJPY';
     let lastReceivedData = null;
@@ -6130,9 +6559,6 @@
 
 
 </script>
-
-</body>
-</html
     </div>
 
     <!-- ================================================== -->
@@ -6552,4 +6978,6 @@
             </div>
         </div>
     </div>
->
+</div> <!-- Close terminal-container -->
+</body>
+</html>
