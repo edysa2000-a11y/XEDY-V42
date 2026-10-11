@@ -1710,6 +1710,11 @@ def poll_market_data():
                             "positions": pos_list
                         }
 
+                        now_wib_ck = datetime.now(timezone(timedelta(hours=7)))
+                        is_m_open_ck = not ((now_wib_ck.weekday() == 5 and now_wib_ck.hour >= 5) or (now_wib_ck.weekday() == 6) or (now_wib_ck.weekday() == 0 and now_wib_ck.hour < 5))
+                        PRICE_CACHE["mt5_bridge"]["market_open"] = is_m_open_ck
+                        PRICE_CACHE["mt5_bridge"]["market_status"] = "OPEN" if is_m_open_ck else "CLOSED"
+
                         for sym_k in ["USDJPY", "XAUUSD", "EURUSD", "GBPUSD"]:
                             try:
                                 tick = mt5.symbol_info_tick(sym_k)

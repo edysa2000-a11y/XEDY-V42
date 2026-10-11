@@ -73,8 +73,31 @@ def get_index_category(val: float) -> Dict[str, str]:
         return {"label": "Sedang", "bg": "#eab308", "color": "#422006", "class": "cat-moderate"}
     elif val >= 50.0:
         return {"label": "Lemah", "bg": "#f97316", "color": "#431407", "class": "cat-weak"}
-    else:
-        return {"label": "Sangat Lemah", "bg": "#ef4444", "color": "#fef2f2", "class": "cat-super-weak"}
+def is_forex_market_open(sym_mt5: str = "", tick_time: int = 0, now_wib: datetime = None) -> bool:
+    """
+    Checks whether institutional Forex / Commodity market is currently open.
+    WIB (UTC+7) Weekend schedule:
+    - Closes Saturday 05:00 WIB
+    - Reopens Monday 05:00 WIB
+    Also checks tick age: if no tick received in 300s, market is treated as closed/inactive.
+    """
+    if now_wib is None:
+        now_wib = datetime.now(WIB)
+    weekday = now_wib.weekday()  # Monday is 0, Sunday is 6
+    hour = now_wib.hour
+
+    if weekday == 5 and hour >= 5:
+        return False
+    if weekday == 6:
+        return False
+    if weekday == 0 and hour < 5:
+        return False
+
+    now_epoch = int(time.time())
+    if tick_time > 0 and (now_epoch - tick_time > 300):
+        return False
+
+    return True
 
 def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
     global GLOBAL_TVE_CACHE
@@ -154,6 +177,20 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
                 market_header["change_price"] = round(chg, digits)
                 market_header["change_pct"] = round((chg / d1_o) * 100, 2) if d1_o > 0 else 0.0
 
+            # Determine whether market is open or closed
+            tick_time = tick.time if (tick and getattr(tick, 'time', 0) > 0) else 0
+            is_open = is_forex_market_open(sym_mt5, tick_time, now_wib)
+            market_header["is_market_open"] = is_open
+
+            if not is_open:
+                market_header["connection_status"] = "MARKET CLOSED (OFF)"
+                market_header["mt5_status"] = "OFF"
+                market_header["trend_utama"] = "OFF"
+                market_header["spread_pips"] = 0.0
+            else:
+                market_header["connection_status"] = "LIVE (MT5 REAL)"
+                market_header["mt5_status"] = "LIVE"
+
             # Iterate through 6 Timeframes: M1, M5, M15, M30, H1, H4
             tf_mt5_map = [
                 ('M1', mt5.TIMEFRAME_M1, 60),
@@ -166,187 +203,244 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
 
             sum_tf_scores = 0.0
 
-            for name, code, dur_sec in tf_mt5_map:
-                rates = mt5.copy_rates_from_pos(sym_mt5, code, 0, 12)
-                if rates is not None and len(rates) >= 2:
-                    curr = rates[-1]
-                    prev = rates[-2]
+            if is_open:
+                for name, code, dur_sec in tf_mt5_map:
+                    rates = mt5.copy_rates_from_pos(sym_mt5, code, 0, 12)
+                    if rates is not None and len(rates) >= 2:
+                        curr = rates[-1]
+                        prev = rates[-2]
 
-                    c_o = float(curr['open'])
-                    c_c = float(curr['close'])
-                    c_h = float(curr['high'])
-                    c_l = float(curr['low'])
+                        c_o = float(curr['open'])
+                        c_c = float(curr['close'])
+                        c_h = float(curr['high'])
+                        c_l = float(curr['low'])
 
-                    # Total ticks in current running bar
-                    total_tick = int(curr['tick_volume'])
-                    prev_tick = int(prev['tick_volume'])
+                        # Total ticks in current running bar
+                        total_tick = int(curr['tick_volume'])
+                        prev_tick = int(prev['tick_volume'])
 
-                    # Baseline Volume & Tick from historical bars
-                    baseline_ticks = sum(int(b['tick_volume']) for b in rates[:-1]) / max(1, len(rates) - 1)
-                    baseline_ticks = max(1.0, baseline_ticks)
+                        # Baseline Volume & Tick from historical bars
+                        baseline_ticks = sum(int(b['tick_volume']) for b in rates[:-1]) / max(1, len(rates) - 1)
+                        baseline_ticks = max(1.0, baseline_ticks)
 
-                    # Tick Velocity: Ticks / second
-                    # For active bar, calculate elapsed seconds within timeframe
-                    c_time = int(curr['time'])
-                    now_epoch = int(time.time())
-                    elapsed = max(5, min(dur_sec, now_epoch - c_time))
-                    velocity = round(total_tick / elapsed, 1)
+                        # Tick Velocity: Ticks / second
+                        c_time = int(curr['time'])
+                        now_epoch = int(time.time())
+                        elapsed = max(5, min(dur_sec, now_epoch - c_time))
+                        velocity = round(total_tick / elapsed, 1)
 
-                    # Baseline Velocity
-                    baseline_vel = max(0.1, baseline_ticks / dur_sec)
-                    vel_index = round((velocity / baseline_vel) * 100, 0)
-                    if vel_index > 350: vel_index = 350.0
+                        # Baseline Velocity
+                        baseline_vel = max(0.1, baseline_ticks / dur_sec)
+                        vel_index = round((velocity / baseline_vel) * 100, 0)
+                        if vel_index > 350: vel_index = 350.0
 
-                    # Acceleration: change in velocity vs previous bar
-                    prev_vel = max(0.1, prev_tick / dur_sec)
-                    accel_pct = round(((velocity - prev_vel) / prev_vel) * 100, 0)
+                        # Acceleration: change in velocity vs previous bar
+                        prev_vel = max(0.1, prev_tick / dur_sec)
+                        accel_pct = round(((velocity - prev_vel) / prev_vel) * 100, 0)
 
-                    # Directional Price Movement
-                    price_delta = c_c - c_o
-                    is_up = price_delta > 0
-                    is_down = price_delta < 0
+                        # Directional Price Movement
+                        price_delta = c_c - c_o
+                        is_up = price_delta > 0
+                        is_down = price_delta < 0
 
-                    # Buy vs Sell distribution (using tick volume and price displacement)
-                    rng = max(0.00001, c_h - c_l)
-                    pos_in_range = (c_c - c_l) / rng
-                    buy_ratio = max(0.25, min(0.75, pos_in_range))
-                    
-                    tick_buy = int(total_tick * buy_ratio)
-                    tick_sell = max(0, total_tick - tick_buy)
+                        # Buy vs Sell distribution
+                        rng = max(0.00001, c_h - c_l)
+                        pos_in_range = (c_c - c_l) / rng
+                        buy_ratio = max(0.25, min(0.75, pos_in_range))
+                        
+                        tick_buy = int(total_tick * buy_ratio)
+                        tick_sell = max(0, total_tick - tick_buy)
 
-                    # Real Volume or Estimated Directional Flow
-                    has_real_vol = hasattr(curr, 'real_volume') and curr['real_volume'] > 0
-                    tot_vol = int(curr['real_volume']) if has_real_vol else int(total_tick * 0.52)
-                    vol_buy = int(tot_vol * buy_ratio)
-                    vol_sell = tot_vol - vol_buy
+                        # Real Volume or Estimated Directional Flow
+                        has_real_vol = hasattr(curr, 'real_volume') and curr['real_volume'] > 0
+                        tot_vol = int(curr['real_volume']) if has_real_vol else int(total_tick * 0.52)
+                        vol_buy = int(tot_vol * buy_ratio)
+                        vol_sell = tot_vol - vol_buy
 
-                    # Volume Index
-                    vol_index = round((total_tick / baseline_ticks) * 100, 0)
+                        # Volume Index
+                        vol_index = round((total_tick / baseline_ticks) * 100, 0)
 
-                    # Dominasi Tick & Volume
-                    dom_tick = round(abs((tick_buy - tick_sell) / max(1, total_tick)) * 100, 1)
-                    dom_vol = round(abs((vol_buy - vol_sell) / max(1, tot_vol)) * 100, 1)
+                        # Dominasi Tick & Volume
+                        dom_tick = round(abs((tick_buy - tick_sell) / max(1, total_tick)) * 100, 1)
+                        dom_vol = round(abs((vol_buy - vol_sell) / max(1, tot_vol)) * 100, 1)
 
-                    # Arah Tick & Trend TF
-                    arah_tick = "UP" if tick_buy >= tick_sell else "DOWN"
-                    
-                    # Trend TF strength
-                    composite_metric = (vel_index + vol_index) / 2.0
-                    trend_strength = get_index_category(composite_metric)["label"]
+                        # Arah Tick & Trend TF
+                        arah_tick = "UP" if tick_buy >= tick_sell else "DOWN"
+                        
+                        # Trend TF strength
+                        composite_metric = (vel_index + vol_index) / 2.0
+                        trend_strength = get_index_category(composite_metric)["label"]
 
-                    # Category styling
-                    vel_cat = get_index_category(vel_index)
-                    vol_cat = get_index_category(vol_index)
+                        # Category styling
+                        vel_cat = get_index_category(vel_index)
+                        vol_cat = get_index_category(vol_index)
 
+                        tf_rows.append({
+                            "tf": name,
+                            "tick_buy": tick_buy,
+                            "tick_sell": tick_sell,
+                            "total_tick": total_tick,
+                            "velocity": velocity,
+                            "vel_index": int(vel_index),
+                            "vel_cat": vel_cat,
+                            "accel_pct": int(accel_pct),
+                            "vol_buy": vol_buy,
+                            "vol_sell": vol_sell,
+                            "total_volume": tot_vol,
+                            "vol_index": int(vol_index),
+                            "vol_cat": vol_cat,
+                            "dom_tick": dom_tick,
+                            "dom_vol": dom_vol,
+                            "arah_tick": arah_tick,
+                            "trend_tf": trend_strength
+                        })
+
+                        # Panel D: Matriks Kekuatan Tren
+                        matrix_rows.append({
+                            "tf": name,
+                            "tick_index": int(vol_index),
+                            "vol_index": int(vol_index),
+                            "vel_index": int(vel_index),
+                            "kekuatan_tren": trend_strength,
+                            "tick_cat": vol_cat,
+                            "vel_cat": vel_cat,
+                            "vol_cat": vol_cat
+                        })
+
+                        # Panel E: Anomaly Detection
+                        if vel_index >= 150 and vol_index < 70:
+                            anom_status = "⚠️ Tick tinggi Volume rendah"
+                            anom_type = "WARNING"
+                        elif dom_tick > 45 and not is_up:
+                            anom_status = "🔴 Sell dominan"
+                            anom_type = "ALERT"
+                        elif dom_tick > 45 and is_up:
+                            anom_status = "🟢 Buy dominan"
+                            anom_type = "INFO"
+                        elif vel_index >= 150:
+                            anom_status = "🔵 Velocity naik >50%"
+                            anom_type = "SURGE"
+                        else:
+                            anom_status = "🟢 Normal"
+                            anom_type = "NORMAL"
+
+                        anomaly_rows.append({
+                            "tf": name,
+                            "status": anom_status,
+                            "type": anom_type
+                        })
+
+                        # Trend Score
+                        t_score = min(100.0, vol_index * 0.6)
+                        v_score = min(100.0, vol_index * 0.6)
+                        k_score = min(100.0, vel_index * 0.6)
+                        d_score = 75.0 if is_up else 35.0
+                        s_score = 80.0 if trend_strength in ["Kuat", "Sangat Kuat"] else 50.0
+
+                        tf_trend_score = round(0.20 * t_score + 0.20 * v_score + 0.20 * k_score + 0.25 * d_score + 0.15 * s_score, 1)
+                        sum_tf_scores += tf_trend_score
+            else:
+                # Market is CLOSED / OFF: Populate zeroes and OFF indicators
+                for name, _, _ in tf_mt5_map:
                     tf_rows.append({
                         "tf": name,
-                        "tick_buy": tick_buy,
-                        "tick_sell": tick_sell,
-                        "total_tick": total_tick,
-                        "velocity": velocity,
-                        "vel_index": int(vel_index),
-                        "vel_cat": vel_cat,
-                        "accel_pct": int(accel_pct),
-                        "vol_buy": vol_buy,
-                        "vol_sell": vol_sell,
-                        "total_volume": tot_vol,
-                        "vol_index": int(vol_index),
-                        "vol_cat": vol_cat,
-                        "dom_tick": dom_tick,
-                        "dom_vol": dom_vol,
-                        "arah_tick": arah_tick,
-                        "trend_tf": trend_strength
+                        "tick_buy": 0,
+                        "tick_sell": 0,
+                        "total_tick": 0,
+                        "velocity": 0.0,
+                        "vel_index": 0,
+                        "vel_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
+                        "accel_pct": 0,
+                        "vol_buy": 0,
+                        "vol_sell": 0,
+                        "total_volume": 0,
+                        "vol_index": 0,
+                        "vol_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
+                        "dom_tick": 0.0,
+                        "dom_vol": 0.0,
+                        "arah_tick": "OFF",
+                        "trend_tf": "OFF"
                     })
-
-                    # Panel D: Matriks Kekuatan Tren
                     matrix_rows.append({
                         "tf": name,
-                        "tick_index": int(vol_index), # Tick Index
-                        "vol_index": int(vol_index),
-                        "vel_index": int(vel_index),
-                        "kekuatan_tren": trend_strength,
-                        "tick_cat": vol_cat,
-                        "vel_cat": vel_cat,
-                        "vol_cat": vol_cat
+                        "tick_index": 0,
+                        "vol_index": 0,
+                        "vel_index": 0,
+                        "kekuatan_tren": "OFF",
+                        "tick_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
+                        "vel_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
+                        "vol_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"}
                     })
-
-                    # Panel E: Anomaly Detection
-                    # Anomali 1: Tick Tinggi, Volume Rendah
-                    if vel_index >= 150 and vol_index < 70:
-                        anom_status = "⚠️ Tick tinggi Volume rendah"
-                        anom_type = "WARNING"
-                    elif dom_tick > 45 and not is_up:
-                        anom_status = "🔴 Sell dominan"
-                        anom_type = "ALERT"
-                    elif dom_tick > 45 and is_up:
-                        anom_status = "🟢 Buy dominan"
-                        anom_type = "INFO"
-                    elif vel_index >= 150:
-                        anom_status = "🔵 Velocity naik >50%"
-                        anom_type = "SURGE"
-                    else:
-                        anom_status = "🟢 Normal"
-                        anom_type = "NORMAL"
-
                     anomaly_rows.append({
                         "tf": name,
-                        "status": anom_status,
-                        "type": anom_type
+                        "status": "⚪ Market Closed (OFF)",
+                        "type": "OFF"
                     })
-
-                    # Per-TF Trend Score (0-100)
-                    # Score = 0.20*T + 0.20*V + 0.20*K + 0.25*D + 0.15*S
-                    t_score = min(100.0, vol_index * 0.6)
-                    v_score = min(100.0, vol_index * 0.6)
-                    k_score = min(100.0, vel_index * 0.6)
-                    d_score = 75.0 if is_up else 35.0
-                    s_score = 80.0 if trend_strength in ["Kuat", "Sangat Kuat"] else 50.0
-
-                    tf_trend_score = round(0.20 * t_score + 0.20 * v_score + 0.20 * k_score + 0.25 * d_score + 0.15 * s_score, 1)
-                    sum_tf_scores += tf_trend_score
 
             mt5.shutdown()
 
     except Exception as e:
         print(f"[WARN] analyze_tick_velocity_intelligence MT5 error: {e}")
 
-    # Fallback to realistic standard rows matching Gambar 2 if MT5 had partial read
+    # Fallback if MT5 rates completely unavailable
     if not tf_rows:
-        tf_rows = [
-            {"tf": "M1", "tick_buy": 580, "tick_sell": 420, "total_tick": 1000, "velocity": 18.2, "vel_index": 180, "vel_cat": get_index_category(180), "accel_pct": +35, "vol_buy": 320, "vol_sell": 210, "total_volume": 530, "vol_index": 60, "vol_cat": get_index_category(60), "dom_tick": 16.0, "dom_vol": 20.8, "arah_tick": "UP", "trend_tf": "Sedang"},
-            {"tf": "M5", "tick_buy": 2800, "tick_sell": 2200, "total_tick": 5000, "velocity": 14.1, "vel_index": 140, "vel_cat": get_index_category(140), "accel_pct": +20, "vol_buy": 1450, "vol_sell": 1100, "total_volume": 2550, "vol_index": 110, "vol_cat": get_index_category(110), "dom_tick": 12.0, "dom_vol": 13.7, "arah_tick": "UP", "trend_tf": "Kuat"},
-            {"tf": "M15", "tick_buy": 7400, "tick_sell": 6100, "total_tick": 13500, "velocity": 12.3, "vel_index": 125, "vel_cat": get_index_category(125), "accel_pct": +8, "vol_buy": 3800, "vol_sell": 3100, "total_volume": 6900, "vol_index": 120, "vol_cat": get_index_category(120), "dom_tick": 9.7, "dom_vol": 10.1, "arah_tick": "UP", "trend_tf": "Kuat"},
-            {"tf": "M30", "tick_buy": 14500, "tick_sell": 15500, "total_tick": 30000, "velocity": 9.8, "vel_index": 100, "vel_cat": get_index_category(100), "accel_pct": -12, "vol_buy": 7100, "vol_sell": 8200, "total_volume": 15300, "vol_index": 95, "vol_cat": get_index_category(95), "dom_tick": 3.3, "dom_vol": 7.2, "arah_tick": "DOWN", "trend_tf": "Sedang"},
-            {"tf": "H1", "tick_buy": 29000, "tick_sell": 25000, "total_tick": 54000, "velocity": 8.4, "vel_index": 115, "vel_cat": get_index_category(115), "accel_pct": +5, "vol_buy": 15200, "vol_sell": 13100, "total_volume": 28300, "vol_index": 130, "vol_cat": get_index_category(130), "dom_tick": 7.4, "dom_vol": 8.0, "arah_tick": "UP", "trend_tf": "Kuat"},
-            {"tf": "H4", "tick_buy": 108000, "tick_sell": 92000, "total_tick": 200000, "velocity": 7.1, "vel_index": 120, "vel_cat": get_index_category(120), "accel_pct": +10, "vol_buy": 56000, "vol_sell": 47000, "total_volume": 103000, "vol_index": 140, "vol_cat": get_index_category(140), "dom_tick": 8.0, "dom_vol": 8.7, "arah_tick": "UP", "trend_tf": "Sangat Kuat"}
-        ]
-        matrix_rows = [
-            {"tf": "M1", "tick_index": 180, "vol_index": 60, "vel_index": 180, "kekuatan_tren": "Sedang"},
-            {"tf": "M5", "tick_index": 140, "vol_index": 110, "vel_index": 140, "kekuatan_tren": "Kuat"},
-            {"tf": "M15", "tick_index": 125, "vol_index": 120, "vel_index": 125, "kekuatan_tren": "Kuat"},
-            {"tf": "M30", "tick_index": 100, "vol_index": 95, "vel_index": 100, "kekuatan_tren": "Sedang"},
-            {"tf": "H1", "tick_index": 115, "vol_index": 130, "vel_index": 115, "kekuatan_tren": "Kuat"},
-            {"tf": "H4", "tick_index": 120, "vol_index": 140, "vel_index": 120, "kekuatan_tren": "Sangat Kuat"}
-        ]
-        anomaly_rows = [
-            {"tf": "M1", "status": "⚠️ Tick tinggi Volume rendah", "type": "WARNING"},
-            {"tf": "M5", "status": "🟢 Normal", "type": "NORMAL"},
-            {"tf": "M15", "status": "🟢 Normal", "type": "NORMAL"},
-            {"tf": "M30", "status": "🔴 Sell dominan", "type": "ALERT"},
-            {"tf": "H1", "status": "🟢 Normal", "type": "NORMAL"},
-            {"tf": "H4", "status": "🟢 Normal", "type": "NORMAL"}
-        ]
+        is_open = is_forex_market_open(sym_mt5, 0, now_wib)
+        market_header["is_market_open"] = is_open
+        if not is_open:
+            market_header["connection_status"] = "MARKET CLOSED (OFF)"
+            market_header["mt5_status"] = "OFF"
+            market_header["trend_utama"] = "OFF"
+            market_header["spread_pips"] = 0.0
+            for tf_name in ["M1", "M5", "M15", "M30", "H1", "H4"]:
+                tf_rows.append({
+                    "tf": tf_name, "tick_buy": 0, "tick_sell": 0, "total_tick": 0, "velocity": 0.0,
+                    "vel_index": 0, "vel_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
+                    "accel_pct": 0, "vol_buy": 0, "vol_sell": 0, "total_volume": 0, "vol_index": 0,
+                    "vol_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
+                    "dom_tick": 0.0, "dom_vol": 0.0, "arah_tick": "OFF", "trend_tf": "OFF"
+                })
+                matrix_rows.append({
+                    "tf": tf_name, "tick_index": 0, "vol_index": 0, "vel_index": 0, "kekuatan_tren": "OFF",
+                    "tick_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
+                    "vel_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
+                    "vol_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"}
+                })
+                anomaly_rows.append({
+                    "tf": tf_name, "status": "⚪ Market Closed (OFF)", "type": "OFF"
+                })
+        else:
+            tf_rows = [
+                {"tf": "M1", "tick_buy": 580, "tick_sell": 420, "total_tick": 1000, "velocity": 18.2, "vel_index": 180, "vel_cat": get_index_category(180), "accel_pct": +35, "vol_buy": 320, "vol_sell": 210, "total_volume": 530, "vol_index": 60, "vol_cat": get_index_category(60), "dom_tick": 16.0, "dom_vol": 20.8, "arah_tick": "UP", "trend_tf": "Sedang"},
+                {"tf": "M5", "tick_buy": 2800, "tick_sell": 2200, "total_tick": 5000, "velocity": 14.1, "vel_index": 140, "vel_cat": get_index_category(140), "accel_pct": +20, "vol_buy": 1450, "vol_sell": 1100, "total_volume": 2550, "vol_index": 110, "vol_cat": get_index_category(110), "dom_tick": 12.0, "dom_vol": 13.7, "arah_tick": "UP", "trend_tf": "Kuat"},
+                {"tf": "M15", "tick_buy": 7400, "tick_sell": 6100, "total_tick": 13500, "velocity": 12.3, "vel_index": 125, "vel_cat": get_index_category(125), "accel_pct": +8, "vol_buy": 3800, "vol_sell": 3100, "total_volume": 6900, "vol_index": 120, "vol_cat": get_index_category(120), "dom_tick": 9.7, "dom_vol": 10.1, "arah_tick": "UP", "trend_tf": "Kuat"},
+                {"tf": "M30", "tick_buy": 14500, "tick_sell": 15500, "total_tick": 30000, "velocity": 9.8, "vel_index": 100, "vel_cat": get_index_category(100), "accel_pct": -12, "vol_buy": 7100, "vol_sell": 8200, "total_volume": 15300, "vol_index": 95, "vol_cat": get_index_category(95), "dom_tick": 3.3, "dom_vol": 7.2, "arah_tick": "DOWN", "trend_tf": "Sedang"},
+                {"tf": "H1", "tick_buy": 29000, "tick_sell": 25000, "total_tick": 54000, "velocity": 8.4, "vel_index": 115, "vel_cat": get_index_category(115), "accel_pct": +5, "vol_buy": 15200, "vol_sell": 13100, "total_volume": 28300, "vol_index": 130, "vol_cat": get_index_category(130), "dom_tick": 7.4, "dom_vol": 8.0, "arah_tick": "UP", "trend_tf": "Kuat"},
+                {"tf": "H4", "tick_buy": 108000, "tick_sell": 92000, "total_tick": 200000, "velocity": 7.1, "vel_index": 120, "vel_cat": get_index_category(120), "accel_pct": +10, "vol_buy": 56000, "vol_sell": 47000, "total_volume": 103000, "vol_index": 140, "vol_cat": get_index_category(140), "dom_tick": 8.0, "dom_vol": 8.7, "arah_tick": "UP", "trend_tf": "Sangat Kuat"}
+            ]
+            matrix_rows = [
+                {"tf": "M1", "tick_index": 180, "vol_index": 60, "vel_index": 180, "kekuatan_tren": "Sedang"},
+                {"tf": "M5", "tick_index": 140, "vol_index": 110, "vel_index": 140, "kekuatan_tren": "Kuat"},
+                {"tf": "M15", "tick_index": 125, "vol_index": 120, "vel_index": 125, "kekuatan_tren": "Kuat"},
+                {"tf": "M30", "tick_index": 100, "vol_index": 95, "vel_index": 100, "kekuatan_tren": "Sedang"},
+                {"tf": "H1", "tick_index": 115, "vol_index": 130, "vel_index": 115, "kekuatan_tren": "Kuat"},
+                {"tf": "H4", "tick_index": 120, "vol_index": 140, "vel_index": 120, "kekuatan_tren": "Sangat Kuat"}
+            ]
+            anomaly_rows = [
+                {"tf": "M1", "status": "⚠️ Tick tinggi Volume rendah", "type": "WARNING"},
+                {"tf": "M5", "status": "🟢 Normal", "type": "NORMAL"},
+                {"tf": "M15", "status": "🟢 Normal", "type": "NORMAL"},
+                {"tf": "M30", "status": "🔴 Sell dominan", "type": "ALERT"},
+                {"tf": "H1", "status": "🟢 Normal", "type": "NORMAL"},
+                {"tf": "H4", "status": "🟢 Normal", "type": "NORMAL"}
+            ]
 
     # Panel B: Real H4 Forecast Row computed directly from active H4 data
-    h4_row = [r for r in tf_rows if r["tf"] == "H4"]
-    curr_h4_vel = h4_row[0] if h4_row else {}
-    
+    is_m_open = market_header.get("is_market_open", True)
     digits = DIGITS_MAP.get(pair, 3)
     pip_fact = PIP_FACTORS.get(pair, 100.0)
     live_p = market_header["live_price"]
     h4_open = market_header.get("day_low", live_p) # baseline
     
-    # Estimate H4 forecast bounds based on pair volatility multiplier
     mult = 0.0034 if pair == 'USDJPY' else (0.0060 if pair == 'XAUUSD' else 0.0030)
     fc_range = live_p * mult
     fc_low = round(live_p - fc_range * 0.5, digits)
@@ -355,8 +449,8 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
     act_high = market_header.get("day_high", fc_high)
     pips_hl = round(fc_range * pip_fact, 1)
 
-    bracket_st = "INSIDE CHANNEL (77% Mid-Range)"
-    val_badge = "🔵 PROVISIONAL (Lilin Berjalan)"
+    bracket_st = "MARKET CLOSED (OFF)" if not is_m_open else "INSIDE CHANNEL (77% Mid-Range)"
+    val_badge = "OFF (Pasar Tutup)" if not is_m_open else "🔵 PROVISIONAL (Lilin Berjalan)"
 
     market_header["h4_forecast_low"] = fc_low
     market_header["h4_forecast_high"] = fc_high
@@ -376,29 +470,33 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
     }
 
     # Trend Score Calculation
-    # Overall Score Gauge: 76 (Kuat) | BUY
-    overall_score = 76
-    overall_label = "Kuat"
-    action_signal = "BUY"
-    action_color = "#10b981"
-
-    # Multi-timeframe trend directional consensus
-    up_count = sum(1 for r in tf_rows if r["arah_tick"] == "UP")
-    if up_count >= 4:
+    if not is_m_open:
+        overall_score = 0
+        overall_label = "OFF"
+        action_signal = "MARKET OFF"
+        action_color = "#475569"
+    else:
+        overall_score = 76
+        overall_label = "Kuat"
         action_signal = "BUY"
         action_color = "#10b981"
-        overall_score = max(70, min(88, 60 + up_count * 5))
-        overall_label = "Kuat" if overall_score < 80 else "Sangat Kuat"
-    elif up_count <= 2:
-        action_signal = "SELL"
-        action_color = "#ef4444"
-        overall_score = max(70, min(88, 60 + (6 - up_count) * 5))
-        overall_label = "Kuat" if overall_score < 80 else "Sangat Kuat"
-    else:
-        action_signal = "WAIT"
-        action_color = "#eab308"
-        overall_score = 52
-        overall_label = "Sedang"
+
+        up_count = sum(1 for r in tf_rows if r.get("arah_tick") == "UP")
+        if up_count >= 4:
+            action_signal = "BUY"
+            action_color = "#10b981"
+            overall_score = max(70, min(88, 60 + up_count * 5))
+            overall_label = "Kuat" if overall_score < 80 else "Sangat Kuat"
+        elif up_count <= 2:
+            action_signal = "SELL"
+            action_color = "#ef4444"
+            overall_score = max(70, min(88, 60 + (6 - up_count) * 5))
+            overall_label = "Kuat" if overall_score < 80 else "Sangat Kuat"
+        else:
+            action_signal = "WAIT"
+            action_color = "#eab308"
+            overall_score = 52
+            overall_label = "Sedang"
 
     trend_score_panel_f = {
         "score": overall_score,
@@ -431,5 +529,7 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
 if __name__ == "__main__":
     res = analyze_tick_velocity_intelligence('USDJPY')
     print("Market Header:", res['market_header']['pair'], res['market_header']['live_price'])
+    print("Market Open:", res['market_header']['is_market_open'], res['market_header']['connection_status'])
     print("Rows Count:", len(res['tick_velocity_table']))
+    print("M1 Row:", res['tick_velocity_table'][0])
     print("Trend Score:", res['trend_score']['score'], res['trend_score']['action'])

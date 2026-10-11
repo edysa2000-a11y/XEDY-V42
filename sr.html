@@ -6721,9 +6721,15 @@
         const statusDotEl = document.getElementById('dash-status-dot');
         if (userConnEl) {
             if (bridge.connected) {
-                userConnEl.innerHTML = '● Live MT5 Connected (' + ping + ')';
-                userConnEl.style.color = '#10b981';
-                if (statusDotEl) statusDotEl.style.background = '#10b981';
+                if (bridge.market_status === 'CLOSED' || bridge.market_open === false) {
+                    userConnEl.innerHTML = '● MT5 Connected • Market Closed (OFF)';
+                    userConnEl.style.color = '#eab308';
+                    if (statusDotEl) statusDotEl.style.background = '#eab308';
+                } else {
+                    userConnEl.innerHTML = '● Live MT5 Connected (' + ping + ')';
+                    userConnEl.style.color = '#10b981';
+                    if (statusDotEl) statusDotEl.style.background = '#10b981';
+                }
             } else {
                 userConnEl.innerHTML = '○ MT5 Offline';
                 userConnEl.style.color = '#ef4444';
@@ -11179,6 +11185,40 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         const clockEl = document.getElementById('tv-header-time');
         if (clockEl && mh.clock_wib) clockEl.textContent = mh.clock_wib.split(' ').slice(-2).join(' ');
 
+        const dateEl = document.getElementById('tv-header-date');
+        if (dateEl && mh.clock_wib) dateEl.textContent = mh.clock_wib.split(' ').slice(0, 4).join(' ');
+
+        // Update MT5 Connection / Market Status Badge
+        const statusBadge = document.getElementById('tv-header-status-badge');
+        if (statusBadge) {
+            if (mh.is_market_open === false || (mh.connection_status && (mh.connection_status.includes('CLOSED') || mh.connection_status.includes('OFF')))) {
+                statusBadge.textContent = '⚪ MARKET CLOSED (OFF)';
+                statusBadge.className = 'badge mono py-1 px-2';
+                statusBadge.style.background = 'rgba(100, 116, 139, 0.25)';
+                statusBadge.style.color = '#94a3b8';
+                statusBadge.style.border = '1px solid #475569';
+            } else {
+                statusBadge.textContent = '● LIVE (MT5 REAL)';
+                statusBadge.className = 'badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2';
+                statusBadge.style.background = '';
+                statusBadge.style.color = '';
+                statusBadge.style.border = '';
+            }
+        }
+
+        // Update Trend Utama Header
+        const trUtama = document.getElementById('tv-header-trend-utama');
+        if (trUtama) {
+            if (mh.is_market_open === false || mh.trend_utama === 'OFF') {
+                trUtama.innerHTML = `<span>⚪</span> OFF`;
+                trUtama.className = 'fw-bold text-secondary mono d-flex align-items-center justify-content-center gap-1';
+            } else {
+                const isBull = (mh.trend_utama || '').includes('BULL');
+                trUtama.innerHTML = `<span>${isBull ? '▲' : '▼'}</span> ${mh.trend_utama}`;
+                trUtama.className = isBull ? 'fw-bold text-success mono d-flex align-items-center justify-content-center gap-1' : 'fw-bold text-danger mono d-flex align-items-center justify-content-center gap-1';
+            }
+        }
+
         // 2. PANEL B: Forecast H4 Updates
         const fb = data.forecast_panel_b || {};
         if (document.getElementById('fc-b-jam')) document.getElementById('fc-b-jam').textContent = fb.jam_wib || '12:00';
@@ -11189,8 +11229,34 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         if (document.getElementById('fc-b-pipshl')) document.getElementById('fc-b-pipshl').textContent = fb.pips_hl || '--';
         if (document.getElementById('fc-b-actlow')) document.getElementById('fc-b-actlow').textContent = fb.actual_low || '--';
         if (document.getElementById('fc-b-acthigh')) document.getElementById('fc-b-acthigh').textContent = fb.actual_high || '--';
-        if (document.getElementById('fc-b-posisi')) document.getElementById('fc-b-posisi').textContent = fb.status_posisi || 'INSIDE CHANNEL';
-        if (document.getElementById('fc-b-validasi')) document.getElementById('fc-b-validasi').textContent = fb.validasi || 'PROVISIONAL';
+        
+        const posEl = document.getElementById('fc-b-posisi');
+        if (posEl) {
+            posEl.textContent = fb.status_posisi || 'INSIDE CHANNEL';
+            if (fb.status_posisi && fb.status_posisi.includes('CLOSED')) {
+                posEl.style.background = 'rgba(100, 116, 139, 0.25)';
+                posEl.style.color = '#94a3b8';
+                posEl.style.borderColor = '#475569';
+            } else {
+                posEl.style.background = 'rgba(2, 132, 199, 0.25)';
+                posEl.style.color = '#bae6fd';
+                posEl.style.borderColor = '#0284c7';
+            }
+        }
+        
+        const valEl = document.getElementById('fc-b-validasi');
+        if (valEl) {
+            valEl.textContent = fb.validasi || 'PROVISIONAL';
+            if (fb.validasi && (fb.validasi.includes('OFF') || fb.validasi.includes('Tutup'))) {
+                valEl.style.background = 'rgba(100, 116, 139, 0.25)';
+                valEl.style.color = '#94a3b8';
+                valEl.style.borderColor = '#475569';
+            } else {
+                valEl.style.background = 'rgba(56, 189, 248, 0.15)';
+                valEl.style.color = '#38bdf8';
+                valEl.style.borderColor = '#0284c7';
+            }
+        }
 
         // 3. PANEL C: Tick & Volume + Velocity Table
         const tbVel = document.getElementById('tv-tbody-velocity');
@@ -11199,13 +11265,22 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
             data.tick_velocity_table.forEach(r => {
                 const velCat = r.vel_cat || { bg: '#059669', color: '#fff' };
                 const volCat = r.vol_cat || { bg: '#eab308', color: '#000' };
-                const accelColor = r.accel_pct >= 0 ? 'text-success' : 'text-danger';
-                const accelSign = r.accel_pct >= 0 ? '+' : '';
-                const arahColor = r.arah_tick === 'UP' ? 'text-success' : 'text-danger';
-                const arahArrow = r.arah_tick === 'UP' ? '⬆' : '⬇';
+                const accelColor = r.accel_pct > 0 ? 'text-success' : (r.accel_pct < 0 ? 'text-danger' : 'text-secondary');
+                const accelSign = r.accel_pct > 0 ? '+' : '';
+                
+                let arahColor = 'text-secondary';
+                let arahArrow = '—';
+                if (r.arah_tick === 'UP') {
+                    arahColor = 'text-success'; arahArrow = '⬆';
+                } else if (r.arah_tick === 'DOWN') {
+                    arahColor = 'text-danger'; arahArrow = '⬇';
+                } else {
+                    arahColor = 'text-secondary'; arahArrow = 'OFF';
+                }
 
                 let trendBg = '#eab308'; let trendColor = '#000';
-                if (r.trend_tf === 'Sangat Kuat') { trendBg = '#10b981'; trendColor = '#022c22'; }
+                if (r.trend_tf === 'OFF') { trendBg = '#334155'; trendColor = '#94a3b8'; }
+                else if (r.trend_tf === 'Sangat Kuat') { trendBg = '#10b981'; trendColor = '#022c22'; }
                 else if (r.trend_tf === 'Kuat') { trendBg = '#059669'; trendColor = '#fff'; }
                 else if (r.trend_tf === 'Lemah') { trendBg = '#f97316'; trendColor = '#fff'; }
                 else if (r.trend_tf === 'Sangat Lemah') { trendBg = '#ef4444'; trendColor = '#fff'; }
@@ -11251,7 +11326,8 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
             let html = '';
             data.trend_matrix.forEach(m => {
                 let badgeBg = '#eab308'; let badgeColor = '#000';
-                if (m.kekuatan_tren === 'Sangat Kuat') { badgeBg = '#10b981'; badgeColor = '#022c22'; }
+                if (m.kekuatan_tren === 'OFF') { badgeBg = '#334155'; badgeColor = '#94a3b8'; }
+                else if (m.kekuatan_tren === 'Sangat Kuat') { badgeBg = '#10b981'; badgeColor = '#022c22'; }
                 else if (m.kekuatan_tren === 'Kuat') { badgeBg = '#059669'; badgeColor = '#fff'; }
                 else if (m.kekuatan_tren === 'Lemah') { badgeBg = '#f97316'; badgeColor = '#fff'; }
                 else if (m.kekuatan_tren === 'Sangat Lemah') { badgeBg = '#ef4444'; badgeColor = '#fff'; }
@@ -11297,7 +11373,8 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         if (btnAct && ts.action) {
             btnAct.textContent = ts.action;
             btnAct.style.background = ts.action_color || '#10b981';
-            btnAct.style.boxShadow = `0 0 15px ${ts.action_color || '#10b981'}66`;
+            btnAct.style.color = (ts.action === 'MARKET OFF' || ts.action === 'OFF') ? '#94a3b8' : '#022c22';
+            btnAct.style.boxShadow = (ts.action === 'MARKET OFF' || ts.action === 'OFF') ? 'none' : `0 0 15px ${ts.action_color || '#10b981'}66`;
         }
 
         // Update SVG circle stroke-dashoffset

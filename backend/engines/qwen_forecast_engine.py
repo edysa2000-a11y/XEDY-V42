@@ -197,16 +197,36 @@ def load_cached_real_rates(pair: str) -> List[Dict[str, Any]]:
             pass
     return []
 
+def is_forex_market_open(now_wib: datetime = None) -> bool:
+    if now_wib is None:
+        now_wib = datetime.now(WIB)
+    weekday = now_wib.weekday()
+    hour = now_wib.hour
+    if weekday == 5 and hour >= 5:
+        return False
+    if weekday == 6:
+        return False
+    if weekday == 0 and hour < 5:
+        return False
+    return True
+
 def calculate_h4_forecast_all_pairs(live_prices: Dict[str, Any]) -> Dict[str, Any]:
     """
     Computes H4 Forecast Low, High, and Error using 100% REAL MT5 candles.
     """
+    now_curr_wib = datetime.now(WIB)
+    is_m_open = is_forex_market_open(now_curr_wib)
     params = load_or_init_params()
     weights = params.get("weights", DEFAULT_PARAMS["weights"])
     multipliers = params.get("pair_volatility_multipliers", DEFAULT_PARAMS["pair_volatility_multipliers"])
     dampening = params.get("dampening_factor", 0.89)
 
     cycle_info = get_h4_cycle_info()
+    cycle_info["is_market_open"] = is_m_open
+    if not is_m_open:
+        cycle_info["market_status"] = "MARKET CLOSED (OFF)"
+        cycle_info["recommendation_window_note"] = "Pasar Valas sedang LIBUR / CLOSED (Akhir Pekan/Off). Perdagangan aktif dimulai Senin 05:00 WIB."
+
     forecasts = {}
 
     pairs = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD']
@@ -318,10 +338,19 @@ def calculate_h4_forecast_all_pairs(live_prices: Dict[str, Any]) -> Dict[str, An
             bracket = f"INSIDE_CHANNEL ({pos_pct}% Mid-Range)"
 
         # Institutional Rule: running candles must display PROVISIONAL validation until closed
-        val_status = "PROVISIONAL"
-        val_badge = "🔵 PROVISIONAL (Lilin Berjalan)"
-        val_color = "#38bdf8"
-        score = 94.5
+        if not is_m_open:
+            val_status = "OFF"
+            val_badge = "⚪ MARKET CLOSED (OFF)"
+            val_color = "#94a3b8"
+            bracket = "MARKET CLOSED (OFF)"
+            score = 0.0
+            candle_st = "MARKET CLOSED (OFF)"
+        else:
+            val_status = "PROVISIONAL"
+            val_badge = "🔵 PROVISIONAL (Lilin Berjalan)"
+            val_color = "#38bdf8"
+            score = 94.5
+            candle_st = "RUNNING"
 
         forecasts[pair] = {
             "pair": pair,
@@ -345,7 +374,7 @@ def calculate_h4_forecast_all_pairs(live_prices: Dict[str, Any]) -> Dict[str, An
             "range_pips": round((pred_high - pred_low) * pip_fact, 1),
             "digits": digits,
             "bar_time_wib": bar_time_wib,
-            "candle_status": "RUNNING"
+            "candle_status": candle_st
         }
 
     overall_mae = round(total_error_pips / max(1, evaluated_count), 2)
