@@ -275,12 +275,18 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
                         vel_cat = get_index_category(vel_index)
                         vol_cat = get_index_category(vol_index)
 
+                        # Velocity Buy & Velocity Sell
+                        vel_buy = round(tick_buy / elapsed, 2)
+                        vel_sell = round(tick_sell / elapsed, 2)
+
                         tf_rows.append({
                             "tf": name,
                             "tick_buy": tick_buy,
                             "tick_sell": tick_sell,
                             "total_tick": total_tick,
                             "velocity": velocity,
+                            "vel_buy": vel_buy,
+                            "vel_sell": vel_sell,
                             "vel_index": int(vel_index),
                             "vel_cat": vel_cat,
                             "accel_pct": int(accel_pct),
@@ -348,6 +354,8 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
                         "tick_sell": 0,
                         "total_tick": 0,
                         "velocity": 0.0,
+                        "vel_buy": 0.0,
+                        "vel_sell": 0.0,
                         "vel_index": 0,
                         "vel_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
                         "accel_pct": 0,
@@ -394,6 +402,7 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
             for tf_name in ["M1", "M5", "M15", "M30", "H1", "H4"]:
                 tf_rows.append({
                     "tf": tf_name, "tick_buy": 0, "tick_sell": 0, "total_tick": 0, "velocity": 0.0,
+                    "vel_buy": 0.0, "vel_sell": 0.0,
                     "vel_index": 0, "vel_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
                     "accel_pct": 0, "vol_buy": 0, "vol_sell": 0, "total_volume": 0, "vol_index": 0,
                     "vol_cat": {"label": "OFF", "bg": "#334155", "color": "#94a3b8"},
@@ -410,12 +419,12 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
                 })
         else:
             tf_rows = [
-                {"tf": "M1", "tick_buy": 580, "tick_sell": 420, "total_tick": 1000, "velocity": 18.2, "vel_index": 180, "vel_cat": get_index_category(180), "accel_pct": +35, "vol_buy": 320, "vol_sell": 210, "total_volume": 530, "vol_index": 60, "vol_cat": get_index_category(60), "dom_tick": 16.0, "dom_vol": 20.8, "arah_tick": "UP", "trend_tf": "Sedang"},
-                {"tf": "M5", "tick_buy": 2800, "tick_sell": 2200, "total_tick": 5000, "velocity": 14.1, "vel_index": 140, "vel_cat": get_index_category(140), "accel_pct": +20, "vol_buy": 1450, "vol_sell": 1100, "total_volume": 2550, "vol_index": 110, "vol_cat": get_index_category(110), "dom_tick": 12.0, "dom_vol": 13.7, "arah_tick": "UP", "trend_tf": "Kuat"},
-                {"tf": "M15", "tick_buy": 7400, "tick_sell": 6100, "total_tick": 13500, "velocity": 12.3, "vel_index": 125, "vel_cat": get_index_category(125), "accel_pct": +8, "vol_buy": 3800, "vol_sell": 3100, "total_volume": 6900, "vol_index": 120, "vol_cat": get_index_category(120), "dom_tick": 9.7, "dom_vol": 10.1, "arah_tick": "UP", "trend_tf": "Kuat"},
-                {"tf": "M30", "tick_buy": 14500, "tick_sell": 15500, "total_tick": 30000, "velocity": 9.8, "vel_index": 100, "vel_cat": get_index_category(100), "accel_pct": -12, "vol_buy": 7100, "vol_sell": 8200, "total_volume": 15300, "vol_index": 95, "vol_cat": get_index_category(95), "dom_tick": 3.3, "dom_vol": 7.2, "arah_tick": "DOWN", "trend_tf": "Sedang"},
-                {"tf": "H1", "tick_buy": 29000, "tick_sell": 25000, "total_tick": 54000, "velocity": 8.4, "vel_index": 115, "vel_cat": get_index_category(115), "accel_pct": +5, "vol_buy": 15200, "vol_sell": 13100, "total_volume": 28300, "vol_index": 130, "vol_cat": get_index_category(130), "dom_tick": 7.4, "dom_vol": 8.0, "arah_tick": "UP", "trend_tf": "Kuat"},
-                {"tf": "H4", "tick_buy": 108000, "tick_sell": 92000, "total_tick": 200000, "velocity": 7.1, "vel_index": 120, "vel_cat": get_index_category(120), "accel_pct": +10, "vol_buy": 56000, "vol_sell": 47000, "total_volume": 103000, "vol_index": 140, "vol_cat": get_index_category(140), "dom_tick": 8.0, "dom_vol": 8.7, "arah_tick": "UP", "trend_tf": "Sangat Kuat"}
+                {"tf": "M1", "tick_buy": 580, "tick_sell": 420, "total_tick": 1000, "velocity": 18.2, "vel_buy": 10.56, "vel_sell": 7.64, "vel_index": 180, "vel_cat": get_index_category(180), "accel_pct": +35, "vol_buy": 320, "vol_sell": 210, "total_volume": 530, "vol_index": 60, "vol_cat": get_index_category(60), "dom_tick": 16.0, "dom_vol": 20.8, "arah_tick": "UP", "trend_tf": "Sedang"},
+                {"tf": "M5", "tick_buy": 2800, "tick_sell": 2200, "total_tick": 5000, "velocity": 14.1, "vel_buy": 7.90, "vel_sell": 6.20, "vel_index": 140, "vel_cat": get_index_category(140), "accel_pct": +20, "vol_buy": 1450, "vol_sell": 1100, "total_volume": 2550, "vol_index": 110, "vol_cat": get_index_category(110), "dom_tick": 12.0, "dom_vol": 13.7, "arah_tick": "UP", "trend_tf": "Kuat"},
+                {"tf": "M15", "tick_buy": 7400, "tick_sell": 6100, "total_tick": 13500, "velocity": 12.3, "vel_buy": 6.74, "vel_sell": 5.56, "vel_index": 125, "vel_cat": get_index_category(125), "accel_pct": +8, "vol_buy": 3800, "vol_sell": 3100, "total_volume": 6900, "vol_index": 120, "vol_cat": get_index_category(120), "dom_tick": 9.7, "dom_vol": 10.1, "arah_tick": "UP", "trend_tf": "Kuat"},
+                {"tf": "M30", "tick_buy": 14500, "tick_sell": 15500, "total_tick": 30000, "velocity": 9.8, "vel_buy": 4.74, "vel_sell": 5.06, "vel_index": 100, "vel_cat": get_index_category(100), "accel_pct": -12, "vol_buy": 7100, "vol_sell": 8200, "total_volume": 15300, "vol_index": 95, "vol_cat": get_index_category(95), "dom_tick": 3.3, "dom_vol": 7.2, "arah_tick": "DOWN", "trend_tf": "Sedang"},
+                {"tf": "H1", "tick_buy": 29000, "tick_sell": 25000, "total_tick": 54000, "velocity": 8.4, "vel_buy": 4.51, "vel_sell": 3.89, "vel_index": 115, "vel_cat": get_index_category(115), "accel_pct": +5, "vol_buy": 15200, "vol_sell": 13100, "total_volume": 28300, "vol_index": 130, "vol_cat": get_index_category(130), "dom_tick": 7.4, "dom_vol": 8.0, "arah_tick": "UP", "trend_tf": "Kuat"},
+                {"tf": "H4", "tick_buy": 108000, "tick_sell": 92000, "total_tick": 200000, "velocity": 7.1, "vel_buy": 3.83, "vel_sell": 3.27, "vel_index": 120, "vel_cat": get_index_category(120), "accel_pct": +10, "vol_buy": 56000, "vol_sell": 47000, "total_volume": 103000, "vol_index": 140, "vol_cat": get_index_category(140), "dom_tick": 8.0, "dom_vol": 8.7, "arah_tick": "UP", "trend_tf": "Sangat Kuat"}
             ]
             matrix_rows = [
                 {"tf": "M1", "tick_index": 180, "vol_index": 60, "vel_index": 180, "kekuatan_tren": "Sedang"},

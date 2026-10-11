@@ -6148,7 +6148,68 @@
             </div>
         </div>
 
-        </section>
+        <!-- ========================================================================= -->
+        <!-- MATRIKS 2: REAL-TIME TICK, VOLUME & VELOCITY FLOW MATRIX (M1 - H4)        -->
+        <!-- ========================================================================= -->
+        <div class="qci-matrix-card mt-3" id="qci-matriks2-container" style="background: #0b1324; border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 8px; padding: 14px;">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-2 border-bottom border-dim mb-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge bg-info bg-opacity-25 text-cyan border border-info mono py-1 px-2" style="font-size: 0.75rem;">
+                            ⚡ MATRIKS 2
+                        </span>
+                        <h5 class="fw-bold mono text-white mb-0" style="font-size: 0.95rem; letter-spacing: 0.5px;">
+                            REAL-TIME TICK, VOLUME &amp; VELOCITY FLOW &bull; <span id="qci-tv-title-pair" class="text-cyan">USDJPY</span>
+                        </h5>
+                        <span id="qci-tv-status-badge" class="badge bg-secondary bg-opacity-25 text-muted border border-secondary mono py-1 px-2" style="font-size: 0.75rem;">
+                            ⚪ MARKET CLOSED (OFF)
+                        </span>
+                    </div>
+                    <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">
+                        Matriks multidimensi M1–H4 mengintegrasikan <b>1. Tick Buy/Sell</b>, <b>2. Volume Buy/Sell</b>, dan <b>3. Velocity Buy/Sell (t/s)</b> untuk verifikasi presisi konfluensi order flow.
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.72rem;">
+                    <span class="badge bg-dark text-cyan border border-info py-1 px-2">ORDER FLOW CONFLUENCE</span>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive mb-2">
+                <table class="table table-dark table-hover mb-0" style="background: transparent; font-size: 0.76rem; border-collapse: separate; border-spacing: 0 4px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid rgba(0, 240, 255, 0.3); color: #8492a6; font-family: 'Rajdhani', sans-serif; font-size: 0.80rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); border-top-left-radius: 6px; width: 6%;">TF</th>
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); text-align: right; color: #10b981; width: 9%;">Tick Buy</th>
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); text-align: right; color: #ef4444; width: 9%;">Tick Sell</th>
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); text-align: center; width: 10%;">Tick Delta</th>
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); text-align: right; color: #10b981; width: 9%;">Vol Buy</th>
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); text-align: right; color: #ef4444; width: 9%;">Vol Sell</th>
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); text-align: center; width: 10%;">Net Vol Flow</th>
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); text-align: right; color: #38bdf8; width: 9%;">Vel Buy (t/s)</th>
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); text-align: right; color: #f43f5e; width: 9%;">Vel Sell (t/s)</th>
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); text-align: center; width: 10%;">Tot Vel (t/s)</th>
+                            <th style="padding: 8px 10px; background: rgba(15, 27, 51, 0.8); border-top-right-radius: 6px; text-align: center; width: 10%;">Dominasi Order</th>
+                        </tr>
+                    </thead>
+                    <tbody id="qci-tv-table-body" style="font-family: 'JetBrains Mono', monospace;">
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            <td colspan="11" class="text-center py-3 text-muted mono">Memuat data Tick, Volume & Velocity...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Diagnostic Footnote -->
+            <div class="p-2 rounded mt-2 d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(15, 27, 51, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.70rem; color: #94a3b8;">
+                <div class="mono">
+                    <span class="text-cyan fw-bold">Formula:</span> <b>Tick Delta</b> = (Buy - Sell)/Total &times; 100% &bull; <b>Net Vol</b> = Vol Buy - Vol Sell &bull; <b>Velocity Buy/Sell</b> = Frekuensi tick/detik per arah.
+                </div>
+                <div class="mono" id="qci-tv-last-updated">
+                    Status: Sinkronisasi MT5 Real-Time
+                </div>
+            </div>
+        </div>
 
         <!-- PANE 8: 38 CORE QUESTIONS (FULL COMPONENT) -->
         <section id="pane-narrative" class="subview-pane">
@@ -8651,6 +8712,106 @@
         if (peQwenEl) peQwenEl.textContent = item.peQwenBadge;
         const peAdEl = document.getElementById('pe-adaptive-badge');
         if (peAdEl) peAdEl.textContent = item.peAdaptiveBadge;
+
+        // Auto-fetch real-time Tick, Volume & Velocity Flow for QCI Matriks 2
+        if (typeof loadQCITickVelocityData === 'function') {
+            loadQCITickVelocityData(pairKey);
+        }
+    }
+
+    async function loadQCITickVelocityData(pairKey) {
+        const pair = pairKey || (typeof currentSelectedPair !== 'undefined' ? currentSelectedPair : 'USDJPY');
+        const titleEl = document.getElementById('qci-tv-title-pair');
+        if (titleEl) titleEl.textContent = pair;
+
+        try {
+            const res = await fetch('/api/tick_velocity_intelligence?pair=' + encodeURIComponent(pair));
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            renderQCIMultiTimeframeFlow(pair, data);
+        } catch (err) {
+            console.warn('[QCI Flow] Fetch error:', err);
+        }
+    }
+
+    function renderQCIMultiTimeframeFlow(pairKey, data) {
+        const tbody = document.getElementById('qci-tv-table-body');
+        const titlePair = document.getElementById('qci-tv-title-pair');
+        const statusBadge = document.getElementById('qci-tv-status-badge');
+        const lastUp = document.getElementById('qci-tv-last-updated');
+
+        if (titlePair) titlePair.textContent = pairKey;
+        if (!tbody) return;
+
+        if (!data || !data.tick_velocity_table || data.tick_velocity_table.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="11" class="text-center py-3 text-muted mono">Memuat data Tick, Volume & Velocity...</td></tr>';
+            return;
+        }
+
+        const isOpen = data.market_header && data.market_header.is_market_open !== false;
+
+        if (statusBadge) {
+            if (!isOpen) {
+                statusBadge.textContent = '⚪ MARKET CLOSED (OFF)';
+                statusBadge.className = 'badge bg-secondary bg-opacity-25 text-muted border border-secondary mono py-1 px-2';
+            } else {
+                statusBadge.textContent = '● LIVE MT5 SYNC';
+                statusBadge.className = 'badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2';
+            }
+        }
+
+        if (lastUp && data.timestamp) {
+            lastUp.textContent = `Update: ${data.timestamp}`;
+        }
+
+        let rowsHtml = '';
+        data.tick_velocity_table.forEach(r => {
+            const isOff = !isOpen || r.arah_tick === 'OFF';
+            const tBuy = isOff ? 0 : r.tick_buy;
+            const tSell = isOff ? 0 : r.tick_sell;
+            const totTick = isOff ? 0 : r.total_tick;
+            const tickDelta = (isOff || totTick === 0) ? '0%' : (((tBuy - tSell) / totTick) * 100).toFixed(1) + '%';
+            const tickDeltaColor = isOff ? '#94a3b8' : (tBuy >= tSell ? '#10b981' : '#ef4444');
+
+            const vBuy = isOff ? 0 : r.vol_buy;
+            const vSell = isOff ? 0 : r.vol_sell;
+            const netVol = isOff ? 0 : (vBuy - vSell);
+            const netVolStr = isOff ? '0' : (netVol >= 0 ? `+${netVol.toLocaleString()}` : netVol.toLocaleString());
+            const netVolColor = isOff ? '#94a3b8' : (netVol >= 0 ? '#10b981' : '#ef4444');
+
+            const velBuy = isOff ? '0.00' : (r.vel_buy !== undefined ? Number(r.vel_buy).toFixed(2) : (r.velocity ? (r.velocity * 0.5).toFixed(2) : '0.00'));
+            const velSell = isOff ? '0.00' : (r.vel_sell !== undefined ? Number(r.vel_sell).toFixed(2) : (r.velocity ? (r.velocity * 0.5).toFixed(2) : '0.00'));
+            const totVel = isOff ? '0.0' : (r.velocity !== undefined ? Number(r.velocity).toFixed(1) : '0.0');
+
+            let domBadge = '';
+            if (isOff) {
+                domBadge = '<span class="badge bg-secondary bg-opacity-25 text-muted mono">OFF</span>';
+            } else if (tBuy > tSell && netVol > 0) {
+                domBadge = '<span class="badge bg-success bg-opacity-25 text-success border border-success mono">🟢 BUY DOMINANT</span>';
+            } else if (tSell > tBuy && netVol < 0) {
+                domBadge = '<span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono">🔴 SELL DOMINANT</span>';
+            } else {
+                domBadge = '<span class="badge bg-warning bg-opacity-25 text-warning border border-warning mono">⚠️ MIXED FLOW</span>';
+            }
+
+            rowsHtml += `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                    <td style="padding: 7px 10px; color: #38bdf8; font-weight: 700;">${r.tf}</td>
+                    <td style="padding: 7px 10px; text-align: right; color: ${isOff ? '#94a3b8' : '#10b981'}; font-weight: 600;">${tBuy.toLocaleString()}</td>
+                    <td style="padding: 7px 10px; text-align: right; color: ${isOff ? '#94a3b8' : '#ef4444'}; font-weight: 600;">${tSell.toLocaleString()}</td>
+                    <td style="padding: 7px 10px; text-align: center; color: ${tickDeltaColor}; font-weight: 700;">${tickDelta}</td>
+                    <td style="padding: 7px 10px; text-align: right; color: ${isOff ? '#94a3b8' : '#10b981'}; font-weight: 600;">${vBuy.toLocaleString()}</td>
+                    <td style="padding: 7px 10px; text-align: right; color: ${isOff ? '#94a3b8' : '#ef4444'}; font-weight: 600;">${vSell.toLocaleString()}</td>
+                    <td style="padding: 7px 10px; text-align: center; color: ${netVolColor}; font-weight: 700;">${netVolStr}</td>
+                    <td style="padding: 7px 10px; text-align: right; color: ${isOff ? '#94a3b8' : '#38bdf8'}; font-weight: 600;">${velBuy}</td>
+                    <td style="padding: 7px 10px; text-align: right; color: ${isOff ? '#94a3b8' : '#f43f5e'}; font-weight: 600;">${velSell}</td>
+                    <td style="padding: 7px 10px; text-align: center; color: #ffffff; font-weight: 700;">${totVel} <small class="text-muted" style="font-size:0.65rem;">(${r.vel_index || 0}%)</small></td>
+                    <td style="padding: 7px 10px; text-align: center;">${domBadge}</td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = rowsHtml;
     }
 
 
