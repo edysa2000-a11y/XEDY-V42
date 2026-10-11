@@ -3241,64 +3241,358 @@
                 </div>
             </div>
 
-            <!-- 2. SECTION A: Multi-Pair Live H4 Forecast & Validasi Selisih Error -->
-            <div style="background: rgba(11, 19, 36, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 18px 20px;">
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                    <div>
-                        <h6 class="m-0 fw-bold mono text-light d-flex align-items-center gap-2" style="font-size: 0.95rem;">
-                            <span>🎯</span> TABEL FORECAST H4 LOW &amp; HIGH (SEMUA PAIR) DENGAN VALIDASI SELISIH ERROR
-                        </h6>
-                        <div class="text-secondary mono" style="font-size: 0.72rem; margin-top: 2px;">
-                            Perbandingan Proyeksi Lantai (Low) &amp; Atap (High) terhadap pergerakan aktual candle H4 saat ini.
+            
+            <!-- ========================================================================= -->
+            <!-- ⚡ GAMBAR 2: MULTI-ASSET TICK, VOLUME & VELOCITY INTELLIGENCE DASHBOARD  -->
+            <!-- ========================================================================= -->
+            <div id="tick-velocity-dashboard-container" style="background: #071426; border: 1.5px solid rgba(0, 240, 255, 0.4); border-radius: 14px; padding: 18px 20px; box-shadow: 0 0 25px rgba(0, 180, 255, 0.12); display: flex; flex-direction: column; gap: 16px;">
+                
+                <!-- ========================================================================= -->
+                <!-- PANEL A: LIVE MARKET HEADER                                               -->
+                <!-- ========================================================================= -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 p-3 rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35); box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05);">
+                    
+                    <!-- Left: Flags & Instrument Selector -->
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center" style="gap: 4px;">
+                            <span id="tv-header-flag1" style="font-size: 1.7rem; line-height: 1;">🇺🇸</span>
+                            <span id="tv-header-flag2" style="font-size: 1.7rem; line-height: 1;">🇯🇵</span>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <select id="tv-pair-select" class="form-select form-select-sm fw-bold mono" onchange="switchTvPair(this.value)" style="background: #050c18; color: #ffffff; border: 1.5px solid #00f0ff; font-size: 1.15rem; padding: 2px 28px 2px 10px; cursor: pointer; border-radius: 6px; box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);">
+                                    <option value="USDJPY" selected>USDJPY</option>
+                                    <option value="XAUUSD">XAUUSD</option>
+                                    <option value="EURUSD">EURUSD</option>
+                                    <option value="GBPUSD">GBPUSD</option>
+                                    <option value="OIL">OIL (CL)</option>
+                                    <option value="BTCUSD">BTCUSD</option>
+                                </select>
+                            </div>
+                            <div class="text-secondary mono" id="tv-header-fullname" style="font-size: 0.74rem; margin-top: 3px;">
+                                U.S. Dollar / Japanese Yen
+                            </div>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-secondary bg-opacity-25 text-light mono" style="font-size: 0.70rem;">Sumber: 100% Data Riil MT5 (Finex Futures)</span>
-                        <span class="badge bg-info bg-opacity-25 text-info mono" id="fc-live-timestamp" style="font-size: 0.70rem;">Updated: --:--:-- WIB</span>
+
+                    <!-- Center 1: Live Bid/Ask Price & Spread -->
+                    <div class="d-flex align-items-center gap-3">
+                        <div>
+                            <div class="fw-bold mono" id="tv-header-live-price" style="font-size: 2.2rem; line-height: 1; color: #00f0ff; letter-spacing: 0.5px; text-shadow: 0 0 12px rgba(0, 240, 255, 0.4);">
+                                158.314
+                            </div>
+                            <div class="fw-bold mono text-success" id="tv-header-price-change" style="font-size: 0.80rem; margin-top: 2px;">
+                                ▲ +0.276 (+0.17%)
+                            </div>
+                        </div>
+
+                        <div class="px-3 py-2 rounded text-center" style="background: #050c18; border: 1px solid rgba(0, 240, 255, 0.25);">
+                            <div class="text-secondary mono" style="font-size: 0.65rem;">SPREAD</div>
+                            <div class="fw-bold text-light mono" id="tv-header-spread" style="font-size: 1.15rem;">2.1</div>
+                        </div>
+                    </div>
+
+                    <!-- Center 2: Hari Ini (Low / High) -->
+                    <div class="px-3 py-2 rounded" style="background: #050c18; border: 1px solid rgba(0, 240, 255, 0.25);">
+                        <div class="text-secondary mono text-center" style="font-size: 0.65rem; margin-bottom: 2px;">HARI INI</div>
+                        <div class="d-flex align-items-center gap-3 mono" style="font-size: 0.85rem;">
+                            <div>
+                                <span class="fw-bold text-danger" id="tv-header-day-low">158.158</span>
+                                <span class="text-secondary" style="font-size: 0.68rem; margin-left: 2px;">LOW</span>
+                            </div>
+                            <div>
+                                <span class="fw-bold text-success" id="tv-header-day-high">158.338</span>
+                                <span class="text-secondary" style="font-size: 0.68rem; margin-left: 2px;">HIGH</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Center 3: H4 Range (Forecast) -->
+                    <div class="px-3 py-2 rounded" style="background: #050c18; border: 1px solid rgba(0, 240, 255, 0.25);">
+                        <div class="text-secondary mono text-center" style="font-size: 0.65rem; margin-bottom: 2px;">H4 RANGE (FORECAST)</div>
+                        <div class="text-center mono">
+                            <div class="fw-bold text-cyan" id="tv-header-h4-range" style="font-size: 0.85rem;">158.143 - 158.363</div>
+                            <div class="text-warning fw-bold" id="tv-header-h4-pips" style="font-size: 0.72rem;">22.0 pips</div>
+                        </div>
+                    </div>
+
+                    <!-- Center 4: Trend Utama -->
+                    <div class="px-3 py-2 rounded text-center" style="background: #050c18; border: 1px solid rgba(0, 240, 255, 0.25);">
+                        <div class="text-secondary mono" style="font-size: 0.65rem; margin-bottom: 2px;">TREND UTAMA</div>
+                        <div class="fw-bold text-success mono d-flex align-items-center justify-content-center gap-1" id="tv-header-trend-utama" style="font-size: 0.95rem;">
+                            <span>▲</span> BULLISH
+                        </div>
+                        <div class="text-secondary mono" style="font-size: 0.65rem;">H4</div>
+                    </div>
+
+                    <!-- Right: Clock & Status -->
+                    <div class="text-end">
+                        <div class="text-secondary mono" id="tv-header-date" style="font-size: 0.70rem;">Kamis, 9 Okt 2026</div>
+                        <div class="fw-bold text-light mono" id="tv-header-time" style="font-size: 1.05rem; letter-spacing: 0.5px;">12:00:35 WIB</div>
+                        <div class="mt-1">
+                            <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="tv-header-status-badge" style="font-size: 0.68rem;">
+                                ● LIVE (MT5 REAL)
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Multi-Pair Responsive Table -->
-                <div class="table-responsive" style="border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px;">
-                    <table class="table table-dark table-hover mb-0 align-middle" style="font-size: 0.78rem;">
-                        <thead style="background: rgba(15, 23, 42, 0.95); font-size: 0.72rem; text-transform: uppercase;" class="mono text-secondary">
+                <!-- ========================================================================= -->
+                <!-- PANEL B: FORECAST H4 (Single Row Table)                                   -->
+                <!-- ========================================================================= -->
+                <div class="table-responsive rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
+                    <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.78rem; border-color: rgba(0, 240, 255, 0.2);">
+                        <thead style="background: #050c18; color: #94a3b8; font-size: 0.72rem; text-transform: uppercase;">
                             <tr>
-                                <th style="padding: 10px 14px;">Instrumen / Pair</th>
-                                <th style="padding: 10px 12px; text-align: right;">H4 Open (MT5 Real)</th>
-                                <th style="padding: 10px 12px; text-align: right;">Live Price (MT5 Real)</th>
-                                <th style="padding: 10px 12px; text-align: center; color: #38bdf8;">Forecast H4 Low (Lantai)</th>
-                                <th style="padding: 10px 12px; text-align: center; color: #f43f5e;">Forecast H4 High (Atap)</th>
-                                <th style="padding: 10px 12px; text-align: center; color: #10b981;">Aktual Low / High (MT5 Real)</th>
-                                <th style="padding: 10px 12px; text-align: center; color: #38bdf8;">Selisih Error Low</th>
-                                <th style="padding: 10px 12px; text-align: center; color: #f43f5e;">Selisih Error High</th>
-                                <th style="padding: 10px 12px; text-align: center;">Status Posisi Lilin</th>
-                                <th style="padding: 10px 14px; text-align: center;">Validasi Presisi</th>
-                                <th style="padding: 10px 12px; text-align: center;">Aksi</th>
+                                <th style="padding: 8px;">Jam (WIB)</th>
+                                <th style="padding: 8px;">H4 Open (MT5 Real)</th>
+                                <th style="padding: 8px;">Live Price (MT5 Real)</th>
+                                <th style="padding: 8px; color: #38bdf8;">Forecast H4 Low</th>
+                                <th style="padding: 8px; color: #f43f5e;">Forecast H4 High</th>
+                                <th style="padding: 8px; color: #eab308;">Pips H-L</th>
+                                <th style="padding: 8px;">Aktual Low (MT5 Real)</th>
+                                <th style="padding: 8px;">Aktual High (MT5 Real)</th>
+                                <th style="padding: 8px;">Status Posisi Lilin</th>
+                                <th style="padding: 8px;">Validasi Presisi</th>
                             </tr>
                         </thead>
-                        <tbody id="fc-table-body" class="mono">
-                            <tr>
-                                <td colspan="11" class="text-center py-4 text-secondary">
-                                    <div class="spinner-border spinner-border-sm text-info me-2" role="status"></div>
-                                    Mengambil data live forecast H4 dan kalkulasi error semua pair...
+                        <tbody>
+                            <tr style="background: rgba(11, 27, 48, 0.8);">
+                                <td class="fw-bold text-light" id="fc-b-jam" style="font-size: 0.95rem; background: #050c18;">12:00</td>
+                                <td class="fw-bold text-secondary" id="fc-b-open">158.311</td>
+                                <td class="fw-bold text-cyan" id="fc-b-live" style="background: rgba(0, 240, 255, 0.1); font-size: 0.88rem;">158.314</td>
+                                <td class="fw-bold text-cyan" id="fc-b-fclow">158.143</td>
+                                <td class="fw-bold text-danger" id="fc-b-fchigh">158.363</td>
+                                <td class="fw-bold text-warning" id="fc-b-pipshl" style="background: rgba(234, 179, 8, 0.1); font-size: 0.88rem;">22.0</td>
+                                <td class="fw-bold text-light" id="fc-b-actlow">158.158</td>
+                                <td class="fw-bold text-light" id="fc-b-acthigh">158.338</td>
+                                <td>
+                                    <span class="badge px-3 py-1 mono" id="fc-b-posisi" style="background: rgba(2, 132, 199, 0.25); color: #bae6fd; border: 1px solid #0284c7; font-size: 0.72rem;">
+                                        INSIDE CHANNEL (77% Mid-Range)
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge px-3 py-1 mono" id="fc-b-validasi" style="background: rgba(16, 185, 129, 0.25); color: #10b981; border: 1px solid #10b981; font-size: 0.72rem;">
+                                        ● SANGAT PRESISI Error &lt; 4.5p
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-25 flex-wrap gap-2 mono" style="font-size: 0.72rem;">
-                    <div class="text-secondary">
-                        <span class="text-success fw-bold">🟢 PERFECT:</span> Error &le; 4.5 pips &nbsp;|&nbsp;
-                        <span class="text-info fw-bold">🟢 DALAM RANGE:</span> Error &le; 9.0 pips &nbsp;|&nbsp;
-                        <span class="text-warning fw-bold">🟡 NORMAL:</span> Error &le; 16.0 pips &nbsp;|&nbsp;
-                        <span class="text-danger fw-bold">🔴 DEVIASI:</span> Outlier Wick Spike
+                <!-- ========================================================================= -->
+                <!-- MIDDLE ROW: PANEL C (TICK/VOL/VEL) + PANEL D + PANEL E + PANEL F          -->
+                <!-- ========================================================================= -->
+                <div class="row g-2 align-items-stretch">
+                    
+                    <!-- PANEL C: TICK & VOLUME + VELOCITY (M1 – H4) [Wide Left 64%] -->
+                    <div class="col-12 col-xl-8">
+                        <div class="p-3 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
+                            
+                            <!-- Header & Legend -->
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                <div class="fw-bold mono text-light" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                                    TICK &amp; VOLUME + VELOCITY (M1 &ndash; H4)
+                                </div>
+                                <div class="d-flex align-items-center gap-3 mono" style="font-size: 0.68rem;">
+                                    <span class="d-flex align-items-center gap-1 text-success">
+                                        <span style="font-size: 0.9rem;">●</span> Buy/Dominan
+                                    </span>
+                                    <span class="d-flex align-items-center gap-1 text-danger">
+                                        <span style="font-size: 0.9rem;">●</span> Sell/Dominan
+                                    </span>
+                                    <span class="d-flex align-items-center gap-1 text-secondary">
+                                        <span style="font-size: 0.9rem;">●</span> Netral
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- 15-Column Responsive Table -->
+                            <div class="table-responsive">
+                                <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.74rem; border-color: rgba(255, 255, 255, 0.08);">
+                                    <thead style="background: #050c18; color: #94a3b8; font-size: 0.67rem; text-transform: uppercase;">
+                                        <tr>
+                                            <th style="padding: 6px 4px;">TF</th>
+                                            <th style="padding: 6px 4px; color: #10b981;">Tick Buy</th>
+                                            <th style="padding: 6px 4px; color: #ef4444;">Tick Sell</th>
+                                            <th style="padding: 6px 4px;">Total Tick</th>
+                                            <th style="padding: 6px 4px; color: #00f0ff;">Tick/s (Velocity)</th>
+                                            <th style="padding: 6px 4px;">Vel. Index (%)</th>
+                                            <th style="padding: 6px 4px;">Accel. (%)</th>
+                                            <th style="padding: 6px 4px; color: #10b981;">Volume Buy*</th>
+                                            <th style="padding: 6px 4px; color: #ef4444;">Volume Sell*</th>
+                                            <th style="padding: 6px 4px;">Total Volume</th>
+                                            <th style="padding: 6px 4px;">Vol. Index (%)</th>
+                                            <th style="padding: 6px 4px;">Dominasi Tick</th>
+                                            <th style="padding: 6px 4px;">Dominasi Volume</th>
+                                            <th style="padding: 6px 4px;">Arah Tick</th>
+                                            <th style="padding: 6px 4px;">Trend TF</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tv-tbody-velocity">
+                                        <!-- Rows rendered dynamically via JS -->
+                                        <tr>
+                                            <td colspan="15" class="text-center py-4 text-secondary">
+                                                <div class="spinner-border spinner-border-sm text-info me-2"></div>
+                                                Memuat data Tick, Volume &amp; Velocity M1 - H4...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-secondary">
-                        *Selisih Error dihitung dalam Pips standar institusi: <code class="text-info">|Aktual - Proyeksi|</code>
+
+                    <!-- Right Column: PANEL D, PANEL E, PANEL F [36%] -->
+                    <div class="col-12 col-xl-4">
+                        <div class="row g-2 h-100">
+                            
+                            <!-- PANEL D: MATRIKS KEKUATAN TREN -->
+                            <div class="col-12 col-md-5">
+                                <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
+                                    <div class="fw-bold mono text-light mb-1" style="font-size: 0.70rem; line-height: 1.2;">
+                                        MATRIKS KEKUATAN TREN
+                                    </div>
+                                    <div class="text-secondary mono mb-2" style="font-size: 0.58rem;">
+                                        (Berdasarkan Tick Index, Volume Index &amp; Velocity)
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.68rem; border-color: rgba(255, 255, 255, 0.08);">
+                                            <thead style="background: #050c18; color: #94a3b8; font-size: 0.62rem;">
+                                                <tr>
+                                                    <th style="padding: 4px;">TF</th>
+                                                    <th style="padding: 4px;">Tick Index</th>
+                                                    <th style="padding: 4px;">Volume Index</th>
+                                                    <th style="padding: 4px;">Velocity Index</th>
+                                                    <th style="padding: 4px;">Kekuatan Tren</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tv-tbody-matrix">
+                                                <!-- Dynamic Matrix Rows -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PANEL E: ANOMALI -->
+                            <div class="col-12 col-md-3">
+                                <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
+                                    <div class="fw-bold mono text-light mb-1" style="font-size: 0.70rem; line-height: 1.2;">
+                                        ANOMALI
+                                    </div>
+                                    <div class="text-secondary mono mb-2" style="font-size: 0.58rem;">
+                                        (Tick vs Volume &amp; Velocity)
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.68rem; border-color: rgba(255, 255, 255, 0.08);">
+                                            <thead style="background: #050c18; color: #94a3b8; font-size: 0.62rem;">
+                                                <tr>
+                                                    <th style="padding: 4px;">TF</th>
+                                                    <th style="padding: 4px;">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tv-tbody-anomaly">
+                                                <!-- Dynamic Anomaly Rows -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PANEL F: TREND SCORE (0 – 100) & ACTION SIGNAL -->
+                            <div class="col-12 col-md-4">
+                                <div class="p-2 rounded h-100 text-center d-flex flex-direction-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35); flex-direction: column;">
+                                    <div>
+                                        <div class="fw-bold mono text-light mb-1" style="font-size: 0.70rem;">
+                                            TREND SCORE
+                                        </div>
+                                        <div class="text-secondary mono" style="font-size: 0.58rem;">
+                                            (0 &ndash; 100)
+                                        </div>
+                                    </div>
+
+                                    <!-- Circular Gauge SVG -->
+                                    <div class="my-1 position-relative d-inline-block">
+                                        <svg width="86" height="86" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+                                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#050c18" stroke-width="12"></circle>
+                                            <circle id="tv-gauge-circle" cx="50" cy="50" r="40" fill="transparent" stroke="#10b981" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="60" stroke-linecap="round"></circle>
+                                        </svg>
+                                        <div class="position-absolute top-50 start-50 translate-middle text-center" style="transform: translate(-50%, -50%);">
+                                            <div class="fw-bold mono text-light" id="tv-gauge-score" style="font-size: 1.55rem; line-height: 1;">76</div>
+                                            <div class="text-success mono" id="tv-gauge-label" style="font-size: 0.65rem; margin-top: 1px;">Kuat</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Signal Button -->
+                                    <div>
+                                        <button class="btn btn-sm w-100 fw-bold mono py-1" id="tv-btn-action-signal" style="background: #10b981; color: #022c22; font-size: 0.85rem; border: none; border-radius: 6px; box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);">
+                                            BUY
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
+
+                <!-- ========================================================================= -->
+                <!-- BOTTOM ROW: 3 LEGENDS & SYSTEM RULES CARDS                                -->
+                <!-- ========================================================================= -->
+                <div class="row g-2 mono" style="font-size: 0.68rem;">
+                    
+                    <!-- Box 1: Kategori Index -->
+                    <div class="col-12 col-md-4">
+                        <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
+                            <div class="text-secondary fw-bold mb-1" style="font-size: 0.65rem;">KATEGORI INDEX (Tick/Volume/Velocity)</div>
+                            <div class="d-flex align-items-center justify-content-between gap-1 text-center" style="font-size: 0.60rem;">
+                                <div class="px-1 py-1 rounded flex-fill" style="background: #ef4444; color: #fff;">&lt; 50%<br>Sangat Lemah</div>
+                                <div class="px-1 py-1 rounded flex-fill" style="background: #f97316; color: #fff;">50 &ndash; 79%<br>Lemah</div>
+                                <div class="px-1 py-1 rounded flex-fill" style="background: #eab308; color: #000;">80 &ndash; 119%<br>Sedang</div>
+                                <div class="px-1 py-1 rounded flex-fill" style="background: #059669; color: #fff;">120 &ndash; 149%<br>Kuat</div>
+                                <div class="px-1 py-1 rounded flex-fill" style="background: #10b981; color: #022c22;">&ge; 150%<br>Sangat Kuat</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 2: Aturan Anomali Utama -->
+                    <div class="col-12 col-md-5">
+                        <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
+                            <div class="text-secondary fw-bold mb-1" style="font-size: 0.65rem;">ATURAN ANOMALI UTAMA</div>
+                            <div class="d-flex align-items-center justify-content-between gap-1" style="font-size: 0.60rem;">
+                                <div class="px-2 py-1 rounded flex-fill" style="background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; color: #fef08a;">
+                                    <strong>⚠️ Tick &ge;150% &amp; Volume &lt;70%</strong><br>Tick cepat, volume rendah (Waspada)
+                                </div>
+                                <div class="px-2 py-1 rounded flex-fill" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fca5a5;">
+                                    <strong>🔴 Tick Sell dominan &gt;50%</strong><br>Tekanan jual kuat
+                                </div>
+                                <div class="px-2 py-1 rounded flex-fill" style="background: rgba(2, 132, 199, 0.15); border: 1px solid #0284c7; color: #bae6fd;">
+                                    <strong>🔵 Velocity naik &gt;50%</strong><br>Momentum tiba-tiba (Konfirmasi)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 3: Trend Score Kontribusi -->
+                    <div class="col-12 col-md-3">
+                        <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
+                            <div class="text-secondary fw-bold mb-1" style="font-size: 0.65rem;">TREND SCORE (Kontribusi)</div>
+                            <div class="d-flex align-items-center justify-content-between text-center gap-1 text-secondary" style="font-size: 0.60rem;">
+                                <div>Tick Index<br><strong class="text-light">25%</strong></div>
+                                <div>Volume Index<br><strong class="text-light">25%</strong></div>
+                                <div>Velocity Index<br><strong class="text-light">20%</strong></div>
+                                <div>Arah Tick<br><strong class="text-light">20%</strong></div>
+                                <div>Trend TF<br><strong class="text-light">10%</strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
+
 
             <!-- 3. SECTION B: Backtest H4 Low - High (LH), Validasi LH & Selisih Error Historis -->
             <div style="background: rgba(11, 19, 36, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 18px 20px;">
@@ -10763,6 +11057,241 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         }).catch(() => {
             alert('Jadwal H4 WIB disalin.');
         });
+    }
+
+
+    // ==========================================================
+    // ⚡ GAMBAR 2: MULTI-ASSET TICK, VOLUME & VELOCITY CONTROLLER
+    // ==========================================================
+    let currentTvPair = 'USDJPY';
+    let tvAutoPollTimer = null;
+
+    const TV_FLAGS = {
+        'USDJPY': ['🇺🇸', '🇯🇵'],
+        'XAUUSD': ['🥇', '🇺🇸'],
+        'EURUSD': ['🇪🇺', '🇺🇸'],
+        'GBPUSD': ['🇬🇧', '🇺🇸'],
+        'OIL':    ['🛢️', '🇺🇸'],
+        'BTCUSD': ['⚡', '🇺🇸']
+    };
+
+    function switchTvPair(pair) {
+        if (!pair) return;
+        currentTvPair = pair;
+        const sel = document.getElementById('tv-pair-select');
+        if (sel) sel.value = pair;
+
+        // Flags
+        const flags = TV_FLAGS[pair] || ['🌐', '📈'];
+        const f1 = document.getElementById('tv-header-flag1');
+        const f2 = document.getElementById('tv-header-flag2');
+        if (f1) f1.textContent = flags[0];
+        if (f2) f2.textContent = flags[1];
+
+        // Also sync with backtest pair if function exists
+        if (typeof switchBacktestPair === 'function') switchBacktestPair(pair);
+
+        loadTickVelocityDashboard(pair);
+    }
+
+    async function loadTickVelocityDashboard(pair) {
+        const p = pair || currentTvPair || 'USDJPY';
+        try {
+            const res = await fetch('/api/tick_velocity_intelligence?pair=' + encodeURIComponent(p));
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            if (data.status === 'ok') {
+                renderTickVelocityDashboard(data);
+            }
+        } catch (err) {
+            console.warn('[TICK-VELOCITY] Fetch error:', err);
+        }
+    }
+
+    function renderTickVelocityDashboard(data) {
+        if (!data) return;
+
+        // 1. PANEL A: Header Updates
+        const mh = data.market_header || {};
+        const pName = document.getElementById('tv-header-fullname');
+        if (pName && mh.name) pName.textContent = mh.name;
+
+        const livePrice = document.getElementById('tv-header-live-price');
+        if (livePrice && mh.live_price !== undefined) livePrice.textContent = Number(mh.live_price).toFixed(mh.pair === 'USDJPY' ? 3 : (mh.pair.includes('USD') && !mh.pair.includes('XAU') && !mh.pair.includes('BTC') ? 5 : 2));
+
+        const priceChg = document.getElementById('tv-header-price-change');
+        if (priceChg && mh.change_price !== undefined) {
+            const sign = mh.change_price >= 0 ? '+' : '';
+            priceChg.textContent = `▲ ${sign}${mh.change_price} (${sign}${mh.change_pct}%)`;
+            priceChg.className = mh.change_price >= 0 ? 'fw-bold mono text-success' : 'fw-bold mono text-danger';
+        }
+
+        const spreadEl = document.getElementById('tv-header-spread');
+        if (spreadEl && mh.spread_pips !== undefined) spreadEl.textContent = mh.spread_pips;
+
+        const dayLow = document.getElementById('tv-header-day-low');
+        if (dayLow && mh.day_low !== undefined) dayLow.textContent = mh.day_low;
+
+        const dayHigh = document.getElementById('tv-header-day-high');
+        if (dayHigh && mh.day_high !== undefined) dayHigh.textContent = mh.day_high;
+
+        const h4Rng = document.getElementById('tv-header-h4-range');
+        if (h4Rng && mh.h4_forecast_low !== undefined) h4Rng.textContent = `${mh.h4_forecast_low} - ${mh.h4_forecast_high}`;
+
+        const h4Pips = document.getElementById('tv-header-h4-pips');
+        if (h4Pips && mh.h4_range_pips !== undefined) h4Pips.textContent = `${mh.h4_range_pips} pips`;
+
+        const trUtama = document.getElementById('tv-header-trend-utama');
+        if (trUtama && mh.trend_utama) {
+            const isBull = mh.trend_utama.includes('BULL');
+            trUtama.innerHTML = `<span>${isBull ? '▲' : '▼'}</span> ${mh.trend_utama}`;
+            trUtama.className = isBull ? 'fw-bold text-success mono d-flex align-items-center justify-content-center gap-1' : 'fw-bold text-danger mono d-flex align-items-center justify-content-center gap-1';
+        }
+
+        const clockEl = document.getElementById('tv-header-time');
+        if (clockEl && mh.clock_wib) clockEl.textContent = mh.clock_wib.split(' ').slice(-2).join(' ');
+
+        // 2. PANEL B: Forecast H4 Updates
+        const fb = data.forecast_panel_b || {};
+        if (document.getElementById('fc-b-jam')) document.getElementById('fc-b-jam').textContent = fb.jam_wib || '12:00';
+        if (document.getElementById('fc-b-open')) document.getElementById('fc-b-open').textContent = fb.h4_open || '--';
+        if (document.getElementById('fc-b-live')) document.getElementById('fc-b-live').textContent = fb.live_price || '--';
+        if (document.getElementById('fc-b-fclow')) document.getElementById('fc-b-fclow').textContent = fb.forecast_low || '--';
+        if (document.getElementById('fc-b-fchigh')) document.getElementById('fc-b-fchigh').textContent = fb.forecast_high || '--';
+        if (document.getElementById('fc-b-pipshl')) document.getElementById('fc-b-pipshl').textContent = fb.pips_hl || '--';
+        if (document.getElementById('fc-b-actlow')) document.getElementById('fc-b-actlow').textContent = fb.actual_low || '--';
+        if (document.getElementById('fc-b-acthigh')) document.getElementById('fc-b-acthigh').textContent = fb.actual_high || '--';
+        if (document.getElementById('fc-b-posisi')) document.getElementById('fc-b-posisi').textContent = fb.status_posisi || 'INSIDE CHANNEL';
+        if (document.getElementById('fc-b-validasi')) document.getElementById('fc-b-validasi').textContent = fb.validasi || 'PROVISIONAL';
+
+        // 3. PANEL C: Tick & Volume + Velocity Table
+        const tbVel = document.getElementById('tv-tbody-velocity');
+        if (tbVel && data.tick_velocity_table) {
+            let html = '';
+            data.tick_velocity_table.forEach(r => {
+                const velCat = r.vel_cat || { bg: '#059669', color: '#fff' };
+                const volCat = r.vol_cat || { bg: '#eab308', color: '#000' };
+                const accelColor = r.accel_pct >= 0 ? 'text-success' : 'text-danger';
+                const accelSign = r.accel_pct >= 0 ? '+' : '';
+                const arahColor = r.arah_tick === 'UP' ? 'text-success' : 'text-danger';
+                const arahArrow = r.arah_tick === 'UP' ? '⬆' : '⬇';
+
+                let trendBg = '#eab308'; let trendColor = '#000';
+                if (r.trend_tf === 'Sangat Kuat') { trendBg = '#10b981'; trendColor = '#022c22'; }
+                else if (r.trend_tf === 'Kuat') { trendBg = '#059669'; trendColor = '#fff'; }
+                else if (r.trend_tf === 'Lemah') { trendBg = '#f97316'; trendColor = '#fff'; }
+                else if (r.trend_tf === 'Sangat Lemah') { trendBg = '#ef4444'; trendColor = '#fff'; }
+
+                html += `
+                    <tr>
+                        <td class="fw-bold text-light">${r.tf}</td>
+                        <td class="fw-bold text-success">${Number(r.tick_buy).toLocaleString()}</td>
+                        <td class="fw-bold text-danger">${Number(r.tick_sell).toLocaleString()}</td>
+                        <td class="fw-bold text-light">${Number(r.total_tick).toLocaleString()}</td>
+                        <td class="fw-bold text-cyan">${r.velocity}</td>
+                        <td>
+                            <span class="badge mono py-1 px-2" style="background: ${velCat.bg}; color: ${velCat.color}; font-size: 0.68rem;">
+                                ${r.vel_index}%
+                            </span>
+                        </td>
+                        <td class="fw-bold ${accelColor}">${accelSign}${r.accel_pct}%</td>
+                        <td class="text-success">${Number(r.vol_buy).toLocaleString()}</td>
+                        <td class="text-danger">${Number(r.vol_sell).toLocaleString()}</td>
+                        <td class="text-light">${Number(r.total_volume).toLocaleString()}</td>
+                        <td>
+                            <span class="badge mono py-1 px-2" style="background: ${volCat.bg}; color: ${volCat.color}; font-size: 0.68rem;">
+                                ${r.vol_index}%
+                            </span>
+                        </td>
+                        <td class="text-secondary">${r.dom_tick}%</td>
+                        <td class="text-secondary">${r.dom_vol}%</td>
+                        <td class="fw-bold ${arahColor}" style="font-size: 0.95rem;">${arahArrow}</td>
+                        <td>
+                            <span class="badge mono py-1 px-2" style="background: ${trendBg}; color: ${trendColor}; font-size: 0.68rem;">
+                                ${r.trend_tf}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbVel.innerHTML = html;
+        }
+
+        // 4. PANEL D: Matriks Kekuatan Tren
+        const tbMat = document.getElementById('tv-tbody-matrix');
+        if (tbMat && data.trend_matrix) {
+            let html = '';
+            data.trend_matrix.forEach(m => {
+                let badgeBg = '#eab308'; let badgeColor = '#000';
+                if (m.kekuatan_tren === 'Sangat Kuat') { badgeBg = '#10b981'; badgeColor = '#022c22'; }
+                else if (m.kekuatan_tren === 'Kuat') { badgeBg = '#059669'; badgeColor = '#fff'; }
+                else if (m.kekuatan_tren === 'Lemah') { badgeBg = '#f97316'; badgeColor = '#fff'; }
+                else if (m.kekuatan_tren === 'Sangat Lemah') { badgeBg = '#ef4444'; badgeColor = '#fff'; }
+
+                html += `
+                    <tr>
+                        <td class="fw-bold text-light">${m.tf}</td>
+                        <td class="text-cyan">${m.tick_index}%</td>
+                        <td class="text-warning">${m.vol_index}%</td>
+                        <td class="text-info">${m.vel_index}%</td>
+                        <td>
+                            <span class="badge mono py-1 px-2" style="background: ${badgeBg}; color: ${badgeColor}; font-size: 0.64rem;">
+                                ${m.kekuatan_tren}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbMat.innerHTML = html;
+        }
+
+        // 5. PANEL E: Anomali
+        const tbAnom = document.getElementById('tv-tbody-anomaly');
+        if (tbAnom && data.anomalies) {
+            let html = '';
+            data.anomalies.forEach(a => {
+                html += `
+                    <tr>
+                        <td class="fw-bold text-light">${a.tf}</td>
+                        <td class="text-start" style="font-size: 0.62rem; line-height: 1.2;">${a.status}</td>
+                    </tr>
+                `;
+            });
+            tbAnom.innerHTML = html;
+        }
+
+        // 6. PANEL F: Trend Score Gauge & Action
+        const ts = data.trend_score || {};
+        if (document.getElementById('tv-gauge-score')) document.getElementById('tv-gauge-score').textContent = ts.score || 76;
+        if (document.getElementById('tv-gauge-label')) document.getElementById('tv-gauge-label').textContent = ts.label || 'Kuat';
+
+        const btnAct = document.getElementById('tv-btn-action-signal');
+        if (btnAct && ts.action) {
+            btnAct.textContent = ts.action;
+            btnAct.style.background = ts.action_color || '#10b981';
+            btnAct.style.boxShadow = `0 0 15px ${ts.action_color || '#10b981'}66`;
+        }
+
+        // Update SVG circle stroke-dashoffset
+        const circle = document.getElementById('tv-gauge-circle');
+        if (circle) {
+            const scoreVal = ts.score || 76;
+            const maxCirc = 251.2;
+            const offset = maxCirc - (maxCirc * (scoreVal / 100));
+            circle.style.strokeDashoffset = offset;
+            circle.setAttribute('stroke', ts.action_color || '#10b981');
+        }
+    }
+
+    // Auto-poll interval for continuous tick streaming
+    function initTickVelocityAutoPoll() {
+        if (tvAutoPollTimer) clearInterval(tvAutoPollTimer);
+        tvAutoPollTimer = setInterval(() => {
+            const pane = document.getElementById('pane-forecast');
+            if (pane && pane.classList.contains('active')) {
+                loadTickVelocityDashboard(currentTvPair);
+            }
+        }, 2500);
     }
 
 </script>

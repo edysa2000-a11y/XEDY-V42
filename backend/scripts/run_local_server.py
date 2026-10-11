@@ -2042,6 +2042,21 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
             return
 
+        if self.path.startswith('/api/tick_velocity_intelligence'):
+            import urllib.parse
+            qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+            pair = qs.get('pair', ['USDJPY'])[0].upper()
+            try:
+                from backend.engines.tick_velocity_engine import analyze_tick_velocity_intelligence
+                resp = analyze_tick_velocity_intelligence(pair)
+            except Exception as e:
+                resp = {"status": "error", "error": str(e)}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
+            return
+
         if self.path == '/sr':
             self.path = '/sr.html'
         return super().do_GET()
