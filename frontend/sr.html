@@ -2905,14 +2905,6 @@
                     <span>🇬🇧 GBPUSD</span>
                     <span class="badge bg-dark mono" style="font-size: 0.60rem;" id="d1h4-tag-GBPUSD">1.3225</span>
                 </button>
-                <button class="d1h4-pair-btn" id="d1h4-btn-OIL" onclick="selectD1H4Pair('OIL')">
-                    <span>🛢️ CRUDE</span>
-                    <span class="badge bg-dark mono" style="font-size: 0.60rem;" id="d1h4-tag-OIL">90.79</span>
-                </button>
-                <button class="d1h4-pair-btn" id="d1h4-btn-BTCUSD" onclick="selectD1H4Pair('BTCUSD')">
-                    <span>⚡ BITCOIN</span>
-                    <span class="badge bg-dark mono" style="font-size: 0.60rem;" id="d1h4-tag-BTCUSD">82,488</span>
-                </button>
             </div>
         </div>
 
@@ -3165,22 +3157,7 @@
                                     <td class="text-danger">72.5% [REJECT]</td>
                                     <td class="text-danger">0.0x</td>
                                 </tr>
-                                <tr onclick="selectD1H4Pair('OIL')" style="cursor: pointer;" id="row-ov-OIL">
-                                    <td class="text-cyan fw-bold">🛢️ CRUDE</td>
-                                    <td class="text-success">Bullish Deficit</td>
-                                    <td>15.00 (Europe ⭐)</td>
-                                    <td class="text-success fw-bold">Buy Retest 90.00</td>
-                                    <td class="text-success">92.1% [PASS]</td>
-                                    <td class="text-info">0.8x</td>
-                                </tr>
-                                <tr onclick="selectD1H4Pair('BTCUSD')" style="cursor: pointer;" id="row-ov-BTCUSD">
-                                    <td class="text-cyan fw-bold">⚡ BITCOIN</td>
-                                    <td class="text-success">Bullish Whale</td>
-                                    <td>20.30 (US Open ⭐)</td>
-                                    <td class="text-success fw-bold">Buy Dip 82,000</td>
-                                    <td class="text-success">96.2% [PASS]</td>
-                                    <td class="text-success">1.0x</td>
-                                </tr>
+
                             </tbody>
                         </table>
                     </div>
@@ -3265,8 +3242,6 @@
                                     <option value="XAUUSD">XAUUSD</option>
                                     <option value="EURUSD">EURUSD</option>
                                     <option value="GBPUSD">GBPUSD</option>
-                                    <option value="OIL">OIL (CL)</option>
-                                    <option value="BTCUSD">BTCUSD</option>
                                 </select>
                             </div>
                             <div class="text-secondary mono" id="tv-header-fullname" style="font-size: 0.74rem; margin-top: 3px;">
@@ -3773,8 +3748,6 @@
                             <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('XAUUSD')">XAUUSD</button>
                             <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('EURUSD')">EURUSD</button>
                             <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('GBPUSD')">GBPUSD</button>
-                            <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('OIL')">OIL</button>
-                            <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('BTCUSD')">BTCUSD</button>
                         </div>
                     </div>
                 </div>
@@ -3818,8 +3791,6 @@
                             <tr>
                                 <th style="padding: 8px 12px;">Bar #</th>
                                 <th style="padding: 8px 12px;">Tanggal &amp; Sesi (WIB)</th>
-                                <th style="padding: 8px 12px; text-align: right;">Open</th>
-                                <th style="padding: 8px 12px; text-align: right;">Close</th>
                                 <th style="padding: 8px 12px; text-align: center; color: #38bdf8;">Forecast Low</th>
                                 <th style="padding: 8px 12px; text-align: center; color: #38bdf8;">Aktual Low</th>
                                 <th style="padding: 8px 12px; text-align: center; color: #f43f5e;">Forecast High</th>
@@ -3832,7 +3803,7 @@
                         </thead>
                         <tbody id="bt-table-body" class="mono">
                             <tr>
-                                <td colspan="12" class="text-center py-3 text-secondary">Memuat data backtest...</td>
+                                <td colspan="10" class="text-center py-3 text-secondary">Memuat data backtest...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -4129,16 +4100,7 @@
                 <span class="pair-tab-price" id="pe-tab-price-GBPUSD">--</span>
                 <span class="pair-tab-chg bg-warning bg-opacity-25 text-warning mono" id="pe-tab-chg-GBPUSD">0.00%</span>
             </button>
-            <button class="pair-tab-btn" id="pe-tab-OIL" onclick="selectPair('OIL')">
-                <span>🛢️ CRUDE OIL</span>
-                <span class="pair-tab-price" id="pe-tab-price-OIL">--</span>
-                <span class="pair-tab-chg bg-success bg-opacity-25 text-success mono" id="pe-tab-chg-OIL">0.00%</span>
-            </button>
-            <button class="pair-tab-btn" id="pe-tab-BTCUSD" onclick="selectPair('BTCUSD')">
-                <span>⚡ BITCOIN</span>
-                <span class="pair-tab-price" id="pe-tab-price-BTCUSD">--</span>
-                <span class="pair-tab-chg bg-success bg-opacity-25 text-success mono" id="pe-tab-chg-BTCUSD">0.00%</span>
-            </button>
+
         </div>
     </div>
 
@@ -4955,16 +4917,7 @@
                 <span class="pair-tab-price" id="mf-tab-price-GBPUSD">--</span>
                 <span class="pair-tab-chg bg-warning bg-opacity-25 text-warning mono" id="mf-tab-chg-GBPUSD">0.00%</span>
             </button>
-            <button class="pair-tab-btn" id="mf-tab-OIL" onclick="selectPair('OIL')">
-                <span>🛢️ CRUDE OIL</span>
-                <span class="pair-tab-price" id="mf-tab-price-OIL">--</span>
-                <span class="pair-tab-chg bg-success bg-opacity-25 text-success mono" id="mf-tab-chg-OIL">0.00%</span>
-            </button>
-            <button class="pair-tab-btn" id="mf-tab-BTCUSD" onclick="selectPair('BTCUSD')">
-                <span>⚡ BITCOIN</span>
-                <span class="pair-tab-price" id="mf-tab-price-BTCUSD">--</span>
-                <span class="pair-tab-chg bg-success bg-opacity-25 text-success mono" id="mf-tab-chg-BTCUSD">0.00%</span>
-            </button>
+
         </div>
     </div>
 
@@ -5672,16 +5625,7 @@
             <span class="pair-tab-price" id="tab-price-GBPUSD">--</span>
             <span class="pair-tab-chg bg-success bg-opacity-25 text-success" id="tab-chg-GBPUSD">0.00%</span>
         </div>
-        <div class="pair-tab-btn" id="tab-OIL" onclick="selectPair('OIL')">
-            <span>🛢️ OIL (WTI)</span>
-            <span class="pair-tab-price" id="tab-price-OIL">--</span>
-            <span class="pair-tab-chg bg-danger bg-opacity-25 text-danger" id="tab-chg-OIL">0.00%</span>
-        </div>
-        <div class="pair-tab-btn" id="tab-BTCUSD" onclick="selectPair('BTCUSD')">
-            <span>⚡ BITCOIN (BTC)</span>
-            <span class="pair-tab-price" id="tab-price-BTCUSD">--</span>
-            <span class="pair-tab-chg bg-success bg-opacity-25 text-success" id="tab-chg-BTCUSD">0.00%</span>
-        </div>
+
     </div>
 
     <!-- ================================================== -->
@@ -5832,77 +5776,7 @@
             </div>
         </div>
 
-        <!-- OIL (WTI) Radar Card -->
-        <div class="radar-card" id="radar-OIL" onclick="selectPair('OIL')">
-            <div class="radar-card-head">
-                <span class="radar-card-sym">🛢️ CRUDE OIL</span>
-                <span class="badge bg-danger bg-opacity-25 text-danger mono" style="font-size: 0.60rem;" id="rc-chg-OIL">-1.20%</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-baseline">
-                <span class="radar-card-price text-white" id="rc-price-OIL">--</span>
-                <span class="badge bg-secondary mono" style="font-size: 0.58rem;" id="rc-status-OIL">NORMAL</span>
-            </div>
-            <div class="radar-range-track">
-                <div class="radar-range-fill" id="rc-bar-OIL" style="width: 50%;"></div>
-            </div>
-            <div class="radar-range-labels">
-                <span id="rc-s-OIL">S: 87.50</span>
-                <span class="text-cyan fw-bold" id="rc-pct-OIL">--% Range</span>
-                <span id="rc-r-OIL">R: 94.50</span>
-            </div>
-            <div class="d-flex justify-content-between mt-1 radar-dist-tag">
-                <span class="text-success" id="rc-dists-OIL">+-- S</span>
-                <span class="text-danger" id="rc-distr-OIL">-- R</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top border-dim" style="font-size: 0.60rem;">
-                <span class="text-muted mono">DAILY H/L:</span>
-                <span class="mono">
-                    <span class="text-danger fw-bold" id="rc-low-OIL">L: --</span>
-                    <span class="text-muted mx-1">&bull;</span>
-                    <span class="text-success fw-bold" id="rc-high-OIL">H: --</span>
-                </span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top border-dim" style="font-size: 0.60rem;">
-                <span class="text-muted mono">TICK MODE:</span>
-                <span class="mono fw-bold text-success" id="rc-tm-OIL">--</span>
-            </div>
-        </div>
 
-        <!-- BTCUSD Radar Card -->
-        <div class="radar-card" id="radar-BTCUSD" onclick="selectPair('BTCUSD')">
-            <div class="radar-card-head">
-                <span class="radar-card-sym">⚡ BITCOIN</span>
-                <span class="badge bg-success bg-opacity-25 text-success mono" style="font-size: 0.60rem;" id="rc-chg-BTCUSD">+0.93%</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-baseline">
-                <span class="radar-card-price text-white" id="rc-price-BTCUSD">--</span>
-                <span class="badge bg-secondary mono" style="font-size: 0.58rem;" id="rc-status-BTCUSD">NORMAL</span>
-            </div>
-            <div class="radar-range-track">
-                <div class="radar-range-fill" id="rc-bar-BTCUSD" style="width: 50%;"></div>
-            </div>
-            <div class="radar-range-labels">
-                <span id="rc-s-BTCUSD">S: 79500</span>
-                <span class="text-cyan fw-bold" id="rc-pct-BTCUSD">--% Range</span>
-                <span id="rc-r-BTCUSD">R: 85500</span>
-            </div>
-            <div class="d-flex justify-content-between mt-1 radar-dist-tag">
-                <span class="text-success" id="rc-dists-BTCUSD">+-- S</span>
-                <span class="text-danger" id="rc-distr-BTCUSD">-- R</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top border-dim" style="font-size: 0.60rem;">
-                <span class="text-muted mono">DAILY H/L:</span>
-                <span class="mono">
-                    <span class="text-danger fw-bold" id="rc-low-BTCUSD">L: --</span>
-                    <span class="text-muted mx-1">&bull;</span>
-                    <span class="text-success fw-bold" id="rc-high-BTCUSD">H: --</span>
-                </span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top border-dim" style="font-size: 0.60rem;">
-                <span class="text-muted mono">TICK MODE:</span>
-                <span class="mono fw-bold text-success" id="rc-tm-BTCUSD">--</span>
-            </div>
-        </div>
     </div>
 
     
@@ -5961,8 +5835,7 @@
                         <button class="btn btn-sm m1-pair-btn" id="m1-btn-XAUUSD" onclick="switchM1Pair('XAUUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">XAUUSD</button>
                         <button class="btn btn-sm m1-pair-btn" id="m1-btn-EURUSD" onclick="switchM1Pair('EURUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">EURUSD</button>
                         <button class="btn btn-sm m1-pair-btn" id="m1-btn-GBPUSD" onclick="switchM1Pair('GBPUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">GBPUSD</button>
-                        <button class="btn btn-sm m1-pair-btn" id="m1-btn-OIL" onclick="switchM1Pair('OIL')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">OIL</button>
-                        <button class="btn btn-sm m1-pair-btn" id="m1-btn-BTCUSD" onclick="switchM1Pair('BTCUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">BTCUSD</button>
+
                     </div><span id="qci-pair-label" style="display: none;">USDJPY</span>
                     </span>
                     <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono py-1 px-2" id="qci-score-badge">QCI: -72 / 100 [BEARISH FADE]</span>
@@ -6301,8 +6174,7 @@
             <button class="narrative-tab-btn" id="ntab-XAUUSD" onclick="switchNarrativePair('XAUUSD')">🥇 GOLD (XAUUSD)</button>
             <button class="narrative-tab-btn" id="ntab-EURUSD" onclick="switchNarrativePair('EURUSD')">🇪🇺 EURUSD</button>
             <button class="narrative-tab-btn" id="ntab-GBPUSD" onclick="switchNarrativePair('GBPUSD')">🇬🇧 GBPUSD</button>
-            <button class="narrative-tab-btn" id="ntab-OIL" onclick="switchNarrativePair('OIL')">🛢️ CRUDE OIL (WTI)</button>
-            <button class="narrative-tab-btn" id="ntab-BTCUSD" onclick="switchNarrativePair('BTCUSD')">⚡ BITCOIN (BTCUSD)</button>
+
         </div>
 
         <!-- Reader Window -->
@@ -6495,7 +6367,7 @@
         if (!tbody) return;
 
         let html = '';
-        const pairs = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL', 'BTCUSD'];
+        const pairs = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD'];
         
         pairs.forEach(pair => {
             const cfg = TELEGRAM_ALERTS[pair] || { enabled: false, op: 0, tp: 0, direction: 'BUY', op_triggered: false, tp_triggered: false };
@@ -8413,7 +8285,7 @@
 
         // Update All Pair Tabs & Radar Matrix
         const pairs = data.pairs || {};
-        const pairKeys = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL', 'BTCUSD'];
+        const pairKeys = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD'];
 
         pairKeys.forEach(k => {
             const pData = pairs[k];
@@ -10826,7 +10698,7 @@
         setText('ticket-pair-label', pairKey);
 
         // Update pair button and overview row active states
-        ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL', 'BTCUSD'].forEach(sym => {
+        ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD'].forEach(sym => {
             const btn = document.getElementById(`d1h4-btn-${sym}`);
             if (btn) btn.classList.toggle('active', sym === pairKey);
             const row = document.getElementById(`row-ov-${sym}`);
@@ -10995,10 +10867,9 @@
         const tbody = document.getElementById('fc-table-body');
         if (!tbody || !forecasts) return;
 
-        const pairsOrder = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL', 'BTCUSD'];
+        const pairsOrder = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD'];
         const pairIcons = {
-            'USDJPY': '🇯🇵', 'XAUUSD': '🥇', 'EURUSD': '🇪🇺',
-            'GBPUSD': '🇬🇧', 'OIL': '🛢️', 'BTCUSD': '⚡'
+            'USDJPY': '🇯🇵', 'XAUUSD': '🥇', 'EURUSD': '🇪🇺', 'GBPUSD': '🇬🇧'
         };
 
         let html = '';
@@ -11043,7 +10914,7 @@
                         <span class="badge bg-dark border border-secondary text-light mono" style="font-size: 0.68rem;">${f.bracket_status}</span>
                     </td>
                     <td style="text-align: center; padding: 10px 14px;">
-                        <span class="badge mono py-1 px-2" style="background: ${f.validation_color}22; color: ${f.validation_color}; border: 1px solid ${f.validation_color}; font-size: 0.68rem;">
+                        <span class="badge mono py-1 px-2" style="background: ${f.validation_status === 'PROVISIONAL' ? 'rgba(56, 189, 248, 0.15)' : f.validation_color + '22'}; color: ${f.validation_status === 'PROVISIONAL' ? '#38bdf8' : f.validation_color}; border: 1px solid ${f.validation_status === 'PROVISIONAL' ? '#0284c7' : f.validation_color}; font-size: 0.68rem;">
                             ${f.validation_badge}
                         </span>
                     </td>
@@ -11097,8 +10968,6 @@
                         <span class="text-warning">${r.session_time}</span>
                         <div class="text-secondary" style="font-size: 0.65rem;">${r.session_title}</div>
                     </td>
-                    <td style="text-align: right;" class="text-secondary">${r.open}</td>
-                    <td style="text-align: right;" class="text-secondary">${r.close}</td>
                     <td style="text-align: center;" class="text-cyan">${r.forecast_low}</td>
                     <td style="text-align: center;" class="text-cyan fw-bold">${r.actual_low}</td>
                     <td style="text-align: center;" class="text-danger">${r.forecast_high}</td>
@@ -11231,9 +11100,7 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         'USDJPY': ['🇺🇸', '🇯🇵'],
         'XAUUSD': ['🥇', '🇺🇸'],
         'EURUSD': ['🇪🇺', '🇺🇸'],
-        'GBPUSD': ['🇬🇧', '🇺🇸'],
-        'OIL':    ['🛢️', '🇺🇸'],
-        'BTCUSD': ['⚡', '🇺🇸']
+        'GBPUSD': ['🇬🇧', '🇺🇸']
     };
 
     function switchTvPair(pair) {

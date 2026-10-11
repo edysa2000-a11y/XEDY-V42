@@ -18,36 +18,28 @@ MT5_SYMBOL_MAP = {
     'USDJPY': 'USDJPY',
     'XAUUSD': 'XAUUSD',
     'EURUSD': 'EURUSD',
-    'GBPUSD': 'GBPUSD',
-    'OIL': 'CL',
-    'BTCUSD': 'BTC'
+    'GBPUSD': 'GBPUSD'
 }
 
 PIP_FACTORS = {
     'USDJPY': 100.0,
     'XAUUSD': 10.0,
     'EURUSD': 10000.0,
-    'GBPUSD': 10000.0,
-    'OIL': 100.0,
-    'BTCUSD': 1.0
+    'GBPUSD': 10000.0
 }
 
 DIGITS_MAP = {
     'USDJPY': 3,
     'XAUUSD': 2,
     'EURUSD': 5,
-    'GBPUSD': 5,
-    'OIL': 2,
-    'BTCUSD': 2
+    'GBPUSD': 5
 }
 
 SYMBOL_NAMES = {
     'USDJPY': 'U.S. Dollar / Japanese Yen',
     'XAUUSD': 'Gold (Spot Gold / U.S. Dollar)',
     'EURUSD': 'Euro / U.S. Dollar',
-    'GBPUSD': 'British Pound / U.S. Dollar',
-    'OIL': 'Crude Oil WTI (Light Sweet)',
-    'BTCUSD': 'Bitcoin / U.S. Dollar'
+    'GBPUSD': 'British Pound / U.S. Dollar'
 }
 
 TIMEFRAMES_CONFIG = [
@@ -364,7 +356,7 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
     pips_hl = round(fc_range * pip_fact, 1)
 
     bracket_st = "INSIDE CHANNEL (77% Mid-Range)"
-    val_badge = "🟢 SANGAT PRESISI (Error < 4.5p)"
+    val_badge = "🔵 PROVISIONAL (Lilin Berjalan)"
 
     market_header["h4_forecast_low"] = fc_low
     market_header["h4_forecast_high"] = fc_high
