@@ -3340,7 +3340,7 @@
                 <!-- ========================================================================= -->
                 <!-- PANEL B: FORECAST H4 (Single Row Table)                                   -->
                 <!-- ========================================================================= -->
-                <div class="table-responsive rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
+                <div class="table-responsive rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35); overflow-x: hidden;">
                     <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.78rem; border-color: rgba(0, 240, 255, 0.2);">
                         <thead style="background: #050c18; color: #94a3b8; font-size: 0.72rem; text-transform: uppercase;">
                             <tr>
@@ -3382,160 +3382,157 @@
                 </div>
 
                 <!-- ========================================================================= -->
-                <!-- MIDDLE ROW: PANEL C (TICK/VOL/VEL) + PANEL D + PANEL E + PANEL F          -->
+                <!-- ========================================================================= -->
+                <!-- ROW 1 (OPTION 1): PANEL C - TICK & VOLUME + VELOCITY (100% FULL WIDTH)    -->
+                <!-- ========================================================================= -->
+                <div class="p-3 rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35); box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.04);">
+                    
+                    <!-- Header & Legend -->
+                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                        <div class="fw-bold mono text-light d-flex align-items-center gap-2" style="font-size: 0.90rem; letter-spacing: 0.5px;">
+                            <span>⚡</span> TICK &amp; VOLUME + VELOCITY (M1 &ndash; H4)
+                            <span class="badge bg-info bg-opacity-25 text-info mono ms-2" style="font-size: 0.65rem;">100% LEBAR PENUH &bull; ZERO SCROLL</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-3 mono" style="font-size: 0.72rem;">
+                            <span class="d-flex align-items-center gap-1 text-success">
+                                <span style="font-size: 0.9rem;">●</span> Buy/Dominan
+                            </span>
+                            <span class="d-flex align-items-center gap-1 text-danger">
+                                <span style="font-size: 0.9rem;">●</span> Sell/Dominan
+                            </span>
+                            <span class="d-flex align-items-center gap-1 text-secondary">
+                                <span style="font-size: 0.9rem;">●</span> Netral
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 15-Column Responsive Table (Zero Scroll Guaranteed) -->
+                    <div style="overflow-x: hidden; width: 100%;">
+                        <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.76rem; border-color: rgba(0, 240, 255, 0.15); width: 100%; table-layout: auto;">
+                            <thead style="background: #050c18; color: #94a3b8; font-size: 0.68rem; text-transform: uppercase;">
+                                <tr>
+                                    <th style="padding: 7px 4px;">TF</th>
+                                    <th style="padding: 7px 4px; color: #10b981;">Tick Buy</th>
+                                    <th style="padding: 7px 4px; color: #ef4444;">Tick Sell</th>
+                                    <th style="padding: 7px 4px;">Total Tick</th>
+                                    <th style="padding: 7px 4px; color: #00f0ff;">Tick/s (Velocity)</th>
+                                    <th style="padding: 7px 4px;">Vel. Index (%)</th>
+                                    <th style="padding: 7px 4px;">Accel. (%)</th>
+                                    <th style="padding: 7px 4px; color: #10b981;">Volume Buy*</th>
+                                    <th style="padding: 7px 4px; color: #ef4444;">Volume Sell*</th>
+                                    <th style="padding: 7px 4px;">Total Volume</th>
+                                    <th style="padding: 7px 4px;">Vol. Index (%)</th>
+                                    <th style="padding: 7px 4px;">Dominasi Tick</th>
+                                    <th style="padding: 7px 4px;">Dominasi Volume</th>
+                                    <th style="padding: 7px 4px;">Arah Tick</th>
+                                    <th style="padding: 7px 4px;">Trend TF</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tv-tbody-velocity">
+                                <tr>
+                                    <td colspan="15" class="text-center py-3 text-secondary">
+                                        <div class="spinner-border spinner-border-sm text-info me-2"></div>
+                                        Memuat data Tick, Volume &amp; Velocity M1 - H4...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ========================================================================= -->
+                <!-- ROW 2 (OPTION 1): PANEL D + PANEL E + PANEL F (SIDE-BY-SIDE UNDERNEATH)   -->
                 <!-- ========================================================================= -->
                 <div class="row g-2 align-items-stretch">
                     
-                    <!-- PANEL C: TICK & VOLUME + VELOCITY (M1 – H4) [Wide Left 64%] -->
-                    <div class="col-12 col-xl-8">
+                    <!-- PANEL D: MATRIKS KEKUATAN TREN (42% Width) -->
+                    <div class="col-12 col-lg-5 col-xl-5">
                         <div class="p-3 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
-                            
-                            <!-- Header & Legend -->
-                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                                <div class="fw-bold mono text-light" style="font-size: 0.85rem; letter-spacing: 0.5px;">
-                                    TICK &amp; VOLUME + VELOCITY (M1 &ndash; H4)
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="fw-bold mono text-light" style="font-size: 0.80rem;">
+                                    MATRIKS KEKUATAN TREN
                                 </div>
-                                <div class="d-flex align-items-center gap-3 mono" style="font-size: 0.68rem;">
-                                    <span class="d-flex align-items-center gap-1 text-success">
-                                        <span style="font-size: 0.9rem;">●</span> Buy/Dominan
-                                    </span>
-                                    <span class="d-flex align-items-center gap-1 text-danger">
-                                        <span style="font-size: 0.9rem;">●</span> Sell/Dominan
-                                    </span>
-                                    <span class="d-flex align-items-center gap-1 text-secondary">
-                                        <span style="font-size: 0.9rem;">●</span> Netral
-                                    </span>
+                                <div class="text-secondary mono" style="font-size: 0.65rem;">
+                                    (Tick &bull; Volume &bull; Velocity)
                                 </div>
                             </div>
-
-                            <!-- 15-Column Responsive Table -->
-                            <div class="table-responsive">
-                                <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.74rem; border-color: rgba(255, 255, 255, 0.08);">
-                                    <thead style="background: #050c18; color: #94a3b8; font-size: 0.67rem; text-transform: uppercase;">
+                            <div style="overflow-x: hidden; width: 100%;">
+                                <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.74rem; border-color: rgba(255, 255, 255, 0.08); width: 100%;">
+                                    <thead style="background: #050c18; color: #94a3b8; font-size: 0.68rem;">
                                         <tr>
-                                            <th style="padding: 6px 4px;">TF</th>
-                                            <th style="padding: 6px 4px; color: #10b981;">Tick Buy</th>
-                                            <th style="padding: 6px 4px; color: #ef4444;">Tick Sell</th>
-                                            <th style="padding: 6px 4px;">Total Tick</th>
-                                            <th style="padding: 6px 4px; color: #00f0ff;">Tick/s (Velocity)</th>
-                                            <th style="padding: 6px 4px;">Vel. Index (%)</th>
-                                            <th style="padding: 6px 4px;">Accel. (%)</th>
-                                            <th style="padding: 6px 4px; color: #10b981;">Volume Buy*</th>
-                                            <th style="padding: 6px 4px; color: #ef4444;">Volume Sell*</th>
-                                            <th style="padding: 6px 4px;">Total Volume</th>
-                                            <th style="padding: 6px 4px;">Vol. Index (%)</th>
-                                            <th style="padding: 6px 4px;">Dominasi Tick</th>
-                                            <th style="padding: 6px 4px;">Dominasi Volume</th>
-                                            <th style="padding: 6px 4px;">Arah Tick</th>
-                                            <th style="padding: 6px 4px;">Trend TF</th>
+                                            <th style="padding: 6px;">TF</th>
+                                            <th style="padding: 6px;">Tick Index</th>
+                                            <th style="padding: 6px;">Volume Index</th>
+                                            <th style="padding: 6px;">Velocity Index</th>
+                                            <th style="padding: 6px;">Kekuatan Tren</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tv-tbody-velocity">
-                                        <!-- Rows rendered dynamically via JS -->
-                                        <tr>
-                                            <td colspan="15" class="text-center py-4 text-secondary">
-                                                <div class="spinner-border spinner-border-sm text-info me-2"></div>
-                                                Memuat data Tick, Volume &amp; Velocity M1 - H4...
-                                            </td>
-                                        </tr>
+                                    <tbody id="tv-tbody-matrix">
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Column: PANEL D, PANEL E, PANEL F [36%] -->
-                    <div class="col-12 col-xl-4">
-                        <div class="row g-2 h-100">
-                            
-                            <!-- PANEL D: MATRIKS KEKUATAN TREN -->
-                            <div class="col-12 col-md-5">
-                                <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
-                                    <div class="fw-bold mono text-light mb-1" style="font-size: 0.70rem; line-height: 1.2;">
-                                        MATRIKS KEKUATAN TREN
-                                    </div>
-                                    <div class="text-secondary mono mb-2" style="font-size: 0.58rem;">
-                                        (Berdasarkan Tick Index, Volume Index &amp; Velocity)
-                                    </div>
-                                    <div class="table-responsive">
-                                        <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.68rem; border-color: rgba(255, 255, 255, 0.08);">
-                                            <thead style="background: #050c18; color: #94a3b8; font-size: 0.62rem;">
-                                                <tr>
-                                                    <th style="padding: 4px;">TF</th>
-                                                    <th style="padding: 4px;">Tick Index</th>
-                                                    <th style="padding: 4px;">Volume Index</th>
-                                                    <th style="padding: 4px;">Velocity Index</th>
-                                                    <th style="padding: 4px;">Kekuatan Tren</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="tv-tbody-matrix">
-                                                <!-- Dynamic Matrix Rows -->
-                                            </tbody>
-                                        </table>
-                                    </div>
+                    <!-- PANEL E: ANOMALI (33% Width) -->
+                    <div class="col-12 col-lg-4 col-xl-4">
+                        <div class="p-3 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="fw-bold mono text-light" style="font-size: 0.80rem;">
+                                    ANOMALI DETECTOR
+                                </div>
+                                <div class="text-secondary mono" style="font-size: 0.65rem;">
+                                    (Tick vs Vol &amp; Velocity)
                                 </div>
                             </div>
-
-                            <!-- PANEL E: ANOMALI -->
-                            <div class="col-12 col-md-3">
-                                <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
-                                    <div class="fw-bold mono text-light mb-1" style="font-size: 0.70rem; line-height: 1.2;">
-                                        ANOMALI
-                                    </div>
-                                    <div class="text-secondary mono mb-2" style="font-size: 0.58rem;">
-                                        (Tick vs Volume &amp; Velocity)
-                                    </div>
-                                    <div class="table-responsive">
-                                        <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.68rem; border-color: rgba(255, 255, 255, 0.08);">
-                                            <thead style="background: #050c18; color: #94a3b8; font-size: 0.62rem;">
-                                                <tr>
-                                                    <th style="padding: 4px;">TF</th>
-                                                    <th style="padding: 4px;">Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="tv-tbody-anomaly">
-                                                <!-- Dynamic Anomaly Rows -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                            <div style="overflow-x: hidden; width: 100%;">
+                                <table class="table table-dark table-bordered mb-0 align-middle text-center mono" style="font-size: 0.74rem; border-color: rgba(255, 255, 255, 0.08); width: 100%;">
+                                    <thead style="background: #050c18; color: #94a3b8; font-size: 0.68rem;">
+                                        <tr>
+                                            <th style="padding: 6px; width: 45px;">TF</th>
+                                            <th style="padding: 6px;">Status Deteksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tv-tbody-anomaly">
+                                    </tbody>
+                                </table>
                             </div>
-
-                            <!-- PANEL F: TREND SCORE (0 – 100) & ACTION SIGNAL -->
-                            <div class="col-12 col-md-4">
-                                <div class="p-2 rounded h-100 text-center d-flex flex-direction-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35); flex-direction: column;">
-                                    <div>
-                                        <div class="fw-bold mono text-light mb-1" style="font-size: 0.70rem;">
-                                            TREND SCORE
-                                        </div>
-                                        <div class="text-secondary mono" style="font-size: 0.58rem;">
-                                            (0 &ndash; 100)
-                                        </div>
-                                    </div>
-
-                                    <!-- Circular Gauge SVG -->
-                                    <div class="my-1 position-relative d-inline-block">
-                                        <svg width="86" height="86" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
-                                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#050c18" stroke-width="12"></circle>
-                                            <circle id="tv-gauge-circle" cx="50" cy="50" r="40" fill="transparent" stroke="#10b981" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="60" stroke-linecap="round"></circle>
-                                        </svg>
-                                        <div class="position-absolute top-50 start-50 translate-middle text-center" style="transform: translate(-50%, -50%);">
-                                            <div class="fw-bold mono text-light" id="tv-gauge-score" style="font-size: 1.55rem; line-height: 1;">76</div>
-                                            <div class="text-success mono" id="tv-gauge-label" style="font-size: 0.65rem; margin-top: 1px;">Kuat</div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Action Signal Button -->
-                                    <div>
-                                        <button class="btn btn-sm w-100 fw-bold mono py-1" id="tv-btn-action-signal" style="background: #10b981; color: #022c22; font-size: 0.85rem; border: none; border-radius: 6px; box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);">
-                                            BUY
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
+
+                    <!-- PANEL F: TREND SCORE (0 – 100) & ACTION SIGNAL (25% Width) -->
+                    <div class="col-12 col-lg-3 col-xl-3">
+                        <div class="p-3 rounded h-100 text-center d-flex justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35); flex-direction: column;">
+                            <div>
+                                <div class="fw-bold mono text-light" style="font-size: 0.82rem;">
+                                    TREND SCORE
+                                </div>
+                                <div class="text-secondary mono" style="font-size: 0.65rem;">
+                                    Skor Komposit (0 &ndash; 100)
+                                </div>
+                            </div>
+
+                            <!-- Circular Gauge SVG -->
+                            <div class="my-2 position-relative d-inline-block">
+                                <svg width="96" height="96" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#050c18" stroke-width="12"></circle>
+                                    <circle id="tv-gauge-circle" cx="50" cy="50" r="40" fill="transparent" stroke="#10b981" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="60" stroke-linecap="round"></circle>
+                                </svg>
+                                <div class="position-absolute top-50 start-50 translate-middle text-center" style="transform: translate(-50%, -50%);">
+                                    <div class="fw-bold mono text-light" id="tv-gauge-score" style="font-size: 1.75rem; line-height: 1;">76</div>
+                                    <div class="text-success mono fw-bold" id="tv-gauge-label" style="font-size: 0.70rem; margin-top: 2px;">Kuat</div>
+                                </div>
+                            </div>
+
+                            <!-- Action Signal Button -->
+                            <div>
+                                <button class="btn btn-sm w-100 fw-bold mono py-2" id="tv-btn-action-signal" style="background: #10b981; color: #022c22; font-size: 0.95rem; border: none; border-radius: 6px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);">
+                                    BUY
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- ========================================================================= -->
