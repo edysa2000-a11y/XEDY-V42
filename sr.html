@@ -11175,13 +11175,6 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         const h4Pips = document.getElementById('tv-header-h4-pips');
         if (h4Pips && mh.h4_range_pips !== undefined) h4Pips.textContent = `${mh.h4_range_pips} pips`;
 
-        const trUtama = document.getElementById('tv-header-trend-utama');
-        if (trUtama && mh.trend_utama) {
-            const isBull = mh.trend_utama.includes('BULL');
-            trUtama.innerHTML = `<span>${isBull ? '▲' : '▼'}</span> ${mh.trend_utama}`;
-            trUtama.className = isBull ? 'fw-bold text-success mono d-flex align-items-center justify-content-center gap-1' : 'fw-bold text-danger mono d-flex align-items-center justify-content-center gap-1';
-        }
-
         const clockEl = document.getElementById('tv-header-time');
         if (clockEl && mh.clock_wib) clockEl.textContent = mh.clock_wib.split(' ').slice(-2).join(' ');
 
