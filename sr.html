@@ -3686,6 +3686,42 @@
                 <div id="tick-velocity-dashboard-container" style="background: #071426; border: 1.5px solid rgba(0, 240, 255, 0.4); border-radius: 14px; padding: 18px 20px; box-shadow: 0 0 25px rgba(0, 180, 255, 0.12); display: flex; flex-direction: column; gap: 16px;">
                 
                 <!-- ========================================================================= -->
+                <!-- INSTITUTIONAL DATA FEED SELECTOR (CME FUTURES / CTRADER / MT5)            -->
+                <!-- ========================================================================= -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-3 py-2 rounded" style="background: #08162b; border: 1px solid rgba(0, 240, 255, 0.3); box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.05);">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="text-secondary mono fw-bold d-flex align-items-center gap-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                            <span>🌐</span> SOURCE FEED:
+                        </span>
+                        <div class="btn-group btn-group-sm" role="group" id="tv-source-selector">
+                            <button type="button" class="btn btn-sm btn-outline-info active fw-bold mono px-2 py-1" id="btn-src-cme" onclick="switchTvFeedSource('CME_FUTURES')" style="font-size: 0.72rem;">
+                                🏛️ CME Futures (Real Volume)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-info fw-bold mono px-2 py-1" id="btn-src-ctrader" onclick="switchTvFeedSource('CTRADER')" style="font-size: 0.72rem;">
+                                ⚡ cTrader Open API (ECN L2)
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-info fw-bold mono px-2 py-1" id="btn-src-mt5" onclick="switchTvFeedSource('MT5_FINEX')" style="font-size: 0.72rem;">
+                                🖥️ MT5 Finex (Local)
+                            </button>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap mono" style="font-size: 0.70rem;">
+                        <span class="badge bg-primary bg-opacity-25 text-info border border-info py-1 px-2" id="tv-feed-symbol-badge">
+                            COMEX:GC (100 oz)
+                        </span>
+                        <span class="badge bg-success bg-opacity-25 text-success border border-success py-1 px-2" id="tv-feed-grade-badge">
+                            GRADE: AAA
+                        </span>
+                        <span class="badge bg-dark border border-secondary text-light py-1 px-2" id="tv-feed-latency-badge">
+                            ⚡ <span id="tv-feed-latency-val">14ms</span>
+                        </span>
+                        <span class="badge bg-warning bg-opacity-25 text-warning border border-warning py-1 px-2 d-none" id="tv-cme-contracts-pill">
+                            24h Contracts: <span id="tv-cme-contracts-val">--</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- ========================================================================= -->
                 <!-- PANEL A: LIVE MARKET HEADER                                               -->
                 <!-- ========================================================================= -->
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 p-3 rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35); box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05);">
@@ -3854,9 +3890,9 @@
                                     <th style="padding: 7px 4px; color: #00f0ff;">Tick/s (Velocity)</th>
                                     <th style="padding: 7px 4px;">Vel. Index (%)</th>
                                     <th style="padding: 7px 4px;">Accel. (%)</th>
-                                    <th style="padding: 7px 4px; color: #10b981;">Volume Buy*</th>
-                                    <th style="padding: 7px 4px; color: #ef4444;">Volume Sell*</th>
-                                    <th style="padding: 7px 4px;">Total Volume</th>
+                                    <th style="padding: 7px 4px; color: #10b981;" id="tv-th-vol-buy">Volume Buy*</th>
+                                    <th style="padding: 7px 4px; color: #ef4444;" id="tv-th-vol-sell">Volume Sell*</th>
+                                    <th style="padding: 7px 4px;" id="tv-th-vol-total">Total Volume</th>
                                     <th style="padding: 7px 4px;">Vol. Index (%)</th>
                                     <th style="padding: 7px 4px;">Dominasi Tick</th>
                                     <th style="padding: 7px 4px;">Dominasi Volume</th>
@@ -9426,11 +9462,12 @@
 
     async function loadQCITickVelocityData(pairKey) {
         const pair = pairKey || (typeof currentSelectedPair !== 'undefined' ? currentSelectedPair : 'USDJPY');
+        const src = (typeof currentTvFeedSource !== 'undefined') ? currentTvFeedSource : 'CME_FUTURES';
         const titleEl = document.getElementById('qci-tv-title-pair');
         if (titleEl) titleEl.textContent = pair;
 
         try {
-            const res = await fetch('/api/tick_velocity_intelligence?pair=' + encodeURIComponent(pair));
+            const res = await fetch(`/api/tick_velocity_intelligence?pair=${encodeURIComponent(pair)}&source=${encodeURIComponent(src)}`);
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
             renderQCIMultiTimeframeFlow(pair, data);
@@ -9460,7 +9497,7 @@
                 statusBadge.textContent = '⚪ MARKET CLOSED (OFF)';
                 statusBadge.className = 'badge bg-secondary bg-opacity-25 text-muted border border-secondary mono py-1 px-2';
             } else {
-                statusBadge.textContent = '● LIVE MT5 SYNC';
+                statusBadge.textContent = '● ' + (data.market_header?.source_badge || 'LIVE CME FUTURES');
                 statusBadge.className = 'badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2';
             }
         }
@@ -12127,6 +12164,7 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
     // ⚡ GAMBAR 2: MULTI-ASSET TICK, VOLUME & VELOCITY CONTROLLER
     // ==========================================================
     let currentTvPair = 'USDJPY';
+    let currentTvFeedSource = 'CME_FUTURES';
     let tvAutoPollTimer = null;
 
     const TV_FLAGS = {
@@ -12135,6 +12173,33 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         'EURUSD': ['🇪🇺', '🇺🇸'],
         'GBPUSD': ['🇬🇧', '🇺🇸']
     };
+
+    function switchTvFeedSource(source) {
+        if (!source) return;
+        currentTvFeedSource = source;
+
+        // Update button states
+        const btnMap = {
+            'CME_FUTURES': 'btn-src-cme',
+            'CTRADER': 'btn-src-ctrader',
+            'MT5_FINEX': 'btn-src-mt5'
+        };
+        Object.keys(btnMap).forEach(key => {
+            const btn = document.getElementById(btnMap[key]);
+            if (btn) {
+                if (key === source) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            }
+        });
+
+        loadTickVelocityDashboard(currentTvPair);
+        if (typeof loadQCITickVelocityData === 'function') {
+            loadQCITickVelocityData(currentTvPair);
+        }
+    }
 
     function switchTvPair(pair) {
         if (!pair) return;
@@ -12157,8 +12222,9 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
 
     async function loadTickVelocityDashboard(pair) {
         const p = pair || currentTvPair || 'USDJPY';
+        const src = currentTvFeedSource || 'CME_FUTURES';
         try {
-            const res = await fetch('/api/tick_velocity_intelligence?pair=' + encodeURIComponent(p));
+            const res = await fetch(`/api/tick_velocity_intelligence?pair=${encodeURIComponent(p)}&source=${encodeURIComponent(src)}`);
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
             if (data.status === 'ok') {
@@ -12172,8 +12238,40 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
     function renderTickVelocityDashboard(data) {
         if (!data) return;
 
-        // 1. PANEL A: Header Updates
+        // 0. Update Source Badges & Metadata
         const mh = data.market_header || {};
+        const sm = data.source_metadata || {};
+
+        const symBadge = document.getElementById('tv-feed-symbol-badge');
+        if (symBadge) symBadge.textContent = mh.source_symbol || sm.symbol_display || 'CME';
+
+        const gradeBadge = document.getElementById('tv-feed-grade-badge');
+        if (gradeBadge) gradeBadge.textContent = 'GRADE: ' + (mh.source_grade || sm.grade || 'AAA');
+
+        const latVal = document.getElementById('tv-feed-latency-val');
+        if (latVal && mh.feed_latency_ms !== undefined) latVal.textContent = mh.feed_latency_ms + 'ms';
+
+        const cmePill = document.getElementById('tv-cme-contracts-pill');
+        const cmeVal = document.getElementById('tv-cme-contracts-val');
+        if (cmePill && cmeVal) {
+            if (mh.cme_stats && mh.cme_stats.total_contracts_24h !== undefined && mh.cme_stats.total_contracts_24h > 0) {
+                cmePill.classList.remove('d-none');
+                cmeVal.textContent = Number(mh.cme_stats.total_contracts_24h).toLocaleString() + ' Lots';
+            } else {
+                cmePill.classList.add('d-none');
+            }
+        }
+
+        // Update column headers for Volume
+        const thVolBuy = document.getElementById('tv-th-vol-buy');
+        const thVolSell = document.getElementById('tv-th-vol-sell');
+        const thVolTot = document.getElementById('tv-th-vol-total');
+        const isCme = (mh.source || currentTvFeedSource) === 'CME_FUTURES';
+        if (thVolBuy) thVolBuy.textContent = isCme ? 'Contracts Buy*' : 'Volume Buy*';
+        if (thVolSell) thVolSell.textContent = isCme ? 'Contracts Sell*' : 'Volume Sell*';
+        if (thVolTot) thVolTot.textContent = isCme ? 'Total Contracts' : 'Total Volume';
+
+        // 1. PANEL A: Header Updates
         const pName = document.getElementById('tv-header-fullname');
         if (pName && mh.name) pName.textContent = mh.name;
 
@@ -12218,7 +12316,7 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
                 statusBadge.style.color = '#94a3b8';
                 statusBadge.style.border = '1px solid #475569';
             } else {
-                statusBadge.textContent = '● LIVE (MT5 REAL)';
+                statusBadge.textContent = '● ' + (mh.source_badge || 'LIVE (CME REAL)');
                 statusBadge.className = 'badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2';
                 statusBadge.style.background = '';
                 statusBadge.style.color = '';

@@ -12,6 +12,13 @@ import time
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List
 
+from backend.engines.institutional_data_feed import (
+    INSTITUTIONAL_SOURCES,
+    get_source_metadata,
+    fetch_cme_real_contracts,
+    enrich_timeframe_with_source
+)
+
 WIB = timezone(timedelta(hours=7))
 
 MT5_SYMBOL_MAP = {
@@ -99,20 +106,32 @@ def is_forex_market_open(sym_mt5: str = "", tick_time: int = 0, now_wib: datetim
 
     return True
 
-def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
+def analyze_tick_velocity_intelligence(pair: str = 'USDJPY', source: str = 'CME_FUTURES') -> Dict[str, Any]:
     global GLOBAL_TVE_CACHE
+    src_key = source.upper() if source else 'CME_FUTURES'
+    if src_key not in INSTITUTIONAL_SOURCES:
+        src_key = 'CME_FUTURES'
+
+    cache_key = f"{pair}_{src_key}"
     now_ts = time.time()
-    cached_item = GLOBAL_TVE_CACHE.get(pair)
+    cached_item = GLOBAL_TVE_CACHE.get(cache_key)
     if cached_item and (now_ts - cached_item.get("cached_at", 0)) < CACHE_TTL_SEC:
         return cached_item.get("data")
 
     """
-    Full Quantitative Multi-Timeframe Velocity & Volume Analysis from MT5.
+    Full Quantitative Multi-Timeframe Velocity & Volume Analysis.
+    Supports:
+    - CME_FUTURES: CME/COMEX Chicago Real Traded Contract Volume & Order Flow
+    - CTRADER: cTrader Open API High-Speed Multi-Bank ECN Feed
+    - MT5_FINEX: MetaTrader 5 Finex Direct Broker Feed
     """
     now_wib = datetime.now(WIB)
     sym_mt5 = MT5_SYMBOL_MAP.get(pair, pair)
     digits = DIGITS_MAP.get(pair, 3)
     pip_fact = PIP_FACTORS.get(pair, 100.0)
+
+    source_meta = get_source_metadata(src_key, pair)
+    cme_data = fetch_cme_real_contracts(pair) if src_key == 'CME_FUTURES' else None
 
     # Initialize response structures
     market_header = {
@@ -133,7 +152,14 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
         "trend_utama": "BULLISH",
         "trend_utama_tf": "H4",
         "clock_wib": now_wib.strftime("%A, %d %b %Y %H:%M:%S WIB"),
-        "connection_status": "DISCONNECTED",
+        "connection_status": f"LIVE ({source_meta['badge']})",
+        "source": src_key,
+        "source_badge": source_meta["badge"],
+        "source_grade": source_meta["grade"],
+        "source_symbol": source_meta["symbol_display"],
+        "feed_latency_ms": cme_data.get("latency_ms", source_meta["default_latency_ms"]) if cme_data else source_meta["default_latency_ms"],
+        "volume_unit": source_meta["unit"],
+        "cme_stats": cme_data,
         "last_tick_time": now_wib.strftime("%H:%M:%S WIB")
     }
 
@@ -148,7 +174,7 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
         if mt5.initialize():
             term = mt5.terminal_info()
             if term and term.connected:
-                market_header["connection_status"] = "LIVE (MT5 REAL)"
+                market_header["connection_status"] = f"LIVE ({source_meta['badge']})"
 
             mt5.symbol_select(sym_mt5, True)
             tick = mt5.symbol_info_tick(sym_mt5)
@@ -188,7 +214,7 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
                 market_header["trend_utama"] = "OFF"
                 market_header["spread_pips"] = 0.0
             else:
-                market_header["connection_status"] = "LIVE (MT5 REAL)"
+                market_header["connection_status"] = f"LIVE ({source_meta['badge']})"
                 market_header["mt5_status"] = "LIVE"
 
             # Iterate through 6 Timeframes: M1, M5, M15, M30, H1, H4
@@ -521,6 +547,9 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
         }
     }
 
+    if is_m_open and tf_rows:
+        tf_rows = [enrich_timeframe_with_source(r, src_key, cme_data) for r in tf_rows]
+
     res_payload = {
         "status": "ok",
         "market_header": market_header,
@@ -529,10 +558,22 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY') -> Dict[str, Any]:
         "trend_matrix": matrix_rows,
         "anomalies": anomaly_rows,
         "trend_score": trend_score_panel_f,
+        "source_metadata": source_meta,
+        "available_sources": [
+            {
+                "id": k,
+                "name": v["name"],
+                "badge": v["badge"],
+                "grade": v["grade"],
+                "unit": v["unit"],
+                "latency_ms": v["default_latency_ms"]
+            }
+            for k, v in INSTITUTIONAL_SOURCES.items()
+        ],
         "timestamp": now_wib.strftime("%Y-%m-%d %H:%M:%S WIB")
     }
 
-    GLOBAL_TVE_CACHE[pair] = {"cached_at": time.time(), "data": res_payload}
+    GLOBAL_TVE_CACHE[cache_key] = {"cached_at": time.time(), "data": res_payload}
     return res_payload
 
 if __name__ == "__main__":

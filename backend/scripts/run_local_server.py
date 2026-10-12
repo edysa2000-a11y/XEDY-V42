@@ -2071,9 +2071,10 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             import urllib.parse
             qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
             pair = qs.get('pair', ['USDJPY'])[0].upper()
+            source = qs.get('source', ['CME_FUTURES'])[0].upper()
             try:
                 from backend.engines.tick_velocity_engine import analyze_tick_velocity_intelligence
-                resp = analyze_tick_velocity_intelligence(pair)
+                resp = analyze_tick_velocity_intelligence(pair, source=source)
             except Exception as e:
                 resp = {"status": "error", "error": str(e)}
             self.send_response(200)
