@@ -1020,6 +1020,49 @@
             font-weight: 800;
         }
 
+        /* FORECAST SUB-TAB BUTTONS */
+        .fc-subtab-btn {
+            background: #091322;
+            border: 1px solid var(--border-bright);
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.76rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .fc-subtab-btn:hover {
+            border-color: var(--cyan);
+            color: #ffffff;
+            background: #11223b;
+        }
+        .fc-subtab-btn.active {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.45), rgba(37, 99, 235, 0.4));
+            border-color: var(--cyan);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+            font-weight: 800;
+        }
+        body.theme-light .fc-subtab-btn, body.theme-windows-light .fc-subtab-btn, body.theme-paper .fc-subtab-btn {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
+        body.theme-light .fc-subtab-btn:hover, body.theme-windows-light .fc-subtab-btn:hover, body.theme-paper .fc-subtab-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-color: #0284c7;
+        }
+        body.theme-light .fc-subtab-btn.active, body.theme-windows-light .fc-subtab-btn.active, body.theme-paper .fc-subtab-btn.active {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+        }
 
         /* ========================================================
            THEME ENGINE: 12 HIGH-CONTRAST INSTITUTIONAL THEMES
@@ -3616,11 +3659,28 @@
                 </div>
             </div>
 
-            
-            <!-- ========================================================================= -->
-            <!-- ⚡ GAMBAR 2: MULTI-ASSET TICK, VOLUME & VELOCITY INTELLIGENCE DASHBOARD  -->
-            <!-- ========================================================================= -->
-            <div id="tick-velocity-dashboard-container" style="background: #071426; border: 1.5px solid rgba(0, 240, 255, 0.4); border-radius: 14px; padding: 18px 20px; box-shadow: 0 0 25px rgba(0, 180, 255, 0.12); display: flex; flex-direction: column; gap: 16px;">
+            <!-- Sub-Tab Navigation Bar -->
+            <div class="d-flex align-items-center gap-2 p-2 rounded flex-wrap" style="background: rgba(11, 19, 36, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.35);">
+                <button type="button" class="fc-subtab-btn active mono" id="btn-fc-subtab-live" onclick="switchForecastSubTab('live')">
+                    <span>🔮</span> Live Forecast &amp; Velocity
+                </button>
+                <button type="button" class="fc-subtab-btn mono" id="btn-fc-subtab-backtest" onclick="switchForecastSubTab('backtest')">
+                    <span>📊</span> Backtest &amp; Validasi LH
+                </button>
+                <button type="button" class="fc-subtab-btn mono" id="btn-fc-subtab-qwen" onclick="switchForecastSubTab('qwen')">
+                    <span>🧠</span> AI Qwen Learning Hub
+                </button>
+                <button type="button" class="fc-subtab-btn mono" id="btn-fc-subtab-schedule" onclick="switchForecastSubTab('schedule')">
+                    <span>🕒</span> Rekomendasi Jam WIB &amp; SOP
+                </button>
+            </div>
+
+            <!-- SUBPANE 1: LIVE FORECAST & VELOCITY INTELLIGENCE -->
+            <div id="fc-subpane-live" class="fc-subpane" style="display: block;">
+                <!-- ========================================================================= -->
+                <!-- ⚡ GAMBAR 2: MULTI-ASSET TICK, VOLUME & VELOCITY INTELLIGENCE DASHBOARD  -->
+                <!-- ========================================================================= -->
+                <div id="tick-velocity-dashboard-container" style="background: #071426; border: 1.5px solid rgba(0, 240, 255, 0.4); border-radius: 14px; padding: 18px 20px; box-shadow: 0 0 25px rgba(0, 180, 255, 0.12); display: flex; flex-direction: column; gap: 16px;">
                 
                 <!-- ========================================================================= -->
                 <!-- PANEL A: LIVE MARKET HEADER                                               -->
@@ -4124,10 +4184,13 @@
                 </div>
 
             </div>
+            <!-- END SUBPANE 1 -->
+            </div>
 
-
-            <!-- 3. SECTION B: Backtest H4 Low - High (LH), Validasi LH & Selisih Error Historis -->
-            <div style="background: rgba(11, 19, 36, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 18px 20px;">
+            <!-- SUBPANE 2: BACKTEST & VALIDASI LH -->
+            <div id="fc-subpane-backtest" class="fc-subpane" style="display: none;">
+                <!-- 3. SECTION B: Backtest H4 Low - High (LH), Validasi LH & Selisih Error Historis -->
+                <div style="background: rgba(11, 19, 36, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 18px 20px;">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <div>
                         <h6 class="m-0 fw-bold mono text-light d-flex align-items-center gap-2" style="font-size: 0.95rem;">
@@ -4207,9 +4270,13 @@
                     </table>
                 </div>
             </div>
+            <!-- END SUBPANE 2 -->
+            </div>
 
-            <!-- 4. SECTION C: AI QWEN Parameter Discovery, Metode & Adaptive Learning Hub -->
-            <div style="background: rgba(11, 19, 36, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 18px 20px;">
+            <!-- SUBPANE 3: AI QWEN PARAMETER & LEARNING HUB -->
+            <div id="fc-subpane-qwen" class="fc-subpane" style="display: none;">
+                <!-- 4. SECTION C: AI QWEN Parameter Discovery, Metode & Adaptive Learning Hub -->
+                <div style="background: rgba(11, 19, 36, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 18px 20px;">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <div>
                         <h6 class="m-0 fw-bold mono text-light d-flex align-items-center gap-2" style="font-size: 0.95rem;">
@@ -4317,9 +4384,13 @@
                     </div>
                 </div>
             </div>
+            <!-- END SUBPANE 3 -->
+            </div>
 
-            <!-- 5. SECTION D: Rekomendasi Terbaik Jam WIB, Metode & Sistem Operasional -->
-            <div style="background: rgba(11, 19, 36, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 18px 20px;">
+            <!-- SUBPANE 4: REKOMENDASI JAM WIB & SOP -->
+            <div id="fc-subpane-schedule" class="fc-subpane" style="display: none;">
+                <!-- 5. SECTION D: Rekomendasi Terbaik Jam WIB, Metode & Sistem Operasional -->
+                <div style="background: rgba(11, 19, 36, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 18px 20px;">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <div>
                         <h6 class="m-0 fw-bold mono text-light d-flex align-items-center gap-2" style="font-size: 0.95rem;">
@@ -4460,6 +4531,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <!-- END SUBPANE 4 -->
             </div>
 
         </section>
@@ -6710,6 +6783,7 @@
             const pair = (typeof currentSelectedPair !== 'undefined' && currentSelectedPair) ? currentSelectedPair : 'USDJPY';
             
             if (tabKey === 'forecast') {
+                if (typeof initForecastSubTabs === 'function') initForecastSubTabs();
                 if (typeof loadForecastData === 'function') loadForecastData();
                 if (typeof loadTickVelocityDashboard === 'function') loadTickVelocityDashboard(currentTvPair || pair);
                 if (typeof initTickVelocityAutoPoll === 'function') initTickVelocityAutoPoll();
@@ -11495,6 +11569,51 @@
     let currentForecastData = null;
     let selectedBacktestPair = 'USDJPY';
     let isForecastLoading = false;
+    let currentForecastSubTab = 'live';
+
+    function switchForecastSubTab(subTabKey) {
+        const subTabs = ['live', 'backtest', 'qwen', 'schedule'];
+        if (!subTabs.includes(subTabKey)) subTabKey = 'live';
+        currentForecastSubTab = subTabKey;
+
+        // 1. Toggle Button Active States
+        subTabs.forEach(key => {
+            const btn = document.getElementById('btn-fc-subtab-' + key);
+            if (btn) {
+                if (key === subTabKey) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            }
+        });
+
+        // 2. Toggle Subpanes Visibility
+        subTabs.forEach(key => {
+            const pane = document.getElementById('fc-subpane-' + key);
+            if (pane) {
+                pane.style.display = (key === subTabKey) ? 'block' : 'none';
+            }
+        });
+
+        // 3. Persist state
+        try {
+            localStorage.setItem('xedy_fc_subtab', subTabKey);
+        } catch(e) {}
+
+        // 4. Trigger target subpane data refresh if needed
+        const activeP = (typeof currentTvPair !== 'undefined' && currentTvPair) ? currentTvPair : ((typeof currentSelectedPair !== 'undefined' && currentSelectedPair) ? currentSelectedPair : 'USDJPY');
+        if (subTabKey === 'live') {
+            if (typeof loadTickVelocityDashboard === 'function') loadTickVelocityDashboard(activeP);
+        } else if (subTabKey === 'backtest' || subTabKey === 'qwen') {
+            if (typeof loadForecastData === 'function') loadForecastData(selectedBacktestPair || activeP);
+        }
+    }
+
+    function initForecastSubTabs() {
+        const saved = localStorage.getItem('xedy_fc_subtab') || 'live';
+        switchForecastSubTab(saved);
+    }
 
     async function loadForecastData(targetPair) {
         if (targetPair) selectedBacktestPair = targetPair;
