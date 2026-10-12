@@ -4477,14 +4477,26 @@
                         </div>
                     </div>
                     
-                    <!-- Pair Selector Filter khusus Backtest -->
-                    <div class="d-flex align-items-center gap-1 flex-wrap">
-                        <span class="text-secondary mono me-1" style="font-size: 0.70rem;">PILIH PAIR:</span>
-                        <div class="btn-group btn-group-sm mono" role="group" id="fc-bt-pair-selector">
-                            <button type="button" class="btn btn-outline-info active" onclick="switchBacktestPair('USDJPY')">USDJPY</button>
-                            <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('XAUUSD')">XAUUSD</button>
-                            <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('EURUSD')">EURUSD</button>
-                            <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('GBPUSD')">GBPUSD</button>
+                    <!-- Filter khusus Backtest: Pair & Horizon -->
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <span class="text-secondary mono me-1" style="font-size: 0.70rem;">PILIH PAIR:</span>
+                            <div class="btn-group btn-group-sm mono" role="group" id="fc-bt-pair-selector">
+                                <button type="button" class="btn btn-outline-info active" onclick="switchBacktestPair('USDJPY')">USDJPY</button>
+                                <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('XAUUSD')">XAUUSD</button>
+                                <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('EURUSD')">EURUSD</button>
+                                <button type="button" class="btn btn-outline-info" onclick="switchBacktestPair('GBPUSD')">GBPUSD</button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <span class="text-secondary mono me-1" style="font-size: 0.70rem;">RENTANG AUDIT:</span>
+                            <div class="btn-group btn-group-sm mono" role="group" id="fc-bt-bars-selector">
+                                <button type="button" class="btn btn-outline-secondary" id="btn-bt-bars-12" onclick="switchBacktestHorizon(12)">12 Bars</button>
+                                <button type="button" class="btn btn-outline-secondary" id="btn-bt-bars-36" onclick="switchBacktestHorizon(36)">36 Bars (1 Mgg)</button>
+                                <button type="button" class="btn btn-outline-secondary" id="btn-bt-bars-150" onclick="switchBacktestHorizon(150)">150 Bars (1 Bln)</button>
+                                <button type="button" class="btn btn-outline-info active" id="btn-bt-bars-390" onclick="switchBacktestHorizon(390)">🌟 3 Bulan (390 Bars)</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4494,29 +4506,29 @@
                     <div class="col-6 col-md-3">
                         <div class="p-2 rounded" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.3);">
                             <div class="text-secondary mono" style="font-size: 0.68rem;">LH BRACKET CONTAINMENT</div>
-                            <div class="fw-bold text-success mono" id="bt-kpi-containment" style="font-size: 1.15rem;">91.7%</div>
+                            <div class="fw-bold text-success mono" id="bt-kpi-containment" style="font-size: 1.15rem;">72.1%</div>
                             <div class="text-secondary mono" style="font-size: 0.65rem;">Harga terkurung rapi di channel LH</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
                         <div class="p-2 rounded" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.3);">
-                            <div class="text-secondary mono" style="font-size: 0.68rem;">PERFECT HIT RATE (&le;4p)</div>
-                            <div class="fw-bold text-info mono" id="bt-kpi-perfect" style="font-size: 1.15rem;">75.0%</div>
+                            <div class="text-secondary mono" style="font-size: 0.68rem;">PERFECT HIT RATE (&le;5p)</div>
+                            <div class="fw-bold text-info mono" id="bt-kpi-perfect" style="font-size: 1.15rem;">18.5%</div>
                             <div class="text-secondary mono" style="font-size: 0.65rem;">Sangat presisi tepat di ujung wick</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
                         <div class="p-2 rounded" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(245, 158, 11, 0.3);">
                             <div class="text-secondary mono" style="font-size: 0.68rem;">MEAN ABSOLUTE ERROR (MAE)</div>
-                            <div class="fw-bold text-warning mono" id="bt-kpi-mae" style="font-size: 1.15rem;">3.8 Pips</div>
+                            <div class="fw-bold text-warning mono" id="bt-kpi-mae" style="font-size: 1.15rem;">14.8 Pips</div>
                             <div class="text-secondary mono" style="font-size: 0.65rem;">Deviasi rata-rata per lilin H4</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-3">
                         <div class="p-2 rounded" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.3);">
                             <div class="text-secondary mono" style="font-size: 0.68rem;">SAMPEL LILIN H4 AUDIT</div>
-                            <div class="fw-bold text-purple mono" id="bt-kpi-total" style="font-size: 1.15rem;">12 Bars</div>
-                            <div class="text-secondary mono" style="font-size: 0.65rem;">Multi-sesi (Asia, London, US)</div>
+                            <div class="fw-bold text-purple mono" id="bt-kpi-total" style="font-size: 1.15rem;">390 Bars</div>
+                            <div class="text-secondary mono" id="bt-kpi-subdesc" style="font-size: 0.65rem;">3 Bulan Riil MT5 Finex</div>
                         </div>
                     </div>
                 </div>
@@ -4544,6 +4556,56 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- AI Qwen 3-Month Multi-Parameter Adaptive Learning Card -->
+                <div class="mt-3 p-3 rounded" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25);">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-primary bg-opacity-25 text-info border border-info mono py-1 px-2">
+                                🤖 AI QWEN 3.7 ADAPTIVE LEARNING (3 BULAN)
+                            </span>
+                            <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="bt-learning-status">
+                                ONLINE WALK-FORWARD CONVERGED
+                            </span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-info mono py-1 px-3" id="btn-run-qwen-3m-tuning" onclick="runQwen3MonthsAdaptiveLearning()">
+                            ⚡ JALANKAN ADAPTIVE LEARNING 3 BULAN
+                        </button>
+                    </div>
+
+                    <p class="text-secondary mono mb-2" id="qwen-bt-adaptive-notes" style="font-size: 0.70rem;">
+                        AI Qwen melatih 390 lilin H4 (3 bulan riil MT5). Saat terjadi deviasi error pada candle yang tutup, sistem secara otomatis mengkalibrasi parameter sesi, layer pembobotan, dan directional multiplier agar forecast lilin berikutnya lebih presisi dan error-nya semakin kecil.
+                    </p>
+
+                    <div class="row g-2 mono text-center" style="font-size: 0.72rem;">
+                        <!-- Layer Weights -->
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded bg-dark border border-secondary">
+                                <div class="text-muted" style="font-size: 0.65rem;">LAYER: SWEEP / ATR</div>
+                                <div class="text-info fw-bold mt-1" id="bt-weight-sweep">37% / 33%</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded bg-dark border border-secondary">
+                                <div class="text-muted" style="font-size: 0.65rem;">LAYER: VWAP / FIBO</div>
+                                <div class="text-purple fw-bold mt-1" id="bt-weight-vwap">20% / 10%</div>
+                            </div>
+                        </div>
+                        <!-- Session Profile -->
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded bg-dark border border-secondary">
+                                <div class="text-muted" style="font-size: 0.65rem;">SESI: LONDON / NY</div>
+                                <div class="text-warning fw-bold mt-1" id="bt-sess-peak">1.06x / 1.06x</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded bg-dark border border-secondary">
+                                <div class="text-muted" style="font-size: 0.65rem;">SESI: ASIA / LATE NY</div>
+                                <div class="text-success fw-bold mt-1" id="bt-sess-off">0.80x / 0.63x</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- END SUBPANE 2 -->
@@ -12784,13 +12846,16 @@
         };
     }
 
+    let selectedBacktestBars = 390;
+
     async function loadForecastData(targetPair) {
         if (targetPair) selectedBacktestPair = targetPair;
         const pair = selectedBacktestPair || 'USDJPY';
+        const bars = selectedBacktestBars || 390;
         
         try {
             isForecastLoading = true;
-            const res = await fetch('/api/forecast_h4?pair=' + encodeURIComponent(pair));
+            const res = await fetch(`/api/forecast_h4?pair=${encodeURIComponent(pair)}&bars=${encodeURIComponent(bars)}`);
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
             if (data.status === 'ok') {
@@ -12804,6 +12869,67 @@
             renderForecastView(fallback);
         } finally {
             isForecastLoading = false;
+        }
+    }
+
+    function switchBacktestHorizon(bars) {
+        selectedBacktestBars = bars;
+        const barBtns = [12, 36, 150, 390];
+        barBtns.forEach(b => {
+            const btn = document.getElementById('btn-bt-bars-' + b);
+            if (btn) {
+                if (b === bars) {
+                    btn.className = 'btn btn-outline-info active';
+                } else {
+                    btn.className = 'btn btn-outline-secondary';
+                }
+            }
+        });
+        loadForecastData(selectedBacktestPair);
+    }
+
+    async function runQwen3MonthsAdaptiveLearning() {
+        const btn = document.getElementById('btn-run-qwen-3m-tuning');
+        const statusBadge = document.getElementById('bt-learning-status');
+        const notesEl = document.getElementById('qwen-bt-adaptive-notes');
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> MELATIH 390 BARS (WALK-FORWARD)...';
+        }
+        if (statusBadge) {
+            statusBadge.className = 'badge bg-warning bg-opacity-25 text-warning border border-warning mono py-1 px-2';
+            statusBadge.textContent = '⚡ TRAINING 3-MONTH WALK-FORWARD...';
+        }
+
+        try {
+            const res = await fetch('/api/qwen_tune_forecast', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pair: selectedBacktestPair || 'USDJPY' })
+            });
+            const data = await res.json();
+            if (data.status === 'ok') {
+                if (statusBadge) {
+                    statusBadge.className = 'badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2';
+                    statusBadge.textContent = '✅ ONLINE WALK-FORWARD CONVERGED';
+                }
+                if (notesEl && data.tuned && data.tuned.params && data.tuned.params.ai_notes) {
+                    notesEl.textContent = data.tuned.params.ai_notes;
+                }
+                if (data.tuned && data.tuned.params) {
+                    renderAiParams(data.tuned.params);
+                }
+                // Reload backtest data
+                await loadForecastData(selectedBacktestPair || 'USDJPY');
+            }
+        } catch(err) {
+            console.error('[QWEN 3M] Training error:', err);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '⚡ JALANKAN ADAPTIVE LEARNING 3 BULAN';
+            }
         }
     }
 
@@ -12919,13 +13045,30 @@
 
         // Update KPIs
         const contEl = document.getElementById('bt-kpi-containment');
-        if (contEl) contEl.textContent = (bt.containment_rate || 91.7) + '%';
+        if (contEl) contEl.textContent = (bt.containment_rate != null ? bt.containment_rate : 91.7) + '%';
         const perfEl = document.getElementById('bt-kpi-perfect');
-        if (perfEl) perfEl.textContent = (bt.perfect_hit_rate || 75.0) + '%';
+        if (perfEl) perfEl.textContent = (bt.perfect_hit_rate != null ? bt.perfect_hit_rate : 75.0) + '%';
         const maeEl = document.getElementById('bt-kpi-mae');
-        if (maeEl) maeEl.textContent = (bt.avg_mae_pips || 3.8) + ' Pips';
+        if (maeEl) maeEl.textContent = (bt.avg_mae_pips != null ? bt.avg_mae_pips : 3.8) + ' Pips';
         const totEl = document.getElementById('bt-kpi-total');
-        if (totEl) totEl.textContent = (bt.total_candles || 12) + ' Bars';
+        if (totEl) totEl.textContent = (bt.total_candles != null ? bt.total_candles : 12) + ' Bars';
+        const subDescEl = document.getElementById('bt-kpi-subdesc');
+        if (subDescEl && bt.time_horizon) subDescEl.textContent = bt.time_horizon;
+
+        // Update Adaptive Summary Card
+        if (bt.adaptive_summary) {
+            const as = bt.adaptive_summary;
+            const swEl = document.getElementById('bt-weight-sweep');
+            if (swEl && as.sweep_weight_pct != null) swEl.textContent = `${as.sweep_weight_pct}% / ${as.atr_weight_pct}%`;
+            const vwEl = document.getElementById('bt-weight-vwap');
+            if (vwEl && as.vwap_weight_pct != null) vwEl.textContent = `${as.vwap_weight_pct}% / ${as.fibo_weight_pct}%`;
+            const pkEl = document.getElementById('bt-sess-peak');
+            if (pkEl && as.london_peak_mult != null) pkEl.textContent = `${as.london_peak_mult}x / ${as.ny_overlap_mult}x`;
+            const offEl = document.getElementById('bt-sess-off');
+            if (offEl && as.tokyo_mult != null) offEl.textContent = `${as.tokyo_mult}x / ${as.late_ny_mult}x`;
+            const notesEl = document.getElementById('qwen-bt-adaptive-notes');
+            if (notesEl && as.notes) notesEl.textContent = as.notes;
+        }
 
         // Update selector active state
         const selector = document.getElementById('fc-bt-pair-selector');

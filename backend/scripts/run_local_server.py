@@ -2036,6 +2036,10 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
             pair = qs.get('pair', ['USDJPY'])[0].upper()
             try:
+                num_bars = int(qs.get('bars', ['390'])[0])
+            except (ValueError, TypeError):
+                num_bars = 390
+            try:
                 from backend.engines.qwen_forecast_engine import (
                     calculate_h4_forecast_all_pairs,
                     generate_h4_backtest_records,
@@ -2044,7 +2048,7 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
                 )
                 live_p = PRICE_CACHE.get("pairs", {})
                 fc_data = calculate_h4_forecast_all_pairs(live_p)
-                bt_data = generate_h4_backtest_records(pair, 12)
+                bt_data = generate_h4_backtest_records(pair, num_bars)
                 sched_data = get_h4_wib_schedule_recommendation()
                 ai_params = load_or_init_params()
                 resp = {
@@ -2183,9 +2187,13 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             return
 
         if self.path.startswith('/api/qwen_tune_forecast'):
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length) if content_length > 0 else b'{}'
             try:
+                data = json.loads(body.decode('utf-8')) if body else {}
+                pair = data.get('pair', 'USDJPY').upper()
                 from backend.engines.qwen_forecast_engine import run_qwen_adaptive_learning_tuning
-                tuned = run_qwen_adaptive_learning_tuning()
+                tuned = run_qwen_adaptive_learning_tuning(target_pair=pair)
                 resp = {"status": "ok", "tuned": tuned}
             except Exception as e:
                 resp = {"status": "error", "error": str(e)}
