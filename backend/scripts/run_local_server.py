@@ -1750,6 +1750,8 @@ def poll_market_data():
                                     )
                             except Exception:
                                 pass
+                    else:
+                        mt5_initialized = False
             except Exception:
                 mt5_initialized = False
 
