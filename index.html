@@ -6628,26 +6628,29 @@
                 <p style="color: var(--text-muted); font-size: 0.78rem; margin: 0;">Adaptive Bayesian Probability &amp; 5-Layer Institutional Alignment (AI Qwen 3.7 Validated)</p>
             </div>
 
-            <!-- QCI 3.0 Sub-Tabs Navigation Strip -->
-            <div class="d-flex align-items-center gap-2 p-2 rounded flex-wrap mb-2" style="background: rgba(11, 19, 36, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.35);">
+            <!-- QCI 3.0 Sub-Tabs Navigation Strip (4 Navigation Sections) -->
+            <div class="d-flex align-items-center gap-2 p-2 rounded flex-wrap mb-3" style="background: rgba(11, 19, 36, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.35);">
                 <button type="button" class="subtab-pill-btn active mono" id="btn-qci-subtab-gauge" onclick="switchQciSubTab('gauge')">
                     <span>⚡</span> QCI 3.0 Confluence &amp; Gauge
                 </button>
                 <button type="button" class="subtab-pill-btn mono" id="btn-qci-subtab-matrix1" onclick="switchQciSubTab('matrix1')">
-                    <span>📊</span> Matriks 1: Multi-Parameter Scoring
+                    <span>📊</span> Matriks 1: Multi-Parameter
                 </button>
                 <button type="button" class="subtab-pill-btn mono" id="btn-qci-subtab-matrix2" onclick="switchQciSubTab('matrix2')">
-                    <span>🌊</span> Matriks 2: Tick, Volume &amp; Velocity (M1-H4)
+                    <span>🌊</span> Matriks 2: Tick &amp; Volume
+                </button>
+                <button type="button" class="subtab-pill-btn mono" id="btn-qci-subtab-matrix3" onclick="switchQciSubTab('matrix3')">
+                    <span>🎯</span> Matriks 3: Sentiment &amp; Liquidity
                 </button>
             </div>
 
             <!-- QCI SUBPANE 1: GAUGE & 5-LAYER QUICK CARDS -->
             <div id="qci-subpane-gauge" class="qci-subpane" style="display: block;">
-                <div class="qci-matrix-card" id="qci-matrix-container">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-1 border-bottom border-dim mb-2">
+                <div class="qci-matrix-card p-3 rounded" id="qci-matrix-container" style="background: #0b1324; border: 1px solid rgba(0, 240, 255, 0.3); box-shadow: 0 4px 22px rgba(0,0,0,0.45);">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-2 border-bottom border-dim mb-3">
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <span class="fw-bold mono text-cyan" style="font-size: 0.82rem; letter-spacing: 0.8px;">
-                        ⚡ QUANTITATIVE CONFLUENCE &amp; TRAP MATRIX (QCI 3.0) <div class="d-inline-flex align-items-center gap-1 p-1 rounded ms-2" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <span class="fw-bold mono text-cyan" style="font-size: 0.85rem; letter-spacing: 0.8px;">
+                        ⚡ QUANTITATIVE CONFLUENCE &amp; TRAP MATRIX (QCI 3.0) <div class="d-inline-flex align-items-center gap-1 p-1 rounded ms-2" style="background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.12);">
                         <button class="btn btn-sm m1-pair-btn active" id="m1-btn-USDJPY" onclick="switchM1Pair('USDJPY')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: #2563eb; color: #ffffff; border: 1px solid #38bdf8;">USDJPY</button>
                         <button class="btn btn-sm m1-pair-btn" id="m1-btn-XAUUSD" onclick="switchM1Pair('XAUUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">XAUUSD</button>
                         <button class="btn btn-sm m1-pair-btn" id="m1-btn-EURUSD" onclick="switchM1Pair('EURUSD')" style="font-size: 0.70rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; font-family: monospace; background: transparent; color: #8492a6; border: 1px solid transparent;">EURUSD</button>
@@ -6657,9 +6660,9 @@
                     </span>
                     <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono py-1 px-2" id="qci-score-badge">QCI: -72 / 100 [BEARISH FADE]</span>
                     <span class="badge bg-warning bg-opacity-25 text-warning border border-warning mono py-1 px-2" id="qci-trap-badge">🚨 BULL TRAP ACTIVE (89% CONF)</span>
-                    <span class="badge bg-primary bg-opacity-25 text-info border border-info mono py-1 px-2" id="qci-lot-badge">LOT ALLOCATION: 0.5x (HALF RISK)</span>
+                    <span class="badge bg-primary bg-opacity-25 text-info border border-info mono py-1 px-2" id="qci-lot-badge">LOT ALLOCATION: 0.5x [MAX 5% DRAWDOWN GUARD]</span>
                 </div>
-                <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.72rem;">
+                <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.74rem;">
                     <span class="text-muted">ALIGNMENT: <b class="text-warning" id="qci-align-status">DIVERGENT (FADE SETUP)</b></span>
                     <span class="text-muted">&bull;</span>
                     <span class="text-muted">EXECUTION EDGE: <b class="text-success" id="qci-edge-val">+18.4 PIPS EXP</b></span>
@@ -6667,65 +6670,67 @@
             </div>
 
             <!-- Meter Gauge Bar (Switched: Strong Buy Far Left, Strong Sell Far Right) -->
-            <div class="px-1 mb-2">
-                <div class="d-flex justify-content-between mono text-muted" style="font-size: 0.65rem;">
+            <div class="px-2 mb-3">
+                <div class="d-flex justify-content-between mono text-muted mb-1" style="font-size: 0.68rem;">
                     <span class="text-success fw-bold">+100 (STRONG BUY)</span>
                     <span class="text-info">+50 (BUY DIP)</span>
                     <span class="text-light">0 (NEUTRAL / CHOP)</span>
                     <span class="text-warning">-50 (FADE SHORT)</span>
                     <span class="text-danger fw-bold">-100 (STRONG SELL)</span>
                 </div>
-                <div class="qci-meter-track">
+                <div class="qci-meter-track" style="height: 14px; border-radius: 8px; overflow: hidden;">
                     <div class="qci-meter-pointer" id="qci-meter-pin" style="left: 86%;"></div>
                 </div>
             </div>
 
-            <!-- 5-Layer Quantitative Breakdown Grid -->
-            <div class="row g-2 mb-2">
+            <!-- 5-Layer Quantitative Breakdown Grid (High Contrast & Whitespace) -->
+            <div class="row g-2 mb-3">
                 <div class="col-md-2 col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
-                        <div class="text-muted mono" style="font-size: 0.62rem;">L1: PRICE TREND (15%)</div>
-                        <div class="fw-bold mono text-success" style="font-size: 0.74rem;" id="qci-l1-val">+15 (BULLISH CANDLE)</div>
+                    <div class="p-2 rounded h-100" style="background: #071224; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                        <div class="text-secondary mono fw-bold mb-1" style="font-size: 0.62rem; letter-spacing: 0.4px;">L1: PRICE TREND (15%)</div>
+                        <div class="fw-bold mono" style="font-size: 0.82rem; color: #4ade80; text-shadow: 0 0 8px rgba(74, 222, 128, 0.35);" id="qci-l1-val">+15 (BULLISH CANDLE)</div>
                     </div>
                 </div>
                 <div class="col-md-2 col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
-                        <div class="text-muted mono" style="font-size: 0.62rem;">L2: SnR CEILING (20%)</div>
-                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l2-val">-20 (NEAR RESIST 158.30)</div>
+                    <div class="p-2 rounded h-100" style="background: #071224; border: 1.5px solid rgba(244, 63, 94, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                        <div class="text-secondary mono fw-bold mb-1" style="font-size: 0.62rem; letter-spacing: 0.4px;">L2: SnR CEILING (20%)</div>
+                        <div class="fw-bold mono" style="font-size: 0.82rem; color: #fb7185; text-shadow: 0 0 8px rgba(251, 113, 133, 0.35);" id="qci-l2-val">-20 (NEAR RESIST 158.30)</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
-                        <div class="text-muted mono" style="font-size: 0.62rem;">L3: ORDER FLOW TICK (25%)</div>
-                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l3-val">-25 (5/5 SELL DELTA -7.8%)</div>
+                    <div class="p-2 rounded h-100" style="background: #071224; border: 1.5px solid rgba(244, 63, 94, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                        <div class="text-secondary mono fw-bold mb-1" style="font-size: 0.62rem; letter-spacing: 0.4px;">L3: ORDER FLOW TICK (25%)</div>
+                        <div class="fw-bold mono" style="font-size: 0.82rem; color: #f43f5e; text-shadow: 0 0 8px rgba(244, 63, 94, 0.35);" id="qci-l3-val">-25 (5/5 SELL DELTA -7.8%)</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
-                        <div class="text-muted mono" style="font-size: 0.62rem;">L4: MONEY FLOW CMF (25%)</div>
-                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l4-val">-25 (JPY DOMINANCE -54)</div>
+                    <div class="p-2 rounded h-100" style="background: #071224; border: 1.5px solid rgba(244, 63, 94, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                        <div class="text-secondary mono fw-bold mb-1" style="font-size: 0.62rem; letter-spacing: 0.4px;">L4: MONEY FLOW COT (25%)</div>
+                        <div class="fw-bold mono" style="font-size: 0.82rem; color: #f43f5e; text-shadow: 0 0 8px rgba(244, 63, 94, 0.35);" id="qci-l4-val">-25 (JPY DOMINANCE -54)</div>
                     </div>
                 </div>
                 <div class="col-md-2 col-6">
-                    <div class="p-2 rounded bg-dark bg-opacity-50 border border-dim">
-                        <div class="text-muted mono" style="font-size: 0.62rem;">L5: POLICY SPREAD (15%)</div>
-                        <div class="fw-bold mono text-danger" style="font-size: 0.74rem;" id="qci-l5-val">-15 (BOJ YIELD SPREAD -8bp)</div>
+                    <div class="p-2 rounded h-100" style="background: #071224; border: 1.5px solid rgba(244, 63, 94, 0.35); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                        <div class="text-secondary mono fw-bold mb-1" style="font-size: 0.62rem; letter-spacing: 0.4px;">L5: POLICY SPREAD (15%)</div>
+                        <div class="fw-bold mono" style="font-size: 0.82rem; color: #fb7185; text-shadow: 0 0 8px rgba(251, 113, 133, 0.35);" id="qci-l5-val">-15 (BOJ YIELD SPREAD -8bp)</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Action & Diagnostic Banner -->
-            <div class="p-2 rounded bg-dark bg-opacity-75 border border-dim d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-danger bg-opacity-25 text-danger mono" id="qci-action-tag">ACTION: FADE RESISTANCE</span>
-                    <span class="text-light mono" style="font-size: 0.73rem;" id="qci-diagnostic-text">
+            <!-- Action & Diagnostic Banner with Glowing Neon Border, R:R Ratio & Daily ATR -->
+            <div class="p-3 rounded d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2" style="border: 2px solid #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.45), inset 0 0 15px rgba(239, 68, 68, 0.08); background: linear-gradient(135deg, rgba(239, 68, 68, 0.14) 0%, rgba(10, 16, 32, 0.95) 100%);">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge bg-danger text-white mono py-2 px-3 fw-bold" id="qci-action-tag" style="font-size: 0.82rem; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); letter-spacing: 0.5px;">ACTION: FADE RESISTANCE</span>
+                    <span class="badge bg-dark border border-warning text-warning mono py-1 px-2" style="font-size: 0.74rem;">⚖️ R:R 1 : 2.5</span>
+                    <span class="badge bg-dark border border-info text-cyan mono py-1 px-2" style="font-size: 0.74rem;">📊 DAILY ATR: 65 pips</span>
+                    <span class="text-light mono" style="font-size: 0.75rem;" id="qci-diagnostic-text">
                         Harga naik ke plafon resistance, tapi Smart Money dumping masif. JANGAN BUY. Pasang Sell Limit di 158.303 &ndash; 158.363, Target 157.92.
                     </span>
                 </div>
-                <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.70rem;">
-                    <span class="text-muted">INVALIDATION (SL): <b class="text-danger" id="qci-sl-val">158.773</b></span>
+                <div class="d-flex align-items-center gap-3 mono" style="font-size: 0.74rem;">
+                    <span class="text-muted">INVALIDATION (SL): <b class="text-danger fw-bold" id="qci-sl-val">158.773</b></span>
                     <span class="text-muted">&bull;</span>
-                    <span class="text-muted">TARGET (TP1): <b class="text-success" id="qci-tp-val">157.923</b></span>
+                    <span class="text-muted">TARGET (TP1): <b class="text-success fw-bold" id="qci-tp-val">157.923</b></span>
                 </div>
             </div>
 
@@ -6780,6 +6785,9 @@
                             🚨 BULL TRAP ACTIVE (89% CONF)
                         </span>
                     </div>
+                    <p class="mono text-info mb-1 mt-1" id="m1-agreement-summary" style="font-size: 0.80rem; font-weight: 700; color: #38bdf8;">
+                        Agreement: <span class="text-danger">4 Bearish</span> · <span class="text-success">0 Bullish</span> · <span class="text-muted">1 Neutral</span>
+                    </p>
                     <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">
                         Matriks ini menggunakan sistem pembobotan institusional (<b>Weighted Scoring</b>) untuk mengukur apakah trader harus mengikuti <b>Trend Harga</b> atau <b>Order Flow Smart Money</b>.
                         <span class="ms-2 badge bg-dark text-muted border border-secondary mono">Skor: +1 = Bullish/Up | -1 = Bearish/Down | 0 = Netral</span>
@@ -6835,12 +6843,12 @@
                         </tr>
                         <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
                             <td style="padding: 8px 10px; color: #ffffff; font-weight: 700;">4. Money Flow</td>
-                            <td style="padding: 8px 10px; color: #8492a6;">CMF &amp; Currency Power Gap</td>
-                            <td style="padding: 8px 10px; color: #f8fafc; font-weight: 600;">Net Outflow -$340.2M | JPY +82%</td>
+                            <td style="padding: 8px 10px; color: #8492a6;">COT Net Position &amp; ETF Flow</td>
+                            <td style="padding: 8px 10px; color: #f8fafc; font-weight: 600;">COT JPY: +45K Longs | USD ETF: -$1.2B Outflow</td>
                             <td style="padding: 8px 10px; text-align: center; color: #38bdf8;">25%</td>
                             <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #ef4444;">-1 (Outflow)</td>
                             <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #ef4444;">-25.0%</td>
-                            <td style="padding: 8px 10px; font-weight: 600; color: #ef4444;">🔴 Modal Institusi Keluar</td>
+                            <td style="padding: 8px 10px; font-weight: 600; color: #ef4444;">🔴 Distribusi Institusi</td>
                         </tr>
                         <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
                             <td style="padding: 8px 10px; color: #ffffff; font-weight: 700;">5. Macro &amp; Policy</td>
@@ -7037,6 +7045,187 @@
         </div>
         <!-- END QCI SUBPANE 3 -->
         </div>
+
+        <!-- QCI SUBPANE 4: MATRIKS 3 (SENTIMENT, LIQUIDITY & RISK RADAR) -->
+        <div id="qci-subpane-matrix3" class="qci-subpane" style="display: none;">
+            <div class="qci-matrix-card mt-3" id="qci-matriks3-container" style="background: #0b1324; border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.45);">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-2 border-bottom border-dim mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span class="badge bg-purple bg-opacity-25 text-purple border mono py-1 px-2" style="font-size: 0.75rem; color: #c084fc; border-color: #a855f7 !important;">
+                                🎯 MATRIKS 3
+                            </span>
+                            <h5 class="fw-bold mono text-white mb-0" style="font-size: 0.95rem; letter-spacing: 0.5px;">
+                                SENTIMENT, LIQUIDITY &amp; RISK RADAR &bull; <span id="m3-title-pair" class="text-cyan">USDJPY</span>
+                            </h5>
+                            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono py-1 px-2" style="font-size: 0.75rem;">
+                                🚨 RETAIL TRAP &amp; STOP-HUNT HEATMAP
+                            </span>
+                        </div>
+                        <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">
+                            Pelacakan sentimen agregat retail positioning, peta likuiditas stop-loss, serta pelindung volatilitas makro institusi.
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.72rem;">
+                        <span class="badge bg-dark border py-1 px-2" style="color: #c084fc; border-color: #a855f7 !important;">RADAR SENTIMENT &amp; POOLS</span>
+                    </div>
+                </div>
+
+                <!-- 3 Components Grid -->
+                <div class="row g-3">
+                    <!-- COMPONENT A: Retail Positioning & Sentiment Gauge -->
+                    <div class="col-12">
+                        <div class="p-3 rounded" style="background: rgba(15, 27, 51, 0.7); border: 1px solid rgba(56, 189, 248, 0.2);">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                                <span class="fw-bold text-white mono" style="font-size: 0.82rem; letter-spacing: 0.5px;">
+                                    👥 A. RETAIL POSITIONING &amp; SENTIMENT GAUGE
+                                </span>
+                                <span class="badge bg-dark text-cyan border border-info mono" style="font-size: 0.70rem;">
+                                    CONTRARIAN ALPHA
+                                </span>
+                            </div>
+
+                            <!-- Dual-colored Sentiment Progress Bar -->
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between mono fw-bold mb-1" style="font-size: 0.75rem;">
+                                    <span style="color: #10b981;">82% RETAIL LONG</span>
+                                    <span style="color: #ef4444;">18% RETAIL SHORT</span>
+                                </div>
+                                <div class="progress" style="height: 18px; background: rgba(239, 68, 68, 0.25); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                                    <div class="progress-bar" role="progressbar" style="width: 82%; background: linear-gradient(90deg, #059669, #10b981); box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100">
+                                        <span class="mono fw-bold text-dark px-2" style="font-size: 0.70rem;">82% LONG</span>
+                                    </div>
+                                    <div class="progress-bar" role="progressbar" style="width: 18%; background: linear-gradient(90deg, #dc2626, #ef4444); box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);" aria-valuenow="18" aria-valuemin="0" aria-valuemax="100">
+                                        <span class="mono fw-bold text-white px-2" style="font-size: 0.70rem;">18%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Average Entry Prices -->
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 py-2 px-3 rounded mb-2 mono" style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.76rem;">
+                                <div>
+                                    <span class="text-muted">Avg Retail Long:</span>
+                                    <b style="color: #10b981; font-size: 0.82rem;">158.210</b>
+                                </div>
+                                <div class="text-muted d-none d-sm-block">&bull;</div>
+                                <div>
+                                    <span class="text-muted">Avg Retail Short:</span>
+                                    <b style="color: #ef4444; font-size: 0.82rem;">156.850</b>
+                                </div>
+                            </div>
+
+                            <!-- Signal Banner -->
+                            <div class="p-2 rounded mono fw-bold" style="background: rgba(239, 68, 68, 0.12); border: 1px solid #ef4444; color: #fca5a5; font-size: 0.76rem; text-shadow: 0 0 8px rgba(239, 68, 68, 0.4);">
+                                🔴 EXTREME RETAIL BUYING (TRAP VALIDATED) &mdash; Smart money distribution zone.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPONENT B: Liquidity Pools & Stop-Hunt Heatmap -->
+                    <div class="col-12">
+                        <div class="p-3 rounded" style="background: rgba(15, 27, 51, 0.7); border: 1px solid rgba(168, 85, 247, 0.25);">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                                <span class="fw-bold text-white mono" style="font-size: 0.82rem; letter-spacing: 0.5px;">
+                                    🌊 B. LIQUIDITY POOLS &amp; STOP-HUNT HEATMAP
+                                </span>
+                                <span class="badge bg-dark text-warning border border-warning mono" style="font-size: 0.70rem;">
+                                    ORDERBOOK HEATMAP
+                                </span>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover mb-0" style="background: transparent; font-size: 0.76rem; border-collapse: separate; border-spacing: 0 4px;">
+                                    <thead>
+                                        <tr style="border-bottom: 2px solid rgba(168, 85, 247, 0.3); color: #8492a6; font-family: 'Rajdhani', sans-serif; font-size: 0.80rem; text-transform: uppercase;">
+                                            <th style="padding: 8px 12px; background: rgba(15, 27, 51, 0.85); width: 32%;">Pool Type</th>
+                                            <th style="padding: 8px 12px; background: rgba(15, 27, 51, 0.85); width: 28%; text-align: center;">Price Level</th>
+                                            <th style="padding: 8px 12px; background: rgba(15, 27, 51, 0.85); width: 40%;">Strategic Classification &amp; Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="font-family: 'JetBrains Mono', monospace;">
+                                        <!-- Row 1: Upper Liquidity -->
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); background: rgba(56, 189, 248, 0.04);">
+                                            <td style="padding: 9px 12px; color: #38bdf8; font-weight: 700;">Upper Liquidity (Buy Stops)</td>
+                                            <td style="padding: 9px 12px; text-align: center; color: #f8fafc; font-weight: 700; letter-spacing: 0.5px;">158.450 &ndash; 158.550</td>
+                                            <td style="padding: 9px 12px;">
+                                                <span class="badge bg-info bg-opacity-25 text-cyan border border-info mono py-1 px-2">🛡️ SL BUFFER ZONE</span>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Row 2: Current Price (HIGHLIGHTED) -->
+                                        <tr style="border-bottom: 1px solid rgba(249, 115, 22, 0.4); background: rgba(239, 68, 68, 0.16); box-shadow: 0 0 12px rgba(249, 115, 22, 0.25);">
+                                            <td style="padding: 10px 12px; color: #f97316; font-weight: 800; border-left: 4px solid #f97316;">Current Price (Resistance)</td>
+                                            <td style="padding: 10px 12px; text-align: center; color: #ffffff; font-weight: 800; font-size: 0.88rem; text-shadow: 0 0 8px rgba(249, 115, 22, 0.6);">158.303</td>
+                                            <td style="padding: 10px 12px;">
+                                                <span class="badge bg-danger bg-opacity-25 text-warning border border-warning mono py-1 px-2 fw-bold" style="box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);">🎯 DISTRIBUTION ZONE (FADE ENTRY)</span>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Row 3: Lower Liquidity 1 -->
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); background: rgba(16, 185, 129, 0.04);">
+                                            <td style="padding: 9px 12px; color: #10b981; font-weight: 700;">Lower Liquidity 1 (Sell Stops)</td>
+                                            <td style="padding: 9px 12px; text-align: center; color: #f8fafc; font-weight: 700; letter-spacing: 0.5px;">157.920</td>
+                                            <td style="padding: 9px 12px;">
+                                                <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2">💰 TARGET PROFIT 1 (TP1)</span>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Row 4: Lower Liquidity 2 -->
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); background: rgba(16, 185, 129, 0.04);">
+                                            <td style="padding: 9px 12px; color: #10b981; font-weight: 700;">Lower Liquidity 2 (Sell Stops)</td>
+                                            <td style="padding: 9px 12px; text-align: center; color: #f8fafc; font-weight: 700; letter-spacing: 0.5px;">157.500</td>
+                                            <td style="padding: 9px 12px;">
+                                                <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2">📉 TARGET PROFIT 2 (TP2)</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPONENT C: Event Risk & Volatility Shield -->
+                    <div class="col-12">
+                        <div class="p-3 rounded" style="background: rgba(15, 27, 51, 0.7); border: 1px solid rgba(245, 158, 11, 0.25);">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                                <span class="fw-bold text-white mono" style="font-size: 0.82rem; letter-spacing: 0.5px;">
+                                    🛡️ C. EVENT RISK &amp; VOLATILITY SHIELD
+                                </span>
+                                <span class="badge bg-dark text-warning border border-warning mono" style="font-size: 0.70rem;">
+                                    MACRO RISK MANAGEMENT
+                                </span>
+                            </div>
+
+                            <div class="row g-2 mono">
+                                <div class="col-md-4 col-12">
+                                    <div class="p-2 rounded h-100" style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(56, 189, 248, 0.2);">
+                                        <div class="text-muted" style="font-size: 0.70rem;">HIGH-IMPACT CATALYST</div>
+                                        <div class="fw-bold text-cyan mt-1" style="font-size: 0.80rem;">⏳ Next High-Impact Event:</div>
+                                        <div class="text-white fw-bold mt-1" style="font-size: 0.82rem;">US Core CPI <span class="badge bg-warning bg-opacity-25 text-warning border border-warning ms-1" style="font-size: 0.68rem;">In 29 Hours</span></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="p-2 rounded h-100" style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(16, 185, 129, 0.2);">
+                                        <div class="text-muted" style="font-size: 0.70rem;">MARKET REGIME</div>
+                                        <div class="fw-bold text-success mt-1" style="font-size: 0.80rem;">📊 Volatility Regime:</div>
+                                        <div class="text-white fw-bold mt-1" style="font-size: 0.82rem;">Normal <span class="badge bg-success bg-opacity-25 text-success border border-success ms-1" style="font-size: 0.68rem;">65 pips ATR</span></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="p-2 rounded h-100" style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(239, 68, 68, 0.2);">
+                                        <div class="text-muted" style="font-size: 0.70rem;">CAPITAL PROTECTION GUARD</div>
+                                        <div class="fw-bold text-warning mt-1" style="font-size: 0.80rem;">⚙️ Risk Allocation:</div>
+                                        <div class="text-white fw-bold mt-1" style="font-size: 0.82rem;"><span class="text-success">ACTIVE</span> <small class="text-muted" style="font-size: 0.72rem;">(Capped at 5% Max Drawdown limit)</small></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END QCI SUBPANE 4 -->
 
         </section>
 
@@ -7827,7 +8016,7 @@
                 { layer: '1. Price Trend', param: 'Scalp & Medium Trend', liveVal: 'BULLISH ↑ (Str: 72)', weight: '15%', rawScore: '+1 (Up)', weightedScore: '+15.0%', signalStatus: '🟢 Trend Harga Naik', signalColor: 'color: #10b981;' },
                 { layer: '2. SnR Structure', param: 'Structural Proximity', liveVal: 'NEAR RESISTANCE (158.30)', weight: '20%', rawScore: '-1 (Ceiling)', weightedScore: '-20.0%', signalStatus: '⚠️ Mentok Dinding Jual', signalColor: 'color: #f59e0b;' },
                 { layer: '3. Order Flow', param: 'Tick Mode Delta (M1–H1)', liveVal: '5/5 BEARISH PRESSURE (-7.8% Delta)', weight: '25%', rawScore: '-1 (Dumping)', weightedScore: '-25.0%', signalStatus: '🔴 Tekanan Jual Nyata', signalColor: 'color: #ef4444;' },
-                { layer: '4. Money Flow', param: 'CMF & Currency Power Gap', liveVal: 'Net Outflow -$340.2M | JPY +82%', weight: '25%', rawScore: '-1 (Outflow)', weightedScore: '-25.0%', signalStatus: '🔴 Modal Institusi Keluar', signalColor: 'color: #ef4444;' },
+                { layer: '4. Money Flow', param: 'COT Net Position & ETF Flow', liveVal: 'COT JPY: +45K Longs | USD ETF: -$1.2B Outflow', weight: '25%', rawScore: '-1 (Outflow)', weightedScore: '-25.0%', signalStatus: '🔴 Distribusi Institusi', signalColor: 'color: #ef4444;' },
                 { layer: '5. Macro & Policy', param: 'Fed-BOJ & 10Y Yield Spread', liveVal: 'US-JP Yield Spread ↓ 3.77% (-8bp)', weight: '15%', rawScore: '-1 (Hawkish BOJ)', weightedScore: '-15.0%', signalStatus: '🔴 Suku Bunga Yen Naik', signalColor: 'color: #ef4444;' }
             ]
         },
@@ -10063,6 +10252,9 @@
         const peAdEl = document.getElementById('pe-adaptive-badge');
         if (peAdEl) peAdEl.textContent = item.peAdaptiveBadge;
 
+        const m3Title = document.getElementById('m3-title-pair');
+        if (m3Title) m3Title.textContent = pairKey;
+
         // Auto-fetch real-time Tick, Volume & Velocity Flow for QCI Matriks 2
         if (typeof loadQCITickVelocityData === 'function') {
             loadQCITickVelocityData(pairKey);
@@ -10142,11 +10334,33 @@
             if (isOff) {
                 domBadge = '<span class="badge bg-secondary bg-opacity-25 text-muted mono">OFF</span>';
             } else if (tBuy > tSell && netVol > 0) {
-                domBadge = '<span class="badge bg-success bg-opacity-25 text-success border border-success mono">🟢 BUY DOMINANT</span>';
+                domBadge = '<div class="d-flex flex-column align-items-center gap-1">' +
+                    '<span class="badge bg-success bg-opacity-25 text-success border border-success mono">🟢 BUY DOMINANT</span>' +
+                    '<span class="badge bg-warning bg-opacity-25 text-warning border border-warning mono" style="font-size: 0.65rem;" title="Retail Exhaustion / Trap Detected">⚠️ Retail Exhaustion / Trap Detected</span>' +
+                '</div>';
             } else if (tSell > tBuy && netVol < 0) {
                 domBadge = '<span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono">🔴 SELL DOMINANT</span>';
             } else {
                 domBadge = '<span class="badge bg-warning bg-opacity-25 text-warning border border-warning mono">⚠️ MIXED FLOW</span>';
+            }
+
+            // Visual separator between Scalping (M1, M5, M15) and Swing (M30, H1, H4)
+            if (r.tf === 'M1') {
+                rowsHtml += `
+                    <tr style="background: rgba(56, 189, 248, 0.08); border-top: 1px solid rgba(56, 189, 248, 0.25);">
+                        <td colspan="11" class="py-1 px-3 mono fw-bold text-cyan" style="font-size: 0.70rem; letter-spacing: 0.8px;">
+                            ⚡ SCALPING HORIZON (M1 &bull; M5 &bull; M15) &mdash; HIGH FREQUENCY INVENTORY
+                        </td>
+                    </tr>
+                `;
+            } else if (r.tf === 'M30') {
+                rowsHtml += `
+                    <tr style="background: rgba(168, 85, 247, 0.08); border-top: 2px solid rgba(168, 85, 247, 0.35);">
+                        <td colspan="11" class="py-1 px-3 mono fw-bold" style="font-size: 0.70rem; letter-spacing: 0.8px; color: #c084fc;">
+                            🌊 SWING &bull; SESSION HORIZON (M30 &bull; H1 &bull; H4) &mdash; INSTITUTIONAL ACCUMULATION/DISTRIBUTION
+                        </td>
+                    </tr>
+                `;
             }
 
             rowsHtml += `
@@ -12513,7 +12727,7 @@
     let currentQciSubTab = 'gauge';
 
     function switchQciSubTab(subTabKey) {
-        const subTabs = ['gauge', 'matrix1', 'matrix2'];
+        const subTabs = ['gauge', 'matrix1', 'matrix2', 'matrix3'];
         if (!subTabs.includes(subTabKey)) subTabKey = 'gauge';
         currentQciSubTab = subTabKey;
 
