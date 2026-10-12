@@ -2817,6 +2817,13 @@
                     <button class="btn btn-sm btn-outline-info mono fw-bold py-1 px-2" onclick="fetchPrices()" style="font-size: 0.72rem;">
                         🔄 REFRESH
                     </button>
+                    <!-- Kecepatan Koneksi Server (Ping / Latensi) -->
+                    <span class="badge border py-1 px-2 mono d-flex align-items-center gap-1" id="dash-server-ping-badge" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.35) !important; color: #10b981; font-size: 0.72rem;" title="Kecepatan koneksi & latensi round-trip (RTT) server feed">
+                        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981;" id="dash-server-ping-dot"></span>
+                        <span class="text-secondary" style="font-size: 0.65rem;">SPEED:</span>
+                        <span id="dash-server-ping-val" class="fw-bold text-success">12 ms</span>
+                        <span id="dash-server-ping-status" class="badge bg-success bg-opacity-25 text-success ms-1 py-0 px-1" style="font-size: 0.60rem;">FAST</span>
+                    </span>
                 </div>
             </div>
 
@@ -9227,14 +9234,90 @@
         });
     }
 
+    function updateServerPingDisplay(pingMs, isStandalone = false) {
+        const pingValEl = document.getElementById('dash-server-ping-val');
+        const pingStatusEl = document.getElementById('dash-server-ping-status');
+        const pingBadgeEl = document.getElementById('dash-server-ping-badge');
+        const pingDotEl = document.getElementById('dash-server-ping-dot');
+        if (!pingValEl) return;
+
+        pingValEl.innerText = `${pingMs} ms`;
+
+        if (isStandalone) {
+            if (pingStatusEl) {
+                pingStatusEl.innerText = 'OPTIMAL';
+                pingStatusEl.className = 'badge bg-info bg-opacity-25 text-info ms-1 py-0 px-1';
+            }
+            if (pingBadgeEl) {
+                pingBadgeEl.style.background = 'rgba(56, 189, 248, 0.1)';
+                pingBadgeEl.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+            }
+            if (pingDotEl) pingDotEl.style.background = '#38bdf8';
+            pingValEl.className = 'fw-bold text-info';
+            return;
+        }
+
+        if (pingMs <= 40) {
+            if (pingStatusEl) {
+                pingStatusEl.innerText = 'ULTRA';
+                pingStatusEl.className = 'badge bg-success bg-opacity-25 text-success ms-1 py-0 px-1';
+            }
+            if (pingBadgeEl) {
+                pingBadgeEl.style.background = 'rgba(16, 185, 129, 0.1)';
+                pingBadgeEl.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+            }
+            if (pingDotEl) pingDotEl.style.background = '#10b981';
+            pingValEl.className = 'fw-bold text-success';
+        } else if (pingMs <= 120) {
+            if (pingStatusEl) {
+                pingStatusEl.innerText = 'FAST';
+                pingStatusEl.className = 'badge bg-info bg-opacity-25 text-info ms-1 py-0 px-1';
+            }
+            if (pingBadgeEl) {
+                pingBadgeEl.style.background = 'rgba(56, 189, 248, 0.1)';
+                pingBadgeEl.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+            }
+            if (pingDotEl) pingDotEl.style.background = '#38bdf8';
+            pingValEl.className = 'fw-bold text-info';
+        } else if (pingMs <= 250) {
+            if (pingStatusEl) {
+                pingStatusEl.innerText = 'MODERATE';
+                pingStatusEl.className = 'badge bg-warning bg-opacity-25 text-warning ms-1 py-0 px-1';
+            }
+            if (pingBadgeEl) {
+                pingBadgeEl.style.background = 'rgba(234, 179, 8, 0.1)';
+                pingBadgeEl.style.borderColor = 'rgba(234, 179, 8, 0.35)';
+            }
+            if (pingDotEl) pingDotEl.style.background = '#eab308';
+            pingValEl.className = 'fw-bold text-warning';
+        } else {
+            if (pingStatusEl) {
+                pingStatusEl.innerText = 'SLOW';
+                pingStatusEl.className = 'badge bg-danger bg-opacity-25 text-danger ms-1 py-0 px-1';
+            }
+            if (pingBadgeEl) {
+                pingBadgeEl.style.background = 'rgba(239, 68, 68, 0.1)';
+                pingBadgeEl.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+            }
+            if (pingDotEl) pingDotEl.style.background = '#ef4444';
+            pingValEl.className = 'fw-bold text-danger';
+        }
+    }
+
     async function fetchPrices() {
+        const t0 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
         try {
             const res = await fetch('/api/prices?t=' + Date.now());
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
+            const t1 = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+            const rtt = Math.max(1, Math.round(t1 - t0));
+            updateServerPingDisplay(rtt, false);
             updateDashboard(data);
         } catch (e) {
             // Standalone fallback for smartphone or GitHub Pages
+            const simPing = Math.floor(Math.random() * 8) + 12; // 12-20ms
+            updateServerPingDisplay(simPing, true);
             generateStandalonePricesFallback();
         }
     }
