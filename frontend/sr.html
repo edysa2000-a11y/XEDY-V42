@@ -1020,8 +1020,8 @@
             font-weight: 800;
         }
 
-        /* FORECAST SUB-TAB BUTTONS */
-        .fc-subtab-btn {
+        /* UNIVERSAL SUB-TAB BUTTONS (FORECAST, PRECISION, MONEYFLOW, QCI, 38 QUESTIONS) */
+        .fc-subtab-btn, .subtab-pill-btn {
             background: #091322;
             border: 1px solid var(--border-bright);
             color: var(--text-muted);
@@ -1036,29 +1036,32 @@
             align-items: center;
             gap: 6px;
         }
-        .fc-subtab-btn:hover {
+        .fc-subtab-btn:hover, .subtab-pill-btn:hover {
             border-color: var(--cyan);
             color: #ffffff;
             background: #11223b;
         }
-        .fc-subtab-btn.active {
+        .fc-subtab-btn.active, .subtab-pill-btn.active {
             background: linear-gradient(135deg, rgba(2, 132, 199, 0.45), rgba(37, 99, 235, 0.4));
             border-color: var(--cyan);
             color: #ffffff;
             box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
             font-weight: 800;
         }
-        body.theme-light .fc-subtab-btn, body.theme-windows-light .fc-subtab-btn, body.theme-paper .fc-subtab-btn {
+        body.theme-light .fc-subtab-btn, body.theme-windows-light .fc-subtab-btn, body.theme-paper .fc-subtab-btn,
+        body.theme-light .subtab-pill-btn, body.theme-windows-light .subtab-pill-btn, body.theme-paper .subtab-pill-btn {
             background: #ffffff;
             border-color: #cbd5e1;
             color: #475569;
         }
-        body.theme-light .fc-subtab-btn:hover, body.theme-windows-light .fc-subtab-btn:hover, body.theme-paper .fc-subtab-btn:hover {
+        body.theme-light .fc-subtab-btn:hover, body.theme-windows-light .fc-subtab-btn:hover, body.theme-paper .fc-subtab-btn:hover,
+        body.theme-light .subtab-pill-btn:hover, body.theme-windows-light .subtab-pill-btn:hover, body.theme-paper .subtab-pill-btn:hover {
             background: #f1f5f9;
             color: #0f172a;
             border-color: #0284c7;
         }
-        body.theme-light .fc-subtab-btn.active, body.theme-windows-light .fc-subtab-btn.active, body.theme-paper .fc-subtab-btn.active {
+        body.theme-light .fc-subtab-btn.active, body.theme-windows-light .fc-subtab-btn.active, body.theme-paper .fc-subtab-btn.active,
+        body.theme-light .subtab-pill-btn.active, body.theme-windows-light .subtab-pill-btn.active, body.theme-paper .subtab-pill-btn.active {
             background: #0284c7;
             color: #ffffff;
             border-color: #0284c7;
@@ -4575,7 +4578,25 @@
         </div>
     </div>
 
-<div class="precision-banner" id="precision-engine-card">
+    <!-- Precision Engine Sub-Tabs Navigation Strip -->
+    <div class="d-flex align-items-center gap-2 p-2 rounded flex-wrap mb-2" style="background: rgba(11, 19, 36, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.35);">
+        <button type="button" class="subtab-pill-btn active mono" id="btn-pe-subtab-setup" onclick="switchPrecisionSubTab('setup')">
+            <span>🎯</span> Setup &amp; Dynamic OP/SL/TP
+        </button>
+        <button type="button" class="subtab-pill-btn mono" id="btn-pe-subtab-snr" onclick="switchPrecisionSubTab('snr')">
+            <span>📊</span> Multi-Horizon SnR &amp; Timeframes
+        </button>
+        <button type="button" class="subtab-pill-btn mono" id="btn-pe-subtab-tick" onclick="switchPrecisionSubTab('tick')">
+            <span>⚡</span> Tick Mode &amp; Basket Order Flow
+        </button>
+        <button type="button" class="subtab-pill-btn mono" id="btn-pe-subtab-macro" onclick="switchPrecisionSubTab('macro')">
+            <span>🏛️</span> Macro, Central Bank &amp; Bond Yields
+        </button>
+    </div>
+
+    <!-- PE SUBPANE 1: SETUP & DYNAMIC OP/SL/TP -->
+    <div id="pe-subpane-setup" class="pe-subpane" style="display: block;">
+        <div class="precision-banner" id="precision-engine-card">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
             <div class="d-flex align-items-center gap-2">
                 <span class="fw-bold text-white mono" style="font-size: 0.85rem; letter-spacing: 0.8px;">🎯 PRECISION TRADING ENGINE (DYNAMIC OP / SL / TP)</span>
@@ -4728,11 +4749,15 @@
         </div>
 
     </div>
+    <!-- END PE SUBPANE 1 -->
+    </div>
 
-    <!-- ================================================== -->
-    <!-- 4. ROW 2: ⚡ SCALPING | 🟡 MEDIUM | 🟢 LONG         -->
-    <!-- ================================================== -->
-    <div class="grid-3col">
+    <!-- PE SUBPANE 2: MULTI-HORIZON SnR & TIMEFRAMES -->
+    <div id="pe-subpane-snr" class="pe-subpane" style="display: none;">
+        <!-- ================================================== -->
+        <!-- 4. ROW 2: ⚡ SCALPING | 🟡 MEDIUM | 🟢 LONG         -->
+        <!-- ================================================== -->
+        <div class="grid-3col">
         
         <!-- SCALPING -->
         <div class="w-box border-r">
@@ -4989,11 +5014,15 @@
             🤖 <b>AI Qwen Audit:</b> AI Qwen mengonfirmasi ketiga horizon SnR valid dengan tingkat akurasi terkalibrasi 94.2%. Seluruh level telah diverifikasi terhadap likuiditas pasar dan profil risiko intervensi makro.
         </div>
     </div>
+    <!-- END PE SUBPANE 2 -->
+    </div>
 
-    <!-- ================================================== -->
-    <!-- 2C. 🎯 TICK MODE (DAILY BASKET PROTOCOL: M1 • M5 • M15 • M30 • H1) -->
-    <!-- ================================================== -->
-    <div class="w-full-banner" id="tick-mode-section" style="border: 1px solid var(--border-bright); background: linear-gradient(180deg, #05101f 0%, #030813 100%);">
+    <!-- PE SUBPANE 3: TICK MODE & BASKET ORDER FLOW -->
+    <div id="pe-subpane-tick" class="pe-subpane" style="display: none;">
+        <!-- ================================================== -->
+        <!-- 2C. 🎯 TICK MODE (DAILY BASKET PROTOCOL: M1 • M5 • M15 • M30 • H1) -->
+        <!-- ================================================== -->
+        <div class="w-full-banner" id="tick-mode-section" style="border: 1px solid var(--border-bright); background: linear-gradient(180deg, #05101f 0%, #030813 100%);">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-2 border-bottom border-dim">
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <span class="fw-bold mono text-white" style="font-size: 0.84rem; letter-spacing: 0.8px;">
@@ -5153,12 +5182,15 @@
             </div>
         </div>
     </div>
+    <!-- END PE SUBPANE 3 -->
+    </div>
 
-
-    <!-- ================================================== -->
-    <!-- 3. ROW 3: FUNDAMENTAL × PRICE DIVERGENCE (FULL)    -->
-    <!-- ================================================== -->
-    <div class="w-full-banner">
+    <!-- PE SUBPANE 4: MACRO, CENTRAL BANK & BOND YIELDS -->
+    <div id="pe-subpane-macro" class="pe-subpane" style="display: none;">
+        <!-- ================================================== -->
+        <!-- 3. ROW 3: FUNDAMENTAL × PRICE DIVERGENCE (FULL)    -->
+        <!-- ================================================== -->
+        <div class="w-full-banner">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
                 <span class="fw-bold text-white mono" style="font-size: 0.82rem; letter-spacing: 0.8px;">⚖️ FUNDAMENTAL × PRICE DIVERGENCE</span>
@@ -5348,6 +5380,8 @@
         </div>
 
     </div>
+    <!-- END PE SUBPANE 4 -->
+    </div>
 
     <!-- ================================================== -->
     <!-- 7B. INSTITUTIONAL MONEY FLOW RADAR (JILLYWOSY PRO) -->
@@ -5392,7 +5426,25 @@
         </div>
     </div>
 
-<div class="trade-monitor-wrapper" id="trade-monitor-section">
+    <!-- Money Flow Radar Sub-Tabs Navigation Strip -->
+    <div class="d-flex align-items-center gap-2 p-2 rounded flex-wrap mb-2" style="background: rgba(11, 19, 36, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.35);">
+        <button type="button" class="subtab-pill-btn active mono" id="btn-mf-subtab-cockpit" onclick="switchMoneyFlowSubTab('cockpit')">
+            <span>🕹️</span> Trade Monitor Cockpit
+        </button>
+        <button type="button" class="subtab-pill-btn mono" id="btn-mf-subtab-global" onclick="switchMoneyFlowSubTab('global')">
+            <span>🌊</span> Global Money Flow &amp; Sankey
+        </button>
+        <button type="button" class="subtab-pill-btn mono" id="btn-mf-subtab-allocation" onclick="switchMoneyFlowSubTab('allocation')">
+            <span>🌎</span> Asset Allocation &amp; Sektoral
+        </button>
+        <button type="button" class="subtab-pill-btn mono" id="btn-mf-subtab-ai" onclick="switchMoneyFlowSubTab('ai')">
+            <span>🧠</span> AI Intelligence &amp; Summary
+        </button>
+    </div>
+
+    <!-- MF SUBPANE 1: TRADE MONITOR COCKPIT -->
+    <div id="mf-subpane-cockpit" class="mf-subpane" style="display: block;">
+        <div class="trade-monitor-wrapper" id="trade-monitor-section">
         <!-- TOP CONTROL BAR -->
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-2 mb-2 border-bottom border-dim">
             <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -5664,17 +5716,12 @@
 
         </div>
     </div>
+    <!-- END MF SUBPANE 1 -->
+    </div>
 
-    <!-- ================================================== -->
-    <!-- 2B. PRECISION TRADING ENGINE (DYNAMIC OP/SL/TP)    -->
-    
-    <!-- ================================================== -->
-    <!-- 2A. QUANTITATIVE CONFLUENCE & TRAP MATRIX (QCI 3.0) -->
-    
-
-    <!-- ================================================== -->
-    
-<div class="mf-container" id="money-flow-radar-section">
+    <!-- MF SUBPANE 2: GLOBAL MONEY FLOW & SANKEY -->
+    <div id="mf-subpane-global" class="mf-subpane" style="display: none;">
+        <div class="mf-container" id="money-flow-radar-section">
         <!-- TOP CONTROLS & TIME-FRAME SWITCHER -->
         <div class="mf-header">
             <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -5834,7 +5881,13 @@
                 </div>
             </div>
         </div>
+    </div>
+    <!-- END MF SUBPANE 2 -->
+    </div>
 
+    <!-- MF SUBPANE 3: ASSET ALLOCATION & SEKTORAL -->
+    <div id="mf-subpane-allocation" class="mf-subpane" style="display: none;">
+        <div class="mf-container" style="border-top: none;">
         <!-- 2-COL: PETA UANG DUNIA & UANG PARKIR vs ROTASI MULTI-TIMEFRAME -->
         <div class="row g-2">
             <!-- PETA UANG DUNIA (WORLD ASSET ALLOCATION) -->
@@ -5998,13 +6051,15 @@
         </div>
 
     </div>
+    <!-- END MF SUBPANE 3 -->
+    </div>
 
-
-
-    <!-- ================================================== -->
-    <!-- 9. ROW 7: 📰 NEWS & SPEECH AI                     -->
-    <!-- ================================================== -->
-    <div class="w-full-banner">
+    <!-- MF SUBPANE 4: AI INTELLIGENCE & SUMMARY -->
+    <div id="mf-subpane-ai" class="mf-subpane" style="display: none;">
+        <!-- ================================================== -->
+        <!-- 9. ROW 7: 📰 NEWS & SPEECH AI                     -->
+        <!-- ================================================== -->
+        <div class="w-full-banner">
         <div class="w-box-header">
             <span>📰 NEWS & SPEECH AI INTELLIGENCE</span>
             <span class="chip text-success">REAL-TIME NLP</span>
@@ -6064,6 +6119,8 @@
                 </div>
             </div>
         </div>
+    </div>
+    <!-- END MF SUBPANE 4 -->
     </div>
 
     <!-- ================================================== -->
@@ -6297,7 +6354,23 @@
                 <h4 style="color: var(--cyan); font-weight: 800; font-family: monospace; margin: 0 0 4px 0;">🤖 QUANTITATIVE CONFLUENCE &amp; TRAP MATRIX (QCI 3.0)</h4>
                 <p style="color: var(--text-muted); font-size: 0.78rem; margin: 0;">Adaptive Bayesian Probability &amp; 5-Layer Institutional Alignment (AI Qwen 3.7 Validated)</p>
             </div>
-<div class="qci-matrix-card" id="qci-matrix-container">
+
+            <!-- QCI 3.0 Sub-Tabs Navigation Strip -->
+            <div class="d-flex align-items-center gap-2 p-2 rounded flex-wrap mb-2" style="background: rgba(11, 19, 36, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.35);">
+                <button type="button" class="subtab-pill-btn active mono" id="btn-qci-subtab-gauge" onclick="switchQciSubTab('gauge')">
+                    <span>⚡</span> QCI 3.0 Confluence &amp; Gauge
+                </button>
+                <button type="button" class="subtab-pill-btn mono" id="btn-qci-subtab-matrix1" onclick="switchQciSubTab('matrix1')">
+                    <span>📊</span> Matriks 1: Multi-Parameter Scoring
+                </button>
+                <button type="button" class="subtab-pill-btn mono" id="btn-qci-subtab-matrix2" onclick="switchQciSubTab('matrix2')">
+                    <span>🌊</span> Matriks 2: Tick, Volume &amp; Velocity (M1-H4)
+                </button>
+            </div>
+
+            <!-- QCI SUBPANE 1: GAUGE & 5-LAYER QUICK CARDS -->
+            <div id="qci-subpane-gauge" class="qci-subpane" style="display: block;">
+                <div class="qci-matrix-card" id="qci-matrix-container">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-1 border-bottom border-dim mb-2">
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <span class="fw-bold mono text-cyan" style="font-size: 0.82rem; letter-spacing: 0.8px;">
@@ -6408,11 +6481,15 @@
                 </div>
             </div>
         </div>
+        <!-- END QCI SUBPANE 1 -->
+        </div>
 
-        <!-- ========================================================================= -->
-        <!-- MATRIKS 1: MATRIKS PEMBOBOTAN MULTI-PARAMETER INSTITUSIONAL (WEIGHTED SCORING) -->
-        <!-- ========================================================================= -->
-        <div class="qci-matrix-card mt-3" id="matriks1-container" style="background: #0b1324; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 14px;">
+        <!-- QCI SUBPANE 2: MATRIKS 1 (MULTI-PARAMETER SCORING) -->
+        <div id="qci-subpane-matrix1" class="qci-subpane" style="display: none;">
+            <!-- ========================================================================= -->
+            <!-- MATRIKS 1: MATRIKS PEMBOBOTAN MULTI-PARAMETER INSTITUSIONAL (WEIGHTED SCORING) -->
+            <!-- ========================================================================= -->
+            <div class="qci-matrix-card mt-3" id="matriks1-container" style="background: #0b1324; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 14px;">
             <!-- 1. Header with Title & Pair Navigation Strip -->
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-2 border-bottom border-dim mb-3">
                 <div>
@@ -6618,11 +6695,15 @@
                 </div>
             </div>
         </div>
+        <!-- END QCI SUBPANE 2 -->
+        </div>
 
-        <!-- ========================================================================= -->
-        <!-- MATRIKS 2: REAL-TIME TICK, VOLUME & VELOCITY FLOW MATRIX (M1 - H4)        -->
-        <!-- ========================================================================= -->
-        <div class="qci-matrix-card mt-3" id="qci-matriks2-container" style="background: #0b1324; border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 8px; padding: 14px;">
+        <!-- QCI SUBPANE 3: MATRIKS 2 (TICK, VOLUME & VELOCITY) -->
+        <div id="qci-subpane-matrix2" class="qci-subpane" style="display: none;">
+            <!-- ========================================================================= -->
+            <!-- MATRIKS 2: REAL-TIME TICK, VOLUME & VELOCITY FLOW MATRIX (M1 - H4)        -->
+            <!-- ========================================================================= -->
+            <div class="qci-matrix-card mt-3" id="qci-matriks2-container" style="background: #0b1324; border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 8px; padding: 14px;">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-2 border-bottom border-dim mb-3">
                 <div>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -6681,6 +6762,10 @@
                 </div>
             </div>
         </div>
+        <!-- END QCI SUBPANE 3 -->
+        </div>
+
+        </section>
 
         <!-- PANE 8: 38 CORE QUESTIONS (FULL COMPONENT) -->
         <section id="pane-narrative" class="subview-pane">
@@ -6688,10 +6773,10 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
             <div class="d-flex align-items-center gap-2">
                 <span class="fw-bold text-white mono" style="font-size: 0.85rem; letter-spacing: 0.8px;">
-                    🏛️ INSTITUTIONAL MACRO NARRATIVE (/nr) & AI QWEN STRATEGIC SUMMARY
+                    📜 38 CORE QUESTIONS &amp; INSTITUTIONAL MACRO NARRATIVE (/q38 &amp; /nr)
                 </span>
                 <span class="badge bg-primary bg-opacity-25 text-info border border-info mono py-1 px-2" id="narrative-pair-badge">PAIR: USDJPY</span>
-                <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2">12 CAUSAL QUESTIONS + SETUP + QWEN 3.7</span>
+                <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2">AI QWEN 3.7 QUANTITATIVE AUDIT</span>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <span class="text-muted mono" style="font-size: 0.70rem;" id="narrative-timestamp">UPDATED: LIVE</span>
@@ -6700,19 +6785,35 @@
             </div>
         </div>
 
-        <!-- 6 Pair Selector Buttons Inside Narrative -->
+        <!-- 4 Pair Selector Buttons Inside Narrative -->
         <div class="narrative-tabs mb-2" id="narrative-pair-tabs">
             <button class="narrative-tab-btn active" id="ntab-USDJPY" onclick="switchNarrativePair('USDJPY')">🇺🇸🇯🇵 USDJPY</button>
             <button class="narrative-tab-btn" id="ntab-XAUUSD" onclick="switchNarrativePair('XAUUSD')">🥇 GOLD (XAUUSD)</button>
             <button class="narrative-tab-btn" id="ntab-EURUSD" onclick="switchNarrativePair('EURUSD')">🇪🇺 EURUSD</button>
             <button class="narrative-tab-btn" id="ntab-GBPUSD" onclick="switchNarrativePair('GBPUSD')">🇬🇧 GBPUSD</button>
-
         </div>
 
-        <!-- Reader Window -->
-        <div class="narrative-reader" id="narrative-reader-box">
+        <!-- Sub-Tabs Navigation Strip for 38 Questions vs Macro Narrative -->
+        <div class="d-flex align-items-center gap-2 p-2 rounded flex-wrap mb-2" style="background: rgba(11, 19, 36, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.35);">
+            <button type="button" class="subtab-pill-btn active mono" id="btn-nr-subtab-q38" onclick="switchNarrativeSubTab('q38')">
+                <span>📜</span> 38 Core Questions (/q38)
+            </button>
+            <button type="button" class="subtab-pill-btn mono" id="btn-nr-subtab-macro" onclick="switchNarrativeSubTab('macro')">
+                <span>🏛️</span> Institutional Macro Narrative (/nr)
+            </button>
+        </div>
+
+        <!-- Reader Window for 38 Core Questions -->
+        <div class="narrative-reader" id="narrative-reader-q38" style="display: block;">
             <div class="text-center text-muted py-4 mono">
-                ⏳ Memuat narasi makro institusional & rangkuman strategis AI Qwen...
+                ⏳ Memuat 38 Pertanyaan Inti (Bagian 1, Bagian 2 &amp; Bagian 3) AI Qwen untuk <b>USDJPY</b>...
+            </div>
+        </div>
+
+        <!-- Reader Window for Macro Narrative -->
+        <div class="narrative-reader" id="narrative-reader-macro" style="display: none;">
+            <div class="text-center text-muted py-4 mono">
+                ⏳ Memuat rangkuman narasi makro institusional AI Qwen...
             </div>
         </div>
     </div>
@@ -6792,18 +6893,22 @@
                 if (d1h4Inner) d1h4Inner.style.display = 'block';
                 if (typeof updateD1H4View === 'function') updateD1H4View(pair);
             } else if (tabKey === 'moneyflow') {
+                if (typeof initMoneyFlowSubTabs === 'function') initMoneyFlowSubTabs();
                 if (typeof renderMoneyFlowRadar === 'function') renderMoneyFlowRadar();
                 if (typeof renderPark === 'function') renderPark();
                 if (typeof renderGSector === 'function') renderGSector();
                 if (typeof updatePairSpotlightFlow === 'function') updatePairSpotlightFlow();
             } else if (tabKey === 'precision') {
+                if (typeof initPrecisionSubTabs === 'function') initPrecisionSubTabs();
                 if (typeof selectPair === 'function') selectPair(pair);
             } else if (tabKey === 'srladder') {
                 if (typeof selectPair === 'function') selectPair(pair);
             } else if (tabKey === 'qci') {
+                if (typeof initQciSubTabs === 'function') initQciSubTabs();
                 if (typeof updateQCIMatrix === 'function') updateQCIMatrix(pair);
                 if (typeof renderM1Matrix === 'function') renderM1Matrix(pair);
             } else if (tabKey === 'narrative') {
+                if (typeof initNarrativeSubTabs === 'function') initNarrativeSubTabs();
                 if (typeof switchNarrativePair === 'function') {
                     const narPair = (typeof currentNarrativePair !== 'undefined' && currentNarrativePair) ? currentNarrativePair : pair;
                     switchNarrativePair(narPair);
@@ -11154,8 +11259,34 @@
     }
 
     // ==========================================================
-    // NARRATIVE ENGINE INTEGRATION (/nr & QWEN SUMMARY)
+    // 📜 38 CORE QUESTIONS & NARRATIVE ENGINE INTEGRATION
     // ==========================================================
+    let currentNarrativeSubTab = 'q38';
+    let questions38LoadedMap = {};
+
+    function switchNarrativeSubTab(subTabKey) {
+        if (!['q38', 'macro'].includes(subTabKey)) subTabKey = 'q38';
+        currentNarrativeSubTab = subTabKey;
+
+        const btnQ38 = document.getElementById('btn-nr-subtab-q38');
+        const btnMacro = document.getElementById('btn-nr-subtab-macro');
+        const boxQ38 = document.getElementById('narrative-reader-q38');
+        const boxMacro = document.getElementById('narrative-reader-macro');
+
+        if (btnQ38) btnQ38.classList.toggle('active', subTabKey === 'q38');
+        if (btnMacro) btnMacro.classList.toggle('active', subTabKey === 'macro');
+
+        if (boxQ38) boxQ38.style.display = (subTabKey === 'q38') ? 'block' : 'none';
+        if (boxMacro) boxMacro.style.display = (subTabKey === 'macro') ? 'block' : 'none';
+
+        try { localStorage.setItem('xedy_nr_subtab', subTabKey); } catch(e) {}
+    }
+
+    function initNarrativeSubTabs() {
+        const saved = localStorage.getItem('xedy_nr_subtab') || 'q38';
+        switchNarrativeSubTab(saved);
+    }
+
     function switchNarrativePair(sym) {
         currentNarrativePair = sym;
         document.querySelectorAll('#narrative-pair-tabs button').forEach(b => {
@@ -11166,12 +11297,17 @@
     }
 
     async function fetchNarrativeForActivePair() {
-        const box = document.getElementById('narrative-reader-box');
+        const boxQ38 = document.getElementById('narrative-reader-q38');
+        const boxMacro = document.getElementById('narrative-reader-macro');
+        const boxOld = document.getElementById('narrative-reader-box');
         const refreshBtn = document.getElementById('btn-refresh-narrative');
-        const sym = currentNarrativePair;
+        const sym = currentNarrativePair || 'USDJPY';
 
-        if (box) {
-            box.innerHTML = `<div class="text-center text-muted py-4 mono">⏳ Mengambil narasi makro institusional & rangkuman AI Qwen untuk <b>${sym}</b>...</div>`;
+        if (boxQ38) {
+            boxQ38.innerHTML = `<div class="text-center text-muted py-4 mono">⏳ Mengambil 38 Pertanyaan Inti (Bagian 1, 2, 3) AI Qwen untuk <b>${sym}</b>...</div>`;
+        }
+        if (boxMacro) {
+            boxMacro.innerHTML = `<div class="text-center text-muted py-4 mono">⏳ Mengambil rangkuman narasi makro institusional untuk <b>${sym}</b>...</div>`;
         }
         if (refreshBtn) refreshBtn.disabled = true;
 
@@ -11179,28 +11315,38 @@
             const res = await fetch(`/api/narrative?pair=${sym}&t=${Date.now()}`);
             if (res.ok) {
                 const j = await res.json();
+                if (j.questions_38) {
+                    questions38LoadedMap[sym] = j.questions_38;
+                    if (boxQ38) boxQ38.innerHTML = j.questions_38;
+                }
                 if (j.narrative) {
                     narrativeLoadedMap[sym] = j.narrative;
-                    if (box) box.innerHTML = j.narrative;
-                    if (j.timestamp) setText('narrative-timestamp', `UPDATED: ${j.timestamp}`);
-                    return;
+                    if (boxMacro) boxMacro.innerHTML = j.narrative;
+                    if (boxOld) boxOld.innerHTML = j.narrative;
                 }
+                if (j.timestamp) setText('narrative-timestamp', `UPDATED: ${j.timestamp}`);
+                return;
             }
-            if (box) box.innerHTML = `<div class="text-danger mono">⚠️ Gagal memuat narasi untuk ${sym}.</div>`;
+            if (boxQ38) boxQ38.innerHTML = `<div class="text-danger mono">⚠️ Gagal memuat 38 pertanyaan untuk ${sym}.</div>`;
+            if (boxMacro) boxMacro.innerHTML = `<div class="text-danger mono">⚠️ Gagal memuat narasi untuk ${sym}.</div>`;
         } catch (e) {
             console.error('Fetch narrative error:', e);
-            if (box) box.innerHTML = `<div class="text-danger mono">⚠️ Error koneksi: ${e.message}</div>`;
+            if (boxQ38) boxQ38.innerHTML = `<div class="text-danger mono">⚠️ Error koneksi: ${e.message}</div>`;
+            if (boxMacro) boxMacro.innerHTML = `<div class="text-danger mono">⚠️ Error koneksi: ${e.message}</div>`;
         } finally {
             if (refreshBtn) refreshBtn.disabled = false;
         }
     }
 
     function copyNarrativeText() {
-        const box = document.getElementById('narrative-reader-box');
-        if (!box) return;
-        const text = box.innerText;
+        const activeBox = (currentNarrativeSubTab === 'macro')
+            ? document.getElementById('narrative-reader-macro')
+            : (document.getElementById('narrative-reader-q38') || document.getElementById('narrative-reader-box'));
+        if (!activeBox) return;
+        const text = activeBox.innerText;
         navigator.clipboard.writeText(text).then(() => {
-            alert(`✅ Narasi ${currentNarrativePair} berhasil disalin ke clipboard!`);
+            const label = currentNarrativeSubTab === 'macro' ? 'Narasi Makro (/nr)' : '38 Core Questions (/q38)';
+            alert(`✅ ${label} ${currentNarrativePair} berhasil disalin ke clipboard!`);
         }).catch(err => {
             console.error('Copy failed:', err);
         });
@@ -11613,6 +11759,81 @@
     function initForecastSubTabs() {
         const saved = localStorage.getItem('xedy_fc_subtab') || 'live';
         switchForecastSubTab(saved);
+    }
+
+    // ==========================================================
+    // 🎯 PRECISION ENGINE SUB-TABS NAVIGATION CONTROLLER
+    // ==========================================================
+    let currentPrecisionSubTab = 'setup';
+
+    function switchPrecisionSubTab(subTabKey) {
+        const subTabs = ['setup', 'snr', 'tick', 'macro'];
+        if (!subTabs.includes(subTabKey)) subTabKey = 'setup';
+        currentPrecisionSubTab = subTabKey;
+
+        subTabs.forEach(key => {
+            const btn = document.getElementById('btn-pe-subtab-' + key);
+            if (btn) btn.classList.toggle('active', key === subTabKey);
+            const pane = document.getElementById('pe-subpane-' + key);
+            if (pane) pane.style.display = (key === subTabKey) ? 'block' : 'none';
+        });
+
+        try { localStorage.setItem('xedy_pe_subtab', subTabKey); } catch(e) {}
+    }
+
+    function initPrecisionSubTabs() {
+        const saved = localStorage.getItem('xedy_pe_subtab') || 'setup';
+        switchPrecisionSubTab(saved);
+    }
+
+    // ==========================================================
+    // 🌊 MONEY FLOW RADAR SUB-TABS NAVIGATION CONTROLLER
+    // ==========================================================
+    let currentMoneyFlowSubTab = 'cockpit';
+
+    function switchMoneyFlowSubTab(subTabKey) {
+        const subTabs = ['cockpit', 'global', 'allocation', 'ai'];
+        if (!subTabs.includes(subTabKey)) subTabKey = 'cockpit';
+        currentMoneyFlowSubTab = subTabKey;
+
+        subTabs.forEach(key => {
+            const btn = document.getElementById('btn-mf-subtab-' + key);
+            if (btn) btn.classList.toggle('active', key === subTabKey);
+            const pane = document.getElementById('mf-subpane-' + key);
+            if (pane) pane.style.display = (key === subTabKey) ? 'block' : 'none';
+        });
+
+        try { localStorage.setItem('xedy_mf_subtab', subTabKey); } catch(e) {}
+    }
+
+    function initMoneyFlowSubTabs() {
+        const saved = localStorage.getItem('xedy_mf_subtab') || 'cockpit';
+        switchMoneyFlowSubTab(saved);
+    }
+
+    // ==========================================================
+    // 🤖 QWEN AI & QCI 3.0 SUB-TABS NAVIGATION CONTROLLER
+    // ==========================================================
+    let currentQciSubTab = 'gauge';
+
+    function switchQciSubTab(subTabKey) {
+        const subTabs = ['gauge', 'matrix1', 'matrix2'];
+        if (!subTabs.includes(subTabKey)) subTabKey = 'gauge';
+        currentQciSubTab = subTabKey;
+
+        subTabs.forEach(key => {
+            const btn = document.getElementById('btn-qci-subtab-' + key);
+            if (btn) btn.classList.toggle('active', key === subTabKey);
+            const pane = document.getElementById('qci-subpane-' + key);
+            if (pane) pane.style.display = (key === subTabKey) ? 'block' : 'none';
+        });
+
+        try { localStorage.setItem('xedy_qci_subtab', subTabKey); } catch(e) {}
+    }
+
+    function initQciSubTabs() {
+        const saved = localStorage.getItem('xedy_qci_subtab') || 'gauge';
+        switchQciSubTab(saved);
     }
 
     async function loadForecastData(targetPair) {

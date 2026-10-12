@@ -505,6 +505,24 @@ def get_cached_narrative(sym):
     except Exception as e:
         return f"Gagal menghasilkan narasi {sym}: {e}"
 
+# Cache for 38 Core Questions
+QUESTIONS_38_CACHE = {}
+QUESTIONS_38_EXPIRY = {}
+
+def get_cached_38_questions(sym):
+    now = time.time()
+    if sym in QUESTIONS_38_CACHE and (now - QUESTIONS_38_EXPIRY.get(sym, 0) < 60):
+        return QUESTIONS_38_CACHE[sym]
+    try:
+        from backend.telegram.narrative_engine import build_38_questions_text
+        parts = build_38_questions_text(sym)
+        joined = "\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n".join(parts)
+        QUESTIONS_38_CACHE[sym] = joined
+        QUESTIONS_38_EXPIRY[sym] = now
+        return joined
+    except Exception as e:
+        return f"Gagal menghasilkan 38 pertanyaan {sym}: {e}"
+
 # Money Flow Radar Cache
 MONEY_FLOW_CACHE = {}
 LAST_MONEY_FLOW_FETCH = 0
@@ -1942,12 +1960,14 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
             sym = qs.get('pair', ['USDJPY'])[0].upper()
             nar_text = get_cached_narrative(sym)
+            q38_text = get_cached_38_questions(sym)
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
             resp_payload = {
                 "pair": sym,
                 "narrative": nar_text,
+                "questions_38": q38_text,
                 "timestamp": time.strftime("%H:%M:%S WIB")
             }
             self.wfile.write(json.dumps(resp_payload, ensure_ascii=False).encode('utf-8'))
