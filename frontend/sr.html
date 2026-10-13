@@ -13055,15 +13055,34 @@
 
         const fcObj = {};
         let totalErr = 0;
+        window._frozenH4ClientForecast = window._frozenH4ClientForecast || {};
+        const h4BarSlot = Math.floor(now.getTime() / (4 * 3600 * 1000));
+
         ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD'].forEach(sym => {
             const cfg = pairCfg[sym];
             const live = st[sym] || {};
-            const curP = live.price || (sym === 'USDJPY' ? 158.62 : (sym === 'XAUUSD' ? 4172.0 : (sym === 'EURUSD' ? 1.1178 : 1.3232)));
-            const openP = live.open || (curP - cfg.openDelta);
-            const lowP = live.low || (openP - cfg.lowDelta);
-            const highP = live.high || (openP + cfg.highDelta);
-            const fcLow = Number((openP - cfg.lowDelta).toFixed(cfg.digits));
-            const fcHigh = Number((openP + cfg.highDelta).toFixed(cfg.digits));
+            const curP = live.price || (sym === 'USDJPY' ? 158.285 : (sym === 'XAUUSD' ? 4195.0 : (sym === 'EURUSD' ? 1.1171 : 1.3216)));
+
+            const slotKey = `${sym}_${h4BarSlot}`;
+            let cached = window._frozenH4ClientForecast[slotKey];
+            if (!cached) {
+                const initialOpen = live.open || curP;
+                const lockedLow = Number((initialOpen - cfg.lowDelta).toFixed(cfg.digits));
+                const lockedHigh = Number((initialOpen + cfg.highDelta).toFixed(cfg.digits));
+                cached = {
+                    open: Number(initialOpen.toFixed(cfg.digits)),
+                    fcLow: lockedLow,
+                    fcHigh: lockedHigh
+                };
+                window._frozenH4ClientForecast[slotKey] = cached;
+            }
+
+            const openP = cached.open;
+            const fcLow = cached.fcLow;
+            const fcHigh = cached.fcHigh;
+            const lowP = live.low || Math.min(openP, curP);
+            const highP = live.high || Math.max(openP, curP);
+
             const errH = Math.abs(fcHigh - highP);
             const errL = Math.abs(fcLow - lowP);
             const errHPips = Math.round(errH * cfg.mult * 10) / 10;

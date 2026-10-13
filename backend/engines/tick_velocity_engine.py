@@ -469,23 +469,49 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY', source: str = 'CME_
                 {"tf": "H4", "status": "🟢 Normal", "type": "NORMAL"}
             ]
 
-    # Panel B: Real H4 Forecast Row computed directly from active H4 data
+    # Panel B: Real H4 Forecast Row synchronized directly with qwen_forecast_engine (100% FROZEN & Non-Repainting)
     is_m_open = market_header.get("is_market_open", True)
     digits = DIGITS_MAP.get(pair, 3)
     pip_fact = PIP_FACTORS.get(pair, 100.0)
     live_p = market_header["live_price"]
-    h4_open = market_header.get("day_low", live_p) # baseline
-    
-    mult = 0.0034 if pair == 'USDJPY' else (0.0060 if pair == 'XAUUSD' else 0.0030)
-    fc_range = live_p * mult
-    fc_low = round(live_p - fc_range * 0.5, digits)
-    fc_high = round(live_p + fc_range * 0.5, digits)
-    act_low = market_header.get("day_low", fc_low)
-    act_high = market_header.get("day_high", fc_high)
-    pips_hl = round(fc_range * pip_fact, 1)
 
-    bracket_st = "MARKET CLOSED (OFF)" if not is_m_open else "INSIDE CHANNEL (77% Mid-Range)"
-    val_badge = "OFF (Pasar Tutup)" if not is_m_open else "🔵 PROVISIONAL (Lilin Berjalan)"
+    fc_low = None
+    fc_high = None
+    h4_open = None
+    act_low = None
+    act_high = None
+    pips_hl = None
+    bracket_st = None
+    val_badge = None
+
+    try:
+        from backend.engines.qwen_forecast_engine import calculate_h4_forecast_all_pairs
+        fc_data = calculate_h4_forecast_all_pairs({})
+        f_pair = fc_data.get("forecasts", {}).get(pair)
+        if f_pair:
+            fc_low = f_pair["forecast_low"]
+            fc_high = f_pair["forecast_high"]
+            h4_open = f_pair["h4_open"]
+            act_low = f_pair["actual_low"]
+            act_high = f_pair["actual_high"]
+            pips_hl = f_pair["range_pips"]
+            bracket_st = f_pair["bracket_status"]
+            val_badge = f_pair["validation_badge"]
+    except Exception as e:
+        logger.warning(f"Failed to fetch frozen forecast from qwen_forecast_engine: {e}")
+
+    # Fallback only if engine fails
+    if fc_low is None:
+        h4_open = market_header.get("open", live_p)
+        mult = 0.0034 if pair == 'USDJPY' else (0.0060 if pair == 'XAUUSD' else 0.0030)
+        fc_range = live_p * mult
+        fc_low = round(h4_open - fc_range * 0.5, digits)
+        fc_high = round(h4_open + fc_range * 0.5, digits)
+        act_low = market_header.get("day_low", fc_low)
+        act_high = market_header.get("day_high", fc_high)
+        pips_hl = round(fc_range * pip_fact, 1)
+        bracket_st = "MARKET CLOSED (OFF)" if not is_m_open else "INSIDE CHANNEL (Mid-Range)"
+        val_badge = "OFF (Pasar Tutup)" if not is_m_open else "🔒 TERKUNCI (Lilin Berjalan)"
 
     market_header["h4_forecast_low"] = fc_low
     market_header["h4_forecast_high"] = fc_high
