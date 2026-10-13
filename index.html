@@ -3052,8 +3052,8 @@
                     </div>
 
                     <!-- 2. SELISIH TICK BUY / SELL (30 MENIT) - MAXIMIZED CHART -->
-                    <div class="p-1 px-1.5 rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
-                        <div class="d-flex justify-content-between align-items-center mb-0.5">
+                    <div class="p-1 px-1.5 rounded d-flex flex-column justify-content-between flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35); flex: 1 1 0; min-height: 0; overflow: hidden;">
+                        <div class="d-flex justify-content-between align-items-center mb-0.5 flex-shrink-0">
                             <div class="d-flex align-items-center gap-1">
                                 <span class="badge py-0 px-1" style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid #00f0ff; font-size: 0.66rem; font-weight: 800;">⚡ SELISIH TICK</span>
                                 <span class="fw-bold text-light" style="font-size: 0.74rem;">M1 (30M RANGE)</span>
@@ -3068,11 +3068,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="position-relative" style="width: 100%; height: 96px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(0,240,255,0.2); overflow: hidden;">
-                            <canvas id="canvas-tick-delta" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
+                        <div class="position-relative flex-grow-1 my-0.5" style="width: 100%; min-height: 50px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(0,240,255,0.2); overflow: hidden;">
+                            <canvas id="canvas-tick-delta" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
                             <div id="tdelta-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #00f0ff; border-radius: 4px; padding: 4px 8px; font-size: 0.62rem; color: #fff; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 140px;"></div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center text-secondary mt-0.5" style="font-size: 0.62rem;">
+                        <div class="d-flex justify-content-between align-items-center text-secondary mt-0.5 flex-shrink-0" style="font-size: 0.62rem;">
                             <span id="td-tdelta-bias" class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.60rem; font-weight: 700;">🟢 BUY ABSORPTION</span>
                             <span>Ratio: <b class="text-cyan" id="td-tdelta-ratio" style="font-size: 0.70rem; font-weight: 700;">64.2% / 35.8%</b></span>
                             <span class="text-info" style="font-size: 0.60rem;">Window: 30m</span>
@@ -3080,8 +3080,8 @@
                     </div>
 
                     <!-- 3. SELISIH VOLUME BUY / SELL (30 MENIT) - MAXIMIZED CHART -->
-                    <div class="p-1 px-1.5 rounded" style="background: #0B1B30; border: 1px solid rgba(250, 204, 21, 0.35);">
-                        <div class="d-flex justify-content-between align-items-center mb-0.5">
+                    <div class="p-1 px-1.5 rounded d-flex flex-column justify-content-between flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(250, 204, 21, 0.35); flex: 1 1 0; min-height: 0; overflow: hidden;">
+                        <div class="d-flex justify-content-between align-items-center mb-0.5 flex-shrink-0">
                             <div class="d-flex align-items-center gap-1">
                                 <span class="badge py-0 px-1" style="background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid #facc15; font-size: 0.66rem; font-weight: 800;">📊 SELISIH VOLUME</span>
                                 <span class="fw-bold text-light" style="font-size: 0.74rem;">M1 (30M RANGE)</span>
@@ -3096,11 +3096,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="position-relative" style="width: 100%; height: 96px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(250,204,21,0.2); overflow: hidden;">
-                            <canvas id="canvas-vol-delta" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
+                        <div class="position-relative flex-grow-1 my-0.5" style="width: 100%; min-height: 50px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(250,204,21,0.2); overflow: hidden;">
+                            <canvas id="canvas-vol-delta" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
                             <div id="vdelta-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #facc15; border-radius: 4px; padding: 4px 8px; font-size: 0.62rem; color: #fff; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 140px;"></div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center text-secondary mt-0.5" style="font-size: 0.62rem;">
+                        <div class="d-flex justify-content-between align-items-center text-secondary mt-0.5 flex-shrink-0" style="font-size: 0.62rem;">
                             <span id="td-vdelta-bias" class="badge bg-warning bg-opacity-25 text-warning py-0 px-1" style="font-size: 0.60rem; font-weight: 700;">🟢 WHALE INFLOW</span>
                             <span>Vol Ratio: <b class="text-warning" id="td-vdelta-ratio" style="font-size: 0.70rem; font-weight: 700;">68.5% / 31.5%</b></span>
                             <span class="text-warning" style="font-size: 0.60rem;">CME / ECN Contracts</span>
@@ -3108,8 +3108,8 @@
                     </div>
 
                     <!-- 4. SELISIH VELOCITY BUY / SELL (30 MENIT) - MAXIMIZED CHART -->
-                    <div class="p-1 px-1.5 rounded" style="background: #0B1B30; border: 1px solid rgba(168, 85, 247, 0.35);">
-                        <div class="d-flex justify-content-between align-items-center mb-0.5">
+                    <div class="p-1 px-1.5 rounded d-flex flex-column justify-content-between flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(168, 85, 247, 0.35); flex: 1 1 0; min-height: 0; overflow: hidden;">
+                        <div class="d-flex justify-content-between align-items-center mb-0.5 flex-shrink-0">
                             <div class="d-flex align-items-center gap-1">
                                 <span class="badge py-0 px-1" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid #c084fc; font-size: 0.66rem; font-weight: 800;">🚀 SELISIH VELOCITY</span>
                                 <span class="fw-bold text-light" style="font-size: 0.74rem;">M1 SPEED (30M)</span>
@@ -3124,11 +3124,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="position-relative" style="width: 100%; height: 96px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(168,85,247,0.2); overflow: hidden;">
-                            <canvas id="canvas-vel-delta" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
+                        <div class="position-relative flex-grow-1 my-0.5" style="width: 100%; min-height: 50px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(168,85,247,0.2); overflow: hidden;">
+                            <canvas id="canvas-vel-delta" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
                             <div id="veldelta-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #c084fc; border-radius: 4px; padding: 4px 8px; font-size: 0.62rem; color: #fff; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 140px;"></div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center text-secondary mt-0.5" style="font-size: 0.62rem;">
+                        <div class="d-flex justify-content-between align-items-center text-secondary mt-0.5 flex-shrink-0" style="font-size: 0.62rem;">
                             <span id="td-veldelta-bias" class="badge bg-info bg-opacity-25 text-info py-0 px-1" style="font-size: 0.60rem; font-weight: 700;">⚡ SUPER ACCELERATION</span>
                             <span>Peak: <b class="text-cyan" id="td-veldelta-peak" style="font-size: 0.70rem; font-weight: 700;">22.8 ticks/s</b></span>
                             <span class="text-info" style="font-size: 0.60rem;">Speed Index</span>
@@ -3143,9 +3143,9 @@
                 <div class="col-12 col-xl-6 d-flex flex-column justify-content-start h-100" style="min-height: 0; overflow: hidden; gap: 1px !important;">
                     
                     <!-- Row A: BUY LIMIT & SELL LIMIT EXECUTION (2 Cards) -->
-                    <div class="row g-1">
+                    <div class="row g-1 mb-0 flex-grow-1" style="flex: 1 1 0; min-height: 0;">
                         <!-- Column 1: BUY LIMIT - S1 -->
-                        <div class="col-6">
+                        <div class="col-6 h-100">
                             <div class="rounded p-1.5 h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1.5px solid rgba(16, 185, 129, 0.45); box-shadow: 0 0 10px rgba(16, 185, 129, 0.08);">
                                 <div class="px-1.5 py-0.5 fw-bold text-success d-flex align-items-center gap-1 rounded" style="background: rgba(16, 185, 129, 0.12); font-size: 0.82rem; border-bottom: 1px solid rgba(16, 185, 129, 0.25);">
                                     <span>▲</span> BUY LIMIT - S1
@@ -3180,7 +3180,7 @@
                         </div>
 
                         <!-- Column 2: SELL LIMIT - R1 -->
-                        <div class="col-6">
+                        <div class="col-6 h-100">
                             <div class="rounded p-1.5 h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1.5px solid rgba(244, 63, 94, 0.45); box-shadow: 0 0 10px rgba(244, 63, 94, 0.08);">
                                 <div class="px-1.5 py-0.5 fw-bold text-danger d-flex align-items-center gap-1 rounded" style="background: rgba(244, 63, 94, 0.12); font-size: 0.82rem; border-bottom: 1px solid rgba(244, 63, 94, 0.25);">
                                     <span>▼</span> SELL LIMIT - R1
@@ -3216,9 +3216,9 @@
                     </div>
 
                     <!-- Row B: LEVEL HARGA • SNR & PROBABILITY & SIGNAL (2 Cards) -->
-                    <div class="row g-1">
+                    <div class="row g-1 mb-0 flex-grow-1" style="flex: 1 1 0; min-height: 0;">
                         <!-- Column 1: LEVEL HARGA • SNR... -->
-                        <div class="col-6">
+                        <div class="col-6 h-100">
                             <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
                                 <div class="d-flex justify-content-between align-items-center mb-0.5">
                                     <span class="fw-bold text-light" style="font-size: 0.76rem;">LEVEL HARGA • SNR</span>
@@ -3264,7 +3264,7 @@
                         </div>
 
                         <!-- Column 2: PROBABILITY & SIGNAL -->
-                        <div class="col-6">
+                        <div class="col-6 h-100">
                             <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
                                 <div class="fw-bold text-light mb-0.5" style="font-size: 0.76rem;">PROBABILITY &amp; SIGNAL</div>
                                 <div class="row g-1 mb-0.5 text-center">
@@ -3290,9 +3290,9 @@
                     </div>
 
                     <!-- Row C: TICK/VOLUME M5 & ECONOMIC CALENDAR (2 Cards) -->
-                    <div class="row g-1">
+                    <div class="row g-1 mb-0 flex-grow-1" style="flex: 1 1 0; min-height: 0;">
                         <!-- Card 1: TICK & VOLUME • M5 -->
-                        <div class="col-6">
+                        <div class="col-6 h-100">
                             <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
                                 <div class="d-flex justify-content-between align-items-center mb-0.5">
                                     <span class="fw-bold text-light" style="font-size: 0.74rem;">TICK &amp; VOLUME M5</span>
@@ -3322,13 +3322,13 @@
                         </div>
 
                         <!-- Card 2: ECONOMIC CALENDAR -->
-                        <div class="col-6">
+                        <div class="col-6 h-100">
                             <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
                                 <div class="d-flex justify-content-between align-items-center mb-0.5">
                                     <span class="fw-bold text-light" style="font-size: 0.74rem;">ECONOMIC CALENDAR</span>
                                     <span class="badge bg-success bg-opacity-25 text-success mono py-0 px-1" id="td-econ-badge" style="font-size: 0.58rem; font-weight: 700;">🟢 SAFE</span>
                                 </div>
-                                <div id="td-econ-list" class="d-flex flex-column gap-0.5 overflow-hidden" style="max-height: 48px; font-size: 0.62rem;">
+                                <div id="td-econ-list" class="d-flex flex-column gap-0.5 overflow-hidden flex-grow-1" style="max-height: 80px; font-size: 0.62rem;">
                                     <!-- Dynamic events loaded via updateTradeDeskView -->
                                 </div>
                             </div>
@@ -3336,9 +3336,9 @@
                     </div>
 
                     <!-- Row D: MONEY FLOW RADAR & BYI CORRELATION (2 Cards) -->
-                    <div class="row g-1">
+                    <div class="row g-1 mb-0 flex-grow-1" style="flex: 1 1 0; min-height: 0;">
                         <!-- Card 1: MONEY FLOW RADAR -->
-                        <div class="col-6">
+                        <div class="col-6 h-100">
                             <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
                                 <div class="d-flex justify-content-between align-items-center mb-0.5">
                                     <span class="fw-bold text-light" style="font-size: 0.74rem;">MONEY FLOW RADAR</span>
@@ -3374,7 +3374,7 @@
                         </div>
 
                         <!-- Card 2: BOND, YIELD, INDEX (BYI) -->
-                        <div class="col-6">
+                        <div class="col-6 h-100">
                             <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
                                 <div class="fw-bold text-light mb-0.5" style="font-size: 0.74rem;">BOND, YIELD, INDEX (BYI)</div>
                                 <div class="row g-1" style="font-size: 0.64rem;">
@@ -9117,6 +9117,11 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         window.addEventListener('resize', () => {
             renderTickDeltaCanvas(currentTradePair || 'USDJPY');
         });
+        if (window.ResizeObserver && canvas.parentElement) {
+            new ResizeObserver(() => {
+                renderTickDeltaCanvas(currentTradePair || 'USDJPY');
+            }).observe(canvas.parentElement);
+        }
     }
 
     // =========================================================================
@@ -9560,6 +9565,11 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         window.addEventListener('resize', () => {
             renderVolDeltaCanvas(currentTradePair || 'USDJPY');
         });
+        if (window.ResizeObserver && canvas.parentElement) {
+            new ResizeObserver(() => {
+                renderVolDeltaCanvas(currentTradePair || 'USDJPY');
+            }).observe(canvas.parentElement);
+        }
     }
 
     // =========================================================================
@@ -9999,6 +10009,11 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         window.addEventListener('resize', () => {
             renderVelDeltaCanvas(currentTradePair || 'USDJPY');
         });
+        if (window.ResizeObserver && canvas.parentElement) {
+            new ResizeObserver(() => {
+                renderVelDeltaCanvas(currentTradePair || 'USDJPY');
+            }).observe(canvas.parentElement);
+        }
     }
 
     // Auto streaming loop for 30m microstructure (Tick, Volume, Velocity): updates every 1.5s
