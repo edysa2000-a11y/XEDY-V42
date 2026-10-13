@@ -484,6 +484,7 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY', source: str = 'CME_
     bracket_st = None
     val_badge = None
 
+    jam_wib_str = "17:00"
     try:
         from backend.engines.qwen_forecast_engine import calculate_h4_forecast_all_pairs
         fc_data = calculate_h4_forecast_all_pairs({})
@@ -497,6 +498,20 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY', source: str = 'CME_
             pips_hl = f_pair["range_pips"]
             bracket_st = f_pair["bracket_status"]
             val_badge = f_pair["validation_badge"]
+
+        cycle_inf = fc_data.get("cycle_info", {})
+        act_slot = cycle_inf.get("active_slot", {})
+        start_h = act_slot.get("start_h")
+        if start_h is not None:
+            jam_wib_str = f"{start_h:02d}:00"
+        else:
+            curr_h = now_wib.hour
+            if 5 <= curr_h < 9: jam_wib_str = "05:00"
+            elif 9 <= curr_h < 13: jam_wib_str = "09:00"
+            elif 13 <= curr_h < 17: jam_wib_str = "13:00"
+            elif 17 <= curr_h < 21: jam_wib_str = "17:00"
+            elif curr_h >= 21 or curr_h < 1: jam_wib_str = "21:00"
+            else: jam_wib_str = "01:00"
     except Exception as e:
         logger.warning(f"Failed to fetch frozen forecast from qwen_forecast_engine: {e}")
 
@@ -518,7 +533,7 @@ def analyze_tick_velocity_intelligence(pair: str = 'USDJPY', source: str = 'CME_
     market_header["h4_range_pips"] = pips_hl
 
     forecast_panel_b = {
-        "jam_wib": now_wib.strftime("%H:00"),
+        "jam_wib": jam_wib_str,
         "h4_open": h4_open,
         "live_price": live_p,
         "forecast_low": fc_low,
