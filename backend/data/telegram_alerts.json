@@ -25,7 +25,7 @@
     "op": 1.122,
     "tp": 1.116,
     "direction": "SELL BREAKOUT",
-    "op_triggered": false,
+    "op_triggered": true,
     "tp_triggered": false,
     "note": "Downtrend Continuation"
   },
