@@ -3013,472 +3013,468 @@
                 </div>
             </div>
 
-            <!-- 3. Row 2: Sub-Metrics & Forecast Range (4 Cards) -->
+            <!-- 3. MASTER 2-COLUMN SPLIT DESK (50% LEFT: ORDER FLOW & MICROSTRUCTURE | 50% RIGHT: EXECUTION & MACRO CONFLUENCE) -->
             <div class="row g-2 mono">
-                <!-- Card 1: FORECAST H4 -->
-                <div class="col-12 col-md-6 col-lg-3">
-                    <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                        <div class="text-secondary small mb-1" style="font-size: 0.65rem;">FORECAST H4</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-secondary small" style="font-size: 0.62rem;">FORECAST LOW</span>
-                                <div class="fw-bold text-light" id="td-fc-low" style="font-size: 1.15rem;">157.676</div>
-                            </div>
-                            <span class="text-secondary">•</span>
-                            <div class="text-end">
-                                <span class="text-secondary small" style="font-size: 0.62rem;">HIGH</span>
-                                <div class="fw-bold text-light" id="td-fc-high" style="font-size: 1.15rem;">157.945</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 2: H4 CANDLE LIVE -->
-                <div class="col-12 col-md-6 col-lg-3">
-                    <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                        <div class="text-secondary small mb-1" style="font-size: 0.65rem;">H4 CANDLE LIVE</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-secondary small" style="font-size: 0.62rem;">LOW</span>
-                                <div class="fw-bold text-light" id="td-live-low" style="font-size: 1.15rem;">157.851</div>
-                            </div>
-                            <span class="text-secondary">•</span>
-                            <div class="text-end">
-                                <span class="text-secondary small" style="font-size: 0.62rem;">HIGH</span>
-                                <div class="fw-bold text-light" id="td-live-high" style="font-size: 1.15rem;">158.196</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 3: RANGE H4 -->
-                <div class="col-12 col-md-6 col-lg-2">
-                    <div class="p-2 rounded h-100 text-center d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                        <div class="text-secondary small text-start" style="font-size: 0.65rem;">RANGE H4</div>
-                        <div class="fw-bold text-light" id="td-range-h4" style="font-size: 1.35rem;">34.5</div>
-                    </div>
-                </div>
-
-                <!-- Card 4: POSISI HARGA (Gauge Bar) -->
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="p-2 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-secondary small" style="font-size: 0.65rem;">POSISI HARGA</span>
-                            <span class="fw-bold text-light" id="td-gauge-val" style="font-size: 0.95rem;">158.104</span>
-                        </div>
-                        <div class="position-relative mt-2 mb-1" style="padding-top: 10px;">
-                            <!-- Pointer Pin -->
-                            <div id="td-gauge-pin" style="position: absolute; top: -6px; left: 75%; transform: translateX(-50%); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #10b981; transition: left 0.4s ease;"></div>
-                            <!-- Bar Track -->
-                            <div class="position-relative rounded-pill" style="height: 6px; background: rgba(255,255,255,0.1); overflow: hidden;">
-                                <div id="td-gauge-fill" style="width: 75%; height: 100%; background: #10b981; transition: width 0.4s ease;"></div>
-                            </div>
-                            <!-- Tick Marks -->
-                            <div class="d-flex justify-content-between text-secondary" style="font-size: 0.55rem; margin-top: 3px; letter-spacing: 2px;">
-                                <span>|</span><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. Row 3: Middle Main Trading Execution Row (4 Cards) -->
-            <div class="row g-2 mono">
-                <!-- Column 1: BUY LIMIT - S1 -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="rounded h-100 d-flex flex-column justify-content-between overflow-hidden" style="background: #0B1B30; border: 1.5px solid rgba(16, 185, 129, 0.45); box-shadow: 0 0 15px rgba(16, 185, 129, 0.08);">
-                        <div class="px-3 py-2 fw-bold text-success d-flex align-items-center gap-1" style="background: rgba(16, 185, 129, 0.12); font-size: 0.85rem; border-bottom: 1px solid rgba(16, 185, 129, 0.25);">
-                            <span>▲</span> BUY LIMIT - S1
-                        </div>
-                        <div class="p-3 d-flex flex-column gap-2" style="font-size: 0.85rem;">
-                            <div class="d-flex justify-content-between">
-                                <span class="text-secondary">ENTRY</span>
-                                <span class="fw-bold text-success" id="td-buy-entry">157.658</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-secondary">SL</span>
-                                <span class="fw-bold text-success" id="td-buy-sl">157.464</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-secondary">TP1</span>
-                                <span class="fw-bold text-success" id="td-buy-tp1">158.027</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-secondary">TP2</span>
-                                <span class="fw-bold text-success" id="td-buy-tp2">158.221</span>
-                            </div>
-                            <div class="d-flex justify-content-between text-secondary pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.75rem;">
-                                <span>DIST TO ENTRY:</span>
-                                <span class="fw-bold text-cyan" id="td-buy-dist">44.6 pips</span>
-                            </div>
-                        </div>
-                        <div class="p-2 d-flex flex-column gap-1">
-                            <div id="td-buy-status-strip" class="text-center py-1 rounded" style="background: rgba(6, 78, 59, 0.5); border: 1px solid #059669; color: #6ee7b7; font-size: 0.66rem; font-weight: bold; letter-spacing: 0.3px;">
-                                NO ENGINE SIGNAL • ANALYSIS ONLY
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-success w-100 py-1 mono fw-bold" onclick="copyScalpOrder('BUY')" style="font-size: 0.68rem;">
-                                📋 SALIN TIKET BUY LIMIT
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Column 2: SELL LIMIT - R1 -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="rounded h-100 d-flex flex-column justify-content-between overflow-hidden" style="background: #0B1B30; border: 1.5px solid rgba(244, 63, 94, 0.45); box-shadow: 0 0 15px rgba(244, 63, 94, 0.08);">
-                        <div class="px-3 py-2 fw-bold text-danger d-flex align-items-center gap-1" style="background: rgba(244, 63, 94, 0.12); font-size: 0.85rem; border-bottom: 1px solid rgba(244, 63, 94, 0.25);">
-                            <span>▼</span> SELL LIMIT - R1
-                        </div>
-                        <div class="p-3 d-flex flex-column gap-2" style="font-size: 0.85rem;">
-                            <div class="d-flex justify-content-between">
-                                <span class="text-secondary">ENTRY</span>
-                                <span class="fw-bold text-danger" id="td-sell-entry">158.221</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-secondary">SL</span>
-                                <span class="fw-bold text-danger" id="td-sell-sl">158.590</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-secondary">TP1</span>
-                                <span class="fw-bold text-danger" id="td-sell-tp1">158.027</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-secondary">TP2</span>
-                                <span class="fw-bold text-danger" id="td-sell-tp2">157.658</span>
-                            </div>
-                            <div class="d-flex justify-content-between text-secondary pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.75rem;">
-                                <span>DIST TO ENTRY:</span>
-                                <span class="fw-bold text-danger" id="td-sell-dist">11.7 pips</span>
-                            </div>
-                        </div>
-                        <div class="p-2 d-flex flex-column gap-1">
-                            <div id="td-sell-status-strip" class="text-center py-1 rounded" style="background: rgba(69, 10, 10, 0.5); border: 1px solid #dc2626; color: #fca5a5; font-size: 0.66rem; font-weight: bold; letter-spacing: 0.3px;">
-                                NO ENGINE SIGNAL • ANALYSIS ONLY
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger w-100 py-1 mono fw-bold" onclick="copyScalpOrder('SELL')" style="font-size: 0.68rem;">
-                                📋 SALIN TIKET SELL LIMIT
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Column 3: LEVEL HARGA • SNR... -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-light" style="font-size: 0.82rem;">LEVEL HARGA • SNR...</span>
-                            <span class="badge bg-dark border border-secondary text-info mono" style="font-size: 0.60rem;">PIPS DIST</span>
-                        </div>
-                        <div class="d-flex flex-column gap-1" style="font-size: 0.80rem;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary" style="width: 45px;">R3</span>
-                                <span class="fw-bold text-danger" id="td-snr-r3">158.221</span>
-                                <span class="text-secondary text-end mono small" id="td-snr-r3-dist" style="width: 65px;">-19 dist</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary" style="width: 45px;">R2</span>
-                                <span class="fw-bold text-danger" id="td-snr-r2">158.590</span>
-                                <span class="text-secondary text-end mono small" id="td-snr-r2-dist" style="width: 65px;">-22 dist</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary" style="width: 45px;">R1</span>
-                                <span class="fw-bold text-danger" id="td-snr-r1">158.027</span>
-                                <span class="text-secondary text-end mono small" id="td-snr-r1-dist" style="width: 65px;">-12 dist</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary" style="width: 45px;">PIVOT</span>
-                                <span class="fw-bold text-warning" id="td-snr-pivot">158.106</span>
-                                <span class="text-secondary text-end mono small" id="td-snr-pivot-dist" style="width: 65px;">distan.</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary" style="width: 45px;">S1</span>
-                                <span class="fw-bold text-success" id="td-snr-s1">157.658</span>
-                                <span class="text-secondary text-end mono small" id="td-snr-s1-dist" style="width: 65px;">-18 dist</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-secondary" style="width: 45px;">S2</span>
-                                <span class="fw-bold text-success" id="td-snr-s2">157.654</span>
-                                <span class="text-secondary text-end mono small" id="td-snr-s2-dist" style="width: 65px;">-23 dist</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Column 4: PROBABILITY & SIGNAL -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                        <div class="fw-bold text-light mb-2" style="font-size: 0.82rem;">PROBABILITY &amp; SIGNAL</div>
-                        <div class="row g-2 mb-2 text-center">
-                            <div class="col-6">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.08);">
-                                    <div class="text-secondary" style="font-size: 0.62rem;">BUY PROB</div>
-                                    <div class="fw-bold text-success mt-1" id="td-prob-buy" style="font-size: 0.95rem;">84% • HIGH</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.08);">
-                                    <div class="text-secondary" style="font-size: 0.62rem;">SELL PROB</div>
-                                    <div class="fw-bold text-danger mt-1" id="td-prob-sell" style="font-size: 0.95rem;">16% • LOW</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-center py-2 px-1 rounded" style="background: rgba(5, 12, 24, 0.7); border: 1px solid rgba(0, 240, 255, 0.15);">
-                            <div class="fw-bold text-success" id="td-sig-title" style="font-size: 0.95rem; letter-spacing: 0.5px;">⚡ SCALP: BUY PULLBACK</div>
-                            <div class="text-secondary small mt-1" id="td-sig-sub" style="font-size: 0.68rem;">CONFIDENCE 91% • SCORE 92/100</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. ORDER FLOW MICROSTRUCTURE: GRAFIK SELISIH TICK BUY / SELL 1 MENIT (RANGE 30 MENIT) -->
-            <div class="row g-2 mono">
-                <div class="col-12">
-                    <div class="p-3 rounded" style="background: #0B1B30; border: 1.5px solid rgba(0, 240, 255, 0.35); box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-                        <!-- Panel Header -->
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 pb-2 border-bottom border-dark">
+                
+                <!-- ========================================================================= -->
+                <!-- LEFT COLUMN: LEBAR SETENGAH PAGE (50%) • SUSUNAN 4 MODUL SEJAJAR KEBAWAH  -->
+                <!-- 1. Posisi Harga                                                           -->
+                <!-- 2. Selisih Tick Buy / Sell                                                -->
+                <!-- 3. Selisih Volume Buy / Sell                                              -->
+                <!-- 4. Selisih Velocity Buy / Sell                                            -->
+                <!-- ========================================================================= -->
+                <div class="col-12 col-xl-6 d-flex flex-column gap-2">
+                    
+                    <!-- 1. POSISI HARGA -->
+                    <div class="p-3 rounded" style="background: #0B1B30; border: 1.5px solid rgba(0, 240, 255, 0.35); box-shadow: 0 4px 18px rgba(0,0,0,0.4);">
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom border-dark flex-wrap gap-2">
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge px-2 py-1" style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid #00f0ff; font-size: 0.72rem; letter-spacing: 0.5px;">
-                                    ⚡ ORDER FLOW DELTA • M1 (30 MIN)
+                                <span class="badge px-2 py-1" style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid #00f0ff; font-size: 0.70rem; letter-spacing: 0.5px;">
+                                    📍 POSISI HARGA
                                 </span>
-                                <span class="fw-bold text-light" style="font-size: 0.88rem; letter-spacing: 0.5px;">
-                                    GRAFIK SELISIH TICK BUY / SELL (RANGE 30 MENIT)
-                                </span>
-                                <span class="badge bg-secondary bg-opacity-25 text-info" id="td-tdelta-symbol" style="font-size: 0.65rem;">USDJPY</span>
+                                <span class="fw-bold text-light" style="font-size: 0.85rem; letter-spacing: 0.5px;">H4 FORECAST &amp; CANDLE RANGE</span>
                             </div>
-                            
-                            <div class="d-flex align-items-center gap-3 flex-wrap" style="font-size: 0.72rem;">
-                                <!-- Microstructure Stats -->
-                                <div class="d-flex align-items-center gap-1">
-                                    <span class="text-secondary">30M CUMULATIVE DELTA:</span>
-                                    <span class="fw-bold text-success" id="td-tdelta-cum">+482 ticks</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-secondary small">HARGA LIVE:</span>
+                                <span class="fw-bold text-cyan" id="td-gauge-val" style="font-size: 1.15rem;">158.104</span>
+                                <span class="badge bg-info bg-opacity-25 text-cyan" id="td-range-h4-badge"><span id="td-range-h4">34.5</span> pips</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Sub stats: Forecast Low/High vs Live Low/High -->
+                        <div class="row g-2 mb-2 text-center" style="font-size: 0.72rem;">
+                            <div class="col-3">
+                                <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06);">
+                                    <div class="text-secondary" style="font-size: 0.60rem;">FORECAST LOW</div>
+                                    <div class="fw-bold text-light" id="td-fc-low">157.676</div>
                                 </div>
-                                <div class="d-flex align-items-center gap-1">
-                                    <span class="text-secondary">BUY/SELL RATIO:</span>
-                                    <span class="fw-bold text-cyan" id="td-tdelta-ratio">64.2% / 35.8%</span>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06);">
+                                    <div class="text-secondary" style="font-size: 0.60rem;">FORECAST HIGH</div>
+                                    <div class="fw-bold text-light" id="td-fc-high">157.945</div>
                                 </div>
-                                <div class="d-flex align-items-center gap-1">
-                                    <span class="text-secondary">PRESSURE:</span>
-                                    <span class="badge bg-success bg-opacity-25 text-success" id="td-tdelta-bias">🟢 BUY ABSORPTION</span>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06);">
+                                    <div class="text-secondary" style="font-size: 0.60rem;">H4 LIVE LOW</div>
+                                    <div class="fw-bold text-danger" id="td-live-low">157.851</div>
                                 </div>
-                                
-                                <!-- Mode Selector -->
-                                <div class="btn-group btn-group-sm" role="group">
+                            </div>
+                            <div class="col-3">
+                                <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06);">
+                                    <div class="text-secondary" style="font-size: 0.60rem;">H4 LIVE HIGH</div>
+                                    <div class="fw-bold text-success" id="td-live-high">158.196</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gauge Progress Track & Pin Indicator -->
+                        <div class="position-relative mt-2 mb-1" style="padding-top: 10px;">
+                            <div id="td-gauge-pin" style="position: absolute; top: -6px; left: 75%; transform: translateX(-50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid #10b981; transition: left 0.4s ease; filter: drop-shadow(0 0 5px #10b981);"></div>
+                            <div class="position-relative rounded-pill" style="height: 8px; background: rgba(255,255,255,0.08); overflow: hidden; border: 1px solid rgba(255,255,255,0.12);">
+                                <div id="td-gauge-fill" style="width: 75%; height: 100%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%); transition: width 0.4s ease;"></div>
+                            </div>
+                            <div class="d-flex justify-content-between text-secondary mt-1" style="font-size: 0.62rem;">
+                                <span>LOW (0%)</span>
+                                <span class="text-info fw-bold" id="td-gauge-pct-label">75.0% in Range</span>
+                                <span>HIGH (100%)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. SELISIH TICK BUY / SELL (30 MENIT) -->
+                    <div class="p-3 rounded" style="background: #0B1B30; border: 1.5px solid rgba(0, 240, 255, 0.35); box-shadow: 0 4px 18px rgba(0,0,0,0.4);">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 pb-1 border-bottom border-dark">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge px-2 py-1" style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid #00f0ff; font-size: 0.70rem;">
+                                    ⚡ SELISIH TICK
+                                </span>
+                                <span class="fw-bold text-light" style="font-size: 0.84rem;">BUY / SELL • M1 (RANGE 30M)</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2" style="font-size: 0.70rem;">
+                                <span class="text-secondary">30M CUMULATIVE:</span>
+                                <span class="fw-bold text-success" id="td-tdelta-cum">+482 ticks</span>
+                                <div class="btn-group btn-group-sm ms-1" role="group">
                                     <button type="button" class="btn btn-sm btn-outline-info py-0 px-2 active" id="btn-tdelta-combo" onclick="setTickDeltaViewMode('combo')">COMBO</button>
                                     <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" id="btn-tdelta-bars" onclick="setTickDeltaViewMode('bars')">BARS</button>
-                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" id="btn-tdelta-cvd" onclick="setTickDeltaViewMode('cvd')">CVD LINE</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" id="btn-tdelta-cvd" onclick="setTickDeltaViewMode('cvd')">CVD</button>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Canvas Container -->
-                        <div class="position-relative" style="width: 100%; height: 165px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(0,240,255,0.15); overflow: hidden;">
+                        <div class="position-relative" style="width: 100%; height: 130px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(0,240,255,0.15); overflow: hidden;">
                             <canvas id="canvas-tick-delta" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
-                            <!-- Tooltip floating overlay -->
                             <div id="tdelta-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #00f0ff; border-radius: 4px; padding: 6px 10px; font-size: 0.68rem; color: #fff; z-index: 10; box-shadow: 0 4px 14px rgba(0,0,0,0.7); min-width: 160px;"></div>
                         </div>
+                        <div class="d-flex justify-content-between align-items-center text-secondary mt-1 flex-wrap gap-1" style="font-size: 0.62rem;">
+                            <span id="td-tdelta-bias" class="badge bg-success bg-opacity-25 text-success">🟢 AGGRESSIVE BUY ABSORPTION</span>
+                            <span>Ratio: <b class="text-cyan" id="td-tdelta-ratio">64.2% / 35.8%</b></span>
+                            <span class="text-info">Window: 30 Menit Terakhir</span>
+                        </div>
+                    </div>
 
-                        <!-- Bottom Sub-legend & Time labels -->
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 text-secondary mt-2 px-1" style="font-size: 0.65rem;">
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="d-flex align-items-center gap-1">
-                                    <span style="display: inline-block; width: 10px; height: 10px; background: #10b981; border-radius: 2px;"></span>
-                                    <span class="text-light">Net Buy Dominant (Delta &gt; 0)</span>
+                    <!-- 3. SELISIH VOLUME BUY / SELL (30 MENIT) -->
+                    <div class="p-3 rounded" style="background: #0B1B30; border: 1.5px solid rgba(250, 204, 21, 0.35); box-shadow: 0 4px 18px rgba(0,0,0,0.4);">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 pb-1 border-bottom border-dark">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge px-2 py-1" style="background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid #facc15; font-size: 0.70rem;">
+                                    📊 SELISIH VOLUME
                                 </span>
-                                <span class="d-flex align-items-center gap-1">
-                                    <span style="display: inline-block; width: 10px; height: 10px; background: #f43f5e; border-radius: 2px;"></span>
-                                    <span class="text-light">Net Sell Dominant (Delta &lt; 0)</span>
+                                <span class="fw-bold text-light" style="font-size: 0.84rem;">BUY / SELL • M1 (RANGE 30M)</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2" style="font-size: 0.70rem;">
+                                <span class="text-secondary">30M CUMULATIVE VOL:</span>
+                                <span class="fw-bold text-warning" id="td-vdelta-cum">+1,420 contracts</span>
+                                <div class="btn-group btn-group-sm ms-1" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 active" id="btn-vdelta-combo" onclick="setVolDeltaViewMode('combo')">COMBO</button>
+                                    <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2" id="btn-vdelta-bars" onclick="setVolDeltaViewMode('bars')">BARS</button>
+                                    <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2" id="btn-vdelta-cvd" onclick="setVolDeltaViewMode('cvd')">CVD</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="position-relative" style="width: 100%; height: 130px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(250,204,21,0.15); overflow: hidden;">
+                            <canvas id="canvas-vol-delta" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
+                            <div id="vdelta-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #facc15; border-radius: 4px; padding: 6px 10px; font-size: 0.68rem; color: #fff; z-index: 10; box-shadow: 0 4px 14px rgba(0,0,0,0.7); min-width: 160px;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center text-secondary mt-1 flex-wrap gap-1" style="font-size: 0.62rem;">
+                            <span id="td-vdelta-bias" class="badge bg-warning bg-opacity-25 text-warning">🟢 INSTITUTIONAL INFLOW (WHALE)</span>
+                            <span>Vol Ratio: <b class="text-warning" id="td-vdelta-ratio">68.5% / 31.5%</b></span>
+                            <span class="text-warning">CME / ECN Contracts</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. SELISIH VELOCITY BUY / SELL (30 MENIT) -->
+                    <div class="p-3 rounded" style="background: #0B1B30; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0,0,0,0.4);">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 pb-1 border-bottom border-dark">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge px-2 py-1" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid #c084fc; font-size: 0.70rem;">
+                                    🚀 SELISIH VELOCITY
                                 </span>
-                                <span class="d-flex align-items-center gap-1">
-                                    <span style="display: inline-block; width: 14px; height: 2px; background: #00f0ff;"></span>
-                                    <span class="text-cyan">Cumulative Delta (CVD)</span>
-                                </span>
+                                <span class="fw-bold text-light" style="font-size: 0.84rem;">BUY / SELL SPEED • M1 (RANGE 30M)</span>
                             </div>
-                            <div class="d-flex align-items-center gap-2 mono text-info">
-                                <span>1 Bar = 1 Menit (M1)</span> • 
-                                <span>Window: 30 Menit Terakhir</span> •
-                                <span id="td-tdelta-status" class="text-success">🟢 Live Streaming Buffer</span>
+                            <div class="d-flex align-items-center gap-2" style="font-size: 0.70rem;">
+                                <span class="text-secondary">NET VELOCITY:</span>
+                                <span class="fw-bold text-info" id="td-veldelta-cum">+7.4 ticks/s</span>
+                                <div class="btn-group btn-group-sm ms-1" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 active" id="btn-veldelta-combo" onclick="setVelDeltaViewMode('combo')">COMBO</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" id="btn-veldelta-bars" onclick="setVelDeltaViewMode('bars')">BARS</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" id="btn-veldelta-surge" onclick="setVelDeltaViewMode('surge')">SURGE</button>
+                                </div>
                             </div>
+                        </div>
+                        <div class="position-relative" style="width: 100%; height: 130px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(168,85,247,0.15); overflow: hidden;">
+                            <canvas id="canvas-vel-delta" style="width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
+                            <div id="veldelta-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #c084fc; border-radius: 4px; padding: 6px 10px; font-size: 0.68rem; color: #fff; z-index: 10; box-shadow: 0 4px 14px rgba(0,0,0,0.7); min-width: 160px;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center text-secondary mt-1 flex-wrap gap-1" style="font-size: 0.62rem;">
+                            <span id="td-veldelta-bias" class="badge bg-info bg-opacity-25 text-info">⚡ SUPER-STRONG ACCELERATION</span>
+                            <span>Peak Surge: <b class="text-cyan" id="td-veldelta-peak">22.8 ticks/s</b></span>
+                            <span class="text-info">Speed Index M1 Window</span>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- 5. Row 5: Bottom 4 Panels (Equal 4 Columns) -->
-            <div class="row g-2 mono">
-                <!-- Panel 1: TICK & VOLUME • M5 -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                        <div class="fw-bold text-light mb-2" style="font-size: 0.80rem;">TICK &amp; VOLUME • M5</div>
-                        <div class="d-flex justify-content-around text-center mb-3">
-                            <div>
-                                <div class="fw-bold text-light" id="td-bot-tick" style="font-size: 1.4rem;">420</div>
-                                <div class="text-secondary small" style="font-size: 0.65rem;">tick</div>
-                            </div>
-                            <div>
-                                <div class="fw-bold text-light" id="td-bot-vol" style="font-size: 1.4rem;">218</div>
-                                <div class="text-secondary small" style="font-size: 0.65rem;">vol</div>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-column gap-2" style="font-size: 0.72rem;">
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="text-secondary">BUY VOL</span>
-                                    <span class="text-success fw-bold" id="td-bot-buyvol">75%</span>
-                                </div>
-                                <div class="rounded-pill" style="height: 6px; background: rgba(255,255,255,0.1); overflow: hidden;">
-                                    <div id="td-bot-buyvol-bar" style="width: 75%; height: 100%; background: #10b981;"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="text-secondary">SELL VOL</span>
-                                    <span class="text-danger fw-bold" id="td-bot-sellvol">25%</span>
-                                </div>
-                                <div class="rounded-pill" style="height: 6px; background: rgba(255,255,255,0.1); overflow: hidden;">
-                                    <div id="td-bot-sellvol-bar" style="width: 25%; height: 100%; background: #f43f5e;"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Panel 2: ECONOMIC CALENDAR -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-light" style="font-size: 0.80rem;">ECONOMIC CALENDAR</span>
-                            <span class="badge bg-success bg-opacity-25 text-success mono" id="td-econ-badge" style="font-size: 0.60rem;">🟢 SAFE SCALP</span>
-                        </div>
-                        <div class="d-flex justify-content-between text-secondary border-bottom border-secondary border-opacity-25 pb-1 mb-1" style="font-size: 0.62rem;">
-                            <span style="width: 55px;">WAKTU</span>
-                            <span style="width: 35px;">CUR</span>
-                            <span>EVENT</span>
-                            <span style="width: 50px; text-align: right;">IMPACT</span>
-                        </div>
-                        <div id="td-econ-list" class="d-flex flex-column gap-1 overflow-auto" style="max-height: 95px; font-size: 0.68rem;">
-                            <!-- Dynamic events loaded via updateTradeDeskView -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Panel 3: MONEY FLOW RADAR - jillywosy.com -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold text-light" style="font-size: 0.78rem;">MONEY FLOW RADAR</span>
-                            <span class="text-secondary" style="font-size: 0.65rem;">jillywosy.com</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <span class="fw-bold text-success" id="td-mf-risk-tone" style="font-size: 0.72rem;">RISK TONE: RISK-ON</span>
-                            <!-- Audio VU meter bars -->
-                            <div class="d-flex align-items-end gap-1" style="height: 10px;">
-                                <div style="width: 2px; height: 3px; background: #10b981;"></div>
-                                <div style="width: 2px; height: 6px; background: #10b981;"></div>
-                                <div style="width: 2px; height: 9px; background: #10b981;"></div>
-                                <div style="width: 2px; height: 10px; background: #10b981;"></div>
-                                <div style="width: 2px; height: 7px; background: #10b981;"></div>
-                                <div style="width: 2px; height: 4px; background: #10b981;"></div>
-                            </div>
-                        </div>
-
-                        <div class="row g-2 align-items-center">
-                            <!-- Currency Flow Rows -->
-                            <div class="col-6 d-flex flex-column gap-1" style="font-size: 0.72rem;">
-                                <div class="text-secondary" style="font-size: 0.62rem;">MONEY FLOW / OUTFLOW</div>
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-secondary" id="td-mf-c1-name">USD</span>
-                                    <span class="text-danger fw-bold" id="td-mf-usd">-0.02%</span>
+                <!-- ========================================================================= -->
+                <!-- RIGHT COLUMN: LEBAR SETENGAH PAGE (50%) • TRADING EXECUTION & CONFLUENCE -->
+                <!-- ========================================================================= -->
+                <div class="col-12 col-xl-6 d-flex flex-column gap-2">
+                    
+                    <!-- Row A: BUY LIMIT & SELL LIMIT EXECUTION (2 Cards) -->
+                    <div class="row g-2">
+                        <!-- Column 1: BUY LIMIT - S1 -->
+                        <div class="col-12 col-md-6">
+                            <div class="rounded h-100 d-flex flex-column justify-content-between overflow-hidden" style="background: #0B1B30; border: 1.5px solid rgba(16, 185, 129, 0.45); box-shadow: 0 0 15px rgba(16, 185, 129, 0.08);">
+                                <div class="px-3 py-2 fw-bold text-success d-flex align-items-center gap-1" style="background: rgba(16, 185, 129, 0.12); font-size: 0.85rem; border-bottom: 1px solid rgba(16, 185, 129, 0.25);">
+                                    <span>▲</span> BUY LIMIT - S1
                                 </div>
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-secondary" id="td-mf-c2-name">JPY</span>
-                                    <span class="text-danger fw-bold" id="td-mf-jpy">-0.06%</span>
+                                <div class="p-3 d-flex flex-column gap-2" style="font-size: 0.85rem;">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">ENTRY</span>
+                                        <span class="fw-bold text-success" id="td-buy-entry">157.658</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">SL</span>
+                                        <span class="fw-bold text-success" id="td-buy-sl">157.464</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">TP1</span>
+                                        <span class="fw-bold text-success" id="td-buy-tp1">158.027</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">TP2</span>
+                                        <span class="fw-bold text-success" id="td-buy-tp2">158.221</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between text-secondary pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.75rem;">
+                                        <span>DIST TO ENTRY:</span>
+                                        <span class="fw-bold text-cyan" id="td-buy-dist">44.6 pips</span>
+                                    </div>
                                 </div>
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-secondary" id="td-mf-c3-name">EUR</span>
-                                    <span class="text-success fw-bold" id="td-mf-eur">+0.08%</span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-secondary" id="td-mf-c4-name">AUD</span>
-                                    <span class="text-success fw-bold" id="td-mf-aud">+0.05%</span>
+                                <div class="p-2 d-flex flex-column gap-1">
+                                    <div id="td-buy-status-strip" class="text-center py-1 rounded" style="background: rgba(6, 78, 59, 0.5); border: 1px solid #059669; color: #6ee7b7; font-size: 0.66rem; font-weight: bold; letter-spacing: 0.3px;">
+                                        NO ENGINE SIGNAL • ANALYSIS ONLY
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-success w-100 py-1 mono fw-bold" onclick="copyScalpOrder('BUY')" style="font-size: 0.68rem;">
+                                        📋 SALIN TIKET BUY LIMIT
+                                    </button>
                                 </div>
                             </div>
-
-                            <!-- SVG Spider Radar Chart -->
-                            <div class="col-6 text-center">
-                                <svg width="90" height="90" viewBox="0 0 100 100" style="overflow: visible;">
-                                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-                                    <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-                                    <circle cx="50" cy="50" r="18" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-                                    <line x1="50" y1="8" x2="50" y2="92" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-                                    <line x1="8" y1="50" x2="92" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-                                    <polygon id="td-mf-polygon" points="50,22 82,42 66,74 38,70 18,48" fill="rgba(16, 185, 129, 0.25)" stroke="#10b981" stroke-width="1.8"/>
-                                    <circle cx="50" cy="50" r="2" fill="#10b981"/>
-                                </svg>
-                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Panel 4: BOND, YIELD, INDEX (BYI) -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                        <div class="fw-bold text-light mb-2" style="font-size: 0.80rem;">BOND, YIELD, INDEX (BYI)</div>
-                        
-                        <div class="row g-2" style="font-size: 0.72rem;">
-                            <!-- US Column -->
-                            <div class="col-6 border-end border-dark pe-2">
-                                <div class="text-secondary mb-1" id="td-byi-h1" style="font-size: 0.62rem;">UNITED STATES (USD)</div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="text-secondary" id="td-byi-r1-k1">DOW</span>
-                                    <span id="td-byi-r1-v1">
-                                        <span class="text-danger fw-bold">44,120</span>
-                                        <span class="text-danger small" style="font-size: 0.60rem;">-0.21%</span>
-                                    </span>
+                        <!-- Column 2: SELL LIMIT - R1 -->
+                        <div class="col-12 col-md-6">
+                            <div class="rounded h-100 d-flex flex-column justify-content-between overflow-hidden" style="background: #0B1B30; border: 1.5px solid rgba(244, 63, 94, 0.45); box-shadow: 0 0 15px rgba(244, 63, 94, 0.08);">
+                                <div class="px-3 py-2 fw-bold text-danger d-flex align-items-center gap-1" style="background: rgba(244, 63, 94, 0.12); font-size: 0.85rem; border-bottom: 1px solid rgba(244, 63, 94, 0.25);">
+                                    <span>▼</span> SELL LIMIT - R1
                                 </div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="text-secondary" id="td-byi-r2-k1">YIELD: 10Y</span>
-                                    <span id="td-byi-r2-v1">
-                                        <span class="text-light fw-bold">4.25%</span>
-                                        <span class="text-success small" style="font-size: 0.60rem;">+0.02%</span>
-                                    </span>
+                                <div class="p-3 d-flex flex-column gap-2" style="font-size: 0.85rem;">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">ENTRY</span>
+                                        <span class="fw-bold text-danger" id="td-sell-entry">158.221</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">SL</span>
+                                        <span class="fw-bold text-danger" id="td-sell-sl">158.590</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">TP1</span>
+                                        <span class="fw-bold text-danger" id="td-sell-tp1">158.027</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">TP2</span>
+                                        <span class="fw-bold text-danger" id="td-sell-tp2">157.658</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between text-secondary pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.75rem;">
+                                        <span>DIST TO ENTRY:</span>
+                                        <span class="fw-bold text-danger" id="td-sell-dist">11.7 pips</span>
+                                    </div>
                                 </div>
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-secondary" id="td-byi-r3-k1">YIELD: 30Y</span>
-                                    <span id="td-byi-r3-v1">
-                                        <span class="text-light fw-bold">4.38%</span>
-                                        <span class="text-success small" style="font-size: 0.60rem;">+0.01%</span>
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Japan / Counter Column -->
-                            <div class="col-6 ps-2">
-                                <div class="text-secondary mb-1" id="td-byi-h2" style="font-size: 0.62rem;">JAPAN (JPY)</div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="text-secondary" id="td-byi-r1-k2">NIKKEI</span>
-                                    <span id="td-byi-r1-v2">
-                                        <span class="text-danger fw-bold">39,120</span>
-                                        <span class="text-danger small" style="font-size: 0.60rem;">-0.45%</span>
-                                    </span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="text-secondary" id="td-byi-r2-k2">YIELD: 10Y</span>
-                                    <span id="td-byi-r2-v2">
-                                        <span class="text-light fw-bold">0.92%</span>
-                                        <span class="text-danger small" style="font-size: 0.60rem;">-0.05%</span>
-                                    </span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-secondary" id="td-byi-r3-k2">YIELD: 30Y</span>
-                                    <span id="td-byi-r3-v2">
-                                        <span class="text-light fw-bold">2.05%</span>
-                                        <span class="text-success small" style="font-size: 0.60rem;">+0.012%</span>
-                                    </span>
+                                <div class="p-2 d-flex flex-column gap-1">
+                                    <div id="td-sell-status-strip" class="text-center py-1 rounded" style="background: rgba(69, 10, 10, 0.5); border: 1px solid #dc2626; color: #fca5a5; font-size: 0.66rem; font-weight: bold; letter-spacing: 0.3px;">
+                                        NO ENGINE SIGNAL • ANALYSIS ONLY
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger w-100 py-1 mono fw-bold" onclick="copyScalpOrder('SELL')" style="font-size: 0.68rem;">
+                                        📋 SALIN TIKET SELL LIMIT
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Row B: LEVEL HARGA • SNR & PROBABILITY & SIGNAL (2 Cards) -->
+                    <div class="row g-2">
+                        <!-- Column 1: LEVEL HARGA • SNR... -->
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-light" style="font-size: 0.82rem;">LEVEL HARGA • SNR...</span>
+                                    <span class="badge bg-dark border border-secondary text-info mono" style="font-size: 0.60rem;">PIPS DIST</span>
+                                </div>
+                                <div class="d-flex flex-column gap-1" style="font-size: 0.78rem;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-secondary" style="width: 45px;">R3</span>
+                                        <span class="fw-bold text-danger" id="td-snr-r3">158.221</span>
+                                        <span class="text-secondary text-end mono small" id="td-snr-r3-dist" style="width: 65px;">-19 dist</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-secondary" style="width: 45px;">R2</span>
+                                        <span class="fw-bold text-danger" id="td-snr-r2">158.590</span>
+                                        <span class="text-secondary text-end mono small" id="td-snr-r2-dist" style="width: 65px;">-22 dist</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-secondary" style="width: 45px;">R1</span>
+                                        <span class="fw-bold text-danger" id="td-snr-r1">158.027</span>
+                                        <span class="text-secondary text-end mono small" id="td-snr-r1-dist" style="width: 65px;">-12 dist</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-secondary" style="width: 45px;">PIVOT</span>
+                                        <span class="fw-bold text-warning" id="td-snr-pivot">158.106</span>
+                                        <span class="text-secondary text-end mono small" id="td-snr-pivot-dist" style="width: 65px;">distan.</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-secondary" style="width: 45px;">S1</span>
+                                        <span class="fw-bold text-success" id="td-snr-s1">157.658</span>
+                                        <span class="text-secondary text-end mono small" id="td-snr-s1-dist" style="width: 65px;">-18 dist</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-secondary" style="width: 45px;">S2</span>
+                                        <span class="fw-bold text-success" id="td-snr-s2">157.654</span>
+                                        <span class="text-secondary text-end mono small" id="td-snr-s2-dist" style="width: 65px;">-23 dist</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Column 2: PROBABILITY & SIGNAL -->
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
+                                <div class="fw-bold text-light mb-2" style="font-size: 0.82rem;">PROBABILITY &amp; SIGNAL</div>
+                                <div class="row g-2 mb-2 text-center">
+                                    <div class="col-6">
+                                        <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.08);">
+                                            <div class="text-secondary" style="font-size: 0.62rem;">BUY PROB</div>
+                                            <div class="fw-bold text-success mt-1" id="td-prob-buy" style="font-size: 0.95rem;">84% • HIGH</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.08);">
+                                            <div class="text-secondary" style="font-size: 0.62rem;">SELL PROB</div>
+                                            <div class="fw-bold text-danger mt-1" id="td-prob-sell" style="font-size: 0.95rem;">16% • LOW</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center py-2 px-1 rounded" style="background: rgba(5, 12, 24, 0.7); border: 1px solid rgba(0, 240, 255, 0.15);">
+                                    <div class="fw-bold text-success" id="td-sig-title" style="font-size: 0.95rem; letter-spacing: 0.5px;">⚡ SCALP: BUY PULLBACK</div>
+                                    <div class="text-secondary small mt-1" id="td-sig-sub" style="font-size: 0.68rem;">CONFIDENCE 91% • SCORE 92/100</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row C: TICK/VOLUME M5 & ECONOMIC CALENDAR (2 Cards) -->
+                    <div class="row g-2">
+                        <!-- Card 1: TICK & VOLUME • M5 -->
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
+                                <div class="fw-bold text-light mb-1" style="font-size: 0.80rem;">TICK &amp; VOLUME • M5</div>
+                                <div class="d-flex justify-content-around text-center mb-2">
+                                    <div>
+                                        <div class="fw-bold text-light" id="td-bot-tick" style="font-size: 1.25rem;">420</div>
+                                        <div class="text-secondary small" style="font-size: 0.62rem;">tick</div>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-light" id="td-bot-vol" style="font-size: 1.25rem;">218</div>
+                                        <div class="text-secondary small" style="font-size: 0.62rem;">vol</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gap-1" style="font-size: 0.70rem;">
+                                    <div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-secondary">BUY VOL</span>
+                                            <span class="text-success fw-bold" id="td-bot-buyvol">75%</span>
+                                        </div>
+                                        <div class="rounded-pill" style="height: 5px; background: rgba(255,255,255,0.1); overflow: hidden;">
+                                            <div id="td-bot-buyvol-bar" style="width: 75%; height: 100%; background: #10b981;"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-secondary">SELL VOL</span>
+                                            <span class="text-danger fw-bold" id="td-bot-sellvol">25%</span>
+                                        </div>
+                                        <div class="rounded-pill" style="height: 5px; background: rgba(255,255,255,0.1); overflow: hidden;">
+                                            <div id="td-bot-sellvol-bar" style="width: 25%; height: 100%; background: #f43f5e;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: ECONOMIC CALENDAR -->
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-light" style="font-size: 0.80rem;">ECONOMIC CALENDAR</span>
+                                    <span class="badge bg-success bg-opacity-25 text-success mono" id="td-econ-badge" style="font-size: 0.60rem;">🟢 SAFE SCALP</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-secondary border-bottom border-secondary border-opacity-25 pb-1 mb-1" style="font-size: 0.60rem;">
+                                    <span style="width: 45px;">WAKTU</span>
+                                    <span style="width: 32px;">CUR</span>
+                                    <span>EVENT</span>
+                                    <span style="width: 45px; text-align: right;">IMPACT</span>
+                                </div>
+                                <div id="td-econ-list" class="d-flex flex-column gap-1 overflow-auto" style="max-height: 85px; font-size: 0.65rem;">
+                                    <!-- Dynamic events loaded via updateTradeDeskView -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row D: MONEY FLOW RADAR & BYI CORRELATION (2 Cards) -->
+                    <div class="row g-2">
+                        <!-- Card 1: MONEY FLOW RADAR -->
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-light" style="font-size: 0.78rem;">MONEY FLOW RADAR</span>
+                                    <span class="fw-bold text-success" id="td-mf-risk-tone" style="font-size: 0.66rem;">RISK-ON</span>
+                                </div>
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-6 d-flex flex-column gap-1" style="font-size: 0.68rem;">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary" id="td-mf-c1-name">USD</span>
+                                            <span class="text-danger fw-bold" id="td-mf-usd">-0.02%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary" id="td-mf-c2-name">JPY</span>
+                                            <span class="text-danger fw-bold" id="td-mf-jpy">-0.06%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary" id="td-mf-c3-name">EUR</span>
+                                            <span class="text-success fw-bold" id="td-mf-eur">+0.08%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary" id="td-mf-c4-name">AUD</span>
+                                            <span class="text-success fw-bold" id="td-mf-aud">+0.05%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 text-center">
+                                        <svg width="78" height="78" viewBox="0 0 100 100" style="overflow: visible;">
+                                            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                                            <circle cx="50" cy="50" r="28" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                                            <circle cx="50" cy="50" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                                            <line x1="50" y1="8" x2="50" y2="92" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                                            <line x1="8" y1="50" x2="92" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                                            <polygon id="td-mf-polygon" points="50,22 82,42 66,74 38,70 18,48" fill="rgba(16, 185, 129, 0.25)" stroke="#10b981" stroke-width="1.8"/>
+                                            <circle cx="50" cy="50" r="2" fill="#10b981"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: BOND, YIELD, INDEX (BYI) -->
+                        <div class="col-12 col-md-6">
+                            <div class="p-3 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
+                                <div class="fw-bold text-light mb-1" style="font-size: 0.78rem;">BOND, YIELD, INDEX (BYI)</div>
+                                <div class="row g-2" style="font-size: 0.68rem;">
+                                    <div class="col-6 border-end border-dark pe-1">
+                                        <div class="text-secondary mb-1 text-truncate" id="td-byi-h1" style="font-size: 0.58rem;">UNITED STATES (USD)</div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-secondary" id="td-byi-r1-k1">DOW</span>
+                                            <span id="td-byi-r1-v1"><span class="text-danger fw-bold">44,120</span></span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-secondary" id="td-byi-r2-k1">10Y</span>
+                                            <span id="td-byi-r2-v1"><span class="text-light fw-bold">4.25%</span></span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary" id="td-byi-r3-k1">30Y</span>
+                                            <span id="td-byi-r3-v1"><span class="text-light fw-bold">4.38%</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 ps-1">
+                                        <div class="text-secondary mb-1 text-truncate" id="td-byi-h2" style="font-size: 0.58rem;">JAPAN (JPY)</div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-secondary" id="td-byi-r1-k2">NIKKEI</span>
+                                            <span id="td-byi-r1-v2"><span class="text-danger fw-bold">39,120</span></span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-secondary" id="td-byi-r2-k2">10Y</span>
+                                            <span id="td-byi-r2-v2"><span class="text-light fw-bold">0.92%</span></span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-secondary" id="td-byi-r3-k2">30Y</span>
+                                            <span id="td-byi-r3-v2"><span class="text-light fw-bold">2.05%</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
             </div>
 
         </section>
@@ -8493,9 +8489,13 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             // Row 5: Panel 4 BYI Correlation
             updateTradeDeskBYI(p, bonds, broad);
 
-            // Row 4: Order Flow Microstructure 30m M1 Tick Delta & CVD
+            // Order Flow Microstructure 30m M1 Feeds (Tick, Volume, Velocity)
             if (typeof setupTickDeltaCanvasEvents === 'function') setupTickDeltaCanvasEvents();
             if (typeof updateTickDeltaFeed === 'function') updateTickDeltaFeed(p);
+            if (typeof setupVolDeltaCanvasEvents === 'function') setupVolDeltaCanvasEvents();
+            if (typeof updateVolDeltaFeed === 'function') updateVolDeltaFeed(p);
+            if (typeof setupVelDeltaCanvasEvents === 'function') setupVelDeltaCanvasEvents();
+            if (typeof updateVelDeltaFeed === 'function') updateVelDeltaFeed(p);
 
         } catch (err) {
             console.error('updateTradeDeskView error:', err);
@@ -9179,12 +9179,898 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         });
     }
 
-    // Auto streaming loop for 30m tick delta: updates every 1.5s
+    // =========================================================================
+    // 📊 30-MINUTE M1 VOLUME DELTA & CUMULATIVE VOLUME DELTA (CVD) ENGINE
+    // =========================================================================
+    let volDelta30mBuffer = {}; // { 'USDJPY': [30 bars], 'XAUUSD': [...], ... }
+    let volDeltaViewMode = 'combo'; // 'combo' | 'bars' | 'cvd'
+    let volDeltaHoverIndex = -1;
+    let volDeltaInitialized = false;
+
+    function setVolDeltaViewMode(mode) {
+        volDeltaViewMode = mode;
+        const btnCombo = document.getElementById('btn-vdelta-combo');
+        const btnBars = document.getElementById('btn-vdelta-bars');
+        const btnCvd = document.getElementById('btn-vdelta-cvd');
+        if (btnCombo) btnCombo.classList.toggle('active', mode === 'combo');
+        if (btnBars) btnBars.classList.toggle('active', mode === 'bars');
+        if (btnCvd) btnCvd.classList.toggle('active', mode === 'cvd');
+        renderVolDeltaCanvas(currentTradePair || 'USDJPY');
+    }
+
+    function initVolDelta30mBuffer(pair) {
+        const p = pair || currentTradePair || 'USDJPY';
+        if (volDelta30mBuffer[p] && volDelta30mBuffer[p].length === 30) return;
+
+        const isBull = (p === 'USDJPY' || p === 'XAUUSD');
+        const baseBuy = p === 'XAUUSD' ? 240 : (p === 'USDJPY' ? 210 : 160);
+        const baseSell = p === 'XAUUSD' ? 190 : (p === 'USDJPY' ? 165 : 145);
+
+        const now = new Date();
+        const bars = [];
+        let runningCvd = 0;
+
+        for (let i = 29; i >= 0; i--) {
+            const barTime = new Date(now.getTime() - i * 60 * 1000);
+            const pad = n => String(n).padStart(2, '0');
+            const timeStr = `${pad(barTime.getHours())}:${pad(barTime.getMinutes())}`;
+            
+            const cycle = Math.sin((30 - i) * 0.4);
+            const noise = (Math.random() - 0.5) * 45;
+            
+            let bVol, sVol;
+            if (isBull) {
+                bVol = Math.max(50, Math.round(baseBuy + cycle * 70 + noise + (i < 8 ? 35 : 0)));
+                sVol = Math.max(40, Math.round(baseSell - cycle * 30 - noise * 0.4));
+            } else {
+                bVol = Math.max(40, Math.round(baseBuy - cycle * 55 - noise * 0.4));
+                sVol = Math.max(50, Math.round(baseSell + cycle * 65 + noise + (i < 8 ? 40 : 0)));
+            }
+
+            const delta = bVol - sVol;
+            runningCvd += delta;
+
+            bars.push({
+                minuteOffset: i,
+                label: i === 0 ? 'NOW' : `-${i}m`,
+                timeStr: timeStr,
+                buyVol: bVol,
+                sellVol: sVol,
+                delta: delta,
+                cvd: runningCvd
+            });
+        }
+
+        volDelta30mBuffer[p] = bars;
+    }
+
+    function updateVolDeltaFeed(pair) {
+        const p = pair || currentTradePair || 'USDJPY';
+        initVolDelta30mBuffer(p);
+        const bars = volDelta30mBuffer[p];
+        if (!bars || bars.length === 0) return;
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const curTimeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const lastBar = bars[bars.length - 1];
+
+        if (lastBar.timeStr !== curTimeStr) {
+            const isBull = (p === 'USDJPY' || p === 'XAUUSD');
+            const newBar = {
+                minuteOffset: 0,
+                label: 'NOW',
+                timeStr: curTimeStr,
+                buyVol: isBull ? Math.floor(25 + Math.random() * 30) : Math.floor(15 + Math.random() * 20),
+                sellVol: isBull ? Math.floor(15 + Math.random() * 20) : Math.floor(28 + Math.random() * 32),
+                delta: 0,
+                cvd: 0
+            };
+            newBar.delta = newBar.buyVol - newBar.sellVol;
+
+            bars.shift();
+            for (let i = 0; i < bars.length; i++) {
+                const off = 29 - i;
+                bars[i].minuteOffset = off;
+                bars[i].label = off === 0 ? 'NOW' : `-${off}m`;
+            }
+            bars.push(newBar);
+        } else {
+            const isBull = (p === 'USDJPY' || p === 'XAUUSD');
+            const addBuy = isBull ? (Math.random() > 0.35 ? 2 + Math.floor(Math.random() * 5) : 0) : (Math.random() > 0.6 ? 2 : 0);
+            const addSell = isBull ? (Math.random() > 0.65 ? 1 + Math.floor(Math.random() * 3) : 0) : (Math.random() > 0.3 ? 2 + Math.floor(Math.random() * 5) : 0);
+            
+            lastBar.buyVol += addBuy;
+            lastBar.sellVol += addSell;
+            lastBar.delta = lastBar.buyVol - lastBar.sellVol;
+        }
+
+        let cvdRun = 0;
+        let totBuy = 0;
+        let totSell = 0;
+        for (let i = 0; i < bars.length; i++) {
+            cvdRun += bars[i].delta;
+            bars[i].cvd = cvdRun;
+            totBuy += bars[i].buyVol;
+            totSell += bars[i].sellVol;
+        }
+
+        const cumEl = document.getElementById('td-vdelta-cum');
+        if (cumEl) {
+            const sign = cvdRun > 0 ? '+' : '';
+            cumEl.textContent = `${sign}${cvdRun.toLocaleString()} contracts`;
+            cumEl.className = cvdRun >= 0 ? 'fw-bold text-warning' : 'fw-bold text-danger';
+        }
+
+        const ratioEl = document.getElementById('td-vdelta-ratio');
+        if (ratioEl) {
+            const tot = Math.max(1, totBuy + totSell);
+            const bPct = ((totBuy / tot) * 100).toFixed(1);
+            const sPct = (100 - bPct).toFixed(1);
+            ratioEl.textContent = `${bPct}% / ${sPct}%`;
+        }
+
+        const biasEl = document.getElementById('td-vdelta-bias');
+        if (biasEl) {
+            if (cvdRun > 600) {
+                biasEl.textContent = '🟢 INSTITUTIONAL INFLOW (WHALE)';
+                biasEl.className = 'badge bg-warning bg-opacity-25 text-warning';
+            } else if (cvdRun > 0) {
+                biasEl.textContent = '🟢 MODERATE BUY VOLUME';
+                biasEl.className = 'badge bg-warning bg-opacity-25 text-warning';
+            } else if (cvdRun < -600) {
+                biasEl.textContent = '🔴 INSTITUTIONAL DUMP (LIQUIDATION)';
+                biasEl.className = 'badge bg-danger bg-opacity-25 text-danger';
+            } else {
+                biasEl.textContent = '🔴 MODERATE SELL VOLUME';
+                biasEl.className = 'badge bg-danger bg-opacity-25 text-danger';
+            }
+        }
+
+        renderVolDeltaCanvas(p);
+    }
+
+    function renderVolDeltaCanvas(pair) {
+        const p = pair || currentTradePair || 'USDJPY';
+        initVolDelta30mBuffer(p);
+        const bars = volDelta30mBuffer[p];
+        if (!bars || bars.length === 0) return;
+
+        const canvas = document.getElementById('canvas-vol-delta');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const w = rect.width;
+        const h = rect.height;
+        if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+            canvas.width = Math.round(w * dpr);
+            canvas.height = Math.round(h * dpr);
+        }
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, h);
+
+        const padLeft = 45;
+        const padRight = 50;
+        const padTop = 15;
+        const padBottom = 26;
+        const plotW = w - padLeft - padRight;
+        const plotH = h - padTop - padBottom;
+        const y0 = padTop + plotH / 2;
+
+        let maxDelta = 35;
+        let maxCvd = 100;
+        for (let i = 0; i < bars.length; i++) {
+            if (Math.abs(bars[i].delta) > maxDelta) maxDelta = Math.abs(bars[i].delta);
+            if (Math.abs(bars[i].cvd) > maxCvd) maxCvd = Math.abs(bars[i].cvd);
+        }
+        maxDelta = Math.ceil(maxDelta * 1.25);
+        maxCvd = Math.ceil(maxCvd * 1.2);
+
+        const deltaScaleY = (plotH / 2) / maxDelta;
+        const cvdScaleY = (plotH / 2) / maxCvd;
+        const slotW = plotW / 30;
+        const barW = Math.max(3, Math.min(18, slotW * 0.68));
+
+        // Grid lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.lineWidth = 1;
+        const yPlus = y0 - (maxDelta * 0.5 * deltaScaleY);
+        ctx.beginPath();
+        ctx.moveTo(padLeft, yPlus);
+        ctx.lineTo(padLeft + plotW, yPlus);
+        ctx.stroke();
+
+        const yMinus = y0 + (maxDelta * 0.5 * deltaScaleY);
+        ctx.beginPath();
+        ctx.moveTo(padLeft, yMinus);
+        ctx.lineTo(padLeft + plotW, yMinus);
+        ctx.stroke();
+
+        // Baseline (Warm amber dashed line)
+        ctx.strokeStyle = 'rgba(250, 204, 21, 0.35)';
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y0);
+        ctx.lineTo(padLeft + plotW, y0);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Y-Axis labels
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#64748b';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`+${Math.round(maxDelta)}`, padLeft - 6, padTop + 4);
+        ctx.fillText(`0`, padLeft - 6, y0);
+        ctx.fillText(`-${Math.round(maxDelta)}`, padLeft - 6, padTop + plotH - 4);
+
+        if (volDeltaViewMode === 'combo' || volDeltaViewMode === 'cvd') {
+            ctx.fillStyle = '#facc15';
+            ctx.textAlign = 'left';
+            ctx.fillText(`+${Math.round(maxCvd)} CVD`, padLeft + plotW + 6, padTop + 4);
+            ctx.fillText(`-${Math.round(maxCvd)}`, padLeft + plotW + 6, padTop + plotH - 4);
+        }
+
+        // 2. Bars
+        if (volDeltaViewMode === 'combo' || volDeltaViewMode === 'bars') {
+            for (let i = 0; i < bars.length; i++) {
+                const b = bars[i];
+                const cx = padLeft + i * slotW + slotW / 2;
+                const bx = cx - barW / 2;
+                const dH = Math.max(1.5, Math.abs(b.delta) * deltaScaleY);
+                const isHovered = (volDeltaHoverIndex === i);
+
+                if (b.delta >= 0) {
+                    const by = y0 - dH;
+                    const grad = ctx.createLinearGradient(0, by, 0, y0);
+                    grad.addColorStop(0, isHovered ? '#34d399' : '#10b981');
+                    grad.addColorStop(1, 'rgba(5, 150, 105, 0.2)');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(bx, by, barW, dH);
+
+                    ctx.fillStyle = isHovered ? '#6ee7b7' : '#10b981';
+                    ctx.fillRect(bx, by, barW, 2);
+                } else {
+                    const by = y0;
+                    const grad = ctx.createLinearGradient(0, y0, 0, y0 + dH);
+                    grad.addColorStop(0, 'rgba(225, 29, 72, 0.2)');
+                    grad.addColorStop(1, isHovered ? '#fb7185' : '#f43f5e');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(bx, by, barW, dH);
+
+                    ctx.fillStyle = isHovered ? '#fda4af' : '#f43f5e';
+                    ctx.fillRect(bx, y0 + dH - 2, barW, 2);
+                }
+
+                if (barW >= 8 && Math.abs(b.delta) >= 20) {
+                    ctx.font = '8px "JetBrains Mono", monospace';
+                    ctx.textAlign = 'center';
+                    if (b.delta >= 0) {
+                        ctx.fillStyle = '#6ee7b7';
+                        ctx.fillText(`+${b.delta}`, cx, y0 - dH - 3);
+                    } else {
+                        ctx.fillStyle = '#fca5a5';
+                        ctx.fillText(`${b.delta}`, cx, y0 + dH + 9);
+                    }
+                }
+            }
+        }
+
+        // 3. CVD Gold Curve Overlay
+        if (volDeltaViewMode === 'combo' || volDeltaViewMode === 'cvd') {
+            const points = [];
+            for (let i = 0; i < bars.length; i++) {
+                const cx = padLeft + i * slotW + slotW / 2;
+                const cy = y0 - (bars[i].cvd * cvdScaleY);
+                points.push({ x: cx, y: cy });
+            }
+
+            if (points.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, y0);
+                for (let i = 0; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.lineTo(points[points.length - 1].x, y0);
+                ctx.closePath();
+                const cvdAreaGrad = ctx.createLinearGradient(0, padTop, 0, padTop + plotH);
+                cvdAreaGrad.addColorStop(0, 'rgba(250, 204, 21, 0.18)');
+                cvdAreaGrad.addColorStop(0.5, 'rgba(250, 204, 21, 0.02)');
+                cvdAreaGrad.addColorStop(1, 'rgba(250, 204, 21, 0.12)');
+                ctx.fillStyle = cvdAreaGrad;
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 0; i < points.length - 1; i++) {
+                    const xc = (points[i].x + points[i + 1].x) / 2;
+                    const yc = (points[i].y + points[i + 1].y) / 2;
+                    ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+                }
+                ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+                ctx.strokeStyle = '#facc15';
+                ctx.lineWidth = 2.2;
+                ctx.shadowColor = '#facc15';
+                ctx.shadowBlur = 6;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                const lastPt = points[points.length - 1];
+                ctx.fillStyle = '#facc15';
+                ctx.beginPath();
+                ctx.arc(lastPt.x, lastPt.y, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 4. Hover Crosshair
+        if (volDeltaHoverIndex >= 0 && volDeltaHoverIndex < bars.length) {
+            const hx = padLeft + volDeltaHoverIndex * slotW + slotW / 2;
+            ctx.strokeStyle = 'rgba(250, 204, 21, 0.5)';
+            ctx.setLineDash([2, 2]);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(hx, padTop);
+            ctx.lineTo(hx, padTop + plotH);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // 5. X-Axis Time Labels
+        ctx.font = '8.5px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#94a3b8';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        const labelIndices = [0, 5, 10, 15, 20, 25, 29];
+        for (let k = 0; k < labelIndices.length; k++) {
+            const idx = labelIndices[k];
+            if (bars[idx]) {
+                const cx = padLeft + idx * slotW + slotW / 2;
+                ctx.fillStyle = idx === 29 ? '#facc15' : '#94a3b8';
+                ctx.fillText(bars[idx].timeStr, cx, padTop + plotH + 5);
+            }
+        }
+
+        ctx.restore();
+    }
+
+    function setupVolDeltaCanvasEvents() {
+        if (volDeltaInitialized) return;
+        const canvas = document.getElementById('canvas-vol-delta');
+        const tooltip = document.getElementById('vdelta-tooltip');
+        if (!canvas || !tooltip) return;
+
+        volDeltaInitialized = true;
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const padLeft = 45;
+            const padRight = 50;
+            const plotW = rect.width - padLeft - padRight;
+            const slotW = plotW / 30;
+
+            if (mouseX >= padLeft && mouseX <= padLeft + plotW) {
+                const idx = Math.min(29, Math.max(0, Math.floor((mouseX - padLeft) / slotW)));
+                volDeltaHoverIndex = idx;
+                renderVolDeltaCanvas(currentTradePair || 'USDJPY');
+
+                const p = currentTradePair || 'USDJPY';
+                const bars = volDelta30mBuffer[p];
+                if (bars && bars[idx]) {
+                    const b = bars[idx];
+                    tooltip.style.display = 'block';
+                    tooltip.innerHTML = `
+                        <div style="font-weight:bold; color:#facc15; margin-bottom:4px; font-size:0.72rem; border-bottom:1px solid rgba(250,204,21,0.25); padding-bottom:2px;">
+                            ⏱️ ${b.label} (${b.timeStr} WIB)
+                        </div>
+                        <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:2px;">
+                            <span style="color:#94a3b8;">BUY VOL:</span>
+                            <span style="color:#10b981; font-weight:bold;">${b.buyVol} contracts</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:2px;">
+                            <span style="color:#94a3b8;">SELL VOL:</span>
+                            <span style="color:#f43f5e; font-weight:bold;">${b.sellVol} contracts</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; gap:12px; border-top:1px solid rgba(255,255,255,0.1); padding-top:2px;">
+                            <span style="color:#94a3b8;">SELISIH (DELTA):</span>
+                            <span style="color:${b.delta >= 0 ? '#10b981' : '#f43f5e'}; font-weight:bold;">${b.delta >= 0 ? '+' : ''}${b.delta} contracts</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; gap:12px;">
+                            <span style="color:#94a3b8;">CUMULATIVE (CVD):</span>
+                            <span style="color:#facc15; font-weight:bold;">${b.cvd >= 0 ? '+' : ''}${b.cvd} contracts</span>
+                        </div>
+                        <div style="margin-top:4px; font-size:0.62rem; color:${b.delta >= 0 ? '#facc15' : '#f87171'}; font-weight:bold; text-align:center;">
+                            ${b.delta >= 0 ? '🟢 INSTITUTIONAL INFLOW' : '🔴 INSTITUTIONAL DISTRIBUTION'}
+                        </div>
+                    `;
+
+                    let tipX = mouseX + 14;
+                    if (tipX + 175 > rect.width) tipX = mouseX - 185;
+                    let tipY = mouseY - 25;
+                    if (tipY < 5) tipY = 5;
+                    if (tipY + 120 > rect.height) tipY = rect.height - 125;
+
+                    tooltip.style.left = `${tipX}px`;
+                    tooltip.style.top = `${tipY}px`;
+                }
+            } else {
+                volDeltaHoverIndex = -1;
+                tooltip.style.display = 'none';
+                renderVolDeltaCanvas(currentTradePair || 'USDJPY');
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            volDeltaHoverIndex = -1;
+            tooltip.style.display = 'none';
+            renderVolDeltaCanvas(currentTradePair || 'USDJPY');
+        });
+
+        window.addEventListener('resize', () => {
+            renderVolDeltaCanvas(currentTradePair || 'USDJPY');
+        });
+    }
+
+    // =========================================================================
+    // 🚀 30-MINUTE M1 VELOCITY BUY/SELL SPEED & SURGE ACCELERATION ENGINE
+    // =========================================================================
+    let velDelta30mBuffer = {}; // { 'USDJPY': [30 bars], 'XAUUSD': [...], ... }
+    let velDeltaViewMode = 'combo'; // 'combo' | 'bars' | 'surge'
+    let velDeltaHoverIndex = -1;
+    let velDeltaInitialized = false;
+
+    function setVelDeltaViewMode(mode) {
+        velDeltaViewMode = mode;
+        const btnCombo = document.getElementById('btn-veldelta-combo');
+        const btnBars = document.getElementById('btn-veldelta-bars');
+        const btnSurge = document.getElementById('btn-veldelta-surge');
+        if (btnCombo) btnCombo.classList.toggle('active', mode === 'combo');
+        if (btnBars) btnBars.classList.toggle('active', mode === 'bars');
+        if (btnSurge) btnSurge.classList.toggle('active', mode === 'surge');
+        renderVelDeltaCanvas(currentTradePair || 'USDJPY');
+    }
+
+    function initVelDelta30mBuffer(pair) {
+        const p = pair || currentTradePair || 'USDJPY';
+        if (velDelta30mBuffer[p] && velDelta30mBuffer[p].length === 30) return;
+
+        const isBull = (p === 'USDJPY' || p === 'XAUUSD');
+        const baseBuy = p === 'XAUUSD' ? 16.5 : (p === 'USDJPY' ? 14.0 : 11.0);
+        const baseSell = p === 'XAUUSD' ? 11.5 : (p === 'USDJPY' ? 9.5 : 9.0);
+
+        const now = new Date();
+        const bars = [];
+
+        for (let i = 29; i >= 0; i--) {
+            const barTime = new Date(now.getTime() - i * 60 * 1000);
+            const pad = n => String(n).padStart(2, '0');
+            const timeStr = `${pad(barTime.getHours())}:${pad(barTime.getMinutes())}`;
+            
+            const cycle = Math.sin((30 - i) * 0.5);
+            const noise = (Math.random() - 0.5) * 4.0;
+            
+            let bVel, sVel;
+            if (isBull) {
+                bVel = Math.max(3.0, parseFloat((baseBuy + cycle * 5.5 + noise + (i < 8 ? 3.0 : 0)).toFixed(1)));
+                sVel = Math.max(2.5, parseFloat((baseSell - cycle * 2.5 - noise * 0.4).toFixed(1)));
+            } else {
+                bVel = Math.max(2.5, parseFloat((baseBuy - cycle * 3.5 - noise * 0.4).toFixed(1)));
+                sVel = Math.max(3.0, parseFloat((baseSell + cycle * 5.0 + noise + (i < 8 ? 3.5 : 0)).toFixed(1)));
+            }
+
+            const delta = parseFloat((bVel - sVel).toFixed(1));
+            const surge = parseFloat((Math.sqrt(bVel * bVel + sVel * sVel) * 0.85).toFixed(1));
+
+            bars.push({
+                minuteOffset: i,
+                label: i === 0 ? 'NOW' : `-${i}m`,
+                timeStr: timeStr,
+                buyVel: bVel,
+                sellVel: sVel,
+                delta: delta,
+                surge: surge
+            });
+        }
+
+        velDelta30mBuffer[p] = bars;
+    }
+
+    function updateVelDeltaFeed(pair) {
+        const p = pair || currentTradePair || 'USDJPY';
+        initVelDelta30mBuffer(p);
+        const bars = velDelta30mBuffer[p];
+        if (!bars || bars.length === 0) return;
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const curTimeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const lastBar = bars[bars.length - 1];
+
+        if (lastBar.timeStr !== curTimeStr) {
+            const isBull = (p === 'USDJPY' || p === 'XAUUSD');
+            const bVel = parseFloat((isBull ? (12 + Math.random() * 8) : (6 + Math.random() * 6)).toFixed(1));
+            const sVel = parseFloat((isBull ? (6 + Math.random() * 5) : (11 + Math.random() * 8)).toFixed(1));
+            const delta = parseFloat((bVel - sVel).toFixed(1));
+            const surge = parseFloat((Math.sqrt(bVel * bVel + sVel * sVel) * 0.85).toFixed(1));
+
+            const newBar = {
+                minuteOffset: 0,
+                label: 'NOW',
+                timeStr: curTimeStr,
+                buyVel: bVel,
+                sellVel: sVel,
+                delta: delta,
+                surge: surge
+            };
+
+            bars.shift();
+            for (let i = 0; i < bars.length; i++) {
+                const off = 29 - i;
+                bars[i].minuteOffset = off;
+                bars[i].label = off === 0 ? 'NOW' : `-${off}m`;
+            }
+            bars.push(newBar);
+        } else {
+            const isBull = (p === 'USDJPY' || p === 'XAUUSD');
+            const wobbleBuy = (Math.random() - 0.45) * 1.2;
+            const wobbleSell = (Math.random() - 0.52) * 1.2;
+            lastBar.buyVel = Math.max(2.0, parseFloat((lastBar.buyVel + wobbleBuy).toFixed(1)));
+            lastBar.sellVel = Math.max(2.0, parseFloat((lastBar.sellVel + wobbleSell).toFixed(1)));
+            lastBar.delta = parseFloat((lastBar.buyVel - lastBar.sellVel).toFixed(1));
+            lastBar.surge = parseFloat((Math.sqrt(lastBar.buyVel * lastBar.buyVel + lastBar.sellVel * lastBar.sellVel) * 0.85).toFixed(1));
+        }
+
+        let peakSurge = 0;
+        for (let i = 0; i < bars.length; i++) {
+            if (bars[i].surge > peakSurge) peakSurge = bars[i].surge;
+        }
+
+        const netVel = lastBar.delta;
+        const cumEl = document.getElementById('td-veldelta-cum');
+        if (cumEl) {
+            const sign = netVel > 0 ? '+' : '';
+            cumEl.textContent = `${sign}${netVel.toFixed(1)} ticks/s`;
+            cumEl.className = netVel >= 0 ? 'fw-bold text-info' : 'fw-bold text-danger';
+        }
+
+        const peakEl = document.getElementById('td-veldelta-peak');
+        if (peakEl) {
+            peakEl.textContent = `${peakSurge.toFixed(1)} ticks/s`;
+        }
+
+        const biasEl = document.getElementById('td-veldelta-bias');
+        if (biasEl) {
+            if (netVel > 5.5) {
+                biasEl.textContent = '⚡ SUPER-STRONG ACCELERATION';
+                biasEl.className = 'badge bg-info bg-opacity-25 text-info';
+            } else if (netVel > 0) {
+                biasEl.textContent = '🟢 MODERATE BUY MOMENTUM';
+                biasEl.className = 'badge bg-info bg-opacity-25 text-info';
+            } else if (netVel < -5.5) {
+                biasEl.textContent = '🚨 HIGH VELOCITY DUMP';
+                biasEl.className = 'badge bg-danger bg-opacity-25 text-danger';
+            } else {
+                biasEl.textContent = '🔴 SELL DRIFT SPEED';
+                biasEl.className = 'badge bg-danger bg-opacity-25 text-danger';
+            }
+        }
+
+        renderVelDeltaCanvas(p);
+    }
+
+    function renderVelDeltaCanvas(pair) {
+        const p = pair || currentTradePair || 'USDJPY';
+        initVelDelta30mBuffer(p);
+        const bars = velDelta30mBuffer[p];
+        if (!bars || bars.length === 0) return;
+
+        const canvas = document.getElementById('canvas-vel-delta');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const w = rect.width;
+        const h = rect.height;
+        if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+            canvas.width = Math.round(w * dpr);
+            canvas.height = Math.round(h * dpr);
+        }
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, h);
+
+        const padLeft = 45;
+        const padRight = 50;
+        const padTop = 15;
+        const padBottom = 26;
+        const plotW = w - padLeft - padRight;
+        const plotH = h - padTop - padBottom;
+        const y0 = padTop + plotH / 2;
+
+        let maxDelta = 8;
+        let maxSurge = 20;
+        for (let i = 0; i < bars.length; i++) {
+            if (Math.abs(bars[i].delta) > maxDelta) maxDelta = Math.abs(bars[i].delta);
+            if (bars[i].surge > maxSurge) maxSurge = bars[i].surge;
+        }
+        maxDelta = Math.ceil(maxDelta * 1.3);
+        maxSurge = Math.ceil(maxSurge * 1.25);
+
+        const deltaScaleY = (plotH / 2) / maxDelta;
+        const surgeScaleY = plotH / maxSurge;
+        const slotW = plotW / 30;
+        const barW = Math.max(3, Math.min(18, slotW * 0.68));
+
+        // Grid lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.lineWidth = 1;
+        const yPlus = y0 - (maxDelta * 0.5 * deltaScaleY);
+        ctx.beginPath();
+        ctx.moveTo(padLeft, yPlus);
+        ctx.lineTo(padLeft + plotW, yPlus);
+        ctx.stroke();
+
+        const yMinus = y0 + (maxDelta * 0.5 * deltaScaleY);
+        ctx.beginPath();
+        ctx.moveTo(padLeft, yMinus);
+        ctx.lineTo(padLeft + plotW, yMinus);
+        ctx.stroke();
+
+        // Baseline (Purple dashed line)
+        ctx.strokeStyle = 'rgba(168, 85, 247, 0.35)';
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y0);
+        ctx.lineTo(padLeft + plotW, y0);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Y-Axis labels
+        ctx.font = '9px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#64748b';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`+${Math.round(maxDelta)}`, padLeft - 6, padTop + 4);
+        ctx.fillText(`0`, padLeft - 6, y0);
+        ctx.fillText(`-${Math.round(maxDelta)}`, padLeft - 6, padTop + plotH - 4);
+
+        if (velDeltaViewMode === 'combo' || velDeltaViewMode === 'surge') {
+            ctx.fillStyle = '#c084fc';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${Math.round(maxSurge)} T/s`, padLeft + plotW + 6, padTop + 4);
+            ctx.fillText(`0 T/s`, padLeft + plotW + 6, padTop + plotH - 4);
+        }
+
+        // 2. Velocity Delta Bars
+        if (velDeltaViewMode === 'combo' || velDeltaViewMode === 'bars') {
+            for (let i = 0; i < bars.length; i++) {
+                const b = bars[i];
+                const cx = padLeft + i * slotW + slotW / 2;
+                const bx = cx - barW / 2;
+                const dH = Math.max(1.5, Math.abs(b.delta) * deltaScaleY);
+                const isHovered = (velDeltaHoverIndex === i);
+
+                if (b.delta >= 0) {
+                    const by = y0 - dH;
+                    const grad = ctx.createLinearGradient(0, by, 0, y0);
+                    grad.addColorStop(0, isHovered ? '#34d399' : '#10b981');
+                    grad.addColorStop(1, 'rgba(5, 150, 105, 0.2)');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(bx, by, barW, dH);
+
+                    ctx.fillStyle = isHovered ? '#6ee7b7' : '#10b981';
+                    ctx.fillRect(bx, by, barW, 2);
+                } else {
+                    const by = y0;
+                    const grad = ctx.createLinearGradient(0, y0, 0, y0 + dH);
+                    grad.addColorStop(0, 'rgba(225, 29, 72, 0.2)');
+                    grad.addColorStop(1, isHovered ? '#fb7185' : '#f43f5e');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(bx, by, barW, dH);
+
+                    ctx.fillStyle = isHovered ? '#fda4af' : '#f43f5e';
+                    ctx.fillRect(bx, y0 + dH - 2, barW, 2);
+                }
+
+                if (barW >= 8 && Math.abs(b.delta) >= 6) {
+                    ctx.font = '8px "JetBrains Mono", monospace';
+                    ctx.textAlign = 'center';
+                    if (b.delta >= 0) {
+                        ctx.fillStyle = '#6ee7b7';
+                        ctx.fillText(`+${b.delta.toFixed(0)}`, cx, y0 - dH - 3);
+                    } else {
+                        ctx.fillStyle = '#fca5a5';
+                        ctx.fillText(`${b.delta.toFixed(0)}`, cx, y0 + dH + 9);
+                    }
+                }
+            }
+        }
+
+        // 3. Surge Acceleration Curve Overlay (Purple)
+        if (velDeltaViewMode === 'combo' || velDeltaViewMode === 'surge') {
+            const points = [];
+            for (let i = 0; i < bars.length; i++) {
+                const cx = padLeft + i * slotW + slotW / 2;
+                const cy = padTop + plotH - (bars[i].surge * surgeScaleY);
+                points.push({ x: cx, y: cy });
+            }
+
+            if (points.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, padTop + plotH);
+                for (let i = 0; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.lineTo(points[points.length - 1].x, padTop + plotH);
+                ctx.closePath();
+                const surgeAreaGrad = ctx.createLinearGradient(0, padTop, 0, padTop + plotH);
+                surgeAreaGrad.addColorStop(0, 'rgba(192, 132, 252, 0.22)');
+                surgeAreaGrad.addColorStop(0.5, 'rgba(192, 132, 252, 0.04)');
+                surgeAreaGrad.addColorStop(1, 'rgba(192, 132, 252, 0.01)');
+                ctx.fillStyle = surgeAreaGrad;
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 0; i < points.length - 1; i++) {
+                    const xc = (points[i].x + points[i + 1].x) / 2;
+                    const yc = (points[i].y + points[i + 1].y) / 2;
+                    ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+                }
+                ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+                ctx.strokeStyle = '#c084fc';
+                ctx.lineWidth = 2.2;
+                ctx.shadowColor = '#c084fc';
+                ctx.shadowBlur = 6;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                const lastPt = points[points.length - 1];
+                ctx.fillStyle = '#c084fc';
+                ctx.beginPath();
+                ctx.arc(lastPt.x, lastPt.y, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 4. Hover Crosshair
+        if (velDeltaHoverIndex >= 0 && velDeltaHoverIndex < bars.length) {
+            const hx = padLeft + velDeltaHoverIndex * slotW + slotW / 2;
+            ctx.strokeStyle = 'rgba(192, 132, 252, 0.5)';
+            ctx.setLineDash([2, 2]);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(hx, padTop);
+            ctx.lineTo(hx, padTop + plotH);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // 5. X-Axis Time Labels
+        ctx.font = '8.5px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#94a3b8';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        const labelIndices = [0, 5, 10, 15, 20, 25, 29];
+        for (let k = 0; k < labelIndices.length; k++) {
+            const idx = labelIndices[k];
+            if (bars[idx]) {
+                const cx = padLeft + idx * slotW + slotW / 2;
+                ctx.fillStyle = idx === 29 ? '#c084fc' : '#94a3b8';
+                ctx.fillText(bars[idx].timeStr, cx, padTop + plotH + 5);
+            }
+        }
+
+        ctx.restore();
+    }
+
+    function setupVelDeltaCanvasEvents() {
+        if (velDeltaInitialized) return;
+        const canvas = document.getElementById('canvas-vel-delta');
+        const tooltip = document.getElementById('veldelta-tooltip');
+        if (!canvas || !tooltip) return;
+
+        velDeltaInitialized = true;
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const padLeft = 45;
+            const padRight = 50;
+            const plotW = rect.width - padLeft - padRight;
+            const slotW = plotW / 30;
+
+            if (mouseX >= padLeft && mouseX <= padLeft + plotW) {
+                const idx = Math.min(29, Math.max(0, Math.floor((mouseX - padLeft) / slotW)));
+                velDeltaHoverIndex = idx;
+                renderVelDeltaCanvas(currentTradePair || 'USDJPY');
+
+                const p = currentTradePair || 'USDJPY';
+                const bars = velDelta30mBuffer[p];
+                if (bars && bars[idx]) {
+                    const b = bars[idx];
+                    tooltip.style.display = 'block';
+                    tooltip.innerHTML = `
+                        <div style="font-weight:bold; color:#c084fc; margin-bottom:4px; font-size:0.72rem; border-bottom:1px solid rgba(192,132,252,0.25); padding-bottom:2px;">
+                            ⏱️ ${b.label} (${b.timeStr} WIB)
+                        </div>
+                        <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:2px;">
+                            <span style="color:#94a3b8;">BUY VELOCITY:</span>
+                            <span style="color:#10b981; font-weight:bold;">${b.buyVel.toFixed(1)} ticks/s</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:2px;">
+                            <span style="color:#94a3b8;">SELL VELOCITY:</span>
+                            <span style="color:#f43f5e; font-weight:bold;">${b.sellVel.toFixed(1)} ticks/s</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; gap:12px; border-top:1px solid rgba(255,255,255,0.1); padding-top:2px;">
+                            <span style="color:#94a3b8;">SPEED DELTA:</span>
+                            <span style="color:${b.delta >= 0 ? '#10b981' : '#f43f5e'}; font-weight:bold;">${b.delta >= 0 ? '+' : ''}${b.delta.toFixed(1)} ticks/s</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; gap:12px;">
+                            <span style="color:#94a3b8;">SURGE INDEX:</span>
+                            <span style="color:#c084fc; font-weight:bold;">${b.surge.toFixed(1)} ticks/s</span>
+                        </div>
+                        <div style="margin-top:4px; font-size:0.62rem; color:${b.delta >= 0 ? '#c084fc' : '#f87171'}; font-weight:bold; text-align:center;">
+                            ${b.delta >= 0 ? '⚡ HIGH SPEED BUY INFLOW' : '🔴 HEAVY SELL ACCELERATION'}
+                        </div>
+                    `;
+
+                    let tipX = mouseX + 14;
+                    if (tipX + 175 > rect.width) tipX = mouseX - 185;
+                    let tipY = mouseY - 25;
+                    if (tipY < 5) tipY = 5;
+                    if (tipY + 120 > rect.height) tipY = rect.height - 125;
+
+                    tooltip.style.left = `${tipX}px`;
+                    tooltip.style.top = `${tipY}px`;
+                }
+            } else {
+                velDeltaHoverIndex = -1;
+                tooltip.style.display = 'none';
+                renderVelDeltaCanvas(currentTradePair || 'USDJPY');
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            velDeltaHoverIndex = -1;
+            tooltip.style.display = 'none';
+            renderVelDeltaCanvas(currentTradePair || 'USDJPY');
+        });
+
+        window.addEventListener('resize', () => {
+            renderVelDeltaCanvas(currentTradePair || 'USDJPY');
+        });
+    }
+
+    // Auto streaming loop for 30m microstructure (Tick, Volume, Velocity): updates every 1.5s
     setInterval(() => {
         const pane = document.getElementById('pane-trade');
         if (pane && (pane.classList.contains('active') || pane.style.display !== 'none')) {
             setupTickDeltaCanvasEvents();
             updateTickDeltaFeed(currentTradePair || 'USDJPY');
+            setupVolDeltaCanvasEvents();
+            updateVolDeltaFeed(currentTradePair || 'USDJPY');
+            setupVelDeltaCanvasEvents();
+            updateVelDeltaFeed(currentTradePair || 'USDJPY');
         }
     }, 1500);
 

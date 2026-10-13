@@ -36,7 +36,7 @@
     "tp": 1.3385,
     "direction": "BUY DIP",
     "op_triggered": true,
-    "tp_triggered": true,
+    "tp_triggered": false,
     "note": "London Accumulation"
   },
   "OIL": {
