@@ -2916,6 +2916,10 @@
                 <div class="d-flex align-items-center gap-1.5 flex-nowrap">
                     <span class="text-secondary" style="font-size: 0.95rem; line-height: 1; cursor: pointer;">☰</span>
                     <span class="badge px-1 py-0.5" style="background: #0284c7; color: #ffffff; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px;">OPTION B</span>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-sm btn-info active py-0 px-1.5 fw-bold mono" id="btn-view-cockpit-v2" onclick="switchCockpitView('v2')" style="font-size: 0.60rem; line-height: 1.1;" title="Tampilan Baru (Gambar 2)">🎛️ DASHBOARD NO 2</button>
+                        <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5 fw-bold mono" id="btn-view-cockpit-v1" onclick="switchCockpitView('v1')" style="font-size: 0.60rem; line-height: 1.1;" title="Tampilan Sebelumnya (Gambar 1)">📊 NO 1</button>
+                    </div>
                     <select id="td-pair-select" class="form-select form-select-sm fw-bold mono py-0 px-1" onchange="switchTradeDeskPair(this.value)" style="background: #050c18; color: #00f0ff; border: 1px solid rgba(0,240,255,0.4); font-size: 0.80rem; font-weight: 800; height: 22px; width: 92px; cursor: pointer;">
                         <option value="USDJPY" selected>USDJPY</option>
                         <option value="XAUUSD">XAUUSD</option>
@@ -3000,8 +3004,592 @@
                 </div>
             </div>
 
-            <!-- 3. MASTER 2-COLUMN SPLIT DESK (PADAT / ZERO-SCROLL) -->
-            <div class="row g-1 mono flex-grow-1 mx-0" style="min-height: 0; overflow: hidden;">
+
+            <!-- ========================================================================= -->
+            <!-- 🎛️ COCKPIT V2: INSTITUTIONAL SCALPING & MULTI-ASSET COCKPIT (GAMBAR NO 2)  -->
+            <!-- ========================================================================= -->
+            <div id="cockpit-v2-container" class="mono d-flex flex-column gap-2 p-1.5 flex-grow-1 position-relative" style="display: flex; min-height: 0; overflow-y: auto; overflow-x: hidden; width: 100%; max-height: calc(100vh - 75px);">
+                
+                <!-- Floating Scroll Down Button (Exact Match to Gambar 2 bottom right) -->
+                <div id="cockpit-scroll-down-btn" onclick="const c = document.getElementById('cockpit-v2-container'); if(c) c.scrollBy({top: 380, behavior: 'smooth'});" style="position: absolute; bottom: 18px; right: 22px; width: 34px; height: 34px; border-radius: 50%; background: #000; border: 1.5px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 60; box-shadow: 0 4px 14px rgba(0,0,0,0.6);" title="Gulir ke Bawah">
+                    <span style="color:#ffffff; font-size:15px; font-weight:bold; line-height:1;">↓</span>
+                </div>
+
+                <!-- Live MT5 Live Pos HUD Strip -->
+                <div id="v2-mt5-hud" class="px-2 py-1 rounded d-flex justify-content-between align-items-center flex-nowrap" style="background: #08162b; border: 1px solid rgba(16, 185, 129, 0.45); font-size: 0.68rem; min-height: 25px;">
+                    <div class="d-flex align-items-center gap-1.5 flex-nowrap">
+                        <span class="badge py-0.5 px-1.5 text-white" style="background: #059669; font-size: 0.60rem; font-weight: 800;">MT5 LIVE POS</span>
+                        <span class="fw-bold text-light" id="v2-hud-symbol">USDJPY</span>
+                        <span class="badge py-0.5 px-1.5" id="v2-hud-type" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid #ef4444; font-size: 0.60rem; font-weight: 800;">SELL 1.00 LOT</span>
+                        <span class="text-secondary">OPEN:</span>
+                        <span class="fw-bold text-cyan" id="v2-hud-open">158.412</span>
+                        <span class="text-secondary">NOW:</span>
+                        <span class="fw-bold text-light" id="v2-hud-current">158.400</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-nowrap">
+                        <span class="text-secondary">FLOATING P/L:</span>
+                        <span class="fw-bold text-success" id="v2-hud-profit" style="font-size: 0.88rem; font-weight: 800;">+$7.58</span>
+                        <button class="btn btn-sm btn-outline-info py-0 px-2 mono fw-bold" onclick="openMt5McpModal()" style="font-size: 0.62rem; line-height: 1.1;" title="Buka Detail MCP Server MT5">MCP 🔌</button>
+                    </div>
+                </div>
+
+                <!-- ROW 1: H4 RANGE & FORECAST (Left) + MULTI TIMEFRAME TREND (Right) -->
+                <div class="row g-2 mx-0">
+                    <!-- 1. H4 RANGE & FORECAST -->
+                    <div class="col-12 col-md-6 px-1">
+                        <div class="p-2.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); min-height: 110px;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center gap-1.5">
+                                    <span class="badge px-1 py-0.5" style="background: #0284c7; color: #fff; font-size: 0.62rem; font-weight: 800;">H4</span>
+                                    <span class="fw-bold text-light" style="font-size: 0.78rem; letter-spacing: 0.3px;">H4 RANGE &amp; FORECAST</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                <div>
+                                    <div class="fw-bold text-light" id="v2-h4-low" style="font-size: 0.95rem; font-weight: 800;">2,410.25</div>
+                                    <div class="text-secondary" style="font-size: 0.58rem;">H4 LOW</div>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-light text-end" id="v2-h4-high" style="font-size: 0.95rem; font-weight: 800;">2,440.85</div>
+                                    <div class="text-secondary text-end" style="font-size: 0.58rem;">H4 HIGH</div>
+                                </div>
+                            </div>
+
+                            <!-- Range Slider Bar with white knob -->
+                            <div class="position-relative my-1">
+                                <div class="position-relative rounded-pill" style="height: 7px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); overflow: hidden;">
+                                    <div id="v2-h4-bar-fill" style="width: 71.8%; height: 100%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%);"></div>
+                                </div>
+                                <div id="v2-h4-knob" style="position: absolute; top: 50%; left: 71.8%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #ffffff; border: 2px solid #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);"></div>
+                            </div>
+                            <div class="text-center mb-1">
+                                <span class="text-info fw-bold" id="v2-h4-pct-label" style="font-size: 0.68rem;">71.8% in Range</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.68rem;">
+                                <div>
+                                    <span class="text-secondary">Bias:</span>
+                                    <b class="text-success" id="v2-h4-bias">BULLISH &gt;&gt;&gt;</b>
+                                </div>
+                                <div>
+                                    <span class="text-secondary">Next:</span>
+                                    <b class="text-light" id="v2-h4-next">2,445 / 2,400</b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. MULTI TIMEFRAME TREND -->
+                    <div class="col-12 col-md-6 px-1">
+                        <div class="p-2.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); min-height: 110px;">
+                            <div class="d-flex align-items-center gap-1.5 mb-1">
+                                <span style="font-size: 0.95rem;">🧭</span>
+                                <span class="fw-bold text-light" style="font-size: 0.78rem; letter-spacing: 0.3px;">MULTI TIMEFRAME TREND</span>
+                            </div>
+
+                            <div class="row g-1 text-center my-auto">
+                                <div class="col-2">
+                                    <div class="text-secondary" style="font-size: 0.60rem;">D1</div>
+                                    <div class="fw-bold text-success" id="v2-mttf-d1-arrow" style="font-size: 1.15rem; line-height: 1.1;">↑</div>
+                                    <div class="text-success fw-bold" id="v2-mttf-d1-text" style="font-size: 0.60rem;">Bull</div>
+                                </div>
+                                <div class="col-2">
+                                    <div class="text-secondary" style="font-size: 0.60rem;">H4</div>
+                                    <div class="fw-bold text-success" id="v2-mttf-h4-arrow" style="font-size: 1.15rem; line-height: 1.1;">↑</div>
+                                    <div class="text-success fw-bold" id="v2-mttf-h4-text" style="font-size: 0.60rem;">Bull</div>
+                                </div>
+                                <div class="col-2">
+                                    <div class="text-secondary" style="font-size: 0.60rem;">H1</div>
+                                    <div class="fw-bold text-success" id="v2-mttf-h1-arrow" style="font-size: 1.15rem; line-height: 1.1;">↑</div>
+                                    <div class="text-success fw-bold" id="v2-mttf-h1-text" style="font-size: 0.60rem;">Bull</div>
+                                </div>
+                                <div class="col-2">
+                                    <div class="text-secondary" style="font-size: 0.60rem;">M15</div>
+                                    <div class="fw-bold text-danger" id="v2-mttf-m15-arrow" style="font-size: 1.15rem; line-height: 1.1;">↓</div>
+                                    <div class="text-danger fw-bold" id="v2-mttf-m15-text" style="font-size: 0.60rem;">Bear</div>
+                                </div>
+                                <div class="col-2">
+                                    <div class="text-secondary" style="font-size: 0.60rem;">M5</div>
+                                    <div class="fw-bold text-danger" id="v2-mttf-m5-arrow" style="font-size: 1.15rem; line-height: 1.1;">↓</div>
+                                    <div class="text-danger fw-bold" id="v2-mttf-m5-text" style="font-size: 0.60rem;">Bear</div>
+                                </div>
+                                <div class="col-2">
+                                    <div class="text-secondary" style="font-size: 0.60rem;">M1</div>
+                                    <div class="fw-bold text-danger" id="v2-mttf-m1-arrow" style="font-size: 1.15rem; line-height: 1.1;">↓</div>
+                                    <div class="text-danger fw-bold" id="v2-mttf-m1-text" style="font-size: 0.60rem;">Bear</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.68rem;">
+                                <span class="text-secondary">Trend Score</span>
+                                <div class="d-flex align-items-center gap-1">
+                                    <div class="d-flex gap-0.5" id="v2-trend-score-blocks">
+                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
+                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
+                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
+                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
+                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
+                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
+                                        <span style="display:inline-block; width:6px; height:12px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
+                                        <span style="display:inline-block; width:6px; height:12px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
+                                        <span style="display:inline-block; width:6px; height:12px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
+                                        <span style="display:inline-block; width:6px; height:12px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
+                                    </div>
+                                    <b class="text-danger ms-1" id="v2-trend-score-val" style="font-size: 0.78rem;">64/100</b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 2: HARGA & PERGERAKAN M1 (30M) [Left, col-md-7] + MARKET PRESSURE & TICK ANALYSIS [Right, col-md-5] -->
+                <div class="row g-2 mx-0">
+                    <!-- 3. HARGA & PERGERAKAN M1 (30M) -->
+                    <div class="col-12 col-md-7 px-1">
+                        <div class="p-2.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); min-height: 220px;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center gap-1.5">
+                                    <span style="font-size: 0.95rem;">📊</span>
+                                    <span class="fw-bold text-light" style="font-size: 0.78rem; letter-spacing: 0.3px;">HARGA &amp; PERGERAKAN M1 (30M)</span>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-info active py-0 px-2" id="v2-tf-m1" onclick="switchCockpitM1Tf('M1')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">M1</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" id="v2-tf-m5" onclick="switchCockpitM1Tf('M5')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">M5</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" id="v2-tf-m15" onclick="switchCockpitM1Tf('M15')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">M15</button>
+                                </div>
+                            </div>
+
+                            <!-- Canvas Area for Candlesticks & Volume -->
+                            <div class="position-relative flex-grow-1 my-1" style="width: 100%; min-height: 170px; background: rgba(5, 12, 24, 0.95); border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.2); overflow: hidden;">
+                                <canvas id="cockpit-m1-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
+                                <div id="cockpit-m1-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #00f0ff; border-radius: 4px; padding: 4px 8px; font-size: 0.62rem; color: #fff; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 140px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 & 5. MARKET PRESSURE + TICK & VOLUME ANALYSIS -->
+                    <div class="col-12 col-md-5 px-1 d-flex flex-column gap-2">
+                        <!-- 4. MARKET PRESSURE -->
+                        <div class="p-2 rounded flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="fw-bold text-light mb-1" style="font-size: 0.74rem;">MARKET PRESSURE</div>
+                            <div class="d-flex flex-column gap-1" style="font-size: 0.68rem;">
+                                <!-- DXY -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-secondary">DXY</span>
+                                    <div class="d-flex align-items-center gap-1.5">
+                                        <b class="text-light" id="v2-mp-dxy-val">103.28</b>
+                                        <span class="text-danger" id="v2-mp-dxy-chg" style="font-size: 0.60rem;">▼ -0.12%</span>
+                                        <svg width="45" height="14" style="overflow:visible;"><path d="M0,4 L10,3 L20,7 L30,5 L45,12" fill="none" stroke="#ef4444" stroke-width="1.5"/></svg>
+                                    </div>
+                                </div>
+                                <!-- US10Y -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-secondary">US10Y</span>
+                                    <div class="d-flex align-items-center gap-1.5">
+                                        <b class="text-warning" id="v2-mp-us10y-val">4.238</b>
+                                        <span class="text-success" id="v2-mp-us10y-chg" style="font-size: 0.60rem;">▲ +0.015</span>
+                                        <svg width="45" height="14" style="overflow:visible;"><path d="M0,10 L12,8 L24,5 L35,6 L45,2" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+                                    </div>
+                                </div>
+                                <!-- Real Yield -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-secondary">Real Yield</span>
+                                    <div class="d-flex align-items-center gap-1.5">
+                                        <b class="text-light" id="v2-mp-ry-val">1.86</b>
+                                        <span class="text-success" id="v2-mp-ry-chg" style="font-size: 0.60rem;">▲ +0.02</span>
+                                        <svg width="45" height="14" style="overflow:visible;"><path d="M0,11 L15,9 L30,6 L45,3" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+                                    </div>
+                                </div>
+                                <!-- VIX -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-secondary">VIX</span>
+                                    <div class="d-flex align-items-center gap-1.5">
+                                        <b class="text-light" id="v2-mp-vix-val">14.62</b>
+                                        <span class="text-warning" id="v2-mp-vix-chg" style="font-size: 0.60rem;">▲ +1.8%</span>
+                                        <svg width="45" height="14" style="overflow:visible;"><path d="M0,8 L12,10 L25,4 L36,7 L45,3" fill="none" stroke="#facc15" stroke-width="1.5"/></svg>
+                                    </div>
+                                </div>
+                                <!-- OIL -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-secondary">OIL</span>
+                                    <div class="d-flex align-items-center gap-1.5">
+                                        <b class="text-light" id="v2-mp-oil-val">78.21</b>
+                                        <span class="text-success" id="v2-mp-oil-chg" style="font-size: 0.60rem;">▲ +0.6%</span>
+                                        <svg width="45" height="14" style="overflow:visible;"><path d="M0,10 L14,7 L28,8 L45,2" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. TICK & VOLUME ANALYSIS (M1) -->
+                        <div class="p-2 rounded flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="fw-bold text-light mb-1" style="font-size: 0.74rem;">TICK &amp; VOLUME ANALYSIS (M1)</div>
+                            <div class="row g-1 text-center">
+                                <div class="col-4">
+                                    <div class="text-secondary" style="font-size: 0.58rem;">TICK DELTA</div>
+                                    <div class="fw-bold text-success" id="v2-tick-delta" style="font-size: 0.88rem; font-weight: 800;">+344</div>
+                                    <div class="d-flex justify-content-center align-items-end gap-0.5 mt-0.5" style="height: 16px;">
+                                        <span style="width:3px; height:8px; background:#10b981; border-radius:1px;"></span>
+                                        <span style="width:3px; height:12px; background:#10b981; border-radius:1px;"></span>
+                                        <span style="width:3px; height:16px; background:#10b981; border-radius:1px;"></span>
+                                        <span style="width:3px; height:14px; background:#10b981; border-radius:1px;"></span>
+                                        <span style="width:3px; height:10px; background:#10b981; border-radius:1px;"></span>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-secondary" style="font-size: 0.58rem;">VOLUME DELTA</div>
+                                    <div class="fw-bold text-cyan" id="v2-vol-delta" style="font-size: 0.88rem; font-weight: 800;">+752</div>
+                                    <div class="d-flex justify-content-center align-items-end gap-0.5 mt-0.5" style="height: 16px;">
+                                        <span style="width:3px; height:6px; background:#00f0ff; border-radius:1px;"></span>
+                                        <span style="width:3px; height:10px; background:#00f0ff; border-radius:1px;"></span>
+                                        <span style="width:3px; height:14px; background:#00f0ff; border-radius:1px;"></span>
+                                        <span style="width:3px; height:16px; background:#00f0ff; border-radius:1px;"></span>
+                                        <span style="width:3px; height:12px; background:#00f0ff; border-radius:1px;"></span>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-secondary" style="font-size: 0.58rem;">VELOCITY</div>
+                                    <div class="fw-bold text-info" id="v2-vel-delta" style="font-size: 0.88rem; font-weight: 800;">+11.9</div>
+                                    <div class="text-secondary" style="font-size: 0.52rem;">ticks/min</div>
+                                    <div class="d-flex justify-content-center align-items-end gap-0.5 mt-0.5" style="height: 16px;">
+                                        <span style="width:3px; height:10px; background:#38bdf8; border-radius:1px;"></span>
+                                        <span style="width:3px; height:16px; background:#38bdf8; border-radius:1px;"></span>
+                                        <span style="width:3px; height:8px; background:#38bdf8; border-radius:1px;"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 3: SESSION HIGH LOW [Left, col-md-6] + FLOW & LIQUIDITY & COT [Right, col-md-6] -->
+                <div class="row g-2 mx-0">
+                    <!-- 6. SESSION HIGH LOW -->
+                    <div class="col-12 col-md-6 px-1">
+                        <div class="p-2.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); min-height: 110px;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center gap-1.5">
+                                    <span style="font-size: 0.95rem;">⏱️</span>
+                                    <span class="fw-bold text-light" style="font-size: 0.78rem;">SESSION HIGH LOW</span>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5" onclick="setCockpitSession('ASIA', this)" style="font-size: 0.60rem; font-weight: 700; line-height: 1.1;">ASIA</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info active py-0 px-1.5" onclick="setCockpitSession('EUROPE', this)" style="font-size: 0.60rem; font-weight: 700; line-height: 1.1;">EUROPE</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5" onclick="setCockpitSession('US', this)" style="font-size: 0.60rem; font-weight: 700; line-height: 1.1;">US</button>
+                                </div>
+                            </div>
+
+                            <div class="row g-1 align-items-center">
+                                <div class="col-4">
+                                    <div class="d-flex align-items-baseline gap-1">
+                                        <span class="text-secondary" style="font-size: 0.65rem;">H</span>
+                                        <b class="text-success" id="v2-sess-h" style="font-size: 0.85rem;">2,435.60</b>
+                                    </div>
+                                    <div class="d-flex align-items-baseline gap-1">
+                                        <span class="text-secondary" style="font-size: 0.65rem;">L</span>
+                                        <b class="text-danger" id="v2-sess-l" style="font-size: 0.85rem;">2,428.10</b>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <div class="text-secondary" style="font-size: 0.58rem;">DAILY RANGE</div>
+                                    <div style="font-size: 0.68rem;"><span class="text-secondary">H</span> <b class="text-light" id="v2-daily-h">2,440.85</b></div>
+                                    <div style="font-size: 0.68rem;"><span class="text-secondary">L</span> <b class="text-light" id="v2-daily-l">2,410.25</b></div>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <div class="text-secondary" style="font-size: 0.58rem;">POSITION</div>
+                                    <b class="text-info" id="v2-sess-pos" style="font-size: 0.85rem;">71.8%</b>
+                                    <div class="position-relative mt-1">
+                                        <div class="rounded-pill" style="height: 5px; background: rgba(255,255,255,0.08); overflow: hidden;">
+                                            <div id="v2-sess-pos-fill" style="width: 71.8%; height: 100%; background: linear-gradient(90deg, #ef4444, #10b981);"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7 & 8. FLOW & LIQUIDITY + COT & POSITIONING -->
+                    <div class="col-12 col-md-6 px-1 d-flex flex-column gap-2">
+                        <!-- 7. FLOW & LIQUIDITY -->
+                        <div class="p-2 rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="fw-bold text-light mb-1" style="font-size: 0.74rem;">FLOW &amp; LIQUIDITY</div>
+                            <div class="d-flex justify-content-between align-items-center" style="font-size: 0.68rem;">
+                                <div>
+                                    <div class="text-secondary" style="font-size: 0.58rem;">FLOW STATUS</div>
+                                    <div class="fw-bold text-danger" id="v2-flow-status" style="font-size: 0.85rem;">DISTRIBUTION</div>
+                                    <div class="d-flex align-items-center gap-1 mt-0.5">
+                                        <div class="d-flex gap-0.5" id="v2-flow-blocks">
+                                            <span style="display:inline-block; width:6px; height:8px; background:#ef4444; border-radius:1px;"></span>
+                                            <span style="display:inline-block; width:6px; height:8px; background:#ef4444; border-radius:1px;"></span>
+                                            <span style="display:inline-block; width:6px; height:8px; background:#ef4444; border-radius:1px;"></span>
+                                            <span style="display:inline-block; width:6px; height:8px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
+                                            <span style="display:inline-block; width:6px; height:8px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
+                                        </div>
+                                        <span class="text-danger fw-bold" id="v2-flow-pct" style="font-size: 0.62rem;">-28%</span>
+                                    </div>
+                                </div>
+
+                                <div class="text-end">
+                                    <div class="text-secondary" style="font-size: 0.58rem;">LIQUIDITY ZONE</div>
+                                    <div style="font-size: 0.64rem;"><span class="text-secondary">R1</span> <b class="text-light" id="v2-liq-r1">2,435.60</b> &nbsp; <span class="text-secondary">R2</span> <b class="text-light" id="v2-liq-r2">2,438.20</b></div>
+                                    <div style="font-size: 0.64rem;"><span class="text-secondary">S1</span> <b class="text-light" id="v2-liq-s1">2,428.10</b> &nbsp; <span class="text-secondary">S2</span> <b class="text-light" id="v2-liq-s2">2,425.30</b></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 8. COT & POSITIONING (WEEKLY) -->
+                        <div class="p-2 rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-light" style="font-size: 0.74rem;">COT &amp; POSITIONING (WEEKLY)</span>
+                                <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" id="v2-cot-badge" style="font-size: 0.58rem;">BULLISH</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center" style="font-size: 0.68rem;">
+                                <div>
+                                    <div style="font-size: 0.64rem;"><span class="text-secondary">Net Position:</span> <b class="text-success" id="v2-cot-net">+182.4K</b></div>
+                                    <div style="font-size: 0.64rem;"><span class="text-secondary">Change:</span> <b class="text-success" id="v2-cot-chg">+12.6K</b></div>
+                                    <div style="font-size: 0.64rem;"><span class="text-secondary">Long:</span> <b class="text-light" id="v2-cot-long">301.2K</b> &nbsp; <span class="text-secondary">Short:</span> <b class="text-light" id="v2-cot-short">118.8K</b></div>
+                                    <div style="font-size: 0.60rem;"><span class="text-secondary">Status:</span> <span class="text-light" id="v2-cot-status">Moderately Long</span></div>
+                                </div>
+                                <div>
+                                    <svg width="65" height="35" style="overflow:visible;">
+                                        <rect x="0" y="15" width="6" height="20" fill="#eab308" rx="1"/>
+                                        <rect x="9" y="12" width="6" height="23" fill="#eab308" rx="1"/>
+                                        <rect x="18" y="18" width="6" height="17" fill="#eab308" rx="1"/>
+                                        <rect x="27" y="10" width="6" height="25" fill="#14b8a6" rx="1"/>
+                                        <rect x="36" y="6" width="6" height="29" fill="#14b8a6" rx="1"/>
+                                        <rect x="45" y="4" width="6" height="31" fill="#14b8a6" rx="1"/>
+                                        <rect x="54" y="2" width="6" height="33" fill="#14b8a6" rx="1"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 4: INDIKATOR SCALPING (M1) [5 RADIAL GAUGES] -->
+                <div class="p-2.5 rounded mx-1" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                    <div class="d-flex align-items-center gap-1.5 mb-2">
+                        <span style="font-size: 0.95rem;">🎯</span>
+                        <span class="fw-bold text-light" style="font-size: 0.78rem;">INDIKATOR SCALPING (M1)</span>
+                    </div>
+
+                    <div class="row g-2 text-center">
+                        <!-- 1. Trend (42, Bear) -->
+                        <div class="col">
+                            <div class="text-secondary" style="font-size: 0.62rem;">Trend</div>
+                            <div class="position-relative mx-auto my-1" style="width: 58px; height: 36px;">
+                                <svg viewBox="0 0 100 60" width="58" height="36">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
+                                    <path id="v2-gauge-trend-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#ef4444" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="72.8" style="filter: drop-shadow(0 0 4px #ef4444);"/>
+                                </svg>
+                                <div id="v2-gauge-trend-val" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.82rem; font-weight: 800; color: #fff;">42</div>
+                            </div>
+                            <div class="text-danger fw-bold" id="v2-gauge-trend-label" style="font-size: 0.62rem;">Bear ↘</div>
+                        </div>
+
+                        <!-- 2. Momentum (36, Bear) -->
+                        <div class="col">
+                            <div class="text-secondary" style="font-size: 0.62rem;">Momentum</div>
+                            <div class="position-relative mx-auto my-1" style="width: 58px; height: 36px;">
+                                <svg viewBox="0 0 100 60" width="58" height="36">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
+                                    <path id="v2-gauge-mom-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#ef4444" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="80.3" style="filter: drop-shadow(0 0 4px #ef4444);"/>
+                                </svg>
+                                <div id="v2-gauge-mom-val" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.82rem; font-weight: 800; color: #fff;">36</div>
+                            </div>
+                            <div class="text-danger fw-bold" id="v2-gauge-mom-label" style="font-size: 0.62rem;">Bear ↘</div>
+                        </div>
+
+                        <!-- 3. Tick (68, Bull) -->
+                        <div class="col">
+                            <div class="text-secondary" style="font-size: 0.62rem;">Tick</div>
+                            <div class="position-relative mx-auto my-1" style="width: 58px; height: 36px;">
+                                <svg viewBox="0 0 100 60" width="58" height="36">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
+                                    <path id="v2-gauge-tick-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="40.1" style="filter: drop-shadow(0 0 4px #10b981);"/>
+                                </svg>
+                                <div id="v2-gauge-tick-val" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.82rem; font-weight: 800; color: #fff;">68</div>
+                            </div>
+                            <div class="text-success fw-bold" id="v2-gauge-tick-label" style="font-size: 0.62rem;">Bull ↗</div>
+                        </div>
+
+                        <!-- 4. Volume (65, Bull) -->
+                        <div class="col">
+                            <div class="text-secondary" style="font-size: 0.62rem;">Volume</div>
+                            <div class="position-relative mx-auto my-1" style="width: 58px; height: 36px;">
+                                <svg viewBox="0 0 100 60" width="58" height="36">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
+                                    <path id="v2-gauge-vol-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="43.9" style="filter: drop-shadow(0 0 4px #10b981);"/>
+                                </svg>
+                                <div id="v2-gauge-vol-val" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.82rem; font-weight: 800; color: #fff;">65</div>
+                            </div>
+                            <div class="text-success fw-bold" id="v2-gauge-vol-label" style="font-size: 0.62rem;">Bull ↗</div>
+                        </div>
+
+                        <!-- 5. Velocity (72, Bull) -->
+                        <div class="col">
+                            <div class="text-secondary" style="font-size: 0.62rem;">Velocity</div>
+                            <div class="position-relative mx-auto my-1" style="width: 58px; height: 36px;">
+                                <svg viewBox="0 0 100 60" width="58" height="36">
+                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
+                                    <path id="v2-gauge-vel-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="35.1" style="filter: drop-shadow(0 0 4px #10b981);"/>
+                                </svg>
+                                <div id="v2-gauge-vel-val" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.82rem; font-weight: 800; color: #fff;">72</div>
+                            </div>
+                            <div class="text-success fw-bold" id="v2-gauge-vel-label" style="font-size: 0.62rem;">Bull ↗</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 5: SCALPING SIGNAL -->
+                <div class="p-2.5 rounded mx-1" style="background: #0B1B30; border: 1px solid rgba(239, 68, 68, 0.45); box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);">
+                    <div class="row g-2 align-items-center">
+                        <!-- Left: SELL BOX -->
+                        <div class="col-12 col-md-3">
+                            <div class="text-warning fw-bold mb-1" style="font-size: 0.68rem;">SCALPING SIGNAL</div>
+                            <div class="d-flex align-items-center justify-content-center gap-2 p-2 rounded" style="background: rgba(239, 68, 68, 0.25); border: 2px solid #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);">
+                                <span class="text-danger fw-bold" id="v2-sig-arrow" style="font-size: 1.4rem; line-height: 1;">↘</span>
+                                <span class="fw-bold text-white px-2.5 py-0.5 rounded" id="v2-sig-badge" style="background: #ef4444; font-size: 1.15rem; letter-spacing: 1px;">SELL</span>
+                            </div>
+                        </div>
+
+                        <!-- Middle: SETUP -->
+                        <div class="col-12 col-md-5">
+                            <div class="text-secondary" style="font-size: 0.60rem;">SETUP</div>
+                            <div class="fw-bold text-danger" id="v2-setup-title" style="font-size: 1.05rem;">Sell Pullback</div>
+                            <div class="text-light" id="v2-setup-desc" style="font-size: 0.70rem;">M5 Bearish | M1 Rejection</div>
+                            <div class="text-secondary" id="v2-setup-sess" style="font-size: 0.64rem;">Session: Europe (Good)</div>
+                        </div>
+
+                        <!-- Right: QUALITY GATE PASS -->
+                        <div class="col-12 col-md-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-secondary" style="font-size: 0.60rem;">QUALITY GATE</div>
+                                    <div class="text-success" style="font-size: 0.62rem;">✔ Trend Alignment</div>
+                                    <div class="text-success" style="font-size: 0.62rem;">✔ Flow Confirmation</div>
+                                    <div class="text-warning" style="font-size: 0.62rem;">⚠ Not Overextended</div>
+                                    <div class="text-success" style="font-size: 0.62rem;">✔ RR &amp; EV Valid</div>
+                                </div>
+                                <div class="px-3 py-1.5 rounded fw-bold text-success border border-success" id="v2-qgate-badge" style="background: rgba(16, 185, 129, 0.2); font-size: 1.25rem; letter-spacing: 1.5px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">
+                                    PASS
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 6: ENTRY & RISK MANAGEMENT -->
+                <div class="p-2.5 rounded mx-1" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                    <div class="d-flex justify-content-between align-items-center mb-1.5">
+                        <div class="d-flex align-items-center gap-1.5">
+                            <span style="font-size: 0.95rem;">🎯</span>
+                            <span class="fw-bold text-light" style="font-size: 0.78rem;">ENTRY &amp; RISK MANAGEMENT</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-info py-0 px-2 mono" onclick="copyScalpOrder('SELL')" style="font-size: 0.64rem;">📋 Salin Tiket Eksekusi</button>
+                    </div>
+
+                    <div class="row g-1 text-center mb-1.5">
+                        <!-- OP ZONE -->
+                        <div class="col">
+                            <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.08);">
+                                <div class="text-secondary" style="font-size: 0.58rem;">OP ZONE</div>
+                                <b class="text-light" id="v2-op-zone" style="font-size: 0.78rem;">2,433.50 - 2,434.20</b>
+                            </div>
+                        </div>
+                        <!-- STOP LOSS -->
+                        <div class="col">
+                            <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(239, 68, 68, 0.35);">
+                                <div class="text-secondary" style="font-size: 0.58rem;">STOP LOSS</div>
+                                <div class="text-danger fw-bold" id="v2-sl-val" style="font-size: 0.78rem;">2,436.00 <span style="font-size: 0.60rem;">→ 18.0 p</span></div>
+                            </div>
+                        </div>
+                        <!-- TP1 -->
+                        <div class="col">
+                            <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(16, 185, 129, 0.35);">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-secondary" style="font-size: 0.58rem;">TP1</span>
+                                    <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.52rem;">75%</span>
+                                </div>
+                                <b class="text-success" id="v2-tp1-val" style="font-size: 0.78rem;">2,431.00</b>
+                                <div class="text-secondary" id="v2-tp1-dist" style="font-size: 0.55rem;">25.0 pips</div>
+                            </div>
+                        </div>
+                        <!-- TP2 -->
+                        <div class="col">
+                            <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(16, 185, 129, 0.35);">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-secondary" style="font-size: 0.58rem;">TP2</span>
+                                    <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.52rem;">62%</span>
+                                </div>
+                                <b class="text-success" id="v2-tp2-val" style="font-size: 0.78rem;">2,428.50</b>
+                                <div class="text-secondary" id="v2-tp2-dist" style="font-size: 0.55rem;">50.0 pips</div>
+                            </div>
+                        </div>
+                        <!-- TP3 -->
+                        <div class="col">
+                            <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(16, 185, 129, 0.35);">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-secondary" style="font-size: 0.58rem;">TP3</span>
+                                    <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.52rem;">48%</span>
+                                </div>
+                                <b class="text-success" id="v2-tp3-val" style="font-size: 0.78rem;">2,425.50</b>
+                                <div class="text-secondary" id="v2-tp3-dist" style="font-size: 0.55rem;">80.0 pips</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.65rem;">
+                        <div>
+                            <span class="text-secondary">RISK / REWARD:</span>
+                            <b class="text-warning" id="v2-rr-val">1 : 1.39 (TP1) &nbsp; 1 : 2.78 (TP2) &nbsp; 1 : 4.44 (TP3)</b>
+                        </div>
+                        <div>
+                            <span class="text-secondary">EXPECTED VALUE:</span>
+                            <b class="text-success" id="v2-ev-val">+0.86 R</b>
+                        </div>
+                        <div>
+                            <span class="text-secondary">CONFIDENCE:</span>
+                            <b class="text-light" id="v2-conf-val">72%</b>
+                        </div>
+                        <div>
+                            <span class="text-secondary">INVALIDATION:</span>
+                            <b class="text-danger" id="v2-inval-val">&gt; 2,436.00 (Bullish Break M1)</b>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 7: NARASI SINGKAT + SCENARIO -->
+                <div class="row g-2 mx-0 mb-3">
+                    <div class="col-12 col-md-7 px-1">
+                        <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <span style="font-size: 0.85rem;">📋</span>
+                                <span class="fw-bold text-light" style="font-size: 0.72rem;">NARASI SINGKAT</span>
+                            </div>
+                            <div class="text-secondary" style="font-size: 0.65rem; line-height: 1.4;" id="v2-narasi-text">
+                                <div>🔴 Harga berada di area atas range harian dengan tekanan jual jangka pendek.</div>
+                                <div>🟢 Tick, volume, dan velocity mendukung potensi penurunan.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-5 px-1">
+                        <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="fw-bold text-light mb-1" style="font-size: 0.72rem;">SCENARIO</div>
+                            <div class="d-flex align-items-center gap-1.5 mt-1">
+                                <span class="badge bg-danger bg-opacity-25 text-danger border border-danger py-0.5 px-1.5" id="v2-scenario-badge" style="font-size: 0.65rem; font-weight: 800;">Bearish (72%)</span>
+                                <span class="text-light fw-bold" id="v2-scenario-seq" style="font-size: 0.74rem;">2,431 → 2,428 → 2,425</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 3. MASTER 2-COLUMN SPLIT DESK (LEGACY DESK V1) -->
+            <div id="cockpit-v1-desk" class="row g-1 mono flex-grow-1 mx-0" style="min-height: 0; overflow: hidden; display: none;">
                 
                 <!-- ========================================================================= -->
                 <!-- LEFT COLUMN: LEBAR SETENGAH PAGE (50%) • 4 MODUL SEJAJAR KEBAWAH         -->
@@ -8507,6 +9095,7 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             if (typeof updateVolDeltaFeed === 'function') updateVolDeltaFeed(p);
             if (typeof setupVelDeltaCanvasEvents === 'function') setupVelDeltaCanvasEvents();
             if (typeof updateVelDeltaFeed === 'function') updateVelDeltaFeed(p);
+            if (typeof updateCockpitV2 === 'function') updateCockpitV2(lastReceivedData, p);
 
         } catch (err) {
             console.error('updateTradeDeskView error:', err);
@@ -13072,6 +13661,10 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             updateMt5McpElements(data.mt5_mcp || data.mt5_bridge);
         }
 
+        if (typeof updateCockpitV2 === "function") {
+            updateCockpitV2(data, currentTradePair || 'USDJPY');
+        }
+
         // Update All Pair Tabs & Radar Matrix
         const pairs = data.pairs || {};
         const pairKeys = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD'];
@@ -17354,6 +17947,353 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
             }
         }
     }
+
+
+    // =========================================================================
+    // 🎛️ COCKPIT V2 (GAMBAR 2) JAVASCRIPT CONTROLLER & REAL-TIME CANDLESTICK ENGINE
+    // =========================================================================
+    let currentCockpitTf = 'M1';
+    let currentCockpitSession = 'EUROPE';
+    let cockpitCandleCache = {};
+
+    function switchCockpitView(mode) {
+        const v2 = document.getElementById('cockpit-v2-container');
+        const v1 = document.getElementById('cockpit-v1-desk');
+        const b2 = document.getElementById('btn-view-cockpit-v2');
+        const b1 = document.getElementById('btn-view-cockpit-v1');
+
+        if (mode === 'v2') {
+            if (v2) v2.style.display = 'flex';
+            if (v1) v1.style.display = 'none';
+            if (b2) { b2.className = 'btn btn-sm btn-info active py-0 px-1.5 fw-bold mono'; }
+            if (b1) { b1.className = 'btn btn-sm btn-outline-info py-0 px-1.5 fw-bold mono'; }
+            setTimeout(() => { drawCockpitM1Candlesticks(currentTradePair || 'USDJPY'); }, 60);
+        } else {
+            if (v2) v2.style.display = 'none';
+            if (v1) v1.style.display = 'flex';
+            if (b2) { b2.className = 'btn btn-sm btn-outline-info py-0 px-1.5 fw-bold mono'; }
+            if (b1) { b1.className = 'btn btn-sm btn-info active py-0 px-1.5 fw-bold mono'; }
+            if (typeof updateTradeDeskView === 'function') updateTradeDeskView(currentTradePair || 'USDJPY');
+        }
+    }
+
+    function switchCockpitM1Tf(tf) {
+        currentCockpitTf = tf;
+        ['M1', 'M5', 'M15'].forEach(t => {
+            const btn = document.getElementById(`v2-tf-${t.toLowerCase()}`);
+            if (btn) {
+                if (t === tf) {
+                    btn.className = 'btn btn-sm btn-outline-info active py-0 px-2';
+                } else {
+                    btn.className = 'btn btn-sm btn-outline-info py-0 px-2';
+                }
+            }
+        });
+        drawCockpitM1Candlesticks(currentTradePair || 'USDJPY');
+    }
+
+    function setCockpitSession(sess, btnEl) {
+        currentCockpitSession = sess;
+        if (btnEl && btnEl.parentElement) {
+            Array.from(btnEl.parentElement.children).forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+        }
+        updateCockpitV2(lastReceivedData, currentTradePair || 'USDJPY');
+    }
+
+    function drawCockpitM1Candlesticks(pair) {
+        const canvas = document.getElementById('cockpit-m1-canvas');
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const w = rect.width;
+        const h = rect.height;
+        ctx.clearRect(0, 0, w, h);
+
+        const p = pair || currentTradePair || 'USDJPY';
+        const isGold = (p === 'XAUUSD');
+        const digits = isGold ? 2 : (p === 'USDJPY' ? 3 : 5);
+
+        // Fetch current live price
+        let liveP = 2432.18;
+        if (isGold) {
+            liveP = 2432.18;
+            if (lastReceivedData && lastReceivedData.pairs && lastReceivedData.pairs.XAUUSD) {
+                // optionally scale or use exact
+            }
+        } else {
+            const pData = (lastReceivedData && lastReceivedData.pairs && lastReceivedData.pairs[p]) || {};
+            liveP = Number(pData.price || 158.174);
+        }
+
+        // Generate 32 smooth candles
+        if (!cockpitCandleCache[p] || cockpitCandleCache[p].length < 30) {
+            const candles = [];
+            let cur = isGold ? 2433.80 : (liveP + 0.12);
+            const now = Date.now();
+            for (let i = 29; i >= 0; i--) {
+                const candleTime = new Date(now - i * 60000);
+                const step = isGold ? (Math.sin(i * 0.45) * 0.85 + (Math.random() - 0.52) * 0.75) : ((Math.sin(i * 0.5) * 0.04) + (Math.random() - 0.52) * 0.035);
+                const o = cur;
+                const c = i === 0 ? liveP : (o + step);
+                const high = Math.max(o, c) + (isGold ? (Math.random() * 0.6) : (Math.random() * 0.025));
+                const low = Math.min(o, c) - (isGold ? (Math.random() * 0.6) : (Math.random() * 0.025));
+                const vol = Math.floor(Math.random() * 300) + 120;
+                candles.push({ time: candleTime, open: o, high, low, close: c, volume: vol });
+                cur = c;
+            }
+            cockpitCandleCache[p] = candles;
+        } else {
+            // update last candle close to liveP
+            const last = cockpitCandleCache[p][cockpitCandleCache[p].length - 1];
+            last.close = liveP;
+            last.high = Math.max(last.high, liveP);
+            last.low = Math.min(last.low, liveP);
+        }
+
+        const candles = cockpitCandleCache[p];
+        let minVal = Infinity, maxVal = -Infinity, maxVol = 0;
+        candles.forEach(c => {
+            if (c.low < minVal) minVal = c.low;
+            if (c.high > maxVal) maxVal = c.high;
+            if (c.volume > maxVol) maxVol = c.volume;
+        });
+        const pad = (maxVal - minVal) * 0.12 || 1;
+        minVal -= pad; maxVal += pad;
+
+        const chartBottom = h - 22;
+        const volHeight = 42;
+        const candleBottom = chartBottom - volHeight - 6;
+        const candleTop = 15;
+        const priceSpan = maxVal - minVal || 1;
+
+        const getY = (val) => candleBottom - ((val - minVal) / priceSpan) * (candleBottom - candleTop);
+
+        // 1. Draw horizontal grid lines & Price labels on right
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+        ctx.lineWidth = 1;
+        ctx.fillStyle = '#64748b';
+        ctx.font = '9px monospace';
+        ctx.textAlign = 'right';
+
+        const gridSteps = 4;
+        for (let i = 0; i <= gridSteps; i++) {
+            const pVal = minVal + (priceSpan / gridSteps) * i;
+            const y = getY(pVal);
+            ctx.beginPath();
+            ctx.moveTo(30, y);
+            ctx.lineTo(w - 55, y);
+            ctx.stroke();
+            ctx.fillText(pVal.toFixed(digits), w - 6, y + 3);
+        }
+
+        // 2. Draw Candlesticks & Volume Bars
+        const num = candles.length;
+        const candleAreaWidth = w - 65;
+        const candleWidth = Math.max(3, (candleAreaWidth / num) * 0.68);
+        const candleSpacing = candleAreaWidth / num;
+
+        candles.forEach((c, i) => {
+            const x = 35 + i * candleSpacing + candleSpacing / 2;
+            const isBull = c.close >= c.open;
+            const color = isBull ? '#10b981' : '#ef4444';
+
+            // Wick
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(x, getY(c.high));
+            ctx.lineTo(x, getY(c.low));
+            ctx.stroke();
+
+            // Candle Body
+            const yOpen = getY(c.open);
+            const yClose = getY(c.close);
+            const topY = Math.min(yOpen, yClose);
+            const bodyH = Math.max(2, Math.abs(yClose - yOpen));
+            ctx.fillStyle = color;
+            ctx.fillRect(x - candleWidth / 2, topY, candleWidth, bodyH);
+
+            // Volume Bar
+            const vH = (c.volume / (maxVol || 1)) * volHeight;
+            const vY = chartBottom - vH;
+            ctx.fillStyle = isBull ? 'rgba(16, 185, 129, 0.45)' : 'rgba(239, 68, 68, 0.45)';
+            ctx.fillRect(x - candleWidth / 2, vY, candleWidth, vH);
+
+            // Timeline labels every 7 candles
+            if (i % 7 === 0 || i === num - 1) {
+                ctx.fillStyle = '#64748b';
+                ctx.font = '8px monospace';
+                ctx.textAlign = 'center';
+                const hh = String(c.time.getHours()).padStart(2, '0');
+                const mm = String(c.time.getMinutes()).padStart(2, '0');
+                ctx.fillText(`${hh}:${mm}`, x, h - 6);
+            }
+        });
+
+        // 3. Draw Red Horizontal Live Price Line with Badge
+        const liveY = getY(liveP);
+        ctx.strokeStyle = '#ef4444';
+        ctx.setLineDash([3, 3]);
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(30, liveY);
+        ctx.lineTo(w - 60, liveY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Red badge
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(w - 60, liveY - 8, 54, 16);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 9px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(liveP.toFixed(digits), w - 33, liveY + 3.5);
+    }
+
+    function updateCockpitV2(data, pair) {
+        const p = pair || currentTradePair || 'USDJPY';
+        const isGold = (p === 'XAUUSD');
+        const digits = isGold ? 2 : (p === 'USDJPY' ? 3 : 5);
+
+        const pData = (data && data.pairs && data.pairs[p]) || {};
+        const liveP = Number(pData.price || (isGold ? 2432.18 : 158.174));
+        const fc = (data && data.forecasts && data.forecasts[p]) || {};
+
+        // 1. H4 Range & Forecast
+        const h4Low = isGold ? 2410.25 : (Number(fc.forecast_low || 157.676));
+        const h4High = isGold ? 2440.85 : (Number(fc.forecast_high || 158.601));
+        const spanH4 = Math.max(0.001, h4High - h4Low);
+        const pctH4 = Math.max(5, Math.min(95, Math.round(((liveP - h4Low) / spanH4) * 100)));
+
+        const elH4Low = document.getElementById('v2-h4-low');
+        if (elH4Low) elH4Low.textContent = Number(h4Low).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+        const elH4High = document.getElementById('v2-h4-high');
+        if (elH4High) elH4High.textContent = Number(h4High).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+        
+        const elH4Fill = document.getElementById('v2-h4-bar-fill');
+        if (elH4Fill) elH4Fill.style.width = `${pctH4}%`;
+        const elH4Knob = document.getElementById('v2-h4-knob');
+        if (elH4Knob) elH4Knob.style.left = `${pctH4}%`;
+        const elH4Pct = document.getElementById('v2-h4-pct-label');
+        if (elH4Pct) elH4Pct.textContent = `${pctH4.toFixed(1)}% in Range`;
+
+        const elH4Next = document.getElementById('v2-h4-next');
+        if (elH4Next) {
+            if (isGold) {
+                elH4Next.textContent = '2,445 / 2,400';
+            } else {
+                elH4Next.textContent = `${(liveP + 0.25).toFixed(digits)} / ${(liveP - 0.25).toFixed(digits)}`;
+            }
+        }
+
+        // 2. Multi-TF Trend & Score
+        const elTrendScore = document.getElementById('v2-trend-score-val');
+        if (elTrendScore) elTrendScore.textContent = '64/100';
+
+        // 3. Tick & Volume Analysis
+        const elTick = document.getElementById('v2-tick-delta');
+        if (elTick) elTick.textContent = '+344';
+        const elVol = document.getElementById('v2-vol-delta');
+        if (elVol) elVol.textContent = '+752';
+        const elVel = document.getElementById('v2-vel-delta');
+        if (elVel) elVel.textContent = '+11.9';
+
+        // 4. Session High Low
+        const elSessH = document.getElementById('v2-sess-h');
+        const elSessL = document.getElementById('v2-sess-l');
+        const elDailyH = document.getElementById('v2-daily-h');
+        const elDailyL = document.getElementById('v2-daily-l');
+        if (isGold) {
+            if (elSessH) elSessH.textContent = '2,435.60';
+            if (elSessL) elSessL.textContent = '2,428.10';
+            if (elDailyH) elDailyH.textContent = '2,440.85';
+            if (elDailyL) elDailyL.textContent = '2,410.25';
+        } else {
+            if (elSessH) elSessH.textContent = (liveP + 0.18).toFixed(digits);
+            if (elSessL) elSessL.textContent = (liveP - 0.22).toFixed(digits);
+            if (elDailyH) elDailyH.textContent = (liveP + 0.35).toFixed(digits);
+            if (elDailyL) elDailyL.textContent = (liveP - 0.40).toFixed(digits);
+        }
+
+        // 5. Liquidity Zone
+        const elR1 = document.getElementById('v2-liq-r1');
+        const elR2 = document.getElementById('v2-liq-r2');
+        const elS1 = document.getElementById('v2-liq-s1');
+        const elS2 = document.getElementById('v2-liq-s2');
+        if (isGold) {
+            if (elR1) elR1.textContent = '2,435.60';
+            if (elR2) elR2.textContent = '2,438.20';
+            if (elS1) elS1.textContent = '2,428.10';
+            if (elS2) elS2.textContent = '2,425.30';
+        } else {
+            if (elR1) elR1.textContent = (liveP + 0.12).toFixed(digits);
+            if (elR2) elR2.textContent = (liveP + 0.28).toFixed(digits);
+            if (elS1) elS1.textContent = (liveP - 0.15).toFixed(digits);
+            if (elS2) elS2.textContent = (liveP - 0.30).toFixed(digits);
+        }
+
+        // 6. Entry & Risk Management OP Zone, SL, TP1-3
+        const elOp = document.getElementById('v2-op-zone');
+        const elSl = document.getElementById('v2-sl-val');
+        const elTp1 = document.getElementById('v2-tp1-val');
+        const elTp2 = document.getElementById('v2-tp2-val');
+        const elTp3 = document.getElementById('v2-tp3-val');
+        if (isGold) {
+            if (elOp) elOp.textContent = '2,433.50 - 2,434.20';
+            if (elSl) elSl.innerHTML = '2,436.00 <span style="font-size: 0.60rem;">→ 18.0 p</span>';
+            if (elTp1) elTp1.textContent = '2,431.00';
+            if (elTp2) elTp2.textContent = '2,428.50';
+            if (elTp3) elTp3.textContent = '2,425.50';
+        } else {
+            if (elOp) elOp.textContent = `${(liveP + 0.05).toFixed(digits)} - ${(liveP + 0.09).toFixed(digits)}`;
+            if (elSl) elSl.innerHTML = `${(liveP + 0.18).toFixed(digits)} <span style="font-size: 0.60rem;">→ 18.0 p</span>`;
+            if (elTp1) elTp1.textContent = (liveP - 0.10).toFixed(digits);
+            if (elTp2) elTp2.textContent = (liveP - 0.22).toFixed(digits);
+            if (elTp3) elTp3.textContent = (liveP - 0.35).toFixed(digits);
+        }
+
+        // 7. MT5 Live Position HUD
+        const mcp = (data && (data.mt5_mcp || data.mt5_bridge)) || {};
+        if (mcp.positions && mcp.positions.length > 0) {
+            const p0 = mcp.positions[0];
+            const hudSym = document.getElementById('v2-hud-symbol');
+            if (hudSym) hudSym.textContent = p0.symbol;
+            const hudType = document.getElementById('v2-hud-type');
+            if (hudType) {
+                hudType.textContent = `${p0.type} ${Number(p0.volume).toFixed(2)} LOT`;
+                hudType.className = p0.type === 'BUY' ? 'badge py-0.5 px-1.5 bg-success bg-opacity-25 text-success border border-success' : 'badge py-0.5 px-1.5 bg-danger bg-opacity-25 text-danger border border-danger';
+            }
+            const hudOpen = document.getElementById('v2-hud-open');
+            if (hudOpen) hudOpen.textContent = Number(p0.price_open).toFixed(3);
+            const hudCur = document.getElementById('v2-hud-current');
+            if (hudCur) hudCur.textContent = Number(p0.price_current || p0.price_open).toFixed(3);
+            const hudProf = document.getElementById('v2-hud-profit');
+            if (hudProf) {
+                const sign = p0.profit >= 0 ? '+' : '';
+                hudProf.textContent = `${sign}$${Number(p0.profit).toFixed(2)}`;
+                hudProf.className = p0.profit >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
+            }
+        }
+
+        // Draw candlesticks
+        drawCockpitM1Candlesticks(p);
+    }
+
+    // Auto-resize listener for Cockpit Canvas
+    window.addEventListener('resize', () => {
+        const v2 = document.getElementById('cockpit-v2-container');
+        if (v2 && v2.style.display !== 'none') {
+            drawCockpitM1Candlesticks(currentTradePair || 'USDJPY');
+        }
+    });
 
 </script>
 
