@@ -1733,6 +1733,37 @@ def poll_market_data():
                         PRICE_CACHE["mt5_bridge"]["market_open"] = is_m_open_ck
                         PRICE_CACHE["mt5_bridge"]["market_status"] = "OPEN" if is_m_open_ck else "CLOSED"
 
+                        # Check MT5 MCP Server Status (Port 22346)
+                        mcp_online = False
+                        try:
+                            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s_mcp:
+                                s_mcp.settimeout(0.3)
+                                mcp_online = (s_mcp.connect_ex(('127.0.0.1', 22346)) == 0)
+                        except Exception:
+                            pass
+
+                        PRICE_CACHE["mt5_mcp"] = {
+                            "active": mcp_online,
+                            "status": "ONLINE" if mcp_online else "OFFLINE",
+                            "endpoint": "http://127.0.0.1:22346/mcp",
+                            "port": 22346,
+                            "protocol_version": "2025-06-18",
+                            "api_key": "2OfMRznuLm2Z1XwRreyo01Rt3BAuEscpZEEYk5A+G/",
+                            "terminal_name": term.name if term else "Finex Bisnis Solusi MT5",
+                            "build": term.build if term else 6259,
+                            "account": acc.login if acc else 113893895,
+                            "server": acc.server if acc else "MetaQuotes-Demo",
+                            "balance": bal,
+                            "equity": eq,
+                            "profit": prof,
+                            "margin_free": round(acc.margin_free, 2),
+                            "margin": round(acc.margin, 2),
+                            "leverage": acc.leverage,
+                            "currency": acc.currency,
+                            "positions_count": len(pos_list),
+                            "positions": pos_list
+                        }
+
                         for sym_k in ["USDJPY", "XAUUSD", "EURUSD", "GBPUSD"]:
                             try:
                                 tick = mt5.symbol_info_tick(sym_k)
@@ -1961,6 +1992,14 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps(PRICE_CACHE).encode('utf-8'))
+            return
+
+        if self.path.startswith('/api/mt5_mcp'):
+            mcp_data = PRICE_CACHE.get("mt5_mcp", {})
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(mcp_data, ensure_ascii=False).encode('utf-8'))
             return
 
         if self.path.startswith('/api/validate_snr'):

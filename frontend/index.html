@@ -2878,6 +2878,11 @@
 
         <!-- Sidebar Footer -->
         <div class="sidebar-footer">
+            <button class="nav-link-btn" onclick="openMt5McpModal()" title="MetaTrader 5 Model Context Protocol (MCP) AI Bridge" style="border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px;">
+                <span class="nav-icon">🔌</span>
+                <span>MT5 MCP Bridge</span>
+                <span class="badge bg-success bg-opacity-25 text-success mono ms-auto" style="font-size: 0.60rem; padding: 2px 5px; border: 1px solid rgba(16,185,129,0.4);">ONLINE</span>
+            </button>
             <button class="nav-link-btn" onclick="switchNavTab('telegram')">
                 <span class="nav-icon">💬</span>
                 <span>Telegram Bot</span>
@@ -2923,6 +2928,12 @@
                     <span class="badge py-0 px-1" style="background: rgba(30, 58, 138, 0.6); color: #60a5fa; border: 1px solid #3b82f6; font-size: 0.58rem; font-weight: 700;">STATUS+</span>
                     <span class="badge py-0 px-1" style="background: rgba(6, 78, 59, 0.7); color: #34d399; border: 1px solid #10b981; font-size: 0.58rem; font-weight: 700;">RIS</span>
                     <span class="badge py-0 px-1" style="background: rgba(127, 29, 29, 0.7); color: #fca5a5; border: 1px solid #dc2626; font-size: 0.58rem; font-weight: 700;">HIGH-PRIOT</span>
+                    <button class="btn btn-sm py-0 px-1.5 mono fw-bold d-flex align-items-center gap-1" id="btn-mt5-mcp-status" onclick="openMt5McpModal()" style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; font-size: 0.62rem; cursor: pointer; border-radius: 4px;" title="MetaTrader 5 Model Context Protocol (MCP) Server: http://127.0.0.1:22346/mcp">
+                        <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span>
+                        <span id="td-mt5-mcp-label">MT5 MCP</span>
+                        <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size:0.56rem;">:22346</span>
+                        <span class="badge py-0 px-1" id="td-mt5-pos-badge" style="background:rgba(0,240,255,0.25); color:#00f0ff; font-size:0.56rem;">1 POS</span>
+                    </button>
                 </div>
 
                 <div class="d-flex align-items-center gap-2 flex-nowrap" style="font-size: 0.68rem;">
@@ -3179,6 +3190,24 @@
                 <!-- ========================================================================= -->
                 <div class="col-12 col-xl-6 d-flex flex-column justify-content-start h-100" style="min-height: 0; overflow: hidden; gap: 1px !important;">
                     
+                    <!-- MT5 LIVE POSITION HUD (Realtime Terminal Bridge) -->
+                    <div id="td-mt5-live-hud" class="px-2 py-0.5 rounded mono d-flex justify-content-between align-items-center flex-nowrap" style="background: #08162b; border: 1px solid rgba(16, 185, 129, 0.45); font-size: 0.65rem; min-height: 24px;">
+                        <div class="d-flex align-items-center gap-1.5 flex-nowrap">
+                            <span class="badge py-0 px-1 text-white" style="background: #059669; font-size: 0.58rem; font-weight: 800;">MT5 LIVE POS</span>
+                            <span class="fw-bold text-light" id="hud-mt5-symbol">USDJPY</span>
+                            <span class="badge py-0 px-1" id="hud-mt5-type" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid #ef4444; font-size: 0.58rem; font-weight: 800;">SELL 1.00 LOT</span>
+                            <span class="text-secondary">OPEN:</span>
+                            <span class="fw-bold text-cyan" id="hud-mt5-open-price">158.412</span>
+                            <span class="text-secondary">NOW:</span>
+                            <span class="fw-bold text-light" id="hud-mt5-cur-price">158.400</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1.5 flex-nowrap">
+                            <span class="text-secondary">P/L:</span>
+                            <span class="fw-bold text-success" id="hud-mt5-profit" style="font-size: 0.84rem; font-weight: 800;">+$7.58</span>
+                            <button class="btn btn-sm btn-outline-info py-0 px-1 mono fw-bold" onclick="openMt5McpModal()" style="font-size: 0.60rem; line-height: 1.1;" title="Buka Detail MCP Server MT5">MCP 🔌</button>
+                        </div>
+                    </div>
+
                     <!-- Row A: BUY LIMIT & SELL LIMIT EXECUTION (2 Cards) -->
                     <div class="row g-1 mb-0 flex-grow-1" style="flex: 1 1 0; min-height: 0;">
                         <!-- Column 1: BUY LIMIT - S1 -->
@@ -13039,6 +13068,10 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             }
         }
 
+        if (typeof updateMt5McpElements === "function") {
+            updateMt5McpElements(data.mt5_mcp || data.mt5_bridge);
+        }
+
         // Update All Pair Tabs & Radar Matrix
         const pairs = data.pairs || {};
         const pairKeys = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD'];
@@ -17142,6 +17175,186 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         }, 2500);
     }
 
+    // =========================================================================
+    // 🔌 METATRADER 5 MODEL CONTEXT PROTOCOL (MCP) AI CONTROL CENTER
+    // =========================================================================
+    function openMt5McpModal() {
+        const modal = document.getElementById('modal-mt5-mcp');
+        if (modal) {
+            modal.style.display = 'flex';
+            updateMt5McpModalData();
+        }
+    }
+
+    function closeMt5McpModal() {
+        const modal = document.getElementById('modal-mt5-mcp');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function closeMt5McpOnBackdrop(e) {
+        if (e.target && e.target.id === 'modal-mt5-mcp') {
+            closeMt5McpModal();
+        }
+    }
+
+    function copyMcpField(inputId, btnEl) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        navigator.clipboard.writeText(input.value).then(() => {
+            const orig = btnEl.innerHTML;
+            btnEl.innerHTML = '✅ Tersalin!';
+            setTimeout(() => { btnEl.innerHTML = orig; }, 1500);
+        }).catch(() => {
+            input.select();
+            document.execCommand('copy');
+            const orig = btnEl.innerHTML;
+            btnEl.innerHTML = '✅ Tersalin!';
+            setTimeout(() => { btnEl.innerHTML = orig; }, 1500);
+        });
+    }
+
+    function copyMcpJsonConfig(btnEl) {
+        const pre = document.getElementById('mcp-json-snippet');
+        if (!pre) return;
+        const text = pre.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            const orig = btnEl.innerHTML;
+            btnEl.innerHTML = '✅ JSON Tersalin!';
+            setTimeout(() => { btnEl.innerHTML = orig; }, 1500);
+        }).catch(() => {
+            const orig = btnEl.innerHTML;
+            btnEl.innerHTML = '✅ Tersalin!';
+            setTimeout(() => { btnEl.innerHTML = orig; }, 1500);
+        });
+    }
+
+    function updateMt5McpElements(mcpData) {
+        const d = mcpData || (typeof lastReceivedData !== 'undefined' && lastReceivedData && (lastReceivedData.mt5_mcp || lastReceivedData.mt5_bridge)) || {};
+        const isOnline = d.active !== false && d.status !== 'OFFLINE';
+        
+        // 1. Update Header Button Badge in Tab TRADE
+        const lbl = document.getElementById('td-mt5-mcp-label');
+        if (lbl) lbl.textContent = isOnline ? 'MT5 MCP' : 'MT5 MCP: OFF';
+
+        const posCount = d.positions_count !== undefined ? d.positions_count : (d.positions ? d.positions.length : 0);
+        const posBadge = document.getElementById('td-mt5-pos-badge');
+        if (posBadge) {
+            const profitStr = d.profit !== undefined ? ` (${d.profit >= 0 ? '+' : ''}$${d.profit})` : '';
+            posBadge.textContent = `${posCount} POS${profitStr}`;
+        }
+
+        // 2. Update Live Position HUD in Tab TRADE
+        const hud = document.getElementById('td-mt5-live-hud');
+        if (hud) {
+            if (posCount > 0 && d.positions && d.positions.length > 0) {
+                hud.style.display = 'flex';
+                const p0 = d.positions[0];
+                const symEl = document.getElementById('hud-mt5-symbol');
+                if (symEl) symEl.textContent = p0.symbol;
+
+                const typeEl = document.getElementById('hud-mt5-type');
+                if (typeEl) {
+                    typeEl.textContent = `${p0.type} ${Number(p0.volume).toFixed(2)} LOT`;
+                    typeEl.className = p0.type === 'BUY' ? 'badge py-0 px-1 bg-success bg-opacity-25 text-success border border-success' : 'badge py-0 px-1 bg-danger bg-opacity-25 text-danger border border-danger';
+                }
+
+                const openEl = document.getElementById('hud-mt5-open-price');
+                if (openEl) openEl.textContent = Number(p0.price_open).toFixed(3);
+
+                const curEl = document.getElementById('hud-mt5-cur-price');
+                if (curEl && p0.price_current) curEl.textContent = Number(p0.price_current).toFixed(3);
+
+                const profEl = document.getElementById('hud-mt5-profit');
+                if (profEl) {
+                    const profSign = p0.profit >= 0 ? '+' : '';
+                    profEl.textContent = `${profSign}$${Number(p0.profit).toFixed(2)}`;
+                    profEl.className = p0.profit >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
+                }
+            } else {
+                const symEl = document.getElementById('hud-mt5-symbol');
+                if (symEl) symEl.textContent = 'STANDBY';
+                const typeEl = document.getElementById('hud-mt5-type');
+                if (typeEl) {
+                    typeEl.textContent = 'NO OPEN POS';
+                    typeEl.className = 'badge py-0 px-1 bg-secondary bg-opacity-25 text-secondary border border-secondary';
+                }
+                const profEl = document.getElementById('hud-mt5-profit');
+                if (profEl) {
+                    profEl.textContent = '$0.00';
+                    profEl.className = 'fw-bold text-secondary';
+                }
+            }
+        }
+
+        // 3. Update Modal Details if currently visible
+        const modal = document.getElementById('modal-mt5-mcp');
+        if (modal && modal.style.display !== 'none') {
+            updateMt5McpModalData(d);
+        }
+    }
+
+    function updateMt5McpModalData(data) {
+        const d = data || (typeof lastReceivedData !== 'undefined' && lastReceivedData && (lastReceivedData.mt5_mcp || lastReceivedData.mt5_bridge)) || {};
+        
+        const badge = document.getElementById('mcp-modal-status-badge');
+        if (badge) {
+            const isOnline = d.active !== false && d.status !== 'OFFLINE';
+            badge.textContent = isOnline ? '● ONLINE (PORT 22346)' : '○ OFFLINE (PORT 22346)';
+            badge.className = isOnline ? 'badge bg-success bg-opacity-25 text-success border border-success mono py-0 px-1' : 'badge bg-danger bg-opacity-25 text-danger border border-danger mono py-0 px-1';
+        }
+
+        const brokerEl = document.getElementById('mcp-term-broker');
+        if (brokerEl && (d.broker || d.terminal_name)) brokerEl.textContent = `${d.broker || d.terminal_name} (Build ${d.build || 6259})`;
+
+        const accEl = document.getElementById('mcp-term-acc');
+        if (accEl && (d.login || d.account)) accEl.textContent = `${d.login || d.account} • ${d.server || 'MetaQuotes-Demo'}`;
+
+        const balEl = document.getElementById('mcp-term-bal');
+        if (balEl && d.balance !== undefined) balEl.textContent = `$${Number(d.balance).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+
+        const eqEl = document.getElementById('mcp-term-eq');
+        if (eqEl && d.equity !== undefined) {
+            eqEl.textContent = `$${Number(d.equity).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            eqEl.className = d.equity >= d.balance ? 'text-success' : 'text-danger';
+        }
+
+        const posCount = d.positions_count !== undefined ? d.positions_count : (d.positions ? d.positions.length : 0);
+        const countBadge = document.getElementById('mcp-pos-count-badge');
+        if (countBadge) countBadge.textContent = `${posCount} POSISI AKTIF`;
+
+        const tbody = document.getElementById('mcp-positions-table-body');
+        if (tbody) {
+            const positions = d.positions || [];
+            if (positions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-secondary py-3">
+                            Belum ada posisi transaksi aktif di MetaTrader 5.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = positions.map(p => {
+                    const isBuy = p.type === 'BUY';
+                    const profSign = p.profit >= 0 ? '+' : '';
+                    const profClass = p.profit >= 0 ? 'text-success' : 'text-danger';
+                    return `
+                        <tr>
+                            <td class="text-light">#${p.ticket}</td>
+                            <td class="fw-bold text-info">${p.symbol}</td>
+                            <td><span class="badge ${isBuy ? 'bg-success bg-opacity-25 text-success' : 'bg-danger bg-opacity-25 text-danger'} py-0 px-1">${p.type}</span></td>
+                            <td class="text-light">${Number(p.volume).toFixed(2)}</td>
+                            <td class="text-cyan">${Number(p.price_open).toFixed(3)}</td>
+                            <td class="text-light">${Number(p.price_current || p.price_open).toFixed(3)}</td>
+                            <td class="text-secondary">${Number(p.sl || 0).toFixed(3)} / ${Number(p.tp || 0).toFixed(3)}</td>
+                            <td class="text-end fw-bold ${profClass}">${profSign}$${Number(p.profit).toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+    }
+
 </script>
 
 
@@ -17174,6 +17387,152 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
                 <span>Pilihan tema tersimpan otomatis di browser (Local Storage).</span>
             </div>
             <button class="btn btn-sm btn-outline-secondary mono" onclick="closeThemePicker()">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     MODAL: METATRADER 5 MCP AI CONTROL CENTER
+     ========================================== -->
+<div id="modal-mt5-mcp" class="theme-modal-backdrop" style="display: none;" onclick="closeMt5McpOnBackdrop(event)">
+    <div class="theme-modal-dialog" onclick="event.stopPropagation()" style="max-width: 940px;">
+        <!-- Header -->
+        <div class="theme-modal-header" style="background: #08162b; border-bottom: 1px solid rgba(0, 240, 255, 0.25);">
+            <div class="d-flex align-items-center gap-2">
+                <span style="font-size: 1.4rem;">🔌</span>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h5 class="mb-0 fw-bold mono text-cyan" style="font-size: 0.95rem; letter-spacing: 0.5px;">METATRADER 5 • MODEL CONTEXT PROTOCOL (MCP) AI BRIDGE</h5>
+                        <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-0 px-1" id="mcp-modal-status-badge" style="font-size: 0.62rem;">● ONLINE (PORT 22346)</span>
+                    </div>
+                    <p class="text-secondary mb-0 mono" style="font-size: 0.68rem;">Jembatan resmi MetaTrader 5 Build 6259 untuk menghubungkan Large Language Model (AI) langsung ke terminal eksekusi &amp; feed tick.</p>
+                </div>
+            </div>
+            <button class="theme-modal-close-btn" onclick="closeMt5McpModal()">&times;</button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-3 mono" style="overflow-y: auto; max-height: calc(88vh - 120px); background: #050c18;">
+            
+            <!-- 1. Connection & Endpoint Grid -->
+            <div class="row g-2 mb-2.5">
+                <div class="col-12 col-md-6">
+                    <div class="p-2.5 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
+                        <div class="d-flex justify-content-between align-items-center mb-1.5">
+                            <span class="text-secondary small fw-bold" style="font-size: 0.68rem;">🌐 MCP SERVER ENDPOINT</span>
+                            <span class="badge bg-info bg-opacity-25 text-cyan py-0 px-1" style="font-size: 0.58rem;">PROTOCOL: 2025-06-18</span>
+                        </div>
+                        <div class="input-group input-group-sm mb-1.5">
+                            <span class="input-group-text bg-dark border-secondary text-secondary" style="font-size: 0.68rem;">URL</span>
+                            <input type="text" id="mcp-input-url" class="form-control bg-dark text-cyan border-secondary mono" value="http://127.0.0.1:22346/mcp" readonly style="font-size: 0.72rem;">
+                            <button class="btn btn-outline-info" onclick="copyMcpField('mcp-input-url', this)" style="font-size: 0.68rem;">📋 Salin</button>
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-dark border-secondary text-secondary" style="font-size: 0.68rem;">API KEY</span>
+                            <input type="text" id="mcp-input-key" class="form-control bg-dark text-warning border-secondary mono" value="2OfMRznuLm2Z1XwRreyo01Rt3BAuEscpZEEYk5A+G/" readonly style="font-size: 0.72rem;">
+                            <button class="btn btn-outline-warning" onclick="copyMcpField('mcp-input-key', this)" style="font-size: 0.68rem;">📋 Salin</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="p-2.5 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(16, 185, 129, 0.3);">
+                        <div class="d-flex justify-content-between align-items-center mb-1.5">
+                            <span class="text-secondary small fw-bold" style="font-size: 0.68rem;">💻 METATRADER 5 TERMINAL</span>
+                            <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.58rem;" id="mcp-term-connected">CONNECTED</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-25" style="font-size: 0.70rem;">
+                            <span class="text-secondary">Terminal / Broker:</span>
+                            <b class="text-light" id="mcp-term-broker">Finex Bisnis Solusi MT5 (Build 6259)</b>
+                        </div>
+                        <div class="d-flex justify-content-between py-0.5 border-bottom border-secondary border-opacity-25" style="font-size: 0.70rem;">
+                            <span class="text-secondary">Account ID / Server:</span>
+                            <b class="text-cyan" id="mcp-term-acc">113893895 • MetaQuotes-Demo</b>
+                        </div>
+                        <div class="d-flex justify-content-between py-0.5" style="font-size: 0.70rem;">
+                            <span class="text-secondary">Balance / Equity:</span>
+                            <span><b class="text-light" id="mcp-term-bal">$10,000.00</b> / <b class="text-success" id="mcp-term-eq">$10,005.93</b></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Live Open Positions Card -->
+            <div class="p-2.5 rounded mb-2.5" style="background: #0B1B30; border: 1px solid rgba(250, 204, 21, 0.3);">
+                <div class="d-flex justify-content-between align-items-center mb-1.5">
+                    <div class="d-flex align-items-center gap-1.5">
+                        <span style="font-size: 1.0rem;">📊</span>
+                        <span class="fw-bold text-light" style="font-size: 0.78rem;">POSISI TERBUKA AKTIF (MT5 LIVE ORDERS)</span>
+                    </div>
+                    <span class="badge bg-warning bg-opacity-25 text-warning py-0.5 px-1.5" id="mcp-pos-count-badge" style="font-size: 0.65rem;">1 POSISI AKTIF</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-dark table-sm table-hover mb-0" style="font-size: 0.70rem; border-color: rgba(255,255,255,0.1);">
+                        <thead>
+                            <tr class="text-secondary" style="font-size: 0.62rem;">
+                                <th>TICKET</th>
+                                <th>SYMBOL</th>
+                                <th>TYPE</th>
+                                <th>LOTS</th>
+                                <th>OPEN PRICE</th>
+                                <th>CURRENT</th>
+                                <th>SL / TP</th>
+                                <th class="text-end">FLOATING P/L</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mcp-positions-table-body">
+                            <tr>
+                                <td class="text-light">#10930855096</td>
+                                <td class="fw-bold text-info">USDJPY</td>
+                                <td><span class="badge bg-danger bg-opacity-25 text-danger py-0 px-1">SELL</span></td>
+                                <td class="text-light">1.00</td>
+                                <td class="text-cyan">158.412</td>
+                                <td class="text-light">158.400</td>
+                                <td class="text-secondary">0.000 / 0.000</td>
+                                <td class="text-end fw-bold text-success">+$7.58</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. AI / LLM Configuration Snippets -->
+            <div class="p-2.5 rounded" style="background: #0B1B30; border: 1px solid rgba(168, 85, 247, 0.3);">
+                <div class="d-flex justify-content-between align-items-center mb-1.5">
+                    <div class="d-flex align-items-center gap-1.5">
+                        <span style="font-size: 1.0rem;">🤖</span>
+                        <span class="fw-bold text-light" style="font-size: 0.78rem;">KONFIGURASI CEPAT AI &amp; LLM CLIENT</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline-info py-0 px-2" onclick="copyMcpJsonConfig(this)" style="font-size: 0.65rem;">📋 Salin JSON Config</button>
+                </div>
+                <p class="text-secondary small mb-1" style="font-size: 0.65rem;">
+                    Salin konfigurasi di bawah ini ke file config AI Anda (Claude Desktop <code>claude_desktop_config.json</code> atau <code>.mcp.json</code> di Antigravity / Cursor):
+                </p>
+                <pre id="mcp-json-snippet" class="p-2 rounded mb-0 text-cyan" style="background: #03070e; font-size: 0.65rem; border: 1px solid rgba(255,255,255,0.08); overflow-x: auto;">{
+  "mcpServers": {
+    "metatrader5": {
+      "url": "http://127.0.0.1:22346/mcp",
+      "headers": {
+        "Authorization": "Bearer 2OfMRznuLm2Z1XwRreyo01Rt3BAuEscpZEEYk5A+G/"
+      }
+    }
+  }
+}</pre>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="theme-modal-footer" style="background: #080d18; border-top: 1px solid #1e293b;">
+            <div class="d-flex align-items-center gap-2" style="font-size: 0.70rem; color: #94a3b8;">
+                <span class="badge bg-success bg-opacity-25 text-success border border-success mono">● MT5 Bridge Active</span>
+                <span>Terhubung langsung ke MetaTrader 5 Finex Bisnis Solusi.</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-info mono" onclick="fetchPrices()">🔄 Refresh Live</button>
+                <button class="btn btn-sm btn-outline-secondary mono" onclick="closeMt5McpModal()">Tutup</button>
+            </div>
         </div>
     </div>
 </div>
