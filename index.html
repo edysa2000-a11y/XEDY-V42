@@ -2830,11 +2830,11 @@
 
         <!-- Main Navigation Menu -->
         <nav class="sidebar-nav">
-            <button class="nav-link-btn" id="tab-trade" onclick="switchNavTab('trade')">
+            <button class="nav-link-btn active" id="tab-trade" onclick="switchNavTab('trade')">
                 <span class="nav-icon">⚡</span>
                 <span>TRADE</span>
             </button>
-            <button class="nav-link-btn active" id="tab-dashboard" onclick="switchNavTab('dashboard')">
+            <button class="nav-link-btn" id="tab-dashboard" onclick="switchNavTab('dashboard')">
                 <span class="nav-icon">⊞</span>
                 <span>Dashboard</span>
             </button>
@@ -2904,7 +2904,7 @@
         <!-- ========================================================================= -->
         <!-- PANE 0: TRADE EXECUTION DESK (OPTION B SCREENSHOT EXACT REPLICA)           -->
         <!-- ========================================================================= -->
-        <section id="pane-trade" class="subview-pane" style="display: none;">
+        <section id="pane-trade" class="subview-pane active" style="display: flex;">
             
             <!-- 1. Header Bar: Option B | Instrument Select | Badges | Live Scalper Status | Clock -->
             <div class="d-flex justify-content-between align-items-center flex-nowrap gap-2 px-2 py-0.5 rounded mono" style="background: #08162b; border: 1px solid rgba(0, 240, 255, 0.25); min-height: 26px; font-size: 0.70rem;">
@@ -3425,7 +3425,7 @@
         <!-- ========================================================================= -->
         <!-- PANE 1: ALL-PAIRS REAL-TIME BID, ASK & LOW/HIGH (LH) MARKET DASHBOARD     -->
         <!-- ========================================================================= -->
-        <section id="pane-dashboard" class="subview-pane active">
+        <section id="pane-dashboard" class="subview-pane" style="display: none;">
             
             <!-- 1. Header Control Bar -->
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 rounded" style="background: #08162b; border: 1px solid rgba(0, 240, 255, 0.35); box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05);">
@@ -7927,6 +7927,9 @@
     // SIDEBAR TAB DISPATCHER (NO BLANK GUARANTEE)
     // ==========================================
     function switchNavTab(tabKey) {
+        try {
+            localStorage.setItem('xedy_active_nav_tab', tabKey);
+        } catch(e) {}
         // 1. Update Sidebar Active Button
         document.querySelectorAll('.sidebar-nav .nav-link-btn').forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.getElementById('tab-' + tabKey);
@@ -15366,8 +15369,9 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             document.body.classList.add('theme-dark');
         }
 
-        // Default to dashboard tab
-        switchNavTab('dashboard');
+        // Default to TRADE desk (or restore user's last visited tab)
+        const initialNavTab = localStorage.getItem('xedy_active_nav_tab') || 'trade';
+        switchNavTab(initialNavTab);
 
         // Pre-render immediately with instant benchmark defaults so NO box is EVER blank
         try {

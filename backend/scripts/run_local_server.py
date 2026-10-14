@@ -1840,6 +1840,7 @@ def get_lan_ip():
         ip = '127.0.0.1'
     finally:
         s.close()
+    return ip
 def get_default_telegram_alerts():
     return {
         "USDJPY": {
@@ -1929,16 +1930,30 @@ def send_telegram_direct_message(text_html):
         return False
 
 class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
+    timeout = 15
+
+    def handle_one_request(self):
+        try:
+            super().handle_one_request()
+        except (ConnectionError, BrokenPipeError, ConnectionAbortedError, ConnectionResetError):
+            pass
+
     def end_headers(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-        super().end_headers()
+        try:
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            super().end_headers()
+        except (ConnectionError, BrokenPipeError, ConnectionAbortedError, ConnectionResetError):
+            pass
 
     def do_OPTIONS(self):
-        self.send_response(200, "ok")
-        self.end_headers()
+        try:
+            self.send_response(200, "ok")
+            self.end_headers()
+        except (ConnectionError, BrokenPipeError, ConnectionAbortedError, ConnectionResetError):
+            pass
 
     def do_GET(self):
         if self.path.startswith('/api/prices'):
@@ -2089,9 +2104,13 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
             return
 
-        if self.path == '/sr':
+        path_clean = self.path.split('?')[0]
+        if path_clean in ('', '/', '/sr', '/sr/', '/index', '/index.html'):
             self.path = '/sr.html'
-        return super().do_GET()
+        try:
+            return super().do_GET()
+        except (ConnectionError, BrokenPipeError, ConnectionAbortedError, ConnectionResetError):
+            pass
 
     def do_POST(self):
         if self.path.startswith('/api/validate_snr'):
@@ -2248,6 +2267,7 @@ def main():
 
     handler = partial(CORSStaticServer, directory=frontend_dir)
     server = http.server.ThreadingHTTPServer(('0.0.0.0', port), handler)
+    server.daemon_threads = True
 
     print("=" * 70)
     print("  USDJPY MASTER AI TRADING & PRICE ATTRIBUTION CENTER")
