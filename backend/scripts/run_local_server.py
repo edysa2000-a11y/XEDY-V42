@@ -1677,7 +1677,11 @@ def poll_market_data():
         if MT5_AVAILABLE:
             try:
                 if not mt5_initialized:
-                    mt5_initialized = mt5.initialize()
+                    finex_path = r"C:\Program Files\Finex Bisnis Solusi MT5 Terminal\terminal64.exe"
+                    if os.path.exists(finex_path):
+                        mt5_initialized = mt5.initialize(path=finex_path)
+                    if not mt5_initialized:
+                        mt5_initialized = mt5.initialize()
 
                 if mt5_initialized:
                     term = mt5.terminal_info()
@@ -1694,6 +1698,7 @@ def poll_market_data():
                                     "type": "BUY" if p.type == 0 else "SELL",
                                     "volume": p.volume,
                                     "price_open": p.price_open,
+                                    "price_current": getattr(p, "price_current", p.price_open),
                                     "sl": p.sl,
                                     "tp": p.tp,
                                     "profit": round(p.profit, 2)
