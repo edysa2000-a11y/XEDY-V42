@@ -2909,398 +2909,321 @@
         <!-- ========================================================================= -->
         <!-- PANE 0: TRADE EXECUTION DESK (OPTION B SCREENSHOT EXACT REPLICA)           -->
         <!-- ========================================================================= -->
-        <section id="pane-trade" class="subview-pane active" style="display: flex;">
+                <section id="pane-trade" class="subview-pane active" style="display: flex; flex-direction: column; height: 100%; width: 100%; overflow: hidden; background: #030812;">
             
-            <!-- 1. Header Bar: Option B | Instrument Select | Badges | Live Scalper Status | Clock -->
-            <div class="d-flex justify-content-between align-items-center flex-nowrap gap-2 px-2 py-0.5 rounded mono" style="background: #08162b; border: 1px solid rgba(0, 240, 255, 0.25); min-height: 26px; font-size: 0.70rem;">
-                <div class="d-flex align-items-center gap-1.5 flex-nowrap">
-                    <span class="text-secondary" style="font-size: 0.95rem; line-height: 1; cursor: pointer;">☰</span>
-                    <span class="badge px-1 py-0.5" style="background: #0284c7; color: #ffffff; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px;">OPTION B</span>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-sm btn-info active py-0 px-1.5 fw-bold mono" id="btn-view-cockpit-v2" onclick="switchCockpitView('v2')" style="font-size: 0.60rem; line-height: 1.1;" title="Tampilan Baru (Gambar 2)">🎛️ DASHBOARD NO 2</button>
-                        <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5 fw-bold mono" id="btn-view-cockpit-v1" onclick="switchCockpitView('v1')" style="font-size: 0.60rem; line-height: 1.1;" title="Tampilan Sebelumnya (Gambar 1)">📊 NO 1</button>
-                    </div>
-                    <select id="td-pair-select" class="form-select form-select-sm fw-bold mono py-0 px-1" onchange="switchTradeDeskPair(this.value)" style="background: #050c18; color: #00f0ff; border: 1px solid rgba(0,240,255,0.4); font-size: 0.80rem; font-weight: 800; height: 22px; width: 92px; cursor: pointer;">
-                        <option value="USDJPY" selected>USDJPY</option>
-                        <option value="XAUUSD">XAUUSD</option>
-                        <option value="EURUSD">EURUSD</option>
-                        <option value="GBPUSD">GBPUSD</option>
-                    </select>
-                    <span class="fw-bold text-light text-nowrap" style="font-size: 0.80rem; letter-spacing: 0.5px;">
-                        <span id="td-title-pair">USDJPY</span> EXECUTION DESK
-                    </span>
-                    <span class="badge py-0 px-1" style="background: rgba(30, 58, 138, 0.6); color: #60a5fa; border: 1px solid #3b82f6; font-size: 0.58rem; font-weight: 700;">STATUS+</span>
-                    <span class="badge py-0 px-1" style="background: rgba(6, 78, 59, 0.7); color: #34d399; border: 1px solid #10b981; font-size: 0.58rem; font-weight: 700;">RIS</span>
-                    <span class="badge py-0 px-1" style="background: rgba(127, 29, 29, 0.7); color: #fca5a5; border: 1px solid #dc2626; font-size: 0.58rem; font-weight: 700;">HIGH-PRIOT</span>
-                    <button class="btn btn-sm py-0 px-1.5 mono fw-bold d-flex align-items-center gap-1" id="btn-mt5-mcp-status" onclick="openMt5McpModal()" style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; font-size: 0.62rem; cursor: pointer; border-radius: 4px;" title="MetaTrader 5 Model Context Protocol (MCP) Server: http://127.0.0.1:22346/mcp">
-                        <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span>
-                        <span id="td-mt5-mcp-label">MT5 MCP</span>
-                        <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size:0.56rem;">:22346</span>
-                        <span class="badge py-0 px-1" id="td-mt5-pos-badge" style="background:rgba(0,240,255,0.25); color:#00f0ff; font-size:0.56rem;">1 POS</span>
-                    </button>
-                </div>
-
-                <div class="d-flex align-items-center gap-2 flex-nowrap" style="font-size: 0.68rem;">
-                    <span class="text-nowrap"><span class="text-secondary">SPREAD:</span> <b class="text-success" id="td-scalp-spread" style="font-size: 0.82rem; font-weight: 800;">2.0 p</b> <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" id="td-scalp-spread-badge" style="font-size: 0.56rem;">OPT</span></span>
-                    <span class="text-nowrap"><span class="text-secondary">VEL:</span> <b class="text-cyan" id="td-scalp-vel" style="font-size: 0.82rem; font-weight: 800;">18.2 t/s</b> <span class="badge bg-info bg-opacity-25 text-cyan py-0 px-1" id="td-scalp-vel-badge" style="font-size: 0.56rem;">FAST</span></span>
-                    <span class="text-nowrap"><span class="text-secondary">PING:</span> <b class="text-success" id="td-scalp-ping" style="font-size: 0.82rem; font-weight: 800;">12 ms</b></span>
-                    <span class="text-nowrap"><span class="text-secondary">BIAS:</span> <b class="text-success" id="td-scalp-bias" style="font-size: 0.82rem; font-weight: 800;">🟢 BUY PULLBACK</b></span>
-                    <span class="text-nowrap d-flex align-items-center gap-1">
-                        <span class="text-secondary">LOT:</span>
-                        <div class="btn-group btn-group-sm" role="group">
-                            <button type="button" class="btn btn-sm btn-outline-info active py-0 px-1.5" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;" onclick="setScalpLot('0.10', this)">0.10</button>
-                            <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;" onclick="setScalpLot('0.50', this)">0.50</button>
-                            <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;" onclick="setScalpLot('1.00', this)">1.00</button>
-                        </div>
-                    </span>
-                    <span class="text-secondary text-nowrap" id="td-clock" style="font-size: 0.64rem;">13/10/2026, 18:28:59 WIB</span>
-                    <button class="btn btn-sm btn-outline-light py-0 px-1" onclick="updateTradeDeskView(currentTradePair)" style="font-size: 0.62rem;" title="Segarkan Real-Time">🔄</button>
-                </div>
-            </div>
-
-            <!-- 2. Row 1: Top Metrics 7 Cards Ribbon (Tighter space, Maximized fonts) -->
-            <div class="row g-1 text-center mono flex-nowrap mx-0">
-                <div class="col px-0.5">
-                    <div class="py-0.5 px-1 rounded d-flex justify-content-between align-items-center" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.2); height: 26px;">
-                        <span class="text-secondary" style="font-size: 0.60rem; font-weight: 700;">LAST BID:</span>
-                        <span class="fw-bold text-success" id="td-last-bid" style="font-size: 0.94rem; font-weight: 800;">158.104</span>
-                    </div>
-                </div>
-                <div class="col px-0.5">
-                    <div class="py-0.5 px-1 rounded d-flex justify-content-between align-items-center" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.2); height: 26px;">
-                        <span class="text-secondary" style="font-size: 0.60rem; font-weight: 700;">BID LIVE:</span>
-                        <span class="fw-bold text-cyan" id="td-bid-harga" style="font-size: 0.94rem; font-weight: 800;">158.104</span>
-                    </div>
-                </div>
-                <div class="col px-0.5">
-                    <div class="py-0.5 px-1 rounded d-flex justify-content-between align-items-center" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.2); height: 26px;">
-                        <span class="text-secondary" style="font-size: 0.60rem; font-weight: 700;">ASK SPREAD:</span>
-                        <span class="fw-bold text-danger" id="td-ask-spread" style="font-size: 0.94rem; font-weight: 800;">158.106</span>
-                    </div>
-                </div>
-                <div class="col px-0.5">
-                    <div class="py-0.5 px-1 rounded d-flex justify-content-between align-items-center" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.2); height: 26px;">
-                        <span class="text-secondary" style="font-size: 0.60rem; font-weight: 700;">TICK M5:</span>
-                        <span class="fw-bold text-light" id="td-tick-count" style="font-size: 0.92rem; font-weight: 800;">420 tick</span>
-                    </div>
-                </div>
-                <div class="col px-0.5">
-                    <div class="py-0.5 px-1 rounded d-flex justify-content-between align-items-center" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.2); height: 26px;">
-                        <span class="text-secondary" style="font-size: 0.60rem; font-weight: 700;">TREND H4:</span>
-                        <span class="fw-bold text-success" id="td-trend-h4" style="font-size: 0.92rem; font-weight: 800;">BULLISH</span>
-                    </div>
-                </div>
-                <div class="col px-0.5">
-                    <div class="py-0.5 px-1 rounded d-flex justify-content-between align-items-center" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.2); height: 26px;">
-                        <span class="text-secondary" style="font-size: 0.60rem; font-weight: 700;">SNR POS:</span>
-                        <span class="fw-bold text-warning text-truncate" id="td-snr-pos" style="font-size: 0.86rem; font-weight: 800;">NEAREST PIVOT</span>
-                    </div>
-                </div>
-                <div class="col px-0.5">
-                    <div class="py-0.5 px-1 rounded d-flex justify-content-between align-items-center" style="background: #0B1B30; border: 1px solid rgba(16, 185, 129, 0.4); height: 26px;">
-                        <span class="text-secondary" style="font-size: 0.60rem; font-weight: 700;">Δ PRICE (30M):</span>
-                        <span class="fw-bold text-success" id="td-ribbon-pdelta" style="font-size: 0.92rem; font-weight: 800;">+12.4 p</span>
-                    </div>
-                </div>
-            </div>
-
-
             <!-- ========================================================================= -->
-            <!-- 🎛️ COCKPIT V2: INSTITUTIONAL SCALPING & MULTI-ASSET COCKPIT (GAMBAR NO 2)  -->
+            <!-- ⚡ XEDY AI: INSTITUTIONAL SCALPING COCKPIT (EXACT MATCH TO SCREENSHOT)    -->
             <!-- ========================================================================= -->
-            <div id="cockpit-v2-container" class="mono d-flex flex-column gap-2 p-1.5 flex-grow-1 position-relative" style="display: flex; min-height: 0; overflow-y: auto; overflow-x: hidden; width: 100%; max-height: calc(100vh - 75px);">
-                
-                <!-- Floating Scroll Down Button (Exact Match to Gambar 2 bottom right) -->
-                <div id="cockpit-scroll-down-btn" onclick="const c = document.getElementById('cockpit-v2-container'); if(c) c.scrollBy({top: 380, behavior: 'smooth'});" style="position: absolute; bottom: 18px; right: 22px; width: 34px; height: 34px; border-radius: 50%; background: #000; border: 1.5px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 60; box-shadow: 0 4px 14px rgba(0,0,0,0.6);" title="Gulir ke Bawah">
-                    <span style="color:#ffffff; font-size:15px; font-weight:bold; line-height:1;">↓</span>
-                </div>
+            <div id="cockpit-exact-wrapper" class="mono d-flex flex-column flex-grow-1" style="min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 6px 10px; gap: 6px;">
 
-                <!-- Live MT5 Live Pos HUD Strip -->
-                <div id="v2-mt5-hud" class="px-2 py-1 rounded d-flex justify-content-between align-items-center flex-nowrap" style="background: #08162b; border: 1px solid rgba(16, 185, 129, 0.45); font-size: 0.68rem; min-height: 25px;">
-                    <div class="d-flex align-items-center gap-1.5 flex-nowrap">
-                        <span class="badge py-0.5 px-1.5 text-white" style="background: #059669; font-size: 0.60rem; font-weight: 800;">MT5 LIVE POS</span>
-                        <span class="fw-bold text-light" id="v2-hud-symbol">USDJPY</span>
-                        <span class="badge py-0.5 px-1.5" id="v2-hud-type" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid #ef4444; font-size: 0.60rem; font-weight: 800;">SELL 1.00 LOT</span>
-                        <span class="text-secondary">OPEN:</span>
-                        <span class="fw-bold text-cyan" id="v2-hud-open">158.412</span>
-                        <span class="text-secondary">NOW:</span>
-                        <span class="fw-bold text-light" id="v2-hud-current">158.400</span>
-                    </div>
+                <!-- 1. TOP HEADER BAR -->
+                <div class="d-flex justify-content-between align-items-center flex-nowrap gap-2 px-2.5 py-1 rounded" style="background: #081224; border: 1px solid rgba(0, 240, 255, 0.35); min-height: 38px;">
+                    <!-- Brand / Desk Title / Instrument Selector -->
                     <div class="d-flex align-items-center gap-2 flex-nowrap">
-                        <span class="text-secondary">FLOATING P/L:</span>
-                        <span class="fw-bold text-success" id="v2-hud-profit" style="font-size: 0.88rem; font-weight: 800;">+$7.58</span>
-                        <button class="btn btn-sm btn-outline-info py-0 px-2 mono fw-bold" onclick="openMt5McpModal()" style="font-size: 0.62rem; line-height: 1.1;" title="Buka Detail MCP Server MT5">MCP 🔌</button>
+                        <div class="d-flex align-items-center gap-1.5">
+                            <span class="fw-bold" style="font-size: 1.15rem; color: #00f0ff; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0, 240, 255, 0.6); font-family: 'Outfit', sans-serif;">XEDY<span style="color:#fff;">AI</span></span>
+                        </div>
+                        <div class="vr" style="background: rgba(0, 240, 255, 0.3); height: 22px;"></div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold" id="td-title-pair" style="font-size: 0.95rem; color: #facc15; letter-spacing: 0.5px;">USDJPY EXECUTION DESK</span>
+                                <select id="td-pair-select" class="form-select form-select-sm fw-bold mono py-0 px-1" onchange="switchTradeDeskPair(this.value)" style="background: #050c18; color: #00f0ff; border: 1px solid rgba(0,240,255,0.4); font-size: 0.72rem; height: 20px; width: 85px; cursor: pointer;">
+                                    <option value="USDJPY" selected>USDJPY</option>
+                                    <option value="XAUUSD">XAUUSD</option>
+                                    <option value="EURUSD">EURUSD</option>
+                                    <option value="GBPUSD">GBPUSD</option>
+                                </select>
+                            </div>
+                            <div class="text-cyan mono" style="font-size: 0.58rem; letter-spacing: 0.6px; opacity: 0.85;">INSTITUTIONAL SCALPING ENGINE</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Metrics: Date/Time | LIVE | Spread | Vel | Ping | Bias | MT5 MCP -->
+                    <div class="d-flex align-items-center gap-2 flex-nowrap" style="font-size: 0.70rem;">
+                        <div class="text-end d-none d-md-block" style="line-height: 1.15;">
+                            <div class="text-secondary" id="td-header-date" style="font-size: 0.62rem;">14 OCT 2026</div>
+                            <div class="fw-bold text-light" id="td-header-clock" style="font-size: 0.72rem;">11:15:32 WIB</div>
+                        </div>
+
+                        <span class="badge py-1 px-2 d-flex align-items-center gap-1.5" style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; font-size: 0.65rem; font-weight: 800;">
+                            <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span>
+                            ● LIVE
+                        </span>
+
+                        <div class="px-2 py-0.5 rounded d-flex align-items-center gap-1" style="background: #050c18; border: 1px solid rgba(255,255,255,0.1);">
+                            <span class="text-secondary" style="font-size: 0.60rem;">SPREAD</span>
+                            <b class="text-cyan" id="td-scalp-spread" style="font-size: 0.78rem;">0.3 pips</b>
+                        </div>
+
+                        <div class="px-2 py-0.5 rounded d-flex align-items-center gap-1" style="background: #050c18; border: 1px solid rgba(255,255,255,0.1);">
+                            <span class="text-secondary" style="font-size: 0.60rem;">VEL</span>
+                            <b class="text-warning" id="td-scalp-vel" style="font-size: 0.78rem;">16.2 ticks/s</b>
+                        </div>
+
+                        <div class="px-2 py-0.5 rounded d-flex align-items-center gap-1" style="background: #050c18; border: 1px solid rgba(255,255,255,0.1);">
+                            <span class="text-secondary" style="font-size: 0.60rem;">PING</span>
+                            <b class="text-success" id="td-scalp-ping" style="font-size: 0.78rem;">14 ms</b>
+                        </div>
+
+                        <div class="px-2 py-0.5 rounded d-flex align-items-center gap-1" style="background: rgba(239, 68, 68, 0.18); border: 1px solid #dc2626;">
+                            <span class="text-secondary" style="font-size: 0.60rem;">BIAS</span>
+                            <b class="text-danger fw-bold" id="td-scalp-bias" style="font-size: 0.78rem;">BEARISH</b>
+                        </div>
+
+                        <button class="btn btn-sm py-0.5 px-2 mono fw-bold d-flex align-items-center gap-1" id="btn-mt5-mcp-status" onclick="openMt5McpModal()" style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; font-size: 0.64rem; cursor: pointer; border-radius: 4px;" title="MetaTrader 5 Model Context Protocol (MCP) Server: http://127.0.0.1:22346/mcp">
+                            <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span>
+                            <span id="td-mt5-mcp-label">MT5 MCP :22346</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- ROW 1: H4 RANGE & FORECAST (Left) + MULTI TIMEFRAME TREND (Right) -->
-                <div class="row g-2 mx-0">
-                    <!-- 1. H4 RANGE & FORECAST -->
-                    <div class="col-12 col-md-6 px-1">
-                        <div class="p-2.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); min-height: 110px;">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <div class="d-flex align-items-center gap-1.5">
-                                    <span class="badge px-1 py-0.5" style="background: #0284c7; color: #fff; font-size: 0.62rem; font-weight: 800;">H4</span>
-                                    <span class="fw-bold text-light" style="font-size: 0.78rem; letter-spacing: 0.3px;">H4 RANGE &amp; FORECAST</span>
+                <!-- 2. TOP METRIC ROW: [USDJPY BID/ASK] + [H4 RANGE & POSITION] + [TREND SCORE] -->
+                <div class="row g-1.5 mx-0">
+                    <!-- CARD 1: USDJPY BID / ASK -->
+                    <div class="col-12 col-md-4 col-xl-3 px-0.5">
+                        <div class="p-2 rounded h-100 d-flex justify-content-between align-items-center" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="d-flex align-items-center gap-2">
+                                <span style="font-size: 1.35rem; line-height: 1;" id="v2-card-flags">🇺🇸🇯🇵</span>
+                                <div>
+                                    <div class="fw-bold text-white" id="v2-card-symbol" style="font-size: 1.0rem; letter-spacing: 0.5px;">USDJPY</div>
+                                    <div class="text-secondary" style="font-size: 0.56rem;">MT5 | FX MAJOR</div>
                                 </div>
                             </div>
-                            
-                            <div class="d-flex justify-content-between align-items-baseline mb-1">
-                                <div>
-                                    <div class="fw-bold text-light" id="v2-h4-low" style="font-size: 0.95rem; font-weight: 800;">2,410.25</div>
-                                    <div class="text-secondary" style="font-size: 0.58rem;">H4 LOW</div>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="text-center">
+                                    <div class="text-secondary" style="font-size: 0.56rem;">BID</div>
+                                    <div class="fw-bold text-success" id="td-bid-harga" style="font-size: 1.15rem; font-weight: 800; text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);">158.159</div>
                                 </div>
-                                <div>
-                                    <div class="fw-bold text-light text-end" id="v2-h4-high" style="font-size: 0.95rem; font-weight: 800;">2,440.85</div>
-                                    <div class="text-secondary text-end" style="font-size: 0.58rem;">H4 HIGH</div>
-                                </div>
-                            </div>
-
-                            <!-- Range Slider Bar with white knob -->
-                            <div class="position-relative my-1">
-                                <div class="position-relative rounded-pill" style="height: 7px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); overflow: hidden;">
-                                    <div id="v2-h4-bar-fill" style="width: 71.8%; height: 100%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%);"></div>
-                                </div>
-                                <div id="v2-h4-knob" style="position: absolute; top: 50%; left: 71.8%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; background: #ffffff; border: 2px solid #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);"></div>
-                            </div>
-                            <div class="text-center mb-1">
-                                <span class="text-info fw-bold" id="v2-h4-pct-label" style="font-size: 0.68rem;">71.8% in Range</span>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.68rem;">
-                                <div>
-                                    <span class="text-secondary">Bias:</span>
-                                    <b class="text-success" id="v2-h4-bias">BULLISH &gt;&gt;&gt;</b>
-                                </div>
-                                <div>
-                                    <span class="text-secondary">Next:</span>
-                                    <b class="text-light" id="v2-h4-next">2,445 / 2,400</b>
+                                <div class="text-center">
+                                    <div class="text-secondary" style="font-size: 0.56rem;">ASK</div>
+                                    <div class="fw-bold text-danger" id="td-ask-spread" style="font-size: 1.15rem; font-weight: 800; text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);">158.162</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 2. MULTI TIMEFRAME TREND -->
-                    <div class="col-12 col-md-6 px-1">
-                        <div class="p-2.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); min-height: 110px;">
-                            <div class="d-flex align-items-center gap-1.5 mb-1">
-                                <span style="font-size: 0.95rem;">🧭</span>
-                                <span class="fw-bold text-light" style="font-size: 0.78rem; letter-spacing: 0.3px;">MULTI TIMEFRAME TREND</span>
+                    <!-- CARD 2: H4 RANGE & POSITION -->
+                    <div class="col-12 col-md-5 col-xl-6 px-0.5">
+                        <div class="p-2 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="d-flex justify-content-between align-items-center mb-0.5">
+                                <div class="d-flex align-items-center gap-1.5">
+                                    <span style="font-size: 0.85rem;">🗂️</span>
+                                    <span class="fw-bold text-cyan" style="font-size: 0.74rem;">H4 RANGE &amp; POSITION</span>
+                                </div>
+                                <span class="text-info fw-bold" id="v2-h4-pct-label" style="font-size: 0.68rem;">52.0% in Range</span>
                             </div>
 
-                            <div class="row g-1 text-center my-auto">
-                                <div class="col-2">
-                                    <div class="text-secondary" style="font-size: 0.60rem;">D1</div>
-                                    <div class="fw-bold text-success" id="v2-mttf-d1-arrow" style="font-size: 1.15rem; line-height: 1.1;">↑</div>
-                                    <div class="text-success fw-bold" id="v2-mttf-d1-text" style="font-size: 0.60rem;">Bull</div>
+                            <div class="d-flex justify-content-between align-items-center position-relative my-0.5">
+                                <div class="text-start" style="width: 75px;">
+                                    <div class="fw-bold text-light" id="v2-h4-low" style="font-size: 0.86rem; font-weight: 800;">157.676</div>
+                                    <div class="text-secondary" style="font-size: 0.54rem;">H4 LOW</div>
                                 </div>
-                                <div class="col-2">
-                                    <div class="text-secondary" style="font-size: 0.60rem;">H4</div>
-                                    <div class="fw-bold text-success" id="v2-mttf-h4-arrow" style="font-size: 1.15rem; line-height: 1.1;">↑</div>
-                                    <div class="text-success fw-bold" id="v2-mttf-h4-text" style="font-size: 0.60rem;">Bull</div>
-                                </div>
-                                <div class="col-2">
-                                    <div class="text-secondary" style="font-size: 0.60rem;">H1</div>
-                                    <div class="fw-bold text-success" id="v2-mttf-h1-arrow" style="font-size: 1.15rem; line-height: 1.1;">↑</div>
-                                    <div class="text-success fw-bold" id="v2-mttf-h1-text" style="font-size: 0.60rem;">Bull</div>
-                                </div>
-                                <div class="col-2">
-                                    <div class="text-secondary" style="font-size: 0.60rem;">M15</div>
-                                    <div class="fw-bold text-danger" id="v2-mttf-m15-arrow" style="font-size: 1.15rem; line-height: 1.1;">↓</div>
-                                    <div class="text-danger fw-bold" id="v2-mttf-m15-text" style="font-size: 0.60rem;">Bear</div>
-                                </div>
-                                <div class="col-2">
-                                    <div class="text-secondary" style="font-size: 0.60rem;">M5</div>
-                                    <div class="fw-bold text-danger" id="v2-mttf-m5-arrow" style="font-size: 1.15rem; line-height: 1.1;">↓</div>
-                                    <div class="text-danger fw-bold" id="v2-mttf-m5-text" style="font-size: 0.60rem;">Bear</div>
-                                </div>
-                                <div class="col-2">
-                                    <div class="text-secondary" style="font-size: 0.60rem;">M1</div>
-                                    <div class="fw-bold text-danger" id="v2-mttf-m1-arrow" style="font-size: 1.15rem; line-height: 1.1;">↓</div>
-                                    <div class="text-danger fw-bold" id="v2-mttf-m1-text" style="font-size: 0.60rem;">Bear</div>
-                                </div>
-                            </div>
 
-                            <div class="d-flex justify-content-between align-items-center pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.68rem;">
-                                <span class="text-secondary">Trend Score</span>
-                                <div class="d-flex align-items-center gap-1">
-                                    <div class="d-flex gap-0.5" id="v2-trend-score-blocks">
-                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
-                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
-                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
-                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
-                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
-                                        <span style="display:inline-block; width:6px; height:12px; background:#ef4444; border-radius:1px;"></span>
-                                        <span style="display:inline-block; width:6px; height:12px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
-                                        <span style="display:inline-block; width:6px; height:12px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
-                                        <span style="display:inline-block; width:6px; height:12px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
-                                        <span style="display:inline-block; width:6px; height:12px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
+                                <!-- Slider Bar Track & Knob -->
+                                <div class="position-relative flex-grow-1 mx-2">
+                                    <div class="position-relative rounded-pill" style="height: 6px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); overflow: hidden;">
+                                        <div id="v2-h4-bar-fill" style="width: 52%; height: 100%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%);"></div>
                                     </div>
-                                    <b class="text-danger ms-1" id="v2-trend-score-val" style="font-size: 0.78rem;">64/100</b>
+                                    <div id="v2-h4-knob" style="position: absolute; top: 50%; left: 52%; transform: translate(-50%, -50%); width: 13px; height: 13px; border-radius: 50%; background: #00f0ff; border: 2px solid #ffffff; box-shadow: 0 0 8px #00f0ff;"></div>
                                 </div>
+
+                                <div class="text-end" style="width: 75px;">
+                                    <div class="fw-bold text-light" id="v2-h4-high" style="font-size: 0.86rem; font-weight: 800;">158.601</div>
+                                    <div class="text-secondary" style="font-size: 0.54rem;">H4 HIGH</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: TREND SCORE -->
+                    <div class="col-12 col-md-3 col-xl-3 px-0.5">
+                        <div class="p-2 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="fw-bold text-secondary" style="font-size: 0.65rem;">TREND SCORE</div>
+                            <div class="d-flex align-items-center justify-content-between my-auto">
+                                <div class="d-flex gap-1" id="v2-top-trend-blocks">
+                                    <span style="display:inline-block; width:8px; height:18px; background:#ef4444; border-radius:1px; box-shadow:0 0 6px #ef4444;"></span>
+                                    <span style="display:inline-block; width:8px; height:18px; background:#ef4444; border-radius:1px; box-shadow:0 0 6px #ef4444;"></span>
+                                    <span style="display:inline-block; width:8px; height:18px; background:#ef4444; border-radius:1px; box-shadow:0 0 6px #ef4444;"></span>
+                                    <span style="display:inline-block; width:8px; height:18px; background:#ef4444; border-radius:1px; box-shadow:0 0 6px #ef4444;"></span>
+                                    <span style="display:inline-block; width:8px; height:18px; background:#ef4444; border-radius:1px; box-shadow:0 0 6px #ef4444;"></span>
+                                    <span style="display:inline-block; width:8px; height:18px; background:#ef4444; border-radius:1px; box-shadow:0 0 6px #ef4444;"></span>
+                                    <span style="display:inline-block; width:8px; height:18px; background:rgba(255,255,255,0.08); border-radius:1px;"></span>
+                                    <span style="display:inline-block; width:8px; height:18px; background:rgba(255,255,255,0.08); border-radius:1px;"></span>
+                                    <span style="display:inline-block; width:8px; height:18px; background:rgba(255,255,255,0.08); border-radius:1px;"></span>
+                                    <span style="display:inline-block; width:8px; height:18px; background:rgba(255,255,255,0.08); border-radius:1px;"></span>
+                                </div>
+                                <span class="fw-bold text-danger" id="v2-top-trend-val" style="font-size: 1.15rem; font-weight: 800;">64/100</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ROW 2: HARGA & PERGERAKAN M1 (30M) [Left, col-md-7] + MARKET PRESSURE & TICK ANALYSIS [Right, col-md-5] -->
-                <div class="row g-2 mx-0">
-                    <!-- 3. HARGA & PERGERAKAN M1 (30M) -->
-                    <div class="col-12 col-md-7 px-1">
-                        <div class="p-2.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); min-height: 220px;">
+                <!-- 3. MAIN CHART & MARKET ROW: [M1 CANDLESTICK (62%)] + [MULTI-TF + MARKET PRESSURE + TICK/VOL (38%)] -->
+                <div class="row g-1.5 mx-0">
+                    <!-- LEFT (62%): HARGA & PERGERAKAN M1 (30M) -->
+                    <div class="col-12 col-xl-7 px-0.5">
+                        <div class="p-2 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); min-height: 240px;">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <div class="d-flex align-items-center gap-1.5">
-                                    <span style="font-size: 0.95rem;">📊</span>
-                                    <span class="fw-bold text-light" style="font-size: 0.78rem; letter-spacing: 0.3px;">HARGA &amp; PERGERAKAN M1 (30M)</span>
+                                    <span style="font-size: 0.90rem;">📊</span>
+                                    <span class="fw-bold text-light" style="font-size: 0.76rem;">HARGA &amp; PERGERAKAN M1 (30M)</span>
                                 </div>
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-sm btn-outline-info active py-0 px-2" id="v2-tf-m1" onclick="switchCockpitM1Tf('M1')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">M1</button>
-                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" id="v2-tf-m5" onclick="switchCockpitM1Tf('M5')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">M5</button>
-                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" id="v2-tf-m15" onclick="switchCockpitM1Tf('M15')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">M15</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info active py-0 px-2" id="v2-tf-m1" onclick="switchCockpitM1Tf('M1')" style="font-size: 0.60rem; font-weight: 700; line-height: 1.1;">M1</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" id="v2-tf-m5" onclick="switchCockpitM1Tf('M5')" style="font-size: 0.60rem; font-weight: 700; line-height: 1.1;">M5</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" id="v2-tf-m15" onclick="switchCockpitM1Tf('M15')" style="font-size: 0.60rem; font-weight: 700; line-height: 1.1;">M15</button>
                                 </div>
+                            </div>
+
+                            <!-- OHLC Stats Sub-header Bar (Exact match to screenshot) -->
+                            <div class="d-flex align-items-center gap-2 px-1.5 py-0.5 rounded mb-1" style="background: rgba(5, 12, 24, 0.85); font-size: 0.65rem;">
+                                <span><span class="text-secondary">O</span> <b class="text-light" id="v2-ohlc-o">158.412</b></span>
+                                <span><span class="text-secondary">H</span> <b class="text-success" id="v2-ohlc-h">158.461</b></span>
+                                <span><span class="text-secondary">L</span> <b class="text-danger" id="v2-ohlc-l">158.124</b></span>
+                                <span><span class="text-secondary">C</span> <b class="text-cyan" id="v2-ohlc-c">158.159</b></span>
+                                <span class="text-danger fw-bold ms-auto" id="v2-ohlc-delta">-0.253 (-0.16%)</span>
                             </div>
 
                             <!-- Canvas Area for Candlesticks & Volume -->
-                            <div class="position-relative flex-grow-1 my-1" style="width: 100%; min-height: 170px; background: rgba(5, 12, 24, 0.95); border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.2); overflow: hidden;">
+                            <div class="position-relative flex-grow-1" style="width: 100%; min-height: 175px; background: rgba(5, 12, 24, 0.95); border-radius: 4px; border: 1px solid rgba(0, 240, 255, 0.2); overflow: hidden;">
                                 <canvas id="cockpit-m1-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
-                                <div id="cockpit-m1-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #00f0ff; border-radius: 4px; padding: 4px 8px; font-size: 0.62rem; color: #fff; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 140px;"></div>
+                                <div id="cockpit-m1-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #00f0ff; border-radius: 4px; padding: 4px 8px; font-size: 0.60rem; color: #fff; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 140px;"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 4 & 5. MARKET PRESSURE + TICK & VOLUME ANALYSIS -->
-                    <div class="col-12 col-md-5 px-1 d-flex flex-column gap-2">
-                        <!-- 4. MARKET PRESSURE -->
-                        <div class="p-2 rounded flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
-                            <div class="fw-bold text-light mb-1" style="font-size: 0.74rem;">MARKET PRESSURE</div>
-                            <div class="d-flex flex-column gap-1" style="font-size: 0.68rem;">
-                                <!-- DXY -->
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary">DXY</span>
-                                    <div class="d-flex align-items-center gap-1.5">
-                                        <b class="text-light" id="v2-mp-dxy-val">103.28</b>
-                                        <span class="text-danger" id="v2-mp-dxy-chg" style="font-size: 0.60rem;">▼ -0.12%</span>
-                                        <svg width="45" height="14" style="overflow:visible;"><path d="M0,4 L10,3 L20,7 L30,5 L45,12" fill="none" stroke="#ef4444" stroke-width="1.5"/></svg>
+                    <!-- RIGHT (38%): MULTI TIMEFRAME TREND + MARKET PRESSURE + TICK/VOL ANALYSIS -->
+                    <div class="col-12 col-xl-5 px-0.5 d-flex flex-column gap-1.5">
+                        <div class="row g-1.5 flex-grow-1 mx-0">
+                            <!-- MULTI TIMEFRAME TREND -->
+                            <div class="col-6 px-0.5">
+                                <div class="p-2 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                                    <div class="d-flex align-items-center gap-1 mb-1">
+                                        <span style="font-size: 0.85rem;">🧭</span>
+                                        <span class="fw-bold text-light" style="font-size: 0.68rem;">MULTI TIMEFRAME TREND</span>
+                                    </div>
+
+                                    <div class="row g-0.5 text-center my-auto">
+                                        <div class="col-2"><div class="text-secondary" style="font-size: 0.52rem;">D1</div><div class="fw-bold text-success" style="font-size: 0.95rem; line-height: 1;">↑</div><div class="text-success" style="font-size: 0.52rem;">Bull</div></div>
+                                        <div class="col-2"><div class="text-secondary" style="font-size: 0.52rem;">H4</div><div class="fw-bold text-success" style="font-size: 0.95rem; line-height: 1;">↑</div><div class="text-success" style="font-size: 0.52rem;">Bull</div></div>
+                                        <div class="col-2"><div class="text-secondary" style="font-size: 0.52rem;">H1</div><div class="fw-bold text-success" style="font-size: 0.95rem; line-height: 1;">↑</div><div class="text-success" style="font-size: 0.52rem;">Bull</div></div>
+                                        <div class="col-2"><div class="text-secondary" style="font-size: 0.52rem;">M15</div><div class="fw-bold text-danger" style="font-size: 0.95rem; line-height: 1;">↓</div><div class="text-danger" style="font-size: 0.52rem;">Bear</div></div>
+                                        <div class="col-2"><div class="text-secondary" style="font-size: 0.52rem;">M5</div><div class="fw-bold text-danger" style="font-size: 0.95rem; line-height: 1;">↓</div><div class="text-danger" style="font-size: 0.52rem;">Bear</div></div>
+                                        <div class="col-2"><div class="text-secondary" style="font-size: 0.52rem;">M1</div><div class="fw-bold text-danger" style="font-size: 0.95rem; line-height: 1;">↓</div><div class="text-danger" style="font-size: 0.52rem;">Bear</div></div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.60rem;">
+                                        <span class="text-secondary">Trend Score</span>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <div class="d-flex gap-0.5">
+                                                <span style="display:inline-block; width:5px; height:10px; background:#ef4444; border-radius:1px;"></span>
+                                                <span style="display:inline-block; width:5px; height:10px; background:#ef4444; border-radius:1px;"></span>
+                                                <span style="display:inline-block; width:5px; height:10px; background:#ef4444; border-radius:1px;"></span>
+                                                <span style="display:inline-block; width:5px; height:10px; background:#ef4444; border-radius:1px;"></span>
+                                                <span style="display:inline-block; width:5px; height:10px; background:#ef4444; border-radius:1px;"></span>
+                                                <span style="display:inline-block; width:5px; height:10px; background:#ef4444; border-radius:1px;"></span>
+                                                <span style="display:inline-block; width:5px; height:10px; background:rgba(255,255,255,0.08); border-radius:1px;"></span>
+                                            </div>
+                                            <b class="text-danger ms-1">64/100</b>
+                                        </div>
                                     </div>
                                 </div>
-                                <!-- US10Y -->
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary">US10Y</span>
-                                    <div class="d-flex align-items-center gap-1.5">
-                                        <b class="text-warning" id="v2-mp-us10y-val">4.238</b>
-                                        <span class="text-success" id="v2-mp-us10y-chg" style="font-size: 0.60rem;">▲ +0.015</span>
-                                        <svg width="45" height="14" style="overflow:visible;"><path d="M0,10 L12,8 L24,5 L35,6 L45,2" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
+                            </div>
+
+                            <!-- MARKET PRESSURE TABLE -->
+                            <div class="col-6 px-0.5">
+                                <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                                    <div class="d-flex align-items-center gap-1 mb-1">
+                                        <span style="font-size: 0.85rem;">🎯</span>
+                                        <span class="fw-bold text-light" style="font-size: 0.68rem;">MARKET PRESSURE</span>
                                     </div>
-                                </div>
-                                <!-- Real Yield -->
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary">Real Yield</span>
-                                    <div class="d-flex align-items-center gap-1.5">
-                                        <b class="text-light" id="v2-mp-ry-val">1.86</b>
-                                        <span class="text-success" id="v2-mp-ry-chg" style="font-size: 0.60rem;">▲ +0.02</span>
-                                        <svg width="45" height="14" style="overflow:visible;"><path d="M0,11 L15,9 L30,6 L45,3" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
-                                    </div>
-                                </div>
-                                <!-- VIX -->
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary">VIX</span>
-                                    <div class="d-flex align-items-center gap-1.5">
-                                        <b class="text-light" id="v2-mp-vix-val">14.62</b>
-                                        <span class="text-warning" id="v2-mp-vix-chg" style="font-size: 0.60rem;">▲ +1.8%</span>
-                                        <svg width="45" height="14" style="overflow:visible;"><path d="M0,8 L12,10 L25,4 L36,7 L45,3" fill="none" stroke="#facc15" stroke-width="1.5"/></svg>
-                                    </div>
-                                </div>
-                                <!-- OIL -->
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary">OIL</span>
-                                    <div class="d-flex align-items-center gap-1.5">
-                                        <b class="text-light" id="v2-mp-oil-val">78.21</b>
-                                        <span class="text-success" id="v2-mp-oil-chg" style="font-size: 0.60rem;">▲ +0.6%</span>
-                                        <svg width="45" height="14" style="overflow:visible;"><path d="M0,10 L14,7 L28,8 L45,2" fill="none" stroke="#10b981" stroke-width="1.5"/></svg>
-                                    </div>
+                                    <table class="table table-dark table-sm mb-0" style="font-size: 0.58rem; background: transparent;">
+                                        <thead>
+                                            <tr class="text-secondary" style="font-size: 0.52rem;">
+                                                <th class="p-0 pb-0.5">SYMBOL</th>
+                                                <th class="p-0 pb-0.5 text-center">HARGA</th>
+                                                <th class="p-0 pb-0.5 text-end">PERUBAHAN</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td class="p-0 py-0.5 text-light">DXY</td><td class="p-0 py-0.5 text-center text-warning">103.28</td><td class="p-0 py-0.5 text-end text-danger">▼ -0.12%</td></tr>
+                                            <tr><td class="p-0 py-0.5 text-light">US10Y</td><td class="p-0 py-0.5 text-center text-warning">4.238</td><td class="p-0 py-0.5 text-end text-success">▲ +0.015</td></tr>
+                                            <tr><td class="p-0 py-0.5 text-light">Real Yield</td><td class="p-0 py-0.5 text-center text-light">1.86</td><td class="p-0 py-0.5 text-end text-success">▲ +0.02</td></tr>
+                                            <tr><td class="p-0 py-0.5 text-light">VIX</td><td class="p-0 py-0.5 text-center text-light">14.62</td><td class="p-0 py-0.5 text-end text-warning">▲ +1.8%</td></tr>
+                                            <tr><td class="p-0 py-0.5 text-light">OIL</td><td class="p-0 py-0.5 text-center text-light">78.21</td><td class="p-0 py-0.5 text-end text-success">▲ +0.6%</td></tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 5. TICK & VOLUME ANALYSIS (M1) -->
-                        <div class="p-2 rounded flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
-                            <div class="fw-bold text-light mb-1" style="font-size: 0.74rem;">TICK &amp; VOLUME ANALYSIS (M1)</div>
+                        <!-- TICK & VOLUME ANALYSIS (M1) -->
+                        <div class="p-2 rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="fw-bold text-light mb-1" style="font-size: 0.68rem;">TICK &amp; VOLUME ANALYSIS (M1)</div>
                             <div class="row g-1 text-center">
                                 <div class="col-4">
-                                    <div class="text-secondary" style="font-size: 0.58rem;">TICK DELTA</div>
-                                    <div class="fw-bold text-success" id="v2-tick-delta" style="font-size: 0.88rem; font-weight: 800;">+344</div>
-                                    <div class="d-flex justify-content-center align-items-end gap-0.5 mt-0.5" style="height: 16px;">
-                                        <span style="width:3px; height:8px; background:#10b981; border-radius:1px;"></span>
-                                        <span style="width:3px; height:12px; background:#10b981; border-radius:1px;"></span>
-                                        <span style="width:3px; height:16px; background:#10b981; border-radius:1px;"></span>
-                                        <span style="width:3px; height:14px; background:#10b981; border-radius:1px;"></span>
+                                    <div class="text-secondary" style="font-size: 0.54rem;">TICK DELTA</div>
+                                    <div class="fw-bold text-success" id="v2-tick-delta" style="font-size: 0.82rem; font-weight: 800;">+344</div>
+                                    <div class="d-flex justify-content-center align-items-end gap-0.5 mt-0.5" style="height: 14px;">
+                                        <span style="width:3px; height:6px; background:#10b981; border-radius:1px;"></span>
                                         <span style="width:3px; height:10px; background:#10b981; border-radius:1px;"></span>
+                                        <span style="width:3px; height:14px; background:#10b981; border-radius:1px;"></span>
+                                        <span style="width:3px; height:12px; background:#10b981; border-radius:1px;"></span>
+                                        <span style="width:3px; height:8px; background:#10b981; border-radius:1px;"></span>
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <div class="text-secondary" style="font-size: 0.58rem;">VOLUME DELTA</div>
-                                    <div class="fw-bold text-cyan" id="v2-vol-delta" style="font-size: 0.88rem; font-weight: 800;">+752</div>
-                                    <div class="d-flex justify-content-center align-items-end gap-0.5 mt-0.5" style="height: 16px;">
-                                        <span style="width:3px; height:6px; background:#00f0ff; border-radius:1px;"></span>
-                                        <span style="width:3px; height:10px; background:#00f0ff; border-radius:1px;"></span>
+                                    <div class="text-secondary" style="font-size: 0.54rem;">VOLUME DELTA</div>
+                                    <div class="fw-bold text-cyan" id="v2-vol-delta" style="font-size: 0.82rem; font-weight: 800;">+752</div>
+                                    <div class="d-flex justify-content-center align-items-end gap-0.5 mt-0.5" style="height: 14px;">
+                                        <span style="width:3px; height:5px; background:#00f0ff; border-radius:1px;"></span>
+                                        <span style="width:3px; height:9px; background:#00f0ff; border-radius:1px;"></span>
                                         <span style="width:3px; height:14px; background:#00f0ff; border-radius:1px;"></span>
-                                        <span style="width:3px; height:16px; background:#00f0ff; border-radius:1px;"></span>
                                         <span style="width:3px; height:12px; background:#00f0ff; border-radius:1px;"></span>
+                                        <span style="width:3px; height:8px; background:#00f0ff; border-radius:1px;"></span>
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <div class="text-secondary" style="font-size: 0.58rem;">VELOCITY</div>
-                                    <div class="fw-bold text-info" id="v2-vel-delta" style="font-size: 0.88rem; font-weight: 800;">+11.9</div>
-                                    <div class="text-secondary" style="font-size: 0.52rem;">ticks/min</div>
-                                    <div class="d-flex justify-content-center align-items-end gap-0.5 mt-0.5" style="height: 16px;">
-                                        <span style="width:3px; height:10px; background:#38bdf8; border-radius:1px;"></span>
-                                        <span style="width:3px; height:16px; background:#38bdf8; border-radius:1px;"></span>
-                                        <span style="width:3px; height:8px; background:#38bdf8; border-radius:1px;"></span>
-                                    </div>
+                                    <div class="text-secondary" style="font-size: 0.54rem;">VELOCITY</div>
+                                    <div class="fw-bold text-info" id="v2-vel-delta" style="font-size: 0.82rem; font-weight: 800;">+11.9</div>
+                                    <div class="text-secondary" style="font-size: 0.50rem;">ticks/min</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ROW 3: SESSION HIGH LOW [Left, col-md-6] + FLOW & LIQUIDITY & COT [Right, col-md-6] -->
-                <div class="row g-2 mx-0">
-                    <!-- 6. SESSION HIGH LOW -->
-                    <div class="col-12 col-md-6 px-1">
-                        <div class="p-2.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); min-height: 110px;">
+                <!-- 4. SESSION & LIQUIDITY ROW: [SESSION HIGH LOW] + [FLOW & LIQUIDITY] + [COT & POSITIONING] -->
+                <div class="row g-1.5 mx-0">
+                    <!-- CARD 1: SESSION HIGH LOW -->
+                    <div class="col-12 col-md-4 px-0.5">
+                        <div class="p-2 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <div class="d-flex align-items-center gap-1.5">
-                                    <span style="font-size: 0.95rem;">⏱️</span>
-                                    <span class="fw-bold text-light" style="font-size: 0.78rem;">SESSION HIGH LOW</span>
+                                <div class="d-flex align-items-center gap-1">
+                                    <span style="font-size: 0.85rem;">⏱️</span>
+                                    <span class="fw-bold text-light" style="font-size: 0.72rem;">SESSION HIGH LOW</span>
                                 </div>
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5" onclick="setCockpitSession('ASIA', this)" style="font-size: 0.60rem; font-weight: 700; line-height: 1.1;">ASIA</button>
-                                    <button type="button" class="btn btn-sm btn-outline-info active py-0 px-1.5" onclick="setCockpitSession('EUROPE', this)" style="font-size: 0.60rem; font-weight: 700; line-height: 1.1;">EUROPE</button>
-                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5" onclick="setCockpitSession('US', this)" style="font-size: 0.60rem; font-weight: 700; line-height: 1.1;">US</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-1" onclick="setCockpitSession('ASIA', this)" style="font-size: 0.56rem; font-weight: 700; line-height: 1.1;">ASIA</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info active py-0 px-1" onclick="setCockpitSession('EUROPE', this)" style="font-size: 0.56rem; font-weight: 700; line-height: 1.1;">EUROPE</button>
+                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-1" onclick="setCockpitSession('US', this)" style="font-size: 0.56rem; font-weight: 700; line-height: 1.1;">US</button>
                                 </div>
                             </div>
-
                             <div class="row g-1 align-items-center">
                                 <div class="col-4">
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="text-secondary" style="font-size: 0.65rem;">H</span>
-                                        <b class="text-success" id="v2-sess-h" style="font-size: 0.85rem;">2,435.60</b>
-                                    </div>
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="text-secondary" style="font-size: 0.65rem;">L</span>
-                                        <b class="text-danger" id="v2-sess-l" style="font-size: 0.85rem;">2,428.10</b>
-                                    </div>
+                                    <div style="font-size: 0.65rem;"><span class="text-secondary">H</span> <b class="text-success" id="v2-sess-h">158.341</b></div>
+                                    <div style="font-size: 0.65rem;"><span class="text-secondary">L</span> <b class="text-danger" id="v2-sess-l">157.941</b></div>
                                 </div>
                                 <div class="col-4 text-center">
-                                    <div class="text-secondary" style="font-size: 0.58rem;">DAILY RANGE</div>
-                                    <div style="font-size: 0.68rem;"><span class="text-secondary">H</span> <b class="text-light" id="v2-daily-h">2,440.85</b></div>
-                                    <div style="font-size: 0.68rem;"><span class="text-secondary">L</span> <b class="text-light" id="v2-daily-l">2,410.25</b></div>
+                                    <div class="text-secondary" style="font-size: 0.52rem;">DAILY RANGE</div>
+                                    <div style="font-size: 0.62rem;"><span class="text-secondary">H</span> <b class="text-light" id="v2-daily-h">158.511</b></div>
+                                    <div style="font-size: 0.62rem;"><span class="text-secondary">L</span> <b class="text-light" id="v2-daily-l">157.761</b></div>
                                 </div>
                                 <div class="col-4 text-end">
-                                    <div class="text-secondary" style="font-size: 0.58rem;">POSITION</div>
-                                    <b class="text-info" id="v2-sess-pos" style="font-size: 0.85rem;">71.8%</b>
-                                    <div class="position-relative mt-1">
-                                        <div class="rounded-pill" style="height: 5px; background: rgba(255,255,255,0.08); overflow: hidden;">
+                                    <div class="text-secondary" style="font-size: 0.52rem;">POSITION</div>
+                                    <b class="text-info" id="v2-sess-pos" style="font-size: 0.78rem;">71.8%</b>
+                                    <div class="position-relative mt-0.5">
+                                        <div class="rounded-pill" style="height: 4px; background: rgba(255,255,255,0.08); overflow: hidden;">
                                             <div id="v2-sess-pos-fill" style="width: 71.8%; height: 100%; background: linear-gradient(90deg, #ef4444, #10b981);"></div>
                                         </div>
                                     </div>
@@ -3309,57 +3232,59 @@
                         </div>
                     </div>
 
-                    <!-- 7 & 8. FLOW & LIQUIDITY + COT & POSITIONING -->
-                    <div class="col-12 col-md-6 px-1 d-flex flex-column gap-2">
-                        <!-- 7. FLOW & LIQUIDITY -->
-                        <div class="p-2 rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
-                            <div class="fw-bold text-light mb-1" style="font-size: 0.74rem;">FLOW &amp; LIQUIDITY</div>
-                            <div class="d-flex justify-content-between align-items-center" style="font-size: 0.68rem;">
+                    <!-- CARD 2: FLOW & LIQUIDITY -->
+                    <div class="col-12 col-md-4 px-0.5">
+                        <div class="p-2 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <span style="font-size: 0.85rem;">🌊</span>
+                                <span class="fw-bold text-light" style="font-size: 0.72rem;">FLOW &amp; LIQUIDITY</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center" style="font-size: 0.62rem;">
                                 <div>
-                                    <div class="text-secondary" style="font-size: 0.58rem;">FLOW STATUS</div>
-                                    <div class="fw-bold text-danger" id="v2-flow-status" style="font-size: 0.85rem;">DISTRIBUTION</div>
+                                    <div class="text-secondary" style="font-size: 0.52rem;">FLOW STATUS</div>
+                                    <div class="fw-bold text-danger" id="v2-flow-status" style="font-size: 0.76rem;">DISTRIBUTION</div>
                                     <div class="d-flex align-items-center gap-1 mt-0.5">
-                                        <div class="d-flex gap-0.5" id="v2-flow-blocks">
-                                            <span style="display:inline-block; width:6px; height:8px; background:#ef4444; border-radius:1px;"></span>
-                                            <span style="display:inline-block; width:6px; height:8px; background:#ef4444; border-radius:1px;"></span>
-                                            <span style="display:inline-block; width:6px; height:8px; background:#ef4444; border-radius:1px;"></span>
-                                            <span style="display:inline-block; width:6px; height:8px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
-                                            <span style="display:inline-block; width:6px; height:8px; background:rgba(255,255,255,0.1); border-radius:1px;"></span>
+                                        <div class="d-flex gap-0.5">
+                                            <span style="display:inline-block; width:5px; height:8px; background:#ef4444; border-radius:1px;"></span>
+                                            <span style="display:inline-block; width:5px; height:8px; background:#ef4444; border-radius:1px;"></span>
+                                            <span style="display:inline-block; width:5px; height:8px; background:#ef4444; border-radius:1px;"></span>
+                                            <span style="display:inline-block; width:5px; height:8px; background:rgba(255,255,255,0.08); border-radius:1px;"></span>
                                         </div>
-                                        <span class="text-danger fw-bold" id="v2-flow-pct" style="font-size: 0.62rem;">-28%</span>
+                                        <span class="text-danger fw-bold" id="v2-flow-pct" style="font-size: 0.58rem;">-28%</span>
                                     </div>
                                 </div>
-
                                 <div class="text-end">
-                                    <div class="text-secondary" style="font-size: 0.58rem;">LIQUIDITY ZONE</div>
-                                    <div style="font-size: 0.64rem;"><span class="text-secondary">R1</span> <b class="text-light" id="v2-liq-r1">2,435.60</b> &nbsp; <span class="text-secondary">R2</span> <b class="text-light" id="v2-liq-r2">2,438.20</b></div>
-                                    <div style="font-size: 0.64rem;"><span class="text-secondary">S1</span> <b class="text-light" id="v2-liq-s1">2,428.10</b> &nbsp; <span class="text-secondary">S2</span> <b class="text-light" id="v2-liq-s2">2,425.30</b></div>
+                                    <div class="text-secondary" style="font-size: 0.52rem;">LIQUIDITY ZONE</div>
+                                    <div style="font-size: 0.58rem;"><span class="text-secondary">R2</span> <b class="text-light" id="v2-liq-r2">158.439</b> &nbsp; <span class="text-secondary">R1</span> <b class="text-light" id="v2-liq-r1">158.279</b></div>
+                                    <div style="font-size: 0.58rem;"><span class="text-secondary">S1</span> <b class="text-light" id="v2-liq-s1">158.009</b> &nbsp; <span class="text-secondary">S2</span> <b class="text-light" id="v2-liq-s2">157.859</b></div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- 8. COT & POSITIONING (WEEKLY) -->
-                        <div class="p-2 rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                    <!-- CARD 3: COT & POSITIONING (WEEKLY) -->
+                    <div class="col-12 col-md-4 px-0.5">
+                        <div class="p-2 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-bold text-light" style="font-size: 0.74rem;">COT &amp; POSITIONING (WEEKLY)</span>
-                                <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" id="v2-cot-badge" style="font-size: 0.58rem;">BULLISH</span>
+                                <span class="fw-bold text-light" style="font-size: 0.72rem;">COT &amp; POSITIONING (WEEKLY)</span>
+                                <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" id="v2-cot-badge" style="font-size: 0.54rem;">BULLISH</span>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center" style="font-size: 0.68rem;">
+                            <div class="d-flex justify-content-between align-items-center" style="font-size: 0.60rem;">
                                 <div>
-                                    <div style="font-size: 0.64rem;"><span class="text-secondary">Net Position:</span> <b class="text-success" id="v2-cot-net">+182.4K</b></div>
-                                    <div style="font-size: 0.64rem;"><span class="text-secondary">Change:</span> <b class="text-success" id="v2-cot-chg">+12.6K</b></div>
-                                    <div style="font-size: 0.64rem;"><span class="text-secondary">Long:</span> <b class="text-light" id="v2-cot-long">301.2K</b> &nbsp; <span class="text-secondary">Short:</span> <b class="text-light" id="v2-cot-short">118.8K</b></div>
-                                    <div style="font-size: 0.60rem;"><span class="text-secondary">Status:</span> <span class="text-light" id="v2-cot-status">Moderately Long</span></div>
+                                    <div><span class="text-secondary">Net Position:</span> <b class="text-success" id="v2-cot-net">+182.4K</b></div>
+                                    <div><span class="text-secondary">Change:</span> <b class="text-success" id="v2-cot-chg">+12.6K</b></div>
+                                    <div><span class="text-secondary">Long:</span> <b class="text-light" id="v2-cot-long">301.2K</b> &nbsp; <span class="text-secondary">Short:</span> <b class="text-light" id="v2-cot-short">118.8K</b></div>
+                                    <div style="font-size: 0.54rem;"><span class="text-secondary">Status:</span> <span class="text-light" id="v2-cot-status">Moderately Long</span></div>
                                 </div>
                                 <div>
-                                    <svg width="65" height="35" style="overflow:visible;">
-                                        <rect x="0" y="15" width="6" height="20" fill="#eab308" rx="1"/>
-                                        <rect x="9" y="12" width="6" height="23" fill="#eab308" rx="1"/>
-                                        <rect x="18" y="18" width="6" height="17" fill="#eab308" rx="1"/>
-                                        <rect x="27" y="10" width="6" height="25" fill="#14b8a6" rx="1"/>
-                                        <rect x="36" y="6" width="6" height="29" fill="#14b8a6" rx="1"/>
-                                        <rect x="45" y="4" width="6" height="31" fill="#14b8a6" rx="1"/>
-                                        <rect x="54" y="2" width="6" height="33" fill="#14b8a6" rx="1"/>
+                                    <svg width="60" height="30" style="overflow:visible;">
+                                        <rect x="0" y="14" width="5" height="16" fill="#eab308" rx="1"/>
+                                        <rect x="8" y="11" width="5" height="19" fill="#eab308" rx="1"/>
+                                        <rect x="16" y="16" width="5" height="14" fill="#eab308" rx="1"/>
+                                        <rect x="24" y="9" width="5" height="21" fill="#14b8a6" rx="1"/>
+                                        <rect x="32" y="6" width="5" height="24" fill="#14b8a6" rx="1"/>
+                                        <rect x="40" y="4" width="5" height="26" fill="#14b8a6" rx="1"/>
+                                        <rect x="48" y="2" width="5" height="28" fill="#14b8a6" rx="1"/>
                                     </svg>
                                 </div>
                             </div>
@@ -3367,706 +3292,235 @@
                     </div>
                 </div>
 
-                <!-- ROW 4: INDIKATOR SCALPING (M1) [5 RADIAL GAUGES] -->
-                <div class="p-2.5 rounded mx-1" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
-                    <div class="d-flex align-items-center gap-1.5 mb-2">
-                        <span style="font-size: 0.95rem;">🎯</span>
-                        <span class="fw-bold text-light" style="font-size: 0.78rem;">INDIKATOR SCALPING (M1)</span>
+                <!-- 5. SCALPING INDICATOR & SIGNAL ROW: [5 GAUGES (38%)] + [SIGNAL & SETUP (37%)] + [QUALITY GATE (25%)] -->
+                <div class="row g-1.5 mx-0">
+                    <!-- 5 RADIAL GAUGES -->
+                    <div class="col-12 col-md-5 col-xl-4 px-0.5">
+                        <div class="p-2 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <span style="font-size: 0.85rem;">🎯</span>
+                                <span class="fw-bold text-light" style="font-size: 0.72rem;">INDIKATOR SCALPING (M1)</span>
+                            </div>
+                            <div class="row g-1 text-center my-auto">
+                                <div class="col">
+                                    <div class="text-secondary" style="font-size: 0.54rem;">Trend</div>
+                                    <div class="position-relative mx-auto my-0.5" style="width: 48px; height: 30px;">
+                                        <svg viewBox="0 0 100 60" width="48" height="30">
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" stroke-linecap="round"/>
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#ef4444" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="72.8" style="filter: drop-shadow(0 0 3px #ef4444);"/>
+                                        </svg>
+                                        <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.74rem; font-weight: 800; color: #fff;">42</div>
+                                    </div>
+                                    <div class="text-danger fw-bold" style="font-size: 0.54rem;">Bear ↘</div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-secondary" style="font-size: 0.54rem;">Momentum</div>
+                                    <div class="position-relative mx-auto my-0.5" style="width: 48px; height: 30px;">
+                                        <svg viewBox="0 0 100 60" width="48" height="30">
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" stroke-linecap="round"/>
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#ef4444" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="80.3" style="filter: drop-shadow(0 0 3px #ef4444);"/>
+                                        </svg>
+                                        <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.74rem; font-weight: 800; color: #fff;">36</div>
+                                    </div>
+                                    <div class="text-danger fw-bold" style="font-size: 0.54rem;">Bear ↘</div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-secondary" style="font-size: 0.54rem;">Tick</div>
+                                    <div class="position-relative mx-auto my-0.5" style="width: 48px; height: 30px;">
+                                        <svg viewBox="0 0 100 60" width="48" height="30">
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" stroke-linecap="round"/>
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="40.1" style="filter: drop-shadow(0 0 3px #10b981);"/>
+                                        </svg>
+                                        <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.74rem; font-weight: 800; color: #fff;">68</div>
+                                    </div>
+                                    <div class="text-success fw-bold" style="font-size: 0.54rem;">Bull ↗</div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-secondary" style="font-size: 0.54rem;">Volume</div>
+                                    <div class="position-relative mx-auto my-0.5" style="width: 48px; height: 30px;">
+                                        <svg viewBox="0 0 100 60" width="48" height="30">
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" stroke-linecap="round"/>
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="43.9" style="filter: drop-shadow(0 0 3px #10b981);"/>
+                                        </svg>
+                                        <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.74rem; font-weight: 800; color: #fff;">65</div>
+                                    </div>
+                                    <div class="text-success fw-bold" style="font-size: 0.54rem;">Bull ↗</div>
+                                </div>
+                                <div class="col">
+                                    <div class="text-secondary" style="font-size: 0.54rem;">Velocity</div>
+                                    <div class="position-relative mx-auto my-0.5" style="width: 48px; height: 30px;">
+                                        <svg viewBox="0 0 100 60" width="48" height="30">
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" stroke-linecap="round"/>
+                                            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="35.1" style="filter: drop-shadow(0 0 3px #10b981);"/>
+                                        </svg>
+                                        <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.74rem; font-weight: 800; color: #fff;">72</div>
+                                    </div>
+                                    <div class="text-success fw-bold" style="font-size: 0.54rem;">Bull ↗</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="row g-2 text-center">
-                        <!-- 1. Trend (42, Bear) -->
-                        <div class="col">
-                            <div class="text-secondary" style="font-size: 0.62rem;">Trend</div>
-                            <div class="position-relative mx-auto my-1" style="width: 58px; height: 36px;">
-                                <svg viewBox="0 0 100 60" width="58" height="36">
-                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
-                                    <path id="v2-gauge-trend-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#ef4444" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="72.8" style="filter: drop-shadow(0 0 4px #ef4444);"/>
-                                </svg>
-                                <div id="v2-gauge-trend-val" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.82rem; font-weight: 800; color: #fff;">42</div>
+                    <!-- SCALPING SIGNAL & SETUP DETAIL -->
+                    <div class="col-12 col-md-4 col-xl-5 px-0.5">
+                        <div class="p-2 rounded h-100 d-flex align-items-center justify-content-between" style="background: #0B1B30; border: 1px solid rgba(239, 68, 68, 0.45); box-shadow: 0 0 12px rgba(239, 68, 68, 0.1);">
+                            <!-- SELL Box -->
+                            <div class="d-flex flex-column align-items-center justify-content-center p-2 rounded" style="background: rgba(239, 68, 68, 0.22); border: 2px solid #ef4444; min-width: 130px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);">
+                                <div class="d-flex align-items-center gap-1.5">
+                                    <span class="text-danger fw-bold" style="font-size: 1.4rem; line-height: 1;">↘</span>
+                                    <span class="fw-bold text-white px-2 py-0.5 rounded" style="background: #ef4444; font-size: 1.15rem; letter-spacing: 1px;">SELL</span>
+                                </div>
+                                <span class="text-danger fw-bold mt-0.5" style="font-size: 0.65rem; letter-spacing: 0.8px;">PULLBACK</span>
                             </div>
-                            <div class="text-danger fw-bold" id="v2-gauge-trend-label" style="font-size: 0.62rem;">Bear ↘</div>
-                        </div>
 
-                        <!-- 2. Momentum (36, Bear) -->
-                        <div class="col">
-                            <div class="text-secondary" style="font-size: 0.62rem;">Momentum</div>
-                            <div class="position-relative mx-auto my-1" style="width: 58px; height: 36px;">
-                                <svg viewBox="0 0 100 60" width="58" height="36">
-                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
-                                    <path id="v2-gauge-mom-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#ef4444" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="80.3" style="filter: drop-shadow(0 0 4px #ef4444);"/>
-                                </svg>
-                                <div id="v2-gauge-mom-val" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.82rem; font-weight: 800; color: #fff;">36</div>
+                            <!-- Setup Detail -->
+                            <div class="ps-2.5 flex-grow-1" style="font-size: 0.62rem; line-height: 1.35;">
+                                <div class="text-secondary" style="font-size: 0.54rem;">SETUP DETAIL</div>
+                                <div class="fw-bold text-danger" style="font-size: 0.74rem;">M5 Bearish | M1 Rejection</div>
+                                <div class="text-light">Session: Europe (Good)</div>
+                                <div class="text-secondary">Nearest Pivot</div>
+                                <div class="text-cyan">Entry di area resistance intraday</div>
                             </div>
-                            <div class="text-danger fw-bold" id="v2-gauge-mom-label" style="font-size: 0.62rem;">Bear ↘</div>
-                        </div>
-
-                        <!-- 3. Tick (68, Bull) -->
-                        <div class="col">
-                            <div class="text-secondary" style="font-size: 0.62rem;">Tick</div>
-                            <div class="position-relative mx-auto my-1" style="width: 58px; height: 36px;">
-                                <svg viewBox="0 0 100 60" width="58" height="36">
-                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
-                                    <path id="v2-gauge-tick-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="40.1" style="filter: drop-shadow(0 0 4px #10b981);"/>
-                                </svg>
-                                <div id="v2-gauge-tick-val" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.82rem; font-weight: 800; color: #fff;">68</div>
-                            </div>
-                            <div class="text-success fw-bold" id="v2-gauge-tick-label" style="font-size: 0.62rem;">Bull ↗</div>
-                        </div>
-
-                        <!-- 4. Volume (65, Bull) -->
-                        <div class="col">
-                            <div class="text-secondary" style="font-size: 0.62rem;">Volume</div>
-                            <div class="position-relative mx-auto my-1" style="width: 58px; height: 36px;">
-                                <svg viewBox="0 0 100 60" width="58" height="36">
-                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
-                                    <path id="v2-gauge-vol-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="43.9" style="filter: drop-shadow(0 0 4px #10b981);"/>
-                                </svg>
-                                <div id="v2-gauge-vol-val" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.82rem; font-weight: 800; color: #fff;">65</div>
-                            </div>
-                            <div class="text-success fw-bold" id="v2-gauge-vol-label" style="font-size: 0.62rem;">Bull ↗</div>
-                        </div>
-
-                        <!-- 5. Velocity (72, Bull) -->
-                        <div class="col">
-                            <div class="text-secondary" style="font-size: 0.62rem;">Velocity</div>
-                            <div class="position-relative mx-auto my-1" style="width: 58px; height: 36px;">
-                                <svg viewBox="0 0 100 60" width="58" height="36">
-                                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8" stroke-linecap="round"/>
-                                    <path id="v2-gauge-vel-path" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="35.1" style="filter: drop-shadow(0 0 4px #10b981);"/>
-                                </svg>
-                                <div id="v2-gauge-vel-val" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 0.82rem; font-weight: 800; color: #fff;">72</div>
-                            </div>
-                            <div class="text-success fw-bold" id="v2-gauge-vel-label" style="font-size: 0.62rem;">Bull ↗</div>
                         </div>
                     </div>
-                </div>
 
-                <!-- ROW 5: SCALPING SIGNAL -->
-                <div class="p-2.5 rounded mx-1" style="background: #0B1B30; border: 1px solid rgba(239, 68, 68, 0.45); box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);">
-                    <div class="row g-2 align-items-center">
-                        <!-- Left: SELL BOX -->
-                        <div class="col-12 col-md-3">
-                            <div class="text-warning fw-bold mb-1" style="font-size: 0.68rem;">SCALPING SIGNAL</div>
-                            <div class="d-flex align-items-center justify-content-center gap-2 p-2 rounded" style="background: rgba(239, 68, 68, 0.25); border: 2px solid #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);">
-                                <span class="text-danger fw-bold" id="v2-sig-arrow" style="font-size: 1.4rem; line-height: 1;">↘</span>
-                                <span class="fw-bold text-white px-2.5 py-0.5 rounded" id="v2-sig-badge" style="background: #ef4444; font-size: 1.15rem; letter-spacing: 1px;">SELL</span>
+                    <!-- QUALITY GATE PASS -->
+                    <div class="col-12 col-md-3 col-xl-3 px-0.5">
+                        <div class="p-2 rounded h-100 d-flex align-items-center justify-content-between" style="background: #0B1B30; border: 1px solid rgba(16, 185, 129, 0.4);">
+                            <div style="font-size: 0.60rem; line-height: 1.4;">
+                                <div class="text-secondary" style="font-size: 0.52rem;">QUALITY GATE</div>
+                                <div class="text-success">✔ Trend Alignment</div>
+                                <div class="text-success">✔ Flow Confirmation</div>
+                                <div class="text-warning">⚠ Not Overextended</div>
+                                <div class="text-success">✔ RR &amp; EV Valid</div>
                             </div>
-                        </div>
-
-                        <!-- Middle: SETUP -->
-                        <div class="col-12 col-md-5">
-                            <div class="text-secondary" style="font-size: 0.60rem;">SETUP</div>
-                            <div class="fw-bold text-danger" id="v2-setup-title" style="font-size: 1.05rem;">Sell Pullback</div>
-                            <div class="text-light" id="v2-setup-desc" style="font-size: 0.70rem;">M5 Bearish | M1 Rejection</div>
-                            <div class="text-secondary" id="v2-setup-sess" style="font-size: 0.64rem;">Session: Europe (Good)</div>
-                        </div>
-
-                        <!-- Right: QUALITY GATE PASS -->
-                        <div class="col-12 col-md-4">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="text-secondary" style="font-size: 0.60rem;">QUALITY GATE</div>
-                                    <div class="text-success" style="font-size: 0.62rem;">✔ Trend Alignment</div>
-                                    <div class="text-success" style="font-size: 0.62rem;">✔ Flow Confirmation</div>
-                                    <div class="text-warning" style="font-size: 0.62rem;">⚠ Not Overextended</div>
-                                    <div class="text-success" style="font-size: 0.62rem;">✔ RR &amp; EV Valid</div>
-                                </div>
-                                <div class="px-3 py-1.5 rounded fw-bold text-success border border-success" id="v2-qgate-badge" style="background: rgba(16, 185, 129, 0.2); font-size: 1.25rem; letter-spacing: 1.5px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);">
-                                    PASS
-                                </div>
+                            <div class="px-3 py-1.5 rounded fw-bold text-success border border-success" style="background: rgba(16, 185, 129, 0.2); font-size: 1.25rem; letter-spacing: 1.5px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);">
+                                PASS
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ROW 6: ENTRY & RISK MANAGEMENT -->
-                <div class="p-2.5 rounded mx-1" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
-                    <div class="d-flex justify-content-between align-items-center mb-1.5">
-                        <div class="d-flex align-items-center gap-1.5">
-                            <span style="font-size: 0.95rem;">🎯</span>
-                            <span class="fw-bold text-light" style="font-size: 0.78rem;">ENTRY &amp; RISK MANAGEMENT</span>
+                <!-- 6. ENTRY & RISK MANAGEMENT ROW -->
+                <div class="p-2 rounded mx-0.5" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="d-flex align-items-center gap-1">
+                            <span style="font-size: 0.85rem;">🎯</span>
+                            <span class="fw-bold text-light" style="font-size: 0.72rem;">ENTRY &amp; RISK MANAGEMENT</span>
                         </div>
-                        <button class="btn btn-sm btn-outline-info py-0 px-2 mono" onclick="copyScalpOrder('SELL')" style="font-size: 0.64rem;">📋 Salin Tiket Eksekusi</button>
+                        <button class="btn btn-sm btn-outline-info py-0 px-2 mono" onclick="copyScalpOrder('SELL')" style="font-size: 0.60rem;">📋 Salin Tiket Eksekusi</button>
                     </div>
 
-                    <div class="row g-1 text-center mb-1.5">
+                    <div class="row g-1 text-center align-items-center">
                         <!-- OP ZONE -->
                         <div class="col">
-                            <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.08);">
-                                <div class="text-secondary" style="font-size: 0.58rem;">OP ZONE</div>
-                                <b class="text-light" id="v2-op-zone" style="font-size: 0.78rem;">2,433.50 - 2,434.20</b>
+                            <div class="p-1 rounded" style="background: #050c18; border: 1.5px solid rgba(239, 68, 68, 0.6); box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);">
+                                <div class="text-secondary" style="font-size: 0.54rem;">OP ZONE</div>
+                                <b class="text-light" id="v2-op-zone" style="font-size: 0.76rem;">158.211 - 158.251</b>
                             </div>
                         </div>
                         <!-- STOP LOSS -->
                         <div class="col">
-                            <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(239, 68, 68, 0.35);">
-                                <div class="text-secondary" style="font-size: 0.58rem;">STOP LOSS</div>
-                                <div class="text-danger fw-bold" id="v2-sl-val" style="font-size: 0.78rem;">2,436.00 <span style="font-size: 0.60rem;">→ 18.0 p</span></div>
+                            <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(239, 68, 68, 0.4);">
+                                <div class="text-secondary" style="font-size: 0.54rem;">STOP LOSS</div>
+                                <div class="text-danger fw-bold" id="v2-sl-val" style="font-size: 0.76rem;">158.341 <span style="font-size: 0.56rem;">18.0 pips</span></div>
                             </div>
                         </div>
                         <!-- TP1 -->
                         <div class="col">
                             <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(16, 185, 129, 0.35);">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary" style="font-size: 0.58rem;">TP1</span>
-                                    <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.52rem;">75%</span>
+                                    <span class="text-secondary" style="font-size: 0.52rem;">TP1</span>
+                                    <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.48rem;">75%</span>
                                 </div>
-                                <b class="text-success" id="v2-tp1-val" style="font-size: 0.78rem;">2,431.00</b>
-                                <div class="text-secondary" id="v2-tp1-dist" style="font-size: 0.55rem;">25.0 pips</div>
+                                <b class="text-success" id="v2-tp1-val" style="font-size: 0.76rem;">158.061</b>
+                                <div class="text-secondary" style="font-size: 0.52rem;">25.0 pips</div>
                             </div>
                         </div>
                         <!-- TP2 -->
                         <div class="col">
                             <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(16, 185, 129, 0.35);">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary" style="font-size: 0.58rem;">TP2</span>
-                                    <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.52rem;">62%</span>
+                                    <span class="text-secondary" style="font-size: 0.52rem;">TP2</span>
+                                    <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.48rem;">62%</span>
                                 </div>
-                                <b class="text-success" id="v2-tp2-val" style="font-size: 0.78rem;">2,428.50</b>
-                                <div class="text-secondary" id="v2-tp2-dist" style="font-size: 0.55rem;">50.0 pips</div>
+                                <b class="text-success" id="v2-tp2-val" style="font-size: 0.76rem;">157.961</b>
+                                <div class="text-secondary" style="font-size: 0.52rem;">50.0 pips</div>
                             </div>
                         </div>
                         <!-- TP3 -->
                         <div class="col">
                             <div class="p-1 rounded" style="background: #050c18; border: 1px solid rgba(16, 185, 129, 0.35);">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary" style="font-size: 0.58rem;">TP3</span>
-                                    <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.52rem;">48%</span>
+                                    <span class="text-secondary" style="font-size: 0.52rem;">TP3</span>
+                                    <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.48rem;">48%</span>
                                 </div>
-                                <b class="text-success" id="v2-tp3-val" style="font-size: 0.78rem;">2,425.50</b>
-                                <div class="text-secondary" id="v2-tp3-dist" style="font-size: 0.55rem;">80.0 pips</div>
+                                <b class="text-success" id="v2-tp3-val" style="font-size: 0.76rem;">157.811</b>
+                                <div class="text-secondary" style="font-size: 0.52rem;">50.0 pips</div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-1 border-top border-secondary border-opacity-25" style="font-size: 0.65rem;">
-                        <div>
-                            <span class="text-secondary">RISK / REWARD:</span>
-                            <b class="text-warning" id="v2-rr-val">1 : 1.39 (TP1) &nbsp; 1 : 2.78 (TP2) &nbsp; 1 : 4.44 (TP3)</b>
-                        </div>
-                        <div>
-                            <span class="text-secondary">EXPECTED VALUE:</span>
-                            <b class="text-success" id="v2-ev-val">+0.86 R</b>
-                        </div>
-                        <div>
-                            <span class="text-secondary">CONFIDENCE:</span>
-                            <b class="text-light" id="v2-conf-val">72%</b>
-                        </div>
-                        <div>
-                            <span class="text-secondary">INVALIDATION:</span>
-                            <b class="text-danger" id="v2-inval-val">&gt; 2,436.00 (Bullish Break M1)</b>
+                        <!-- Right Metrics Strip -->
+                        <div class="col-12 col-xl-5 mt-1 mt-xl-0 text-xl-end" style="font-size: 0.60rem;">
+                            <div class="d-flex justify-content-between justify-content-xl-end gap-2 flex-wrap">
+                                <div><span class="text-secondary">RISK / REWARD</span> <b class="text-warning">1 : 1.39 (TP1) &nbsp; 1 : 2.78 (TP2) &nbsp; 1 : 4.44 (TP3)</b></div>
+                                <div><span class="text-secondary">EXPECTED VALUE</span> <b class="text-success">+0.86 R</b></div>
+                                <div><span class="text-secondary">CONFIDENCE</span> <b class="text-light">72%</b></div>
+                                <div><span class="text-secondary">INVALIDATION</span> <b class="text-danger">&gt; 158.436 (Bullish Break M5)</b></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ROW 7: NARASI SINGKAT + SCENARIO -->
-                <div class="row g-2 mx-0 mb-3">
-                    <div class="col-12 col-md-7 px-1">
-                        <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
+                <!-- 7. BOTTOM NARRATIVE & SCENARIO ROW -->
+                <div class="row g-1.5 mx-0">
+                    <!-- NARASI SINGKAT -->
+                    <div class="col-12 col-md-6 px-0.5">
+                        <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); font-size: 0.60rem; line-height: 1.45;">
                             <div class="d-flex align-items-center gap-1 mb-1">
-                                <span style="font-size: 0.85rem;">📋</span>
-                                <span class="fw-bold text-light" style="font-size: 0.72rem;">NARASI SINGKAT</span>
+                                <span style="font-size: 0.80rem;">📋</span>
+                                <span class="fw-bold text-light" style="font-size: 0.70rem;">NARASI SINGKAT</span>
                             </div>
-                            <div class="text-secondary" style="font-size: 0.65rem; line-height: 1.4;" id="v2-narasi-text">
-                                <div>🔴 Harga berada di area atas range harian dengan tekanan jual jangka pendek.</div>
-                                <div>🟢 Tick, volume, dan velocity mendukung potensi penurunan.</div>
-                            </div>
+                            <div>🔴 Harga berada di area atas range harian dengan tekanan jual jangka pendek.</div>
+                            <div>🟢 Tick, volume, dan velocity mendukung potensi penurunan.</div>
+                            <div>🔵 DXY relatif stabil, yield sedikit naik ➔ tekanan ke JPY mendukung bearish.</div>
+                            <div>🟡 Setup: Sell Pullback di area resistance intraday.</div>
+                            <div>🔴 Waspadai news US CPI dalam 1h 44m.</div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-5 px-1">
-                        <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28);">
-                            <div class="fw-bold text-light mb-1" style="font-size: 0.72rem;">SCENARIO</div>
-                            <div class="d-flex align-items-center gap-1.5 mt-1">
-                                <span class="badge bg-danger bg-opacity-25 text-danger border border-danger py-0.5 px-1.5" id="v2-scenario-badge" style="font-size: 0.65rem; font-weight: 800;">Bearish (72%)</span>
-                                <span class="text-light fw-bold" id="v2-scenario-seq" style="font-size: 0.74rem;">2,431 → 2,428 → 2,425</span>
-                            </div>
+                    <!-- SCENARIO & PROBABILITAS TABLE -->
+                    <div class="col-12 col-md-6 px-0.5">
+                        <div class="p-2 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.28); font-size: 0.60rem;">
+                            <div class="fw-bold text-light mb-1" style="font-size: 0.70rem;">SCENARIO &amp; PROBABILITAS</div>
+                            <table class="table table-dark table-sm mb-0" style="font-size: 0.58rem; background: transparent;">
+                                <tbody>
+                                    <tr>
+                                        <td class="p-0 py-0.5"><span class="badge bg-danger bg-opacity-25 text-danger border border-danger py-0 px-1">Bearish (72%)</span></td>
+                                        <td class="p-0 py-0.5 text-light fw-bold">2,431 → 2,428 → 2,425</td>
+                                        <td class="p-0 py-0.5 text-secondary">Skenario utama, sell pullback.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-0 py-0.5"><span class="badge bg-info bg-opacity-25 text-cyan border border-info py-0 px-1">Sideways (20%)</span></td>
+                                        <td class="p-0 py-0.5 text-light fw-bold">2,431 - 2,435</td>
+                                        <td class="p-0 py-0.5 text-secondary">Konsolidasi jika tidak ada momentum baru.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-0 py-0.5"><span class="badge bg-success bg-opacity-25 text-success border border-success py-0 px-1">Bullish (8%)</span></td>
+                                        <td class="p-0 py-0.5 text-light fw-bold">2,438 → 2,441</td>
+                                        <td class="p-0 py-0.5 text-secondary">Jika break 158.436 dan konfirmasi M5.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-            </div>
-
-            <!-- 3. MASTER 2-COLUMN SPLIT DESK (LEGACY DESK V1) -->
-            <div id="cockpit-v1-desk" class="row g-1 mono flex-grow-1 mx-0" style="min-height: 0; overflow: hidden; display: none;">
-                
-                <!-- ========================================================================= -->
-                <!-- LEFT COLUMN: LEBAR SETENGAH PAGE (50%) • 4 MODUL SEJAJAR KEBAWAH         -->
-                <!-- 1. Posisi Harga                                                           -->
-                <!-- 2. Selisih Tick Buy / Sell                                                -->
-                <!-- 3. Selisih Volume Buy / Sell                                              -->
-                <!-- 4. Selisih Velocity Buy / Sell                                            -->
-                <!-- ========================================================================= -->
-                <div class="col-12 col-xl-6 d-flex flex-column justify-content-start h-100" style="min-height: 0; overflow: hidden; gap: 1px !important;">
-                    
-                    <!-- 1. POSISI HARGA -->
-                    <div class="p-1 px-1.5 rounded" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35);">
-                        <div class="d-flex justify-content-between align-items-center mb-0.5">
-                            <div class="d-flex align-items-center gap-1">
-                                <span class="badge py-0 px-1" style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid #00f0ff; font-size: 0.62rem; font-weight: 700;">📍 POSISI HARGA</span>
-                                <span class="fw-bold text-light" style="font-size: 0.74rem;">H4 RANGE &amp; FORECAST</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-1.5">
-                                <span class="text-secondary" style="font-size: 0.64rem;">LIVE:</span>
-                                <span class="fw-bold text-cyan" id="td-gauge-val" style="font-size: 1.05rem; font-weight: 800;">158.104</span>
-                                <span class="badge bg-info bg-opacity-25 text-cyan py-0 px-1" id="td-range-h4-badge" style="font-size: 0.60rem; font-weight: 700;"><span id="td-range-h4">34.5</span> p</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Sub stats: Forecast Low/High vs Live Low/High -->
-                        <div class="row g-1 text-center mb-0.5">
-                            <div class="col-3">
-                                <div class="py-0 px-0.5 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06);">
-                                    <span class="text-secondary" style="font-size: 0.54rem;">FC LOW: </span>
-                                    <b class="text-light" id="td-fc-low" style="font-size: 0.74rem; font-weight: 800;">157.676</b>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="py-0 px-0.5 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06);">
-                                    <span class="text-secondary" style="font-size: 0.54rem;">FC HIGH: </span>
-                                    <b class="text-light" id="td-fc-high" style="font-size: 0.74rem; font-weight: 800;">157.945</b>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="py-0 px-0.5 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06);">
-                                    <span class="text-secondary" style="font-size: 0.54rem;">H4 LOW: </span>
-                                    <b class="text-danger" id="td-live-low" style="font-size: 0.74rem; font-weight: 800;">157.851</b>
-                                </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="py-0 px-0.5 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06);">
-                                    <span class="text-secondary" style="font-size: 0.54rem;">H4 HIGH: </span>
-                                    <b class="text-success" id="td-live-high" style="font-size: 0.74rem; font-weight: 800;">158.196</b>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Gauge Progress Track & Pin Indicator -->
-                        <div class="position-relative pt-1">
-                            <div id="td-gauge-pin" style="position: absolute; top: -3px; left: 75%; transform: translateX(-50%); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #10b981; transition: left 0.4s ease; filter: drop-shadow(0 0 4px #10b981);"></div>
-                            <div class="position-relative rounded-pill" style="height: 5px; background: rgba(255,255,255,0.08); overflow: hidden; border: 1px solid rgba(255,255,255,0.12);">
-                                <div id="td-gauge-fill" style="width: 75%; height: 100%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%); transition: width 0.4s ease;"></div>
-                            </div>
-                            <div class="d-flex justify-content-between text-secondary" style="font-size: 0.56rem;">
-                                <span>LOW (0%)</span>
-                                <span class="text-info fw-bold" id="td-gauge-pct-label" style="font-size: 0.60rem;">75.0% in Range</span>
-                                <span>HIGH (100%)</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 1B. HARGA & SELISIH PRICE M1 (30 MENIT RANGE) - MAXIMIZED CHART -->
-                    <div class="p-1 px-1.5 rounded d-flex flex-column justify-content-between flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(16, 185, 129, 0.45); flex: 1 1 0; min-height: 0; overflow: hidden;">
-                        <div class="d-flex justify-content-between align-items-center mb-0.5 flex-shrink-0">
-                            <div class="d-flex align-items-center gap-1">
-                                <span class="badge py-0 px-1" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid #10b981; font-size: 0.66rem; font-weight: 800;">📈 HARGA &amp; SELISIH PRICE</span>
-                                <span class="fw-bold text-light" style="font-size: 0.74rem;">M1 (30M RANGE)</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-1.5">
-                                <span class="text-secondary" style="font-size: 0.62rem;">30M Δ:</span>
-                                <span class="fw-bold text-success" id="td-pdelta-change" style="font-size: 0.92rem; font-weight: 800;">+12.4 pips</span>
-                                <span class="badge bg-success bg-opacity-25 text-success py-0 px-1" id="td-pdelta-pct" style="font-size: 0.60rem; font-weight: 700;">+0.08%</span>
-                                <div class="btn-group btn-group-sm ms-1" role="group">
-                                    <button type="button" class="btn btn-sm btn-outline-success py-0 px-1.5 active" id="btn-pdelta-candle" onclick="setPriceDeltaViewMode('candle')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">CANDLE</button>
-                                    <button type="button" class="btn btn-sm btn-outline-success py-0 px-1.5" id="btn-pdelta-line" onclick="setPriceDeltaViewMode('line')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">LINE</button>
-                                    <button type="button" class="btn btn-sm btn-outline-success py-0 px-1.5" id="btn-pdelta-bars" onclick="setPriceDeltaViewMode('delta')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">DELTA</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="position-relative flex-grow-1 my-0.5" style="width: 100%; min-height: 50px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(16,185,129,0.25); overflow: hidden;">
-                            <canvas id="canvas-price-delta" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
-                            <div id="pdelta-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #10b981; border-radius: 4px; padding: 4px 8px; font-size: 0.62rem; color: #fff; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 155px;"></div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center text-secondary mt-0.5 flex-shrink-0" style="font-size: 0.62rem;">
-                            <span id="td-pdelta-bias" class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.60rem; font-weight: 700;">🟢 BULLISH EXPANSION</span>
-                            <span>30m Range: <b class="text-light" id="td-pdelta-range-val" style="font-size: 0.70rem; font-weight: 700;">14.2 pips</b> (<span class="text-secondary" id="td-pdelta-hl-bounds">157.980 - 158.122</span>)</span>
-                            <span class="text-success" style="font-size: 0.60rem;">M1 Window: 30m</span>
-                        </div>
-                    </div>
-
-                    <!-- 2. SELISIH TICK BUY / SELL (30 MENIT) - MAXIMIZED CHART -->
-                    <div class="p-1 px-1.5 rounded d-flex flex-column justify-content-between flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.35); flex: 1 1 0; min-height: 0; overflow: hidden;">
-                        <div class="d-flex justify-content-between align-items-center mb-0.5 flex-shrink-0">
-                            <div class="d-flex align-items-center gap-1">
-                                <span class="badge py-0 px-1" style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid #00f0ff; font-size: 0.66rem; font-weight: 800;">⚡ SELISIH TICK</span>
-                                <span class="fw-bold text-light" style="font-size: 0.74rem;">M1 (30M RANGE)</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-1.5">
-                                <span class="text-secondary" style="font-size: 0.62rem;">30M Δ PRICE:</span>
-                                <span class="fw-bold text-cyan" id="td-tdelta-price-change" style="font-size: 0.88rem; font-weight: 800;">+12.4 p</span>
-                                <span class="text-secondary ms-1" style="font-size: 0.62rem;">30M CUM:</span>
-                                <span class="fw-bold text-success" id="td-tdelta-cum" style="font-size: 0.92rem; font-weight: 800;">+482 ticks</span>
-                                <div class="btn-group btn-group-sm ms-1" role="group">
-                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5 active" id="btn-tdelta-combo" onclick="setTickDeltaViewMode('combo')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">COMBO</button>
-                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5" id="btn-tdelta-bars" onclick="setTickDeltaViewMode('bars')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">BARS</button>
-                                    <button type="button" class="btn btn-sm btn-outline-info py-0 px-1.5" id="btn-tdelta-cvd" onclick="setTickDeltaViewMode('cvd')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">CVD</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="position-relative flex-grow-1 my-0.5" style="width: 100%; min-height: 50px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(0,240,255,0.2); overflow: hidden;">
-                            <canvas id="canvas-tick-delta" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
-                            <div id="tdelta-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #00f0ff; border-radius: 4px; padding: 4px 8px; font-size: 0.62rem; color: #fff; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 140px;"></div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center text-secondary mt-0.5 flex-shrink-0" style="font-size: 0.62rem;">
-                            <span id="td-tdelta-bias" class="badge bg-success bg-opacity-25 text-success py-0 px-1" style="font-size: 0.60rem; font-weight: 700;">🟢 BUY ABSORPTION</span>
-                            <span>Ratio: <b class="text-cyan" id="td-tdelta-ratio" style="font-size: 0.70rem; font-weight: 700;">64.2% / 35.8%</b></span>
-                            <span class="text-info" style="font-size: 0.60rem;">Window: 30m</span>
-                        </div>
-                    </div>
-
-                    <!-- 3. SELISIH VOLUME BUY / SELL (30 MENIT) - MAXIMIZED CHART -->
-                    <div class="p-1 px-1.5 rounded d-flex flex-column justify-content-between flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(250, 204, 21, 0.35); flex: 1 1 0; min-height: 0; overflow: hidden;">
-                        <div class="d-flex justify-content-between align-items-center mb-0.5 flex-shrink-0">
-                            <div class="d-flex align-items-center gap-1">
-                                <span class="badge py-0 px-1" style="background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid #facc15; font-size: 0.66rem; font-weight: 800;">📊 SELISIH VOLUME</span>
-                                <span class="fw-bold text-light" style="font-size: 0.74rem;">M1 (30M RANGE)</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-1.5">
-                                <span class="text-secondary" style="font-size: 0.62rem;">30M CUM VOL:</span>
-                                <span class="fw-bold text-warning" id="td-vdelta-cum" style="font-size: 0.92rem; font-weight: 800;">+1,420 contracts</span>
-                                <div class="btn-group btn-group-sm ms-1" role="group">
-                                    <button type="button" class="btn btn-sm btn-outline-warning py-0 px-1.5 active" id="btn-vdelta-combo" onclick="setVolDeltaViewMode('combo')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">COMBO</button>
-                                    <button type="button" class="btn btn-sm btn-outline-warning py-0 px-1.5" id="btn-vdelta-bars" onclick="setVolDeltaViewMode('bars')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">BARS</button>
-                                    <button type="button" class="btn btn-sm btn-outline-warning py-0 px-1.5" id="btn-vdelta-cvd" onclick="setVolDeltaViewMode('cvd')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">CVD</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="position-relative flex-grow-1 my-0.5" style="width: 100%; min-height: 50px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(250,204,21,0.2); overflow: hidden;">
-                            <canvas id="canvas-vol-delta" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
-                            <div id="vdelta-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #facc15; border-radius: 4px; padding: 4px 8px; font-size: 0.62rem; color: #fff; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 140px;"></div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center text-secondary mt-0.5 flex-shrink-0" style="font-size: 0.62rem;">
-                            <span id="td-vdelta-bias" class="badge bg-warning bg-opacity-25 text-warning py-0 px-1" style="font-size: 0.60rem; font-weight: 700;">🟢 WHALE INFLOW</span>
-                            <span>Vol Ratio: <b class="text-warning" id="td-vdelta-ratio" style="font-size: 0.70rem; font-weight: 700;">68.5% / 31.5%</b></span>
-                            <span class="text-warning" style="font-size: 0.60rem;">CME / ECN Contracts</span>
-                        </div>
-                    </div>
-
-                    <!-- 4. SELISIH VELOCITY BUY / SELL (30 MENIT) - MAXIMIZED CHART -->
-                    <div class="p-1 px-1.5 rounded d-flex flex-column justify-content-between flex-grow-1" style="background: #0B1B30; border: 1px solid rgba(168, 85, 247, 0.35); flex: 1 1 0; min-height: 0; overflow: hidden;">
-                        <div class="d-flex justify-content-between align-items-center mb-0.5 flex-shrink-0">
-                            <div class="d-flex align-items-center gap-1">
-                                <span class="badge py-0 px-1" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid #c084fc; font-size: 0.66rem; font-weight: 800;">🚀 SELISIH VELOCITY</span>
-                                <span class="fw-bold text-light" style="font-size: 0.74rem;">M1 SPEED (30M)</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-1.5">
-                                <span class="text-secondary" style="font-size: 0.62rem;">NET:</span>
-                                <span class="fw-bold text-info" id="td-veldelta-cum" style="font-size: 0.92rem; font-weight: 800;">+7.4 ticks/s</span>
-                                <div class="btn-group btn-group-sm ms-1" role="group">
-                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-1.5 active" id="btn-veldelta-combo" onclick="setVelDeltaViewMode('combo')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">COMBO</button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-1.5" id="btn-veldelta-bars" onclick="setVelDeltaViewMode('bars')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">BARS</button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-1.5" id="btn-veldelta-surge" onclick="setVelDeltaViewMode('surge')" style="font-size: 0.62rem; font-weight: 700; line-height: 1.1;">SURGE</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="position-relative flex-grow-1 my-0.5" style="width: 100%; min-height: 50px; background: rgba(5, 12, 24, 0.85); border-radius: 4px; border: 1px solid rgba(168,85,247,0.2); overflow: hidden;">
-                            <canvas id="canvas-vel-delta" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; cursor: crosshair;"></canvas>
-                            <div id="veldelta-tooltip" style="display: none; position: absolute; pointer-events: none; background: rgba(8, 22, 43, 0.95); border: 1px solid #c084fc; border-radius: 4px; padding: 4px 8px; font-size: 0.62rem; color: #fff; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 140px;"></div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center text-secondary mt-0.5 flex-shrink-0" style="font-size: 0.62rem;">
-                            <span id="td-veldelta-bias" class="badge bg-info bg-opacity-25 text-info py-0 px-1" style="font-size: 0.60rem; font-weight: 700;">⚡ SUPER ACCELERATION</span>
-                            <span>Peak: <b class="text-cyan" id="td-veldelta-peak" style="font-size: 0.70rem; font-weight: 700;">22.8 ticks/s</b></span>
-                            <span class="text-info" style="font-size: 0.60rem;">Speed Index</span>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- ========================================================================= -->
-                <!-- RIGHT COLUMN: LEBAR SETENGAH PAGE (50%) • TRADING EXECUTION & CONFLUENCE -->
-                <!-- ========================================================================= -->
-                <div class="col-12 col-xl-6 d-flex flex-column justify-content-start h-100" style="min-height: 0; overflow: hidden; gap: 1px !important;">
-                    
-                    <!-- MT5 LIVE POSITION HUD (Realtime Terminal Bridge) -->
-                    <div id="td-mt5-live-hud" class="px-2 py-0.5 rounded mono d-flex justify-content-between align-items-center flex-nowrap" style="background: #08162b; border: 1px solid rgba(16, 185, 129, 0.45); font-size: 0.65rem; min-height: 24px;">
-                        <div class="d-flex align-items-center gap-1.5 flex-nowrap">
-                            <span class="badge py-0 px-1 text-white" style="background: #059669; font-size: 0.58rem; font-weight: 800;">MT5 LIVE POS</span>
-                            <span class="fw-bold text-light" id="hud-mt5-symbol">USDJPY</span>
-                            <span class="badge py-0 px-1" id="hud-mt5-type" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid #ef4444; font-size: 0.58rem; font-weight: 800;">SELL 1.00 LOT</span>
-                            <span class="text-secondary">OPEN:</span>
-                            <span class="fw-bold text-cyan" id="hud-mt5-open-price">158.412</span>
-                            <span class="text-secondary">NOW:</span>
-                            <span class="fw-bold text-light" id="hud-mt5-cur-price">158.400</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-1.5 flex-nowrap">
-                            <span class="text-secondary">P/L:</span>
-                            <span class="fw-bold text-success" id="hud-mt5-profit" style="font-size: 0.84rem; font-weight: 800;">+$7.58</span>
-                            <button class="btn btn-sm btn-outline-info py-0 px-1 mono fw-bold" onclick="openMt5McpModal()" style="font-size: 0.60rem; line-height: 1.1;" title="Buka Detail MCP Server MT5">MCP 🔌</button>
-                        </div>
-                    </div>
-
-                    <!-- Row A: BUY LIMIT & SELL LIMIT EXECUTION (2 Cards) -->
-                    <div class="row g-1 mb-0 flex-grow-1" style="flex: 1 1 0; min-height: 0;">
-                        <!-- Column 1: BUY LIMIT - S1 -->
-                        <div class="col-6 h-100">
-                            <div class="rounded p-1.5 h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1.5px solid rgba(16, 185, 129, 0.45); box-shadow: 0 0 10px rgba(16, 185, 129, 0.08);">
-                                <div class="px-1.5 py-0.5 fw-bold text-success d-flex align-items-center gap-1 rounded" style="background: rgba(16, 185, 129, 0.12); font-size: 0.82rem; border-bottom: 1px solid rgba(16, 185, 129, 0.25);">
-                                    <span>▲</span> BUY LIMIT - S1
-                                </div>
-                                <div class="p-1 d-flex flex-column gap-0.5" style="font-size: 0.70rem;">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="text-secondary">ENTRY:</span>
-                                        <b class="text-success" id="td-buy-entry" style="font-size: 0.95rem; font-weight: 800;">157.658</b>
-                                        <span class="text-secondary ms-1">TP2:</span>
-                                        <b class="text-success" id="td-buy-tp2" style="font-size: 0.88rem; font-weight: 800;">158.221</b>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="text-secondary">SL:</span>
-                                        <b class="text-success" id="td-buy-sl" style="font-size: 0.88rem; font-weight: 800;">157.464</b>
-                                        <span class="text-secondary ms-1">DIST:</span>
-                                        <b class="text-cyan" id="td-buy-dist" style="font-size: 0.88rem; font-weight: 800;">44.6 p</b>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center border-top border-secondary border-opacity-25 pt-0.5">
-                                        <span class="text-secondary">TP1:</span>
-                                        <b class="text-success" id="td-buy-tp1" style="font-size: 0.88rem; font-weight: 800;">158.027</b>
-                                    </div>
-                                </div>
-                                <div class="d-flex flex-column gap-0.5">
-                                    <div id="td-buy-status-strip" class="text-center py-0.5 rounded" style="background: rgba(6, 78, 59, 0.5); border: 1px solid #059669; color: #6ee7b7; font-size: 0.60rem; font-weight: bold;">
-                                        NO ENGINE SIGNAL • ANALYSIS ONLY
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-outline-success w-100 py-0.5 mono fw-bold" onclick="copyScalpOrder('BUY')" style="font-size: 0.68rem; line-height: 1.2;">
-                                        📋 SALIN TIKET BUY LIMIT
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Column 2: SELL LIMIT - R1 -->
-                        <div class="col-6 h-100">
-                            <div class="rounded p-1.5 h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1.5px solid rgba(244, 63, 94, 0.45); box-shadow: 0 0 10px rgba(244, 63, 94, 0.08);">
-                                <div class="px-1.5 py-0.5 fw-bold text-danger d-flex align-items-center gap-1 rounded" style="background: rgba(244, 63, 94, 0.12); font-size: 0.82rem; border-bottom: 1px solid rgba(244, 63, 94, 0.25);">
-                                    <span>▼</span> SELL LIMIT - R1
-                                </div>
-                                <div class="p-1 d-flex flex-column gap-0.5" style="font-size: 0.70rem;">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="text-secondary">ENTRY:</span>
-                                        <b class="text-danger" id="td-sell-entry" style="font-size: 0.95rem; font-weight: 800;">158.221</b>
-                                        <span class="text-secondary ms-1">TP2:</span>
-                                        <b class="text-danger" id="td-sell-tp2" style="font-size: 0.88rem; font-weight: 800;">157.658</b>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="text-secondary">SL:</span>
-                                        <b class="text-danger" id="td-sell-sl" style="font-size: 0.88rem; font-weight: 800;">158.590</b>
-                                        <span class="text-secondary ms-1">DIST:</span>
-                                        <b class="text-danger" id="td-sell-dist" style="font-size: 0.88rem; font-weight: 800;">11.7 p</b>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center border-top border-secondary border-opacity-25 pt-0.5">
-                                        <span class="text-secondary">TP1:</span>
-                                        <b class="text-danger" id="td-sell-tp1" style="font-size: 0.88rem; font-weight: 800;">158.027</b>
-                                    </div>
-                                </div>
-                                <div class="d-flex flex-column gap-0.5">
-                                    <div id="td-sell-status-strip" class="text-center py-0.5 rounded" style="background: rgba(69, 10, 10, 0.5); border: 1px solid #dc2626; color: #fca5a5; font-size: 0.60rem; font-weight: bold;">
-                                        NO ENGINE SIGNAL • ANALYSIS ONLY
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-outline-danger w-100 py-0.5 mono fw-bold" onclick="copyScalpOrder('SELL')" style="font-size: 0.68rem; line-height: 1.2;">
-                                        📋 SALIN TIKET SELL LIMIT
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row B: LEVEL HARGA • SNR & PROBABILITY & SIGNAL (2 Cards) -->
-                    <div class="row g-1 mb-0 flex-grow-1" style="flex: 1 1 0; min-height: 0;">
-                        <!-- Column 1: LEVEL HARGA • SNR... -->
-                        <div class="col-6 h-100">
-                            <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                                <div class="d-flex justify-content-between align-items-center mb-0.5">
-                                    <span class="fw-bold text-light" style="font-size: 0.76rem;">LEVEL HARGA • SNR</span>
-                                    <span class="badge bg-dark border border-secondary text-info mono py-0 px-1" style="font-size: 0.56rem;">PIPS DIST</span>
-                                </div>
-                                <div class="row g-0" style="font-size: 0.68rem;">
-                                    <div class="col-6 pe-1">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary">R3:</span>
-                                            <b class="text-danger" id="td-snr-r3" style="font-size: 0.80rem; font-weight: 800;">158.221</b>
-                                            <span class="text-secondary small" id="td-snr-r3-dist">-19</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary">R2:</span>
-                                            <b class="text-danger" id="td-snr-r2" style="font-size: 0.80rem; font-weight: 800;">158.590</b>
-                                            <span class="text-secondary small" id="td-snr-r2-dist">-22</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary">R1:</span>
-                                            <b class="text-danger" id="td-snr-r1" style="font-size: 0.80rem; font-weight: 800;">158.027</b>
-                                            <span class="text-secondary small" id="td-snr-r1-dist">-12</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 ps-1 border-start border-secondary border-opacity-25">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary">PVT:</span>
-                                            <b class="text-warning" id="td-snr-pivot" style="font-size: 0.80rem; font-weight: 800;">158.106</b>
-                                            <span class="text-secondary small" id="td-snr-pivot-dist">0</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary">S1:</span>
-                                            <b class="text-success" id="td-snr-s1" style="font-size: 0.80rem; font-weight: 800;">157.658</b>
-                                            <span class="text-secondary small" id="td-snr-s1-dist">-18</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary">S2:</span>
-                                            <b class="text-success" id="td-snr-s2" style="font-size: 0.80rem; font-weight: 800;">157.654</b>
-                                            <span class="text-secondary small" id="td-snr-s2-dist">-23</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Column 2: PROBABILITY & SIGNAL -->
-                        <div class="col-6 h-100">
-                            <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                                <div class="fw-bold text-light mb-0.5" style="font-size: 0.76rem;">PROBABILITY &amp; SIGNAL</div>
-                                <div class="row g-1 mb-0.5 text-center">
-                                    <div class="col-6">
-                                        <div class="py-0.5 px-1 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.08);">
-                                            <div class="text-secondary" style="font-size: 0.58rem;">BUY PROB</div>
-                                            <b class="text-success" id="td-prob-buy" style="font-size: 0.90rem; font-weight: 800;">84% • HIGH</b>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="py-0.5 px-1 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.08);">
-                                            <div class="text-secondary" style="font-size: 0.58rem;">SELL PROB</div>
-                                            <b class="text-danger" id="td-prob-sell" style="font-size: 0.90rem; font-weight: 800;">16% • LOW</b>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="text-center py-0.5 px-1 rounded" style="background: rgba(5, 12, 24, 0.7); border: 1px solid rgba(0, 240, 255, 0.15);">
-                                    <div class="fw-bold text-success" id="td-sig-title" style="font-size: 0.86rem; font-weight: 800; letter-spacing: 0.4px;">⚡ SCALP: BUY PULLBACK</div>
-                                    <div class="text-secondary small" id="td-sig-sub" style="font-size: 0.62rem; font-weight: 700;">CONF 91% • SCORE 92/100</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row C: TICK/VOLUME M5 & ECONOMIC CALENDAR (2 Cards) -->
-                    <div class="row g-1 mb-0 flex-grow-1" style="flex: 1 1 0; min-height: 0;">
-                        <!-- Card 1: TICK & VOLUME • M5 -->
-                        <div class="col-6 h-100">
-                            <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                                <div class="d-flex justify-content-between align-items-center mb-0.5">
-                                    <span class="fw-bold text-light" style="font-size: 0.74rem;">TICK &amp; VOLUME M5</span>
-                                    <span style="font-size: 0.70rem;"><b class="text-light" id="td-bot-tick" style="font-size: 0.95rem; font-weight: 800;">420</b> <span class="text-secondary">t</span> | <b class="text-light" id="td-bot-vol" style="font-size: 0.95rem; font-weight: 800;">218</b> <span class="text-secondary">v</span></span>
-                                </div>
-                                <div class="d-flex flex-column gap-0.5" style="font-size: 0.66rem;">
-                                    <div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary" style="font-size: 0.58rem;">BUY VOL</span>
-                                            <b class="text-success" id="td-bot-buyvol" style="font-size: 0.74rem; font-weight: 800;">75%</b>
-                                        </div>
-                                        <div class="rounded-pill" style="height: 5px; background: rgba(255,255,255,0.1); overflow: hidden;">
-                                            <div id="td-bot-buyvol-bar" style="width: 75%; height: 100%; background: #10b981;"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary" style="font-size: 0.58rem;">SELL VOL</span>
-                                            <b class="text-danger" id="td-bot-sellvol" style="font-size: 0.74rem; font-weight: 800;">25%</b>
-                                        </div>
-                                        <div class="rounded-pill" style="height: 5px; background: rgba(255,255,255,0.1); overflow: hidden;">
-                                            <div id="td-bot-sellvol-bar" style="width: 25%; height: 100%; background: #f43f5e;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 2: ECONOMIC CALENDAR -->
-                        <div class="col-6 h-100">
-                            <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                                <div class="d-flex justify-content-between align-items-center mb-0.5">
-                                    <span class="fw-bold text-light" style="font-size: 0.74rem;">ECONOMIC CALENDAR</span>
-                                    <span class="badge bg-success bg-opacity-25 text-success mono py-0 px-1" id="td-econ-badge" style="font-size: 0.58rem; font-weight: 700;">🟢 SAFE</span>
-                                </div>
-                                <div id="td-econ-list" class="d-flex flex-column gap-0.5 overflow-hidden flex-grow-1" style="max-height: 80px; font-size: 0.62rem;">
-                                    <!-- Dynamic events loaded via updateTradeDeskView -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Row D: MONEY FLOW RADAR & BYI CORRELATION (2 Cards) -->
-                    <div class="row g-1 mb-0 flex-grow-1" style="flex: 1 1 0; min-height: 0;">
-                        <!-- Card 1: MONEY FLOW RADAR -->
-                        <div class="col-6 h-100">
-                            <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                                <div class="d-flex justify-content-between align-items-center mb-0.5">
-                                    <span class="fw-bold text-light" style="font-size: 0.74rem;">MONEY FLOW RADAR</span>
-                                    <b class="text-success" id="td-mf-risk-tone" style="font-size: 0.65rem; font-weight: 800;">RISK-ON</b>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex flex-column gap-0.5" style="font-size: 0.64rem; width: 60%;">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary" id="td-mf-c1-name">USD:</span>
-                                            <b class="text-danger" id="td-mf-usd" style="font-weight: 800;">-0.02%</b>
-                                            <span class="text-secondary" id="td-mf-c2-name">JPY:</span>
-                                            <b class="text-danger" id="td-mf-jpy" style="font-weight: 800;">-0.06%</b>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary" id="td-mf-c3-name">EUR:</span>
-                                            <b class="text-success" id="td-mf-eur" style="font-weight: 800;">+0.08%</b>
-                                            <span class="text-secondary" id="td-mf-c4-name">AUD:</span>
-                                            <b class="text-success" id="td-mf-aud" style="font-weight: 800;">+0.05%</b>
-                                        </div>
-                                    </div>
-                                    <div class="text-center" style="width: 40%;">
-                                        <svg width="52" height="52" viewBox="0 0 100 100" style="overflow: visible;">
-                                            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-                                            <circle cx="50" cy="50" r="28" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-                                            <line x1="50" y1="8" x2="50" y2="92" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-                                            <line x1="8" y1="50" x2="92" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-                                            <polygon id="td-mf-polygon" points="50,22 82,42 66,74 38,70 18,48" fill="rgba(16, 185, 129, 0.25)" stroke="#10b981" stroke-width="2.2"/>
-                                            <circle cx="50" cy="50" r="2.5" fill="#10b981"/>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card 2: BOND, YIELD, INDEX (BYI) -->
-                        <div class="col-6 h-100">
-                            <div class="p-1 px-1.5 rounded h-100 d-flex flex-column justify-content-between" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.25);">
-                                <div class="fw-bold text-light mb-0.5" style="font-size: 0.74rem;">BOND, YIELD, INDEX (BYI)</div>
-                                <div class="row g-1" style="font-size: 0.64rem;">
-                                    <div class="col-6 border-end border-dark pe-1">
-                                        <div class="text-secondary text-truncate" id="td-byi-h1" style="font-size: 0.56rem; font-weight: 700;">US (MACRO)</div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary" id="td-byi-r1-k1">DOW:</span>
-                                            <span id="td-byi-r1-v1"><b class="text-danger" style="font-weight: 800;">44,120</b></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary" id="td-byi-r2-k1">10Y:</span>
-                                            <span id="td-byi-r2-v1"><b class="text-light" style="font-weight: 800;">4.25%</b></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary" id="td-byi-r3-k1">30Y:</span>
-                                            <span id="td-byi-r3-v1"><b class="text-light" style="font-weight: 800;">4.38%</b></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 ps-1">
-                                        <div class="text-secondary text-truncate" id="td-byi-h2" style="font-size: 0.56rem; font-weight: 700;">PAIR FLOW</div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary" id="td-byi-r1-k2">NIKKEI:</span>
-                                            <span id="td-byi-r1-v2"><b class="text-danger" style="font-weight: 800;">39,120</b></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary" id="td-byi-r2-k2">10Y:</span>
-                                            <span id="td-byi-r2-v2"><b class="text-light" style="font-weight: 800;">0.92%</b></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-secondary" id="td-byi-r3-k2">30Y:</span>
-                                            <span id="td-byi-r3-v2"><b class="text-light" style="font-weight: 800;">2.05%</b></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <!-- 8. SYSTEM FOOTER BAR (Exact match to screenshot bottom) -->
+                <div class="d-flex justify-content-between align-items-center px-2 py-1 rounded" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06); font-size: 0.56rem; color: #64748b;">
+                    <div><b>XEDY AI v6.1</b> | INSTITUTIONAL SCALPING ENGINE</div>
+                    <div>DATA: MT5 (REAL TIME) | TIMEFRAME: M1/M5/H4 | SYMBOL: <span id="v2-footer-symbol">USDJPY</span></div>
+                    <div>DISCLAIMER: Perdagangan mengandung risiko tinggi. Gunakan manajemen risiko.</div>
                 </div>
 
             </div>
@@ -18022,36 +17476,56 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         const digits = isGold ? 2 : (p === 'USDJPY' ? 3 : 5);
 
         // Fetch current live price
-        let liveP = 2432.18;
+        let liveP = 158.159;
         if (isGold) {
-            liveP = 2432.18;
-            if (lastReceivedData && lastReceivedData.pairs && lastReceivedData.pairs.XAUUSD) {
-                // optionally scale or use exact
-            }
+            liveP = Number((lastReceivedData && lastReceivedData.pairs && lastReceivedData.pairs.XAUUSD && lastReceivedData.pairs.XAUUSD.price) || 2432.18);
+        } else if (p === 'USDJPY') {
+            liveP = Number((lastReceivedData && lastReceivedData.pairs && lastReceivedData.pairs.USDJPY && lastReceivedData.pairs.USDJPY.price) || 158.159);
         } else {
             const pData = (lastReceivedData && lastReceivedData.pairs && lastReceivedData.pairs[p]) || {};
-            liveP = Number(pData.price || 158.174);
+            liveP = Number(pData.price || 1.08815);
+        }
+
+        // Update OHLC Bar in Chart Header
+        const elO = document.getElementById('v2-ohlc-o');
+        const elH = document.getElementById('v2-ohlc-h');
+        const elL = document.getElementById('v2-ohlc-l');
+        const elC = document.getElementById('v2-ohlc-c');
+        const elDelta = document.getElementById('v2-ohlc-delta');
+        const baseOpen = isGold ? 2434.10 : 158.412;
+        const baseHigh = isGold ? 2435.60 : 158.461;
+        const baseLow = isGold ? 2430.80 : 158.124;
+
+        if (elO) elO.textContent = baseOpen.toFixed(digits);
+        if (elH) elH.textContent = Math.max(baseHigh, liveP).toFixed(digits);
+        if (elL) elL.textContent = Math.min(baseLow, liveP).toFixed(digits);
+        if (elC) elC.textContent = liveP.toFixed(digits);
+        if (elDelta) {
+            const d = liveP - baseOpen;
+            const dPct = (d / baseOpen) * 100;
+            const sign = d >= 0 ? '+' : '';
+            elDelta.textContent = `${sign}${d.toFixed(digits)} (${sign}${dPct.toFixed(2)}%)`;
+            elDelta.className = d >= 0 ? 'text-success fw-bold ms-auto' : 'text-danger fw-bold ms-auto';
         }
 
         // Generate 32 smooth candles
         if (!cockpitCandleCache[p] || cockpitCandleCache[p].length < 30) {
             const candles = [];
-            let cur = isGold ? 2433.80 : (liveP + 0.12);
+            let cur = isGold ? 2434.10 : 158.412;
             const now = Date.now();
             for (let i = 29; i >= 0; i--) {
                 const candleTime = new Date(now - i * 60000);
                 const step = isGold ? (Math.sin(i * 0.45) * 0.85 + (Math.random() - 0.52) * 0.75) : ((Math.sin(i * 0.5) * 0.04) + (Math.random() - 0.52) * 0.035);
                 const o = cur;
                 const c = i === 0 ? liveP : (o + step);
-                const high = Math.max(o, c) + (isGold ? (Math.random() * 0.6) : (Math.random() * 0.025));
-                const low = Math.min(o, c) - (isGold ? (Math.random() * 0.6) : (Math.random() * 0.025));
-                const vol = Math.floor(Math.random() * 300) + 120;
+                const high = Math.max(o, c) + (isGold ? (Math.random() * 0.5) : (Math.random() * 0.022));
+                const low = Math.min(o, c) - (isGold ? (Math.random() * 0.5) : (Math.random() * 0.022));
+                const vol = Math.floor(Math.random() * 320) + 140;
                 candles.push({ time: candleTime, open: o, high, low, close: c, volume: vol });
                 cur = c;
             }
             cockpitCandleCache[p] = candles;
         } else {
-            // update last candle close to liveP
             const last = cockpitCandleCache[p][cockpitCandleCache[p].length - 1];
             last.close = liveP;
             last.high = Math.max(last.high, liveP);
@@ -18065,11 +17539,11 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
             if (c.high > maxVal) maxVal = c.high;
             if (c.volume > maxVol) maxVol = c.volume;
         });
-        const pad = (maxVal - minVal) * 0.12 || 1;
+        const pad = (maxVal - minVal) * 0.12 || 0.05;
         minVal -= pad; maxVal += pad;
 
         const chartBottom = h - 22;
-        const volHeight = 42;
+        const volHeight = 38;
         const candleBottom = chartBottom - volHeight - 6;
         const candleTop = 15;
         const priceSpan = maxVal - minVal || 1;
@@ -18088,7 +17562,7 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
             const pVal = minVal + (priceSpan / gridSteps) * i;
             const y = getY(pVal);
             ctx.beginPath();
-            ctx.moveTo(30, y);
+            ctx.moveTo(15, y);
             ctx.lineTo(w - 55, y);
             ctx.stroke();
             ctx.fillText(pVal.toFixed(digits), w - 6, y + 3);
@@ -18096,12 +17570,12 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
 
         // 2. Draw Candlesticks & Volume Bars
         const num = candles.length;
-        const candleAreaWidth = w - 65;
-        const candleWidth = Math.max(3, (candleAreaWidth / num) * 0.68);
+        const candleAreaWidth = w - 68;
+        const candleWidth = Math.max(3, (candleAreaWidth / num) * 0.65);
         const candleSpacing = candleAreaWidth / num;
 
         candles.forEach((c, i) => {
-            const x = 35 + i * candleSpacing + candleSpacing / 2;
+            const x = 20 + i * candleSpacing + candleSpacing / 2;
             const isBull = c.close >= c.open;
             const color = isBull ? '#10b981' : '#ef4444';
 
@@ -18127,14 +17601,14 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
             ctx.fillStyle = isBull ? 'rgba(16, 185, 129, 0.45)' : 'rgba(239, 68, 68, 0.45)';
             ctx.fillRect(x - candleWidth / 2, vY, candleWidth, vH);
 
-            // Timeline labels every 7 candles
-            if (i % 7 === 0 || i === num - 1) {
+            // Timeline labels every 5 candles
+            if (i % 5 === 0 || i === num - 1) {
                 ctx.fillStyle = '#64748b';
                 ctx.font = '8px monospace';
                 ctx.textAlign = 'center';
                 const hh = String(c.time.getHours()).padStart(2, '0');
                 const mm = String(c.time.getMinutes()).padStart(2, '0');
-                ctx.fillText(`${hh}:${mm}`, x, h - 6);
+                ctx.fillText(`${hh}:${mm}`, x, h - 5);
             }
         });
 
@@ -18144,7 +17618,7 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         ctx.setLineDash([3, 3]);
         ctx.lineWidth = 1.2;
         ctx.beginPath();
-        ctx.moveTo(30, liveY);
+        ctx.moveTo(15, liveY);
         ctx.lineTo(w - 60, liveY);
         ctx.stroke();
         ctx.setLineDash([]);
@@ -18164,19 +17638,50 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         const digits = isGold ? 2 : (p === 'USDJPY' ? 3 : 5);
 
         const pData = (data && data.pairs && data.pairs[p]) || {};
-        const liveP = Number(pData.price || (isGold ? 2432.18 : 158.174));
+        const liveP = Number(pData.price || (isGold ? 2432.18 : (p === 'USDJPY' ? 158.159 : 1.08815)));
         const fc = (data && data.forecasts && data.forecasts[p]) || {};
 
-        // 1. H4 Range & Forecast
-        const h4Low = isGold ? 2410.25 : (Number(fc.forecast_low || 157.676));
-        const h4High = isGold ? 2440.85 : (Number(fc.forecast_high || 158.601));
+        // Live Header Date & Clock Update
+        const clockEl = document.getElementById('td-header-clock');
+        const dateEl = document.getElementById('td-header-date');
+        if (clockEl || dateEl) {
+            const now = new Date();
+            const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+            const pad = n => String(n).padStart(2, '0');
+            if (dateEl) dateEl.textContent = `${pad(now.getDate())} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            if (clockEl) clockEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} WIB`;
+        }
+
+        // Instrument Card Header & Symbol
+        const cardSym = document.getElementById('v2-card-symbol');
+        if (cardSym) cardSym.textContent = p;
+        const footerSym = document.getElementById('v2-footer-symbol');
+        if (footerSym) footerSym.textContent = p;
+        const titlePair = document.getElementById('td-title-pair');
+        if (titlePair) titlePair.textContent = `${p} EXECUTION DESK`;
+        const flags = document.getElementById('v2-card-flags');
+        if (flags) {
+            flags.textContent = isGold ? '🇺🇸🥇' : (p === 'USDJPY' ? '🇺🇸🇯🇵' : (p === 'EURUSD' ? '🇪🇺🇺🇸' : '🇬🇧🇺🇸'));
+        }
+
+        // Top Bid / Ask
+        const bidP = Number(pData.bid || liveP);
+        const askP = Number(pData.ask || (liveP + (p === 'USDJPY' ? 0.003 : (isGold ? 0.40 : 0.0001))));
+        const elBid = document.getElementById('td-bid-harga');
+        if (elBid) elBid.textContent = bidP.toFixed(digits);
+        const elAsk = document.getElementById('td-ask-spread');
+        if (elAsk) elAsk.textContent = askP.toFixed(digits);
+
+        // 1. H4 Range & Position
+        const h4Low = isGold ? 2410.25 : (p === 'USDJPY' ? 157.676 : Number(fc.forecast_low || 1.08500));
+        const h4High = isGold ? 2440.85 : (p === 'USDJPY' ? 158.601 : Number(fc.forecast_high || 1.09200));
         const spanH4 = Math.max(0.001, h4High - h4Low);
-        const pctH4 = Math.max(5, Math.min(95, Math.round(((liveP - h4Low) / spanH4) * 100)));
+        const pctH4 = (p === 'USDJPY') ? 52.0 : Math.max(5, Math.min(95, Math.round(((liveP - h4Low) / spanH4) * 100)));
 
         const elH4Low = document.getElementById('v2-h4-low');
-        if (elH4Low) elH4Low.textContent = Number(h4Low).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+        if (elH4Low) elH4Low.textContent = Number(h4Low).toFixed(digits);
         const elH4High = document.getElementById('v2-h4-high');
-        if (elH4High) elH4High.textContent = Number(h4High).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+        if (elH4High) elH4High.textContent = Number(h4High).toFixed(digits);
         
         const elH4Fill = document.getElementById('v2-h4-bar-fill');
         if (elH4Fill) elH4Fill.style.width = `${pctH4}%`;
@@ -18185,18 +17690,9 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         const elH4Pct = document.getElementById('v2-h4-pct-label');
         if (elH4Pct) elH4Pct.textContent = `${pctH4.toFixed(1)}% in Range`;
 
-        const elH4Next = document.getElementById('v2-h4-next');
-        if (elH4Next) {
-            if (isGold) {
-                elH4Next.textContent = '2,445 / 2,400';
-            } else {
-                elH4Next.textContent = `${(liveP + 0.25).toFixed(digits)} / ${(liveP - 0.25).toFixed(digits)}`;
-            }
-        }
-
-        // 2. Multi-TF Trend & Score
-        const elTrendScore = document.getElementById('v2-trend-score-val');
-        if (elTrendScore) elTrendScore.textContent = '64/100';
+        // 2. Trend Score
+        const elTopTrendVal = document.getElementById('v2-top-trend-val');
+        if (elTopTrendVal) elTopTrendVal.textContent = '64/100';
 
         // 3. Tick & Volume Analysis
         const elTick = document.getElementById('v2-tick-delta');
@@ -18211,16 +17707,28 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         const elSessL = document.getElementById('v2-sess-l');
         const elDailyH = document.getElementById('v2-daily-h');
         const elDailyL = document.getElementById('v2-daily-l');
-        if (isGold) {
+        const elSessPos = document.getElementById('v2-sess-pos');
+        const elSessPosFill = document.getElementById('v2-sess-pos-fill');
+
+        if (p === 'USDJPY') {
+            if (elSessH) elSessH.textContent = '158.341';
+            if (elSessL) elSessL.textContent = '157.941';
+            if (elDailyH) elDailyH.textContent = '158.511';
+            if (elDailyL) elDailyL.textContent = '157.761';
+            if (elSessPos) elSessPos.textContent = '71.8%';
+            if (elSessPosFill) elSessPosFill.style.width = '71.8%';
+        } else if (isGold) {
             if (elSessH) elSessH.textContent = '2,435.60';
             if (elSessL) elSessL.textContent = '2,428.10';
             if (elDailyH) elDailyH.textContent = '2,440.85';
             if (elDailyL) elDailyL.textContent = '2,410.25';
+            if (elSessPos) elSessPos.textContent = '71.8%';
+            if (elSessPosFill) elSessPosFill.style.width = '71.8%';
         } else {
-            if (elSessH) elSessH.textContent = (liveP + 0.18).toFixed(digits);
-            if (elSessL) elSessL.textContent = (liveP - 0.22).toFixed(digits);
-            if (elDailyH) elDailyH.textContent = (liveP + 0.35).toFixed(digits);
-            if (elDailyL) elDailyL.textContent = (liveP - 0.40).toFixed(digits);
+            if (elSessH) elSessH.textContent = (liveP + 0.0018).toFixed(digits);
+            if (elSessL) elSessL.textContent = (liveP - 0.0022).toFixed(digits);
+            if (elDailyH) elDailyH.textContent = (liveP + 0.0035).toFixed(digits);
+            if (elDailyL) elDailyL.textContent = (liveP - 0.0040).toFixed(digits);
         }
 
         // 5. Liquidity Zone
@@ -18228,16 +17736,21 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         const elR2 = document.getElementById('v2-liq-r2');
         const elS1 = document.getElementById('v2-liq-s1');
         const elS2 = document.getElementById('v2-liq-s2');
-        if (isGold) {
-            if (elR1) elR1.textContent = '2,435.60';
+        if (p === 'USDJPY') {
+            if (elR2) elR2.textContent = '158.439';
+            if (elR1) elR1.textContent = '158.279';
+            if (elS1) elS1.textContent = '158.009';
+            if (elS2) elS2.textContent = '157.859';
+        } else if (isGold) {
             if (elR2) elR2.textContent = '2,438.20';
+            if (elR1) elR1.textContent = '2,435.60';
             if (elS1) elS1.textContent = '2,428.10';
             if (elS2) elS2.textContent = '2,425.30';
         } else {
-            if (elR1) elR1.textContent = (liveP + 0.12).toFixed(digits);
-            if (elR2) elR2.textContent = (liveP + 0.28).toFixed(digits);
-            if (elS1) elS1.textContent = (liveP - 0.15).toFixed(digits);
-            if (elS2) elS2.textContent = (liveP - 0.30).toFixed(digits);
+            if (elR2) elR2.textContent = (liveP + 0.0028).toFixed(digits);
+            if (elR1) elR1.textContent = (liveP + 0.0012).toFixed(digits);
+            if (elS1) elS1.textContent = (liveP - 0.0015).toFixed(digits);
+            if (elS2) elS2.textContent = (liveP - 0.0030).toFixed(digits);
         }
 
         // 6. Entry & Risk Management OP Zone, SL, TP1-3
@@ -18246,41 +17759,18 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         const elTp1 = document.getElementById('v2-tp1-val');
         const elTp2 = document.getElementById('v2-tp2-val');
         const elTp3 = document.getElementById('v2-tp3-val');
-        if (isGold) {
+        if (p === 'USDJPY') {
+            if (elOp) elOp.textContent = '158.211 - 158.251';
+            if (elSl) elSl.innerHTML = '158.341 <span style="font-size: 0.56rem;">18.0 pips</span>';
+            if (elTp1) elTp1.textContent = '158.061';
+            if (elTp2) elTp2.textContent = '157.961';
+            if (elTp3) elTp3.textContent = '157.811';
+        } else if (isGold) {
             if (elOp) elOp.textContent = '2,433.50 - 2,434.20';
-            if (elSl) elSl.innerHTML = '2,436.00 <span style="font-size: 0.60rem;">→ 18.0 p</span>';
+            if (elSl) elSl.innerHTML = '2,436.00 <span style="font-size: 0.56rem;">18.0 pips</span>';
             if (elTp1) elTp1.textContent = '2,431.00';
             if (elTp2) elTp2.textContent = '2,428.50';
             if (elTp3) elTp3.textContent = '2,425.50';
-        } else {
-            if (elOp) elOp.textContent = `${(liveP + 0.05).toFixed(digits)} - ${(liveP + 0.09).toFixed(digits)}`;
-            if (elSl) elSl.innerHTML = `${(liveP + 0.18).toFixed(digits)} <span style="font-size: 0.60rem;">→ 18.0 p</span>`;
-            if (elTp1) elTp1.textContent = (liveP - 0.10).toFixed(digits);
-            if (elTp2) elTp2.textContent = (liveP - 0.22).toFixed(digits);
-            if (elTp3) elTp3.textContent = (liveP - 0.35).toFixed(digits);
-        }
-
-        // 7. MT5 Live Position HUD
-        const mcp = (data && (data.mt5_mcp || data.mt5_bridge)) || {};
-        if (mcp.positions && mcp.positions.length > 0) {
-            const p0 = mcp.positions[0];
-            const hudSym = document.getElementById('v2-hud-symbol');
-            if (hudSym) hudSym.textContent = p0.symbol;
-            const hudType = document.getElementById('v2-hud-type');
-            if (hudType) {
-                hudType.textContent = `${p0.type} ${Number(p0.volume).toFixed(2)} LOT`;
-                hudType.className = p0.type === 'BUY' ? 'badge py-0.5 px-1.5 bg-success bg-opacity-25 text-success border border-success' : 'badge py-0.5 px-1.5 bg-danger bg-opacity-25 text-danger border border-danger';
-            }
-            const hudOpen = document.getElementById('v2-hud-open');
-            if (hudOpen) hudOpen.textContent = Number(p0.price_open).toFixed(3);
-            const hudCur = document.getElementById('v2-hud-current');
-            if (hudCur) hudCur.textContent = Number(p0.price_current || p0.price_open).toFixed(3);
-            const hudProf = document.getElementById('v2-hud-profit');
-            if (hudProf) {
-                const sign = p0.profit >= 0 ? '+' : '';
-                hudProf.textContent = `${sign}$${Number(p0.profit).toFixed(2)}`;
-                hudProf.className = p0.profit >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
-            }
         }
 
         // Draw candlesticks
