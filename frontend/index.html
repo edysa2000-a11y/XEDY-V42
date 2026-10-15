@@ -14019,19 +14019,21 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
 
         const payload = rawPayload || lastReceivedData || {};
         const pairsObj = payload.pairs || {};
-        const pairOrder = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD'];
+        const pairOrder = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL'];
         const pairMeta = {
             'USDJPY': { name: 'USD/JPY (Dollar / Yen)', flag: '🇺🇸🇯🇵', cat: 'FX MAJOR' },
             'XAUUSD': { name: 'GOLD (XAU/USD)', flag: '🥇', cat: 'COMMODITY' },
             'EURUSD': { name: 'EUR/USD (Euro / Dollar)', flag: '🇪🇺🇺🇸', cat: 'FX MAJOR' },
-            'GBPUSD': { name: 'GBP/USD (Cable)', flag: '🇬🇧🇺🇸', cat: 'FX MAJOR' }
+            'GBPUSD': { name: 'GBP/USD (Cable)', flag: '🇬🇧🇺🇸', cat: 'FX MAJOR' },
+            'OIL':    { name: 'CRUDE OIL (WTI)', flag: '🛢️', cat: 'COMMODITY' }
         };
 
         const defaultMfr = {
             'USDJPY': { net_flow_usd: "-$340.2M", net_flow_pct: "-6.4%", net_flow_pos: false, cmf: "-0.22", cmf_label: "INSTITUTIONAL SUPPLY", base_curr: "USD", base_pct: 28, quote_curr: "JPY", quote_pct: 82, power_gap: "-54 (JPY Dominance)", orderbook_delta: "-980 Lots Net Ask Wall", status_badge: "bg-danger bg-opacity-25 text-danger border border-danger", scalp_confluence: "🔴 STRONG SELL" },
             'XAUUSD': { net_flow_usd: "+$485.4M", net_flow_pct: "+8.6%", net_flow_pos: true, cmf: "+0.28", cmf_label: "INSTITUTIONAL ACCUMULATION", base_curr: "XAU", base_pct: 84, quote_curr: "USD", quote_pct: 32, power_gap: "+116 (XAU Dominance)", orderbook_delta: "+1,420 Lots Net Bid", status_badge: "bg-success bg-opacity-25 text-success border border-success", scalp_confluence: "🟢 STRONG BUY" },
             'EURUSD': { net_flow_usd: "-$280.5M", net_flow_pct: "-5.1%", net_flow_pos: false, cmf: "-0.18", cmf_label: "CAPITAL DRAIN", base_curr: "EUR", base_pct: 45, quote_curr: "USD", quote_pct: 38, power_gap: "-83 (USD Advantage)", orderbook_delta: "-640 Lots Net Ask", status_badge: "bg-danger bg-opacity-25 text-danger border border-danger", scalp_confluence: "🔴 SELL RALLIES" },
-            'GBPUSD': { net_flow_usd: "+$95.0M", net_flow_pct: "+1.8%", net_flow_pos: true, cmf: "+0.05", cmf_label: "NEUTRAL RANGE", base_curr: "GBP", base_pct: 32, quote_curr: "USD", quote_pct: 28, power_gap: "+4 (Balanced Parity)", orderbook_delta: "+110 Lots Mild Bid", status_badge: "bg-warning bg-opacity-25 text-warning border border-warning", scalp_confluence: "🟡 RANGE TRADE" }
+            'GBPUSD': { net_flow_usd: "+$95.0M", net_flow_pct: "+1.8%", net_flow_pos: true, cmf: "+0.05", cmf_label: "NEUTRAL RANGE", base_curr: "GBP", base_pct: 32, quote_curr: "USD", quote_pct: 28, power_gap: "+4 (Balanced Parity)", orderbook_delta: "+110 Lots Mild Bid", status_badge: "bg-warning bg-opacity-25 text-warning border border-warning", scalp_confluence: "🟡 RANGE TRADE" },
+            'OIL':    { net_flow_usd: "+$310.8M", net_flow_pct: "+7.2%", net_flow_pos: true, cmf: "+0.24", cmf_label: "PHYSICAL TIGHTNESS", base_curr: "OIL", base_pct: 76, quote_curr: "USD", quote_pct: 18, power_gap: "+94 (Crude Dominance)", orderbook_delta: "+890 Lots Net Bid", status_badge: "bg-success bg-opacity-25 text-success border border-success", scalp_confluence: "🟢 BUY DIPS" }
         };
 
         let html = '';
