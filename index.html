@@ -4776,7 +4776,7 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn-term" style="background: #10b981; color: #ffffff; border-color: #10b981;" onclick="saveAlertsConfig()">💾 SIMPAN PENGATURAN</button>
+                        <button id="btn-save-alerts-config" class="btn-term" style="background: #10b981; color: #ffffff; border-color: #10b981; transition: all 0.25s ease;" onclick="saveAlertsConfig(true)">💾 SIMPAN PENGATURAN</button>
                         <button class="btn-term" onclick="resetAllAlertTriggers()">🔄 RESET TRIGGER</button>
                     </div>
                 </div>
@@ -11497,7 +11497,7 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         alert("✅ Semua trigger berhasil di-reset! Sistem siap mendeteksi pergerakan harga kembali.");
     }
 
-    async function saveAlertsConfig() {
+    async function saveAlertsConfig(isManualClick = false) {
         localStorage.setItem('xedy_tg_alerts', JSON.stringify(TELEGRAM_ALERTS));
         try {
             await fetch('/api/telegram_alerts_config', {
@@ -11507,6 +11507,89 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             });
         } catch(e) {
             console.error('Error saving config to server:', e);
+        }
+
+        if (isManualClick) {
+            // Tactile feedback on button
+            const btn = document.getElementById('btn-save-alerts-config');
+            if (btn) {
+                const originalHtml = btn.innerHTML;
+                const originalBg = btn.style.background;
+                btn.innerHTML = '✅ SUDAH DISIMPAN!';
+                btn.style.background = '#059669';
+                btn.style.borderColor = '#10b981';
+                btn.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.6)';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.style.background = originalBg;
+                    btn.style.boxShadow = 'none';
+                }, 2200);
+            }
+
+            // Log to console
+            if (typeof addAlertLog === 'function') {
+                addAlertLog(`💾 [STATUS: SUDAH DISIMPAN] Konfigurasi Support & Resistance Manual berhasil disimpan.`);
+            }
+
+            // Pop-up modal
+            openSaveStatusModal();
+        }
+    }
+
+    function openSaveStatusModal() {
+        const modal = document.getElementById('modal-save-status');
+        if (!modal) return;
+
+        const tsEl = document.getElementById('save-modal-timestamp');
+        if (tsEl) {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            tsEl.textContent = `Status: Sudah Disimpan • ${timeStr} WIB (${dateStr})`;
+        }
+
+        const listEl = document.getElementById('save-modal-pairs-list');
+        if (listEl && window.TELEGRAM_ALERTS) {
+            let html = '';
+            Object.keys(TELEGRAM_ALERTS).forEach(p => {
+                const cfg = TELEGRAM_ALERTS[p];
+                const sup = cfg.support !== undefined ? cfg.support : cfg.op;
+                const res = cfg.resistance !== undefined ? cfg.resistance : cfg.tp;
+                const statusBadge = cfg.enabled 
+                    ? '<span class="badge" style="background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; font-size: 0.62rem; padding: 2px 6px;">AKTIF</span>' 
+                    : '<span class="badge" style="background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid #475569; font-size: 0.62rem; padding: 2px 6px;">STANDBY</span>';
+                
+                const liveEl = document.getElementById(`alert-live-${p}`);
+                const livePrice = liveEl ? liveEl.textContent : '-';
+
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; margin-bottom: 4px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-weight: 800; color: #f8fafc; font-size: 0.8rem; letter-spacing: 0.5px;">${p}</span>
+                            ${statusBadge}
+                        </div>
+                        <div style="font-size: 0.72rem; color: #cbd5e1; text-align: right;">
+                            <span style="color: #38bdf8;">Sup: <b>${sup || '-'}</b></span> | 
+                            <span style="color: #f43f5e;">Res: <b>${res || '-'}</b></span>
+                            <span style="color: #64748b; margin-left: 6px;">(Live: ${livePrice})</span>
+                        </div>
+                    </div>
+                `;
+            });
+            listEl.innerHTML = html;
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeSaveStatusModal() {
+        const modal = document.getElementById('modal-save-status');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function closeSaveStatusModalOnBackdrop(e) {
+        if (e.target && e.target.id === 'modal-save-status') {
+            closeSaveStatusModal();
         }
     }
 
@@ -18796,6 +18879,62 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
                 <button class="btn btn-sm btn-outline-info mono" onclick="fetchPrices()">🔄 Refresh Live</button>
                 <button class="btn btn-sm btn-outline-secondary mono" onclick="closeMt5McpModal()">Tutup</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     MODAL: STATUS PENYIMPANAN SUPPORT & RESISTANCE
+     ========================================== -->
+<div id="modal-save-status" class="theme-modal-backdrop" style="display: none; align-items: center; justify-content: center; z-index: 100000;" onclick="closeSaveStatusModalOnBackdrop(event)">
+    <div class="theme-modal-dialog" onclick="event.stopPropagation()" style="max-width: 540px; border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.85), 0 0 25px rgba(16, 185, 129, 0.25);">
+        <!-- Header -->
+        <div class="theme-modal-header" style="background: linear-gradient(135deg, #064e3b 0%, #081a18 100%); border-bottom: 1px solid rgba(16, 185, 129, 0.35); padding: 12px 18px;">
+            <div class="d-flex align-items-center gap-2">
+                <span style="font-size: 1.35rem;">💾</span>
+                <div>
+                    <h5 class="mb-0 fw-bold mono" style="font-size: 0.95rem; color: #34d399; letter-spacing: 0.5px;">KONFIRMASI PENYIMPANAN</h5>
+                    <span class="text-secondary mono" style="font-size: 0.68rem;">XEDY TELEGRAM S&amp;R ENGINE</span>
+                </div>
+            </div>
+            <button class="theme-modal-close-btn" onclick="closeSaveStatusModal()">&times;</button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-3 mono text-white" style="background: #08121e;">
+            <div class="text-center py-2.5 mb-3" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px;">
+                <div style="font-size: 2.2rem; line-height: 1; margin-bottom: 6px;">✅</div>
+                <div class="fw-bold" style="font-size: 1.25rem; color: #10b981; letter-spacing: 1px;">SUDAH DISIMPAN!</div>
+                <div class="text-secondary" style="font-size: 0.72rem; margin-top: 3px;" id="save-modal-timestamp">Status: Sudah Disimpan</div>
+            </div>
+
+            <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 12px; line-height: 1.45;">
+                Pengaturan parameter <b>Support &amp; Resistance Manual</b> untuk seluruh instrumen telah <b>berhasil disimpan</b> ke penyimpanan lokal browser dan server database bot Telegram.
+            </div>
+
+            <!-- Ringkasan Level Aktif -->
+            <div style="background: #040912; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                <div class="d-flex justify-content-between align-items-center mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
+                    <span class="text-secondary fw-bold" style="font-size: 0.68rem;">📋 RINGKASAN LEVEL TERAKHIR DISIMPAN:</span>
+                    <span class="badge" style="background: rgba(56,189,248,0.15); color: #38bdf8; font-size: 0.60rem;">5 PAIR</span>
+                </div>
+                <div id="save-modal-pairs-list" style="font-size: 0.72rem; max-height: 160px; overflow-y: auto;">
+                    <!-- Diisi secara dinamis oleh openSaveStatusModal() -->
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 p-2 rounded" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); font-size: 0.70rem; color: #7dd3fc;">
+                <span>🤖</span>
+                <span>Bot Telegram akan otomatis mengirim notifikasi instan saat harga live menyentuh atau menembus level Support (Buy Limit) atau Resistance (Sell Limit) yang diaktifkan.</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="theme-modal-footer" style="background: #050c18; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; padding: 10px 18px;">
+            <span style="font-size: 0.68rem; color: #64748b;" class="mono">Tekan tombol atau klik area luar untuk menutup</span>
+            <button class="btn btn-sm mono fw-bold px-4" onclick="closeSaveStatusModal()" style="background: #10b981; color: #ffffff; border: none; border-radius: 4px; font-size: 0.8rem; cursor: pointer; box-shadow: 0 0 10px rgba(16,185,129,0.4);">
+                ✓ TUTUP / OK
+            </button>
         </div>
     </div>
 </div>

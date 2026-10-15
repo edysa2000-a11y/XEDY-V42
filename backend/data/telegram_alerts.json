@@ -2,61 +2,53 @@
   "USDJPY": {
     "name": "USD/JPY (Dolar / Yen)",
     "enabled": true,
-    "op": 149.2,
-    "tp": 158.9,
+    "op": 158.3,
+    "tp": 157.9,
     "direction": "SELL LIMIT",
-    "op_triggered": false,
-    "tp_triggered": false,
-    "note": "London Open Short Fade",
-    "support": 149.2,
-    "resistance": 158.9
+    "op_triggered": true,
+    "tp_triggered": true,
+    "note": "London Open Short Fade"
   },
   "XAUUSD": {
     "name": "GOLD (XAU/USD)",
     "enabled": true,
-    "op": 4080,
-    "tp": 4310,
+    "op": 4180,
+    "tp": 4210,
     "direction": "BUY PULLBACK",
-    "op_triggered": false,
+    "op_triggered": true,
     "tp_triggered": false,
-    "note": "Whale Inflow Support",
-    "support": 4080,
-    "resistance": 4310
+    "note": "Whale Inflow Support"
   },
   "EURUSD": {
     "name": "EUR/USD (Euro / Dolar)",
     "enabled": true,
-    "op": 1.13,
-    "tp": 1.316,
+    "op": 1.122,
+    "tp": 1.116,
     "direction": "SELL BREAKOUT",
     "op_triggered": true,
-    "tp_triggered": false,
-    "note": "Downtrend Continuation",
-    "support": 1.13,
-    "resistance": 1.316
+    "tp_triggered": true,
+    "note": "Downtrend Continuation"
   },
   "GBPUSD": {
     "name": "GBP/USD (Pound / Dolar)",
     "enabled": false,
-    "op": 1.3325,
+    "op": 1.3125,
     "tp": 1.3385,
     "direction": "BUY DIP",
-    "op_triggered": true,
+    "op_triggered": false,
     "tp_triggered": false,
     "note": "London Accumulation",
-    "support": 1.3325,
-    "resistance": 1.3385
+    "support": 1.3125
   },
   "OIL": {
     "name": "OIL (Crude Oil WTI)",
     "enabled": true,
-    "op": 82.8,
+    "op": 71.4,
     "tp": 96.1,
     "direction": "SELL RALLY",
     "op_triggered": false,
     "tp_triggered": false,
     "note": "Supply Resistance",
-    "support": 82.8,
     "resistance": 96.1
   },
   "BTCUSD": {
@@ -67,8 +59,6 @@
     "direction": "BUY BREAKOUT",
     "op_triggered": false,
     "tp_triggered": false,
-    "note": "Weekend Liquidity",
-    "support": 68500,
-    "resistance": 71200
+    "note": "Weekend Liquidity"
   }
 }
