@@ -1921,9 +1921,11 @@ def get_default_telegram_alerts():
         },
         "OIL": {
             "name": "OIL (Crude Oil WTI)",
-            "enabled": False,
-            "op": 71.40,
-            "tp": 69.80,
+            "enabled": True,
+            "support": 70.10,
+            "resistance": 71.85,
+            "op": 70.10,
+            "tp": 71.85,
             "direction": "SELL RALLY",
             "op_triggered": False,
             "tp_triggered": False,
@@ -2195,7 +2197,7 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
                 direction = data.get('direction', '')
                 note = data.get('note', '')
 
-                icon = "🚨" if alert_type == "OP" else "🎯"
+                icon = "🛡️" if "SUPPORT" in alert_type.upper() else ("🎯" if "RESIST" in alert_type.upper() else "🚨")
                 title = f"{icon} <b>PRICE ALERT: {pair} MELEWATI {alert_type}!</b>"
                 msg = (
                     f"{title}\n"

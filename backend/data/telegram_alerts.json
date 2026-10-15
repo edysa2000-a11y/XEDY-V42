@@ -7,7 +7,9 @@
     "direction": "SELL LIMIT",
     "op_triggered": true,
     "tp_triggered": true,
-    "note": "London Open Short Fade"
+    "note": "London Open Short Fade",
+    "support": 158.3,
+    "resistance": 157.9
   },
   "XAUUSD": {
     "name": "GOLD (XAU/USD)",
@@ -17,7 +19,9 @@
     "direction": "BUY PULLBACK",
     "op_triggered": true,
     "tp_triggered": false,
-    "note": "Whale Inflow Support Retest"
+    "note": "Whale Inflow Support",
+    "support": 4180,
+    "resistance": 4210
   },
   "EURUSD": {
     "name": "EUR/USD (Euro / Dolar)",
@@ -27,7 +31,9 @@
     "direction": "SELL BREAKOUT",
     "op_triggered": true,
     "tp_triggered": false,
-    "note": "Downtrend Continuation"
+    "note": "Downtrend Continuation",
+    "support": 1.122,
+    "resistance": 1.116
   },
   "GBPUSD": {
     "name": "GBP/USD (Pound / Dolar)",
@@ -36,18 +42,22 @@
     "tp": 1.3385,
     "direction": "BUY DIP",
     "op_triggered": true,
-    "tp_triggered": true,
-    "note": "London Accumulation Zone"
+    "tp_triggered": false,
+    "note": "London Accumulation",
+    "support": 1.3325,
+    "resistance": 1.3385
   },
   "OIL": {
     "name": "OIL (Crude Oil WTI)",
-    "enabled": false,
-    "op": 71.4,
-    "tp": 69.8,
+    "enabled": true,
+    "op": 70.1,
+    "tp": 71.85,
     "direction": "SELL RALLY",
     "op_triggered": false,
     "tp_triggered": false,
-    "note": "Supply Resistance Fade"
+    "note": "Supply Resistance",
+    "support": 70.1,
+    "resistance": 71.85
   },
   "BTCUSD": {
     "name": "BITCOIN (BTC/USD)",
@@ -57,6 +67,8 @@
     "direction": "BUY BREAKOUT",
     "op_triggered": false,
     "tp_triggered": false,
-    "note": "Weekend Liquidity Push"
+    "note": "Weekend Liquidity",
+    "support": 68500,
+    "resistance": 71200
   }
 }
