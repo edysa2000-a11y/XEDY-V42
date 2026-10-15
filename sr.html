@@ -16732,7 +16732,8 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         }
 
         // Default to TRADE desk (or restore user's last visited tab)
-        const initialNavTab = localStorage.getItem('xedy_active_nav_tab') || 'dashboard';
+        const urlTab = (window.location.hash || '').replace('#', '');
+        const initialNavTab = urlTab || 'dashboard';
         switchNavTab(initialNavTab);
 
         // Pre-render immediately with instant benchmark defaults so NO box is EVER blank
