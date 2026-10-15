@@ -17369,6 +17369,24 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
         const countBadge = document.getElementById('mcp-pos-count-badge');
         if (countBadge) countBadge.textContent = `${posCount} POSISI AKTIF`;
 
+        if (d.api_key) {
+            const keyInput = document.getElementById('mcp-input-key');
+            if (keyInput) keyInput.value = d.api_key;
+            const snippet = document.getElementById('mcp-json-snippet');
+            if (snippet) {
+                snippet.textContent = JSON.stringify({
+                    "mcpServers": {
+                        "metatrader5": {
+                            "url": d.endpoint || "http://127.0.0.1:22346/mcp",
+                            "headers": {
+                                "Authorization": `Bearer ${d.api_key}`
+                            }
+                        }
+                    }
+                }, null, 2);
+            }
+        }
+
         const tbody = document.getElementById('mcp-positions-table-body');
         if (tbody) {
             const positions = d.positions || [];
@@ -17859,7 +17877,7 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
                         </div>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-dark border-secondary text-secondary" style="font-size: 0.68rem;">API KEY</span>
-                            <input type="text" id="mcp-input-key" class="form-control bg-dark text-warning border-secondary mono" value="2OfMRznuLm2Z1XwRreyo01Rt3BAuEscpZEEYk5A+G/" readonly style="font-size: 0.72rem;">
+                            <input type="text" id="mcp-input-key" class="form-control bg-dark text-warning border-secondary mono" value="lYRsgDTeGkEWEFpnX85d+ZWpQuuRmA2+UrfKmEfV3t" readonly style="font-size: 0.72rem;">
                             <button class="btn btn-outline-warning" onclick="copyMcpField('mcp-input-key', this)" style="font-size: 0.68rem;">📋 Salin</button>
                         </div>
                     </div>
@@ -17944,7 +17962,7 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
     "metatrader5": {
       "url": "http://127.0.0.1:22346/mcp",
       "headers": {
-        "Authorization": "Bearer 2OfMRznuLm2Z1XwRreyo01Rt3BAuEscpZEEYk5A+G/"
+        "Authorization": "Bearer lYRsgDTeGkEWEFpnX85d+ZWpQuuRmA2+UrfKmEfV3t"
       }
     }
   }

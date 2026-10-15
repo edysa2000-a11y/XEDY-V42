@@ -1753,7 +1753,7 @@ def poll_market_data():
                             "endpoint": "http://127.0.0.1:22346/mcp",
                             "port": 22346,
                             "protocol_version": "2025-06-18",
-                            "api_key": "2OfMRznuLm2Z1XwRreyo01Rt3BAuEscpZEEYk5A+G/",
+                            "api_key": "lYRsgDTeGkEWEFpnX85d+ZWpQuuRmA2+UrfKmEfV3t",
                             "terminal_name": term.name if term else "Finex Bisnis Solusi MT5",
                             "build": term.build if term else 6259,
                             "account": acc.login if acc else 113893895,
