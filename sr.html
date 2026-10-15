@@ -11292,15 +11292,24 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
 
 
     // ==========================================
+    // ==========================================
     // TELEGRAM BOT & REALTIME PRICE ALERT ENGINE
     // ==========================================
+    function parseNum(val) {
+        if (typeof val === 'number') return isNaN(val) ? 0 : val;
+        if (!val) return 0;
+        const str = String(val).replace(',', '.').trim();
+        const parsed = parseFloat(str);
+        return isNaN(parsed) ? 0 : parsed;
+    }
+
     let TELEGRAM_ALERTS = {
-        'USDJPY': { name: 'USD/JPY (Dolar / Yen)', enabled: true, op: 158.300, tp: 157.900, direction: 'SELL LIMIT', op_triggered: false, tp_triggered: false, note: 'London Open Short Fade' },
-        'XAUUSD': { name: 'GOLD (XAU/USD)', enabled: true, op: 4180.00, tp: 4210.00, direction: 'BUY PULLBACK', op_triggered: false, tp_triggered: false, note: 'Whale Inflow Support' },
-        'EURUSD': { name: 'EUR/USD (Euro / Dolar)', enabled: true, op: 1.12200, tp: 1.11600, direction: 'SELL BREAKOUT', op_triggered: false, tp_triggered: false, note: 'Downtrend Continuation' },
-        'GBPUSD': { name: 'GBP/USD (Pound / Dolar)', enabled: true, op: 1.33250, tp: 1.33850, direction: 'BUY DIP', op_triggered: false, tp_triggered: false, note: 'London Accumulation' },
-        'OIL':    { name: 'OIL (Crude Oil WTI)', enabled: false, op: 71.40, tp: 69.80, direction: 'SELL RALLY', op_triggered: false, tp_triggered: false, note: 'Supply Resistance' },
-        'BTCUSD': { name: 'BITCOIN (BTC/USD)', enabled: false, op: 68500.0, tp: 71200.0, direction: 'BUY BREAKOUT', op_triggered: false, tp_triggered: false, note: 'Weekend Liquidity' }
+        'USDJPY': { name: 'USD/JPY (Dolar / Yen)', enabled: true, support: 149.200, resistance: 158.900, op: 149.200, tp: 158.900, direction: 'BUY LIMIT / SELL LIMIT', op_triggered: false, tp_triggered: false, note: 'Support 149.20 • Resistance 158.90' },
+        'XAUUSD': { name: 'GOLD (XAU/USD)', enabled: true, support: 4080.00, resistance: 4310.00, op: 4080.00, tp: 4310.00, direction: 'BUY LIMIT / SELL LIMIT', op_triggered: false, tp_triggered: false, note: 'Support 4080 • Resistance 4310' },
+        'EURUSD': { name: 'EUR/USD (Euro / Dolar)', enabled: true, support: 1.11600, resistance: 1.13000, op: 1.11600, tp: 1.13000, direction: 'BUY LIMIT / SELL LIMIT', op_triggered: false, tp_triggered: false, note: 'Support 1.1160 • Resistance 1.1300' },
+        'GBPUSD': { name: 'GBP/USD (Pound / Dolar)', enabled: true, support: 1.31250, resistance: 1.33850, op: 1.31250, tp: 1.33850, direction: 'BUY LIMIT / SELL LIMIT', op_triggered: false, tp_triggered: false, note: 'Support 1.3125 • Resistance 1.3385' },
+        'OIL':    { name: 'OIL (Crude Oil WTI)', enabled: true, support: 82.80, resistance: 96.10, op: 82.80, tp: 96.10, direction: 'BUY LIMIT / SELL LIMIT', op_triggered: false, tp_triggered: false, note: 'Support 82.80 • Resistance 96.10' },
+        'BTCUSD': { name: 'BITCOIN (BTC/USD)', enabled: false, support: 68500.0, resistance: 71200.0, op: 68500.0, tp: 71200.0, direction: 'BUY LIMIT / SELL LIMIT', op_triggered: false, tp_triggered: false, note: 'Weekend Liquidity' }
     };
 
     let alertHistoryList = [];
@@ -11315,8 +11324,8 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         const proxInput = document.getElementById('cfg-sr-proximity-pct');
         const intvInput = document.getElementById('cfg-sr-interval-hours');
         const chimeInput = document.getElementById('chk-sound-alert');
-        if (proxInput) TELEGRAM_SR_PARAMS.proximity_pct = parseFloat(proxInput.value) || 0.5;
-        if (intvInput) TELEGRAM_SR_PARAMS.interval_hours = parseFloat(intvInput.value) || 1.0;
+        if (proxInput) TELEGRAM_SR_PARAMS.proximity_pct = parseNum(proxInput.value) || 0.5;
+        if (intvInput) TELEGRAM_SR_PARAMS.interval_hours = parseNum(intvInput.value) || 1.0;
         if (chimeInput) TELEGRAM_SR_PARAMS.chime_enabled = chimeInput.checked;
         saveAlertsConfig(false);
     }
@@ -11440,10 +11449,10 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
                     </div>
                 </td>
                 <td style="padding: 8px 10px;">
-                    <input type="number" step="any" id="op-${pair}" value="${supportVal}" onchange="updateAlertField('${pair}', 'support', parseFloat(this.value))" placeholder="Support Manual" style="background: #0b152b; border: 1px solid rgba(56,189,248,0.4); border-radius: 5px; color: #38bdf8; font-size: 0.78rem; padding: 4px 8px; width: 100%; text-align: right; font-weight: 700;">
+                    <input type="text" inputmode="decimal" id="op-${pair}" value="${supportVal}" onchange="updateAlertField('${pair}', 'support', this.value)" placeholder="Support Manual" style="background: #0b152b; border: 1px solid rgba(56,189,248,0.4); border-radius: 5px; color: #38bdf8; font-size: 0.78rem; padding: 4px 8px; width: 100%; text-align: right; font-weight: 700;">
                 </td>
                 <td style="padding: 8px 10px;">
-                    <input type="number" step="any" id="tp-${pair}" value="${resistVal}" onchange="updateAlertField('${pair}', 'resistance', parseFloat(this.value))" placeholder="Resistance Manual" style="background: #0b152b; border: 1px solid rgba(244,63,94,0.4); border-radius: 5px; color: #f43f5e; font-size: 0.78rem; padding: 4px 8px; width: 100%; text-align: right; font-weight: 700;">
+                    <input type="text" inputmode="decimal" id="tp-${pair}" value="${resistVal}" onchange="updateAlertField('${pair}', 'resistance', this.value)" placeholder="Resistance Manual" style="background: #0b152b; border: 1px solid rgba(244,63,94,0.4); border-radius: 5px; color: #f43f5e; font-size: 0.78rem; padding: 4px 8px; width: 100%; text-align: right; font-weight: 700;">
                 </td>
                 <td style="padding: 8px 10px;">
                     <div id="status-badge-${pair}">${statusBadge}</div>
@@ -11465,27 +11474,35 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
     function togglePairAlert(pair, isEnabled) {
         if (!TELEGRAM_ALERTS[pair]) return;
         TELEGRAM_ALERTS[pair].enabled = isEnabled;
-        saveAlertsConfig();
+        saveAlertsConfig(false);
         renderAlertsTable();
     }
 
-    function updateAlertField(pair, field, value) {
+    function updateAlertField(pair, field, rawVal) {
         if (!TELEGRAM_ALERTS[pair]) return;
-        TELEGRAM_ALERTS[pair][field] = value;
+        const val = parseNum(rawVal);
+        TELEGRAM_ALERTS[pair][field] = val;
         if (field === 'support') {
-            TELEGRAM_ALERTS[pair].op = value;
+            TELEGRAM_ALERTS[pair].op = val;
             TELEGRAM_ALERTS[pair].op_triggered = false;
         } else if (field === 'resistance') {
-            TELEGRAM_ALERTS[pair].tp = value;
-            TELEGRAM_ALERTS[pair].tp_triggered = false;
-        } else if (field === 'op') {
-            TELEGRAM_ALERTS[pair].support = value;
-            TELEGRAM_ALERTS[pair].op_triggered = false;
-        } else if (field === 'tp') {
-            TELEGRAM_ALERTS[pair].resistance = value;
+            TELEGRAM_ALERTS[pair].tp = val;
             TELEGRAM_ALERTS[pair].tp_triggered = false;
         }
-        saveAlertsConfig();
+        
+        // AUTO-SWAP PROTECTION: Support harus selalu lebih rendah dari Resistance!
+        let s = parseNum(TELEGRAM_ALERTS[pair].support);
+        let r = parseNum(TELEGRAM_ALERTS[pair].resistance);
+        if (s > 0 && r > 0 && s > r) {
+            // Nilai terbalik! Otomatis swap agar bot Telegram tidak salah kirim!
+            TELEGRAM_ALERTS[pair].support = r;
+            TELEGRAM_ALERTS[pair].resistance = s;
+            TELEGRAM_ALERTS[pair].op = r;
+            TELEGRAM_ALERTS[pair].tp = s;
+            renderAlertsTable();
+            addAlertLog(`⚠️ [AUTO-SWAP] Nilai Support & Resistance ${pair} diselaraskan: Support (${r}) < Resistance (${s}).`);
+        }
+        saveAlertsConfig(false);
     }
 
     function resetPairTrigger(pair) {
@@ -11518,9 +11535,43 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         const proxInput = document.getElementById('cfg-sr-proximity-pct');
         const intvInput = document.getElementById('cfg-sr-interval-hours');
         const chimeInput = document.getElementById('chk-sound-alert');
-        if (proxInput) TELEGRAM_SR_PARAMS.proximity_pct = parseFloat(proxInput.value) || 0.5;
-        if (intvInput) TELEGRAM_SR_PARAMS.interval_hours = parseFloat(intvInput.value) || 1.0;
+        if (proxInput) TELEGRAM_SR_PARAMS.proximity_pct = parseNum(proxInput.value) || 0.5;
+        if (intvInput) TELEGRAM_SR_PARAMS.interval_hours = parseNum(intvInput.value) || 1.0;
         if (chimeInput) TELEGRAM_SR_PARAMS.chime_enabled = chimeInput.checked;
+
+        // Synchronize all pairs from DOM inputs directly
+        const pairs = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL'];
+        let hadSwap = false;
+        pairs.forEach(p => {
+            if (!TELEGRAM_ALERTS[p]) TELEGRAM_ALERTS[p] = {};
+            const chk = document.getElementById(`chk-${p}`);
+            if (chk) TELEGRAM_ALERTS[p].enabled = chk.checked;
+            
+            const supInput = document.getElementById(`op-${p}`);
+            const resInput = document.getElementById(`tp-${p}`);
+            let s = supInput ? parseNum(supInput.value) : parseNum(TELEGRAM_ALERTS[p].support);
+            let r = resInput ? parseNum(resInput.value) : parseNum(TELEGRAM_ALERTS[p].resistance);
+
+            // Inversion protection: Support MUST be <= Resistance
+            if (s > 0 && r > 0 && s > r) {
+                const temp = s;
+                s = r;
+                r = temp;
+                hadSwap = true;
+                if (supInput) supInput.value = s;
+                if (resInput) resInput.value = r;
+            }
+
+            TELEGRAM_ALERTS[p].support = s;
+            TELEGRAM_ALERTS[p].resistance = r;
+            TELEGRAM_ALERTS[p].op = s;
+            TELEGRAM_ALERTS[p].tp = r;
+        });
+
+        if (hadSwap) {
+            renderAlertsTable();
+            addAlertLog(`🛡️ [VALIDASI S&R] Nilai Support dan Resistance yang terbalik otomatis diselaraskan (Support selalu lebih rendah dari Resistance).`);
+        }
 
         localStorage.setItem('xedy_tg_alerts', JSON.stringify(TELEGRAM_ALERTS));
         localStorage.setItem('xedy_tg_sr_params', JSON.stringify(TELEGRAM_SR_PARAMS));
@@ -11587,8 +11638,8 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             const pairs = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL'];
             pairs.forEach(p => {
                 const cfg = TELEGRAM_ALERTS[p] || {};
-                const sup = parseFloat(cfg.support !== undefined ? cfg.support : cfg.op) || 0;
-                const res = parseFloat(cfg.resistance !== undefined ? cfg.resistance : cfg.tp) || 0;
+                const sup = parseNum(cfg.support !== undefined ? cfg.support : cfg.op);
+                const res = parseNum(cfg.resistance !== undefined ? cfg.resistance : cfg.tp);
                 const isEnabled = !!cfg.enabled;
                 const hasLevel = (sup > 0 || res > 0);
 
@@ -11645,8 +11696,8 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
     function checkRealtimePriceAlerts(priceData) {
         if (!priceData || !priceData.pairs) return;
 
-        const proximityPct = parseFloat(TELEGRAM_SR_PARAMS.proximity_pct) || 0.5;
-        const intervalHours = parseFloat(TELEGRAM_SR_PARAMS.interval_hours) || 1.0;
+        const proximityPct = parseNum(TELEGRAM_SR_PARAMS.proximity_pct) || 0.5;
+        const intervalHours = parseNum(TELEGRAM_SR_PARAMS.interval_hours) || 1.0;
         const intervalMs = intervalHours * 3600 * 1000;
         const nowMs = Date.now();
 
@@ -11659,15 +11710,26 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
 
             const pairData = priceData.pairs[pair];
             if (!pairData || !pairData.price) return;
-            const livePrice = parseFloat(pairData.price);
+            const livePrice = parseNum(pairData.price);
             if (!livePrice || livePrice <= 0) return;
 
             // Update live price text in table
             const liveEl = document.getElementById(`alert-live-${pair}`);
             if (liveEl) liveEl.textContent = livePrice;
 
-            const supportLevel = parseFloat(cfg.support !== undefined ? cfg.support : cfg.op) || 0;
-            const resistLevel = parseFloat(cfg.resistance !== undefined ? cfg.resistance : cfg.tp) || 0;
+            let supportLevel = parseNum(cfg.support !== undefined ? cfg.support : cfg.op);
+            let resistLevel = parseNum(cfg.resistance !== undefined ? cfg.resistance : cfg.tp);
+
+            // AUTO-SWAP JIKA TERBALIK (Support harus selalu lebih rendah dari Resistance):
+            if (supportLevel > 0 && resistLevel > 0 && supportLevel > resistLevel) {
+                const temp = supportLevel;
+                supportLevel = resistLevel;
+                resistLevel = temp;
+                cfg.support = supportLevel;
+                cfg.resistance = resistLevel;
+                cfg.op = supportLevel;
+                cfg.tp = resistLevel;
+            }
 
             // Kalau kedua level kosong / 0 -> abaikan!
             if (supportLevel <= 0 && resistLevel <= 0) return;
@@ -11695,16 +11757,23 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             }
 
             // 1. Check Support Trigger & Mendekati ... %
+            // Support adalah lantai bawah harga (tempat BUY LIMIT).
+            // Harga normalnya bergerak turun mendekati Support.
             if (supportLevel > 0) {
                 let isNearSup = false;
                 let pctToSup = 0;
-                if (livePrice <= supportLevel) {
-                    isNearSup = true; // Tembus / Sentuh persis
-                    pctToSup = 0;
-                } else {
+                
+                if (livePrice >= supportLevel) {
                     pctToSup = ((livePrice - supportLevel) / supportLevel) * 100;
                     if (pctToSup <= proximityPct) {
                         isNearSup = true;
+                    }
+                } else {
+                    // Harga di bawah support (tembus ke bawah).
+                    const breachPct = ((supportLevel - livePrice) / supportLevel) * 100;
+                    if (breachPct <= Math.max(proximityPct * 2, 1.5)) {
+                        isNearSup = true;
+                        pctToSup = 0;
                     }
                 }
 
@@ -11725,16 +11794,23 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             }
 
             // 2. Check Resistance Trigger & Mendekati ... %
+            // Resistance adalah atap atas harga (tempat SELL LIMIT).
+            // Harga normalnya bergerak naik menuju Resistance.
             if (resistLevel > 0) {
                 let isNearRes = false;
                 let pctToRes = 0;
-                if (livePrice >= resistLevel) {
-                    isNearRes = true; // Tembus / Sentuh persis
-                    pctToRes = 0;
-                } else {
+                
+                if (livePrice <= resistLevel) {
                     pctToRes = ((resistLevel - livePrice) / resistLevel) * 100;
                     if (pctToRes <= proximityPct) {
                         isNearRes = true;
+                    }
+                } else {
+                    // Harga di atas resistance (tembus ke atas).
+                    const breachPct = ((livePrice - resistLevel) / resistLevel) * 100;
+                    if (breachPct <= Math.max(proximityPct * 2, 1.5)) {
+                        isNearRes = true;
+                        pctToRes = 0;
                     }
                 }
 

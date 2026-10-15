@@ -26,14 +26,14 @@
   "EURUSD": {
     "name": "EUR/USD (Euro / Dolar)",
     "enabled": true,
-    "op": 1.13,
-    "tp": 1.31,
-    "direction": "SELL BREAKOUT",
-    "op_triggered": true,
+    "support": 1.116,
+    "resistance": 1.13,
+    "op": 1.116,
+    "tp": 1.13,
+    "direction": "BUY LIMIT / SELL LIMIT",
+    "op_triggered": false,
     "tp_triggered": false,
-    "note": "Downtrend Continuation",
-    "support": 1.13,
-    "resistance": 1.31
+    "note": "Support 1.1160 • Resistance 1.1300"
   },
   "GBPUSD": {
     "name": "GBP/USD (Pound / Dolar)",
@@ -67,5 +67,10 @@
     "op_triggered": false,
     "tp_triggered": false,
     "note": "Weekend Liquidity"
+  },
+  "_params": {
+    "proximity_pct": 0.5,
+    "interval_hours": 4,
+    "chime_enabled": true
   }
 }

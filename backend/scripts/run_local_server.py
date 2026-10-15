@@ -1902,12 +1902,14 @@ def get_default_telegram_alerts():
         "EURUSD": {
             "name": "EUR/USD (Euro / Dolar)",
             "enabled": True,
-            "op": 1.12200,
-            "tp": 1.11600,
-            "direction": "SELL BREAKOUT",
+            "support": 1.11600,
+            "resistance": 1.13000,
+            "op": 1.11600,
+            "tp": 1.13000,
+            "direction": "BUY LIMIT / SELL LIMIT",
             "op_triggered": False,
             "tp_triggered": False,
-            "note": "Downtrend Continuation"
+            "note": "Support 1.1160 • Resistance 1.1300"
         },
         "GBPUSD": {
             "name": "GBP/USD (Pound / Dolar)",
