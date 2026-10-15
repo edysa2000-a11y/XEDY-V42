@@ -2,32 +2,38 @@
   "USDJPY": {
     "name": "USD/JPY (Dolar / Yen)",
     "enabled": true,
-    "op": 158.3,
-    "tp": 157.9,
+    "op": 149.2,
+    "tp": 158.9,
     "direction": "SELL LIMIT",
-    "op_triggered": true,
-    "tp_triggered": true,
-    "note": "London Open Short Fade"
+    "op_triggered": false,
+    "tp_triggered": false,
+    "note": "London Open Short Fade",
+    "support": 149.2,
+    "resistance": 158.9
   },
   "XAUUSD": {
     "name": "GOLD (XAU/USD)",
     "enabled": true,
-    "op": 4180,
-    "tp": 4210,
+    "op": 4080,
+    "tp": 4310,
     "direction": "BUY PULLBACK",
-    "op_triggered": true,
+    "op_triggered": false,
     "tp_triggered": false,
-    "note": "Whale Inflow Support"
+    "note": "Whale Inflow Support",
+    "support": 4080,
+    "resistance": 4310
   },
   "EURUSD": {
     "name": "EUR/USD (Euro / Dolar)",
     "enabled": true,
-    "op": 1.122,
-    "tp": 1.116,
+    "op": 1.13,
+    "tp": 1.31,
     "direction": "SELL BREAKOUT",
     "op_triggered": true,
-    "tp_triggered": true,
-    "note": "Downtrend Continuation"
+    "tp_triggered": false,
+    "note": "Downtrend Continuation",
+    "support": 1.13,
+    "resistance": 1.31
   },
   "GBPUSD": {
     "name": "GBP/USD (Pound / Dolar)",
@@ -43,13 +49,14 @@
   "OIL": {
     "name": "OIL (Crude Oil WTI)",
     "enabled": true,
-    "op": 71.4,
+    "op": 82.8,
     "tp": 96.1,
     "direction": "SELL RALLY",
     "op_triggered": false,
     "tp_triggered": false,
     "note": "Supply Resistance",
-    "resistance": 96.1
+    "resistance": 96.1,
+    "support": 82.8
   },
   "BTCUSD": {
     "name": "BITCOIN (BTC/USD)",

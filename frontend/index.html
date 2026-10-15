@@ -4698,71 +4698,19 @@
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <span style="font-size: 1.25rem;">📱</span>
                         <h4 style="color: #38bdf8; font-weight: 800; font-family: 'Rajdhani', sans-serif; margin: 0; letter-spacing: 0.8px;">
-                            TELEGRAM BOT MISSION CONTROL &amp; REALTIME PRICE CROSS ALERT
+                            TELEGRAM BOT MISSION CONTROL &bull; SUPPORT &amp; RESISTANCE MANUAL
                         </h4>
                         <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2">● BOT ONLINE</span>
                     </div>
                     <p style="color: var(--text-muted); font-size: 0.78rem; margin: 4px 0 0 0;">
-                        Bot: <b>@XEDYSgold_bot</b> &bull; Target Chat: <b>INFO TAJAM (-1003468917523)</b> &bull; Jadwal Cron D1 &amp; H4 &bull; Alert Manual OP/TP Semua Pair
+                        Bot: <b>@XEDYSgold_bot</b> &bull; Target Chat: <b>INFO TAJAM (-1003468917523)</b> &bull; Mode: <b>Eksklusif Support &amp; Resistance Manual</b> (Push D1 &amp; H4 Dinonaktifkan)
                     </p>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <button class="btn-term" onclick="sendTelegramPingTest()">⚡ TEST PING BOT</button>
-                    <button class="btn-term" style="background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%); color: #ffffff; border-color: #38bdf8; font-weight: 700;" onclick="triggerD1H4Now()">🚀 KIRIM D1 &amp; H4 SEKARANG</button>
-                </div>
-            </div>
-
-            <!-- 2. Jam Update Otomatis Telegram D1 & H4 Card -->
-            <div class="dash-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px; margin-bottom: 12px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 0.95rem; font-weight: 800; color: #ffffff;">🕒 JADWAL UPDATE OTOMATIS TELEGRAM (D1 &amp; H4 CRON)</span>
-                        <span style="font-size: 0.70rem; background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); border-radius: 4px; padding: 2px 7px; font-weight: 700;">🟢 DAEMON SCHEDULER AKTIF</span>
-                    </div>
-                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #38bdf8; font-weight: 700; background: #07101f; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.2);" id="telegram-live-clock">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.80rem; color: #38bdf8; font-weight: 700; background: #07101f; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.2);" id="telegram-live-clock">
                         Waktu Server: --:--:-- WIB
                     </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                    <!-- Sesi 1: 06:00 WIB -->
-                    <div style="background: #081122; border: 1px solid rgba(56,189,248,0.2); border-radius: 9px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-size: 1.25rem; font-weight: 800; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">06:00 WIB</span>
-                            <span class="badge bg-primary bg-opacity-25 text-info border border-info mono py-1 px-2">SESI 1 • HARIAN</span>
-                        </div>
-                        <div style="font-size: 0.82rem; font-weight: 700; color: #ffffff; margin-bottom: 4px;">🌅 Awal Lilin D1 &amp; Sesi Subuh</div>
-                        <p style="font-size: 0.72rem; color: #8492a6; margin: 0; line-height: 1.5;">
-                            Pengiriman Bias D1 Harian, Evaluasi Whale Inflow &amp; Net Capital Allocation 6 pair sebelum pembukaan pasar Tokyo dan Sydney.
-                        </p>
-                        <div style="margin-top: 8px; font-size: 0.68rem; color: #38bdf8; font-family: monospace;">● Trigger: Cron Daily 06:00:00 WIB</div>
-                    </div>
-
-                    <!-- Sesi 2: 13:30 WIB (London Open ⭐) -->
-                    <div style="background: linear-gradient(180deg, #102142 0%, #081122 100%); border: 1.5px solid #2563eb; border-radius: 9px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 0 15px rgba(37,99,235,0.25);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-size: 1.25rem; font-weight: 800; color: #10b981; font-family: 'JetBrains Mono', monospace;">13:30 WIB ⭐</span>
-                            <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2">SESI 2 • WAKTU EMAS</span>
-                        </div>
-                        <div style="font-size: 0.82rem; font-weight: 700; color: #ffffff; margin-bottom: 4px;">👑 London Open (Waktu Emas Eksekusi H4 ⭐)</div>
-                        <p style="font-size: 0.72rem; color: #8492a6; margin: 0; line-height: 1.5;">
-                            Titik puncak volatilitas likuiditas Eropa. AI Qwen mengirimkan Setup Taktis H4: Zone Entry OP, Invalidation SL, Target TP1/TP2, dan Gate Pass.
-                        </p>
-                        <div style="margin-top: 8px; font-size: 0.68rem; color: #10b981; font-family: monospace;">⭐ Recommended Prime Hour (88.2% Win Rate)</div>
-                    </div>
-
-                    <!-- Sesi 3: 20:00 WIB (New York Open) -->
-                    <div style="background: #081122; border: 1px solid rgba(56,189,248,0.2); border-radius: 9px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-size: 1.25rem; font-weight: 800; color: #f59e0b; font-family: 'JetBrains Mono', monospace;">20:00 WIB</span>
-                            <span class="badge bg-warning bg-opacity-25 text-warning border border-warning mono py-1 px-2">SESI 3 • NEW YORK</span>
-                        </div>
-                        <div style="font-size: 0.82rem; font-weight: 700; color: #ffffff; margin-bottom: 4px;">🌙 New York Open &amp; Peak Liquidity</div>
-                        <p style="font-size: 0.72rem; color: #8492a6; margin: 0; line-height: 1.5;">
-                            Overlap sesi London &amp; New York. Update status Take Profit, eksekusi Trailing Stop AI Qwen, dan antisipasi rilis data ekonomi high-impact.
-                        </p>
-                        <div style="margin-top: 8px; font-size: 0.68rem; color: #f59e0b; font-family: monospace;">● Trigger: Cron Daily 20:00:00 WIB</div>
-                    </div>
+                    <button class="btn-term" onclick="sendTelegramPingTest()">⚡ TEST PING BOT</button>
                 </div>
             </div>
 
@@ -11746,22 +11694,7 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
     }
 
     async function triggerD1H4Now() {
-        const confirmSend = confirm("Kirim Laporan Rekomendasi Lengkap D1 & H4 ke Telegram sekarang?");
-        if (!confirmSend) return;
-
-        addAlertLog(`🚀 Memicu pengiriman laporan D1 & H4 ke Telegram...`);
-        try {
-            const res = await fetch('/api/telegram_trigger_d1h4', { method: 'POST' });
-            const j = await res.json();
-            if (j.status === 'ok' || j.dispatched) {
-                alert(`✅ Laporan Rekomendasi D1 & H4 berhasil dikirim ke grup Telegram!`);
-                addAlertLog(`✅ [D1H4 DISPATCHED] Rekomendasi lengkap terkirim ke Telegram.`);
-            } else {
-                alert(`⚠️ Laporan gagal dikirim: ${j.message || 'Cek server cron'}`);
-            }
-        } catch(e) {
-            alert(`⚠️ Error: ${e.message}`);
-        }
+        alert("ℹ️ Fitur pengiriman D1 & H4 otomatis telah dinonaktifkan. Sistem sekarang eksklusif hanya menggunakan Support & Resistance Manual.");
     }
 
     function addAlertLog(msg) {

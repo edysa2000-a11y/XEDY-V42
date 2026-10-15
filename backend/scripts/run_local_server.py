@@ -2222,17 +2222,14 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             return
 
         if self.path.startswith('/api/telegram_trigger_d1h4'):
-            try:
-                import asyncio
-                from backend.scripts.send_d1h4_telegram import send_d1h4_recommendations
-                success = asyncio.run(send_d1h4_recommendations())
-                resp = {"status": "ok" if success else "failed", "dispatched": success}
-            except Exception as e:
-                resp = {"status": "error", "message": str(e)}
+            resp = {
+                "status": "disabled",
+                "message": "Push Telegram D1 & H4 dinonaktifkan. Sistem eksklusif hanya menggunakan Support & Resistance Manual."
+            }
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
-            self.wfile.write(json.dumps(resp).encode('utf-8'))
+            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
             return
 
         if self.path.startswith('/api/telegram_ping') or self.path.startswith('/api/test_ping'):
