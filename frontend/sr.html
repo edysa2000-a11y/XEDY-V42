@@ -11355,7 +11355,7 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         const pairs = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL'];
         
         pairs.forEach(pair => {
-            const cfg = TELEGRAM_ALERTS[pair] || { enabled: false, op: 0, tp: 0, support: 0, resistance: 0, direction: 'BUY PULLBACK', op_triggered: false, tp_triggered: false };
+            const cfg = TELEGRAM_ALERTS[pair] || { enabled: false, op: 0, tp: 0, support: 0, resistance: 0, direction: 'BUY LIMIT', op_triggered: false, tp_triggered: false };
             const currPrice = (lastReceivedData && lastReceivedData.pairs && lastReceivedData.pairs[pair]) 
                               ? lastReceivedData.pairs[pair].price 
                               : (D1H4_DATABASE[pair] ? D1H4_DATABASE[pair].op : (cfg.support || '--'));
@@ -11363,21 +11363,52 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             const supportVal = cfg.support !== undefined ? cfg.support : cfg.op;
             const resistVal = cfg.resistance !== undefined ? cfg.resistance : cfg.tp;
 
+            const numLive = parseFloat(currPrice) || 0;
+            const numSup = parseFloat(supportVal) || 0;
+            const numRes = parseFloat(resistVal) || 0;
+
+            // LOGIKA DINAMIS: Mendekati Support -> BUY LIMIT, Mendekati Resistance -> SELL LIMIT
+            let setupBadgeHtml = '';
+            if (numLive > 0 && numSup > 0 && numRes > 0) {
+                const distToSup = Math.abs(numLive - numSup);
+                const distToRes = Math.abs(numRes - numLive);
+                if (distToSup <= distToRes) {
+                    setupBadgeHtml = `
+                        <div id="dir-badge-${pair}" class="px-2 py-1 rounded text-center" style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; line-height: 1.15;">
+                            <div class="fw-bold" style="font-size: 0.76rem;">🟢 BUY LIMIT</div>
+                            <div style="font-size: 0.58rem; color: #6ee7b7; opacity: 0.9;">Mendekati Support</div>
+                        </div>
+                    `;
+                } else {
+                    setupBadgeHtml = `
+                        <div id="dir-badge-${pair}" class="px-2 py-1 rounded text-center" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; line-height: 1.15;">
+                            <div class="fw-bold" style="font-size: 0.76rem;">🔴 SELL LIMIT</div>
+                            <div style="font-size: 0.58rem; color: #fca5a5; opacity: 0.9;">Mendekati Resistance</div>
+                        </div>
+                    `;
+                }
+            } else {
+                setupBadgeHtml = `
+                    <div id="dir-badge-${pair}" class="px-2 py-1 rounded text-center" style="background: #0b152b; border: 1px solid rgba(255,255,255,0.15); color: #38bdf8; font-size: 0.72rem; font-weight: 700;">
+                        <span>AUTO S/R LIMIT</span>
+                    </div>
+                `;
+            }
+
             let statusBadge = '<span class="badge bg-secondary mono">NONAKTIF</span>';
             if (cfg.enabled) {
                 if (cfg.op_triggered && cfg.tp_triggered) {
                     statusBadge = '<span class="badge bg-success mono">SUPPORT &amp; RESIST TERKIRIM ✓</span>';
                 } else if (cfg.op_triggered) {
-                    statusBadge = '<span class="badge bg-info mono">🛡️ SUPPORT MELEWATI</span>';
+                    statusBadge = '<span class="badge bg-info mono">🛡️ SUPPORT TERSENTUH (BUY)</span>';
                 } else if (cfg.tp_triggered) {
-                    statusBadge = '<span class="badge bg-danger mono">🎯 RESISTANCE MELEWATI</span>';
+                    statusBadge = '<span class="badge bg-danger mono">🎯 RESIST TERSENTUH (SELL)</span>';
                 } else {
                     statusBadge = '<span class="badge bg-primary bg-opacity-25 text-info border border-info mono">STANDBY MONITORING</span>';
                 }
             }
 
             const checkedAttr = cfg.enabled ? 'checked' : '';
-            const dirColor = (cfg.direction || '').includes('BUY') ? '#10b981' : '#ef4444';
 
             html += `
             <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); background: ${cfg.enabled ? 'rgba(37,99,235,0.03)' : 'transparent'};">
@@ -11392,10 +11423,9 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
                     <span id="alert-live-${pair}" style="font-size: 0.95rem; font-weight: 800; color: #38bdf8;">${currPrice}</span>
                 </td>
                 <td style="padding: 8px 10px;">
-                    <select id="dir-${pair}" onchange="updateAlertField('${pair}', 'direction', this.value)" style="background: #0b152b; border: 1px solid rgba(255,255,255,0.15); border-radius: 5px; color: ${dirColor}; font-weight: 700; font-size: 0.72rem; padding: 4px 6px; width: 100%;">
-                        <option value="SELL LIMIT" ${(cfg.direction || '').includes('SELL') ? 'selected' : ''}>SELL LIMIT</option>
-                        <option value="BUY PULLBACK" ${(cfg.direction || '').includes('BUY') ? 'selected' : ''}>BUY PULLBACK</option>
-                    </select>
+                    <div id="setup-cell-${pair}">
+                        ${setupBadgeHtml}
+                    </div>
                 </td>
                 <td style="padding: 8px 10px;">
                     <input type="number" step="any" id="op-${pair}" value="${supportVal}" onchange="updateAlertField('${pair}', 'support', parseFloat(this.value))" placeholder="Support Manual" style="background: #0b152b; border: 1px solid rgba(56,189,248,0.4); border-radius: 5px; color: #38bdf8; font-size: 0.78rem; padding: 4px 8px; width: 100%; text-align: right; font-weight: 700;">
@@ -11407,9 +11437,10 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
                     <div id="status-badge-${pair}">${statusBadge}</div>
                 </td>
                 <td style="padding: 8px 10px; text-align: center;">
-                    <div style="display: flex; gap: 4px; justify-content: center;">
-                        <button class="btn-term" style="padding: 2px 6px; font-size: 0.65rem;" onclick="testSendAlert('${pair}')" title="Kirim alert uji coba ke Telegram">Test</button>
-                        <button class="btn-term" style="padding: 2px 6px; font-size: 0.65rem;" onclick="resetPairTrigger('${pair}')" title="Reset status trigger">Reset</button>
+                    <div style="display: flex; gap: 3px; justify-content: center;">
+                        <button class="btn-term" style="padding: 2px 5px; font-size: 0.62rem; color: #10b981; border-color: rgba(16,185,129,0.4);" onclick="testSendAlert('${pair}', 'SUPPORT')" title="Uji coba alert BUY LIMIT (Support)">Test Buy</button>
+                        <button class="btn-term" style="padding: 2px 5px; font-size: 0.62rem; color: #ef4444; border-color: rgba(239,68,68,0.4);" onclick="testSendAlert('${pair}', 'RESISTANCE')" title="Uji coba alert SELL LIMIT (Resistance)">Test Sell</button>
+                        <button class="btn-term" style="padding: 2px 5px; font-size: 0.62rem;" onclick="resetPairTrigger('${pair}')" title="Reset status trigger">Reset</button>
                     </div>
                 </td>
             </tr>`;
@@ -11495,35 +11526,54 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             const liveEl = document.getElementById(`alert-live-${pair}`);
             if (liveEl) liveEl.textContent = livePrice;
 
-            const isSell = (cfg.direction || '').toUpperCase().includes('SELL');
-
-            // 1. Check Support Trigger (Price drops to or touches Support level)
             const supportLevel = cfg.support !== undefined ? cfg.support : cfg.op;
+            const resistLevel = cfg.resistance !== undefined ? cfg.resistance : cfg.tp;
+
+            // Update live dynamic SETUP badge
+            const setupCell = document.getElementById(`setup-cell-${pair}`);
+            if (setupCell && livePrice > 0 && supportLevel > 0 && resistLevel > 0) {
+                const distToSup = Math.abs(livePrice - supportLevel);
+                const distToRes = Math.abs(resistLevel - livePrice);
+                if (distToSup <= distToRes) {
+                    setupCell.innerHTML = `
+                        <div id="dir-badge-${pair}" class="px-2 py-1 rounded text-center" style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #10b981; line-height: 1.15;">
+                            <div class="fw-bold" style="font-size: 0.76rem;">🟢 BUY LIMIT</div>
+                            <div style="font-size: 0.58rem; color: #6ee7b7; opacity: 0.9;">Mendekati Support</div>
+                        </div>
+                    `;
+                } else {
+                    setupCell.innerHTML = `
+                        <div id="dir-badge-${pair}" class="px-2 py-1 rounded text-center" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; line-height: 1.15;">
+                            <div class="fw-bold" style="font-size: 0.76rem;">🔴 SELL LIMIT</div>
+                            <div style="font-size: 0.58rem; color: #fca5a5; opacity: 0.9;">Mendekati Resistance</div>
+                        </div>
+                    `;
+                }
+            }
+
+            // 1. Check Support Trigger (Price drops to or touches Support level -> BUY LIMIT)
             if (!cfg.op_triggered && supportLevel > 0) {
                 let sCrossed = false;
-                // If live price touches or drops below support
                 if (livePrice <= supportLevel) sCrossed = true;
 
                 if (sCrossed) {
                     cfg.op_triggered = true;
                     saveAlertsConfig();
                     renderAlertsTable();
-                    dispatchPriceAlert(pair, 'SUPPORT', livePrice, supportLevel, cfg.direction, 'Level Support Manual Tersentuh / Reaksi Demand');
+                    dispatchPriceAlert(pair, 'SUPPORT', livePrice, supportLevel, 'BUY LIMIT', 'Harga Mendekati / Menyentuh Support Manual');
                 }
             }
 
-            // 2. Check Resistance Trigger (Price rises to or touches Resistance level)
-            const resistLevel = cfg.resistance !== undefined ? cfg.resistance : cfg.tp;
+            // 2. Check Resistance Trigger (Price rises to or touches Resistance level -> SELL LIMIT)
             if (!cfg.tp_triggered && resistLevel > 0) {
                 let rCrossed = false;
-                // If live price touches or breaks above resistance
                 if (livePrice >= resistLevel) rCrossed = true;
 
                 if (rCrossed) {
                     cfg.tp_triggered = true;
                     saveAlertsConfig();
                     renderAlertsTable();
-                    dispatchPriceAlert(pair, 'RESISTANCE', livePrice, resistLevel, cfg.direction, 'Level Resistance Manual Tersentuh / Reaksi Supply');
+                    dispatchPriceAlert(pair, 'RESISTANCE', livePrice, resistLevel, 'SELL LIMIT', 'Harga Mendekati / Menyentuh Resistance Manual');
                 }
             }
         });
@@ -11554,32 +11604,40 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         }
     }
 
-    async function testSendAlert(pair) {
+    async function testSendAlert(pair, type = 'SUPPORT') {
         const cfg = TELEGRAM_ALERTS[pair];
         if (!cfg) return;
         const livePrice = (lastReceivedData && lastReceivedData.pairs && lastReceivedData.pairs[pair]) 
                           ? lastReceivedData.pairs[pair].price 
                           : (cfg.support || cfg.op);
         const supportVal = cfg.support !== undefined ? cfg.support : cfg.op;
-        
-        addAlertLog(`⚡ [TEST ALERT] Mengirim simulasi alert Support untuk ${pair}...`);
+        const resistVal = cfg.resistance !== undefined ? cfg.resistance : cfg.tp;
+
+        const isSupport = type === 'SUPPORT';
+        const targetPrice = isSupport ? supportVal : resistVal;
+        const direction = isSupport ? 'BUY LIMIT' : 'SELL LIMIT';
+        const note = isSupport 
+            ? 'Uji coba alert Support (BUY LIMIT)' 
+            : 'Uji coba alert Resistance (SELL LIMIT)';
+
+        addAlertLog(`⚡ [TEST ALERT] Mengirim simulasi alert ${direction} untuk ${pair}...`);
         try {
             const res = await fetch('/api/telegram_price_alert', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     pair: pair,
-                    alert_type: 'SUPPORT (SIMULASI TEST)',
+                    alert_type: `${type} (SIMULASI TEST)`,
                     current_price: livePrice,
-                    target_price: supportVal,
-                    direction: cfg.direction || 'MONITOR LEVEL',
-                    note: 'Uji coba manual pengiriman Telegram alert Support'
+                    target_price: targetPrice,
+                    direction: direction,
+                    note: note
                 })
             });
             const j = await res.json();
             if (j.status === 'ok' || j.sent) {
-                alert(`✅ Alert simulasi Support untuk ${pair} berhasil terkirim ke Telegram!`);
-                addAlertLog(`✅ [SUCCESS] Alert Support ${pair} terkirim ke @XEDYSgold_bot`);
+                alert(`✅ Alert simulasi ${direction} untuk ${pair} berhasil terkirim ke Telegram!`);
+                addAlertLog(`✅ [SUCCESS] Alert ${direction} ${pair} terkirim ke @XEDYSgold_bot`);
             } else {
                 alert(`⚠️ Gagal mengirim: ${j.message || 'Cek koneksi bot'}`);
             }
