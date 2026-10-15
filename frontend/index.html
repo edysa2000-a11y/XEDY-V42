@@ -2561,14 +2561,15 @@
             display: flex !important;
         }
 
-        /* Pane Dashboard (All-Pairs Bid/Ask & LH Cockpit) */
+        /* Pane Dashboard (16:9 Zero-Scroll Institutional Cockpit) */
         #pane-dashboard {
-            overflow-y: auto !important;
-            height: 100%;
+            overflow: hidden !important;
+            height: 100% !important;
+            width: 100% !important;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            padding-right: 4px;
+            padding: 4px !important;
+            box-sizing: border-box;
         }
 
         /* Cards in Dashboard */
@@ -2805,6 +2806,7 @@
             background: #f8fafc !important;
         }
     </style>
+    <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
 </head>
 <body>
 
@@ -2830,13 +2832,13 @@
 
         <!-- Main Navigation Menu -->
         <nav class="sidebar-nav">
-            <button class="nav-link-btn active" id="tab-trade" onclick="switchNavTab('trade')">
+            <button class="nav-link-btn" id="tab-trade" onclick="switchNavTab('trade')">
                 <span class="nav-icon">⚡</span>
                 <span>TRADE</span>
             </button>
-            <button class="nav-link-btn" id="tab-dashboard" onclick="switchNavTab('dashboard')">
+            <button class="nav-link-btn active" id="tab-dashboard" onclick="switchNavTab('dashboard')">
                 <span class="nav-icon">⊞</span>
-                <span>Dashboard</span>
+                <span>Dashboard 16:9</span>
             </button>
             <button class="nav-link-btn" id="tab-telegram" onclick="switchNavTab('telegram')">
                 <span class="nav-icon">📱</span>
@@ -2909,7 +2911,7 @@
         <!-- ========================================================================= -->
         <!-- PANE 0: TRADE EXECUTION DESK (OPTION B SCREENSHOT EXACT REPLICA)           -->
         <!-- ========================================================================= -->
-                <section id="pane-trade" class="subview-pane active" style="display: flex; flex-direction: column; height: 100%; width: 100%; overflow: hidden; background: #030812;">
+                <section id="pane-trade" class="subview-pane" style="display: none; flex-direction: column; height: 100%; width: 100%; overflow: hidden; background: #030812;">
             
             <!-- ========================================================================= -->
             <!-- ⚡ XEDY AI: INSTITUTIONAL SCALPING COCKPIT (EXACT MATCH TO SCREENSHOT)    -->
@@ -3538,532 +3540,1148 @@
         <!-- ========================================================================= -->
         <!-- PANE 1: ALL-PAIRS REAL-TIME BID, ASK & LOW/HIGH (LH) MARKET DASHBOARD     -->
         <!-- ========================================================================= -->
-        <section id="pane-dashboard" class="subview-pane" style="display: none;">
+        <!-- ========================================================================= -->
+        <!-- PANE 1: XEDY AI INSTITUTIONAL 16:9 ZERO-SCROLL COCKPIT (PRO EDITION)       -->
+        <!-- ========================================================================= -->
+        <section id="pane-dashboard" class="subview-pane active" style="display: flex; flex-direction: column; height: 100%; width: 100%; overflow: hidden !important; background: #030812; padding: 4px; box-sizing: border-box;">
+            <!-- ZERO-SCROLL CONTAINER: 100% HEIGHT & WIDTH FIT (16:9 Optimized) -->
+  <div class="w-full h-full bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] rounded-xl shadow-2xl flex flex-col justify-between overflow-hidden p-2 sm:p-2.5 gap-1.5">
+    
+    <!-- 1. TOP HEADER: 5 PAIR SWITCHER + MT5 BRIDGE STATUS (Height: ~36px) -->
+    <header class="flex items-center justify-between gap-2 pb-1.5 border-b border-[var(--border)] font-mono shrink-0">
+      <div class="flex items-center gap-2">
+        <span class="text-lg font-black tracking-wider text-cyan-400">XEDY<span class="text-[var(--foreground)]">AI</span></span>
+        <span class="px-1.5 py-0.2 rounded text-[12px] font-bold bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+          PRO COCKPIT 16:9
+        </span>
+        <div class="h-3 w-px bg-[var(--border)] hidden sm:block"></div>
+        
+        <!-- 5-Pair Tabs -->
+        <div class="flex items-center gap-1 bg-[var(--background)] p-0.5 rounded-lg border border-[var(--border)]">
+          <button onclick="selectCockpitPair('USDJPY')" id="tab-USDJPY" class="px-2 py-0.5 rounded text-[12px] font-bold transition-all bg-[var(--accent)] text-[var(--foreground)] shadow">
+            🇺🇸🇯🇵 USDJPY
+          </button>
+          <button onclick="selectCockpitPair('XAUUSD')" id="tab-XAUUSD" class="px-2 py-0.5 rounded text-[12px] font-bold transition-all text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+            🥇 XAUUSD
+          </button>
+          <button onclick="selectCockpitPair('EURUSD')" id="tab-EURUSD" class="px-2 py-0.5 rounded text-[12px] font-bold transition-all text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+            🇪🇺🇺🇸 EURUSD
+          </button>
+          <button onclick="selectCockpitPair('GBPUSD')" id="tab-GBPUSD" class="px-2 py-0.5 rounded text-[12px] font-bold transition-all text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+            🇬🇧🇺🇸 GBPUSD
+          </button>
+          <button onclick="selectCockpitPair('OIL')" id="tab-OIL" class="px-2 py-0.5 rounded text-[12px] font-bold transition-all text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+            🛢️ OIL
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Telemetry: Server Bridge & Live Volatility -->
+      <div class="flex items-center gap-1.5 text-[12px]">
+        <span id="bridge-status-pill" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="bridge-status-text">MT5 SYNC 8000</span>
+        </span>
+        <div class="px-1.5 py-0.5 rounded bg-[var(--background)] border border-[var(--border)]">
+          Spread: <b class="text-cyan-400 font-bold" id="hdr-spread">0.3p</b>
+        </div>
+        <div class="px-1.5 py-0.5 rounded bg-[var(--background)] border border-[var(--border)]">
+          Vel: <b class="text-amber-400 font-bold" id="hdr-vel">16.4t/s</b>
+        </div>
+        <div class="px-1.5 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] font-bold text-rose-400" id="hdr-bias-badge">
+          BIAS: SELL ONLY
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. QUALITY GATE & MULTI-TIMEFRAME CONFLUENCE BAR (Height: ~28px) -->
+    <div class="py-1 px-2 rounded-lg bg-[var(--background)] border border-cyan-500/25 font-mono flex items-center justify-between gap-1.5 shrink-0 text-[12px]">
+      <!-- Left: Sniper Grade -->
+      <div class="flex items-center gap-1.5">
+        <span>🛡️</span>
+        <span class="font-bold text-[var(--foreground)]" id="qg-grade-badge">GRADE A+ SNIPER</span>
+      </div>
+
+      <!-- Center: 5-Point Quality Gate Checklist -->
+      <div class="flex items-center gap-1">
+        <span class="px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✔ Flow</span>
+        <span class="px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✔ S/R</span>
+        <span class="px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✔ Orderbook</span>
+        <span class="px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✔ Delta</span>
+        <span class="px-1 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✔ R:R &ge; 1:2</span>
+      </div>
+
+      <!-- Right: MTF Alignment Confluence Badge -->
+      <div class="flex items-center gap-1.5">
+        <span class="text-[var(--muted-foreground)]">MTF:</span>
+        <div id="mtf-confluence-strip" class="flex items-center gap-0.5 text-[11px] font-bold">
+          <!-- Populated by JS -->
+        </div>
+        <span id="mtf-confluence-score" class="px-1.5 py-0.2 rounded font-bold bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+          94% BEARISH
+        </span>
+      </div>
+    </div>
+
+    <!-- 3. MAIN WIDESCREEN BODY (3 Columns, flex-grow, zero overflow) -->
+    <div class="grid grid-cols-12 gap-1.5 flex-grow min-h-0 overflow-hidden">
+      
+      <!-- COL 1 (LEFT, 3 cols): 5-PAIR MONEY FLOW BAROMETER & RADAR -->
+      <div class="col-span-3 flex flex-col justify-between bg-[var(--background)] border border-[var(--border)] rounded-lg p-2 font-mono overflow-hidden">
+        <div class="flex items-center justify-between pb-1 border-b border-[var(--border)] text-[12px]">
+          <span class="font-bold text-cyan-400 flex items-center gap-1">
+            <span>🌊</span> MONEY FLOW RADAR
+          </span>
+          <span class="text-[var(--muted-foreground)]">5 PAIRS</span>
+        </div>
+
+        <!-- 5 Compact Items -->
+        <div class="space-y-1 my-auto overflow-hidden" id="barometer-list-container">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Macro Driver / Flow Sponsoring Info -->
+        <div class="p-1 rounded bg-[var(--card)] border border-[var(--border)] text-[12px] space-y-0.5">
+          <div class="flex justify-between text-[var(--muted-foreground)]">
+            <span>INSTITUTIONAL FLOW:</span>
+            <b class="text-cyan-400" id="flow-dominant-driver">Whale Accumulation</b>
+          </div>
+          <div class="flex justify-between text-[var(--muted-foreground)]">
+            <span>CMF / MFI 14:</span>
+            <b class="text-[var(--foreground)]" id="flow-cmf-mfi">-0.22 / 38.4</b>
+          </div>
+        </div>
+
+        <div class="pt-1 border-t border-[var(--border)] text-[12px] text-[var(--muted-foreground)] flex justify-between items-center">
+          <span>Session: <b class="text-[var(--foreground)]">London / NY Overlap</b></span>
+          <span class="text-emerald-400 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live 1s
+          </span>
+        </div>
+      </div>
+
+      <!-- COL 2 (CENTER, 5 cols): VIEW SWITCHER (CHART / NARASI / MTF MATRIX / ORDER FLOW) -->
+      <div class="col-span-5 flex flex-col justify-between bg-[var(--background)] border border-[var(--border)] rounded-lg p-2 font-mono overflow-hidden">
+        
+        <!-- Header with Internal View Mode Switcher -->
+        <div class="flex items-center justify-between pb-1 border-b border-[var(--border)] text-[12px]">
+          <div class="flex items-center gap-1">
+            <span id="chart-flag">🇺🇸🇯🇵</span>
+            <b class="text-[var(--foreground)]" id="chart-pair-name">USDJPY</b>
+          </div>
+          
+          <!-- ZERO-SCROLL SUBVIEW SWITCHER TABS (4 TABS) -->
+          <div class="flex items-center gap-0.5 bg-[var(--card)] p-0.5 rounded border border-[var(--border)]">
+            <button onclick="switchCenterView('chart')" id="btn-view-chart" class="px-1.5 py-0.2 rounded text-[11px] font-bold transition-all bg-[var(--accent)] text-[var(--foreground)]">
+              📈 Chart
+            </button>
+            <button onclick="switchCenterView('narasi')" id="btn-view-narasi" class="px-1.5 py-0.2 rounded text-[11px] font-bold transition-all text-cyan-400 hover:text-white">
+              📋 Narasi Singkat
+            </button>
+            <button onclick="switchCenterView('mtf')" id="btn-view-mtf" class="px-1.5 py-0.2 rounded text-[11px] font-bold transition-all text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+              🧭 MTF
+            </button>
+            <button onclick="switchCenterView('orderflow')" id="btn-view-orderflow" class="px-1.5 py-0.2 rounded text-[11px] font-bold transition-all text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+              🌊 Flow
+            </button>
+          </div>
+
+          <!-- OHLC Summary -->
+          <div class="flex items-center gap-1 text-[var(--muted-foreground)] text-[11px]">
+            <span>C:<b class="text-cyan-400 font-bold" id="ohlc-c">158.159</b></span>
+          </div>
+        </div>
+
+        <!-- CONTAINER UNTUK 4 VIEW (DI DALAM 1 UKURAN TINGGI TETAP ZERO-SCROLL) -->
+        <div class="relative w-full flex-grow min-h-0 bg-slate-950/95 rounded border border-[var(--border)] overflow-hidden my-1">
+          
+          <!-- SUBVIEW 1: M1 LIVE CANDLESTICK CANVAS -->
+          <div id="subview-chart" class="w-full h-full relative block">
+            <canvas id="live-candle-canvas" class="w-full h-full block"></canvas>
+            <div class="absolute top-1 left-1.5 flex items-center gap-1.5 text-[11px] font-mono bg-slate-900/90 px-1.5 py-0.5 rounded border border-white/10 pointer-events-none">
+              <span class="text-rose-400">― R1</span>
+              <span class="text-cyan-400">― VWAP</span>
+              <span class="text-emerald-400">― S1</span>
+            </div>
+            <div class="absolute bottom-1 right-1.5 text-[11px] font-mono text-[var(--muted-foreground)] bg-slate-900/80 px-1 rounded pointer-events-none">
+              M1 Micro-Pivot Footprint
+            </div>
+          </div>
+
+          <!-- SUBVIEW 2: 📋 NARASI SINGKAT INSTITUSIONAL (NEW!) -->
+          <div id="subview-narasi" class="w-full h-full p-2 flex flex-col justify-between hidden">
+            <div class="text-[12px] font-bold text-cyan-400 pb-1 border-b border-[var(--border)] flex justify-between items-center shrink-0">
+              <span class="flex items-center gap-1"><span>📋</span> NARASI INSTITUSIONAL & STRATEGI SINGKAT</span>
+              <span class="text-emerald-400 text-[11px] font-normal" id="narasi-update-stamp">Updated Live</span>
+            </div>
             
-            <!-- 1. Header Control Bar -->
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 rounded" style="background: #08162b; border: 1px solid rgba(0, 240, 255, 0.35); box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05);">
-                <div class="d-flex align-items-center gap-3">
-                    <div style="font-size: 1.8rem; line-height: 1;">📊</div>
-                    <div>
-                        <div class="d-flex align-items-center gap-2">
-                            <h4 class="fw-bold mono text-white mb-0" style="font-size: 1.15rem; letter-spacing: 0.5px;">
-                                MULTI-ASSET MARKET COCKPIT
-                            </h4>
-                            <span class="badge bg-info bg-opacity-25 text-cyan border border-info mono py-1 px-2" style="font-size: 0.72rem;">
-                                BID / ASK • LOW / HIGH (LH) ALL PAIRS
-                            </span>
-                        </div>
-                        <div class="text-secondary mono small mt-1" style="font-size: 0.74rem;">
-                            Streaming real-time harga Bid (Jual), Ask (Beli), Spread (pips), dan Rentang Harian Low - High lengkap dari MT5 Finex & CME Futures.
-                        </div>
-                    </div>
+            <div class="space-y-1.5 my-auto text-[11px] overflow-hidden">
+              <!-- Box 1: Mengapa Naik vs Mengapa Turun (Kausalitas) -->
+              <div class="p-1.5 rounded bg-[var(--card)] border border-[var(--border)]">
+                <div class="text-amber-400 font-bold mb-0.5 flex items-center justify-between">
+                  <span>⚖️ KAUSALITAS PENGGERAK UTAMA</span>
+                  <span class="text-[10px] text-[var(--muted-foreground)]" id="narasi-driver-badge">Hedge Fund Flow</span>
                 </div>
+                <p class="text-[var(--foreground)] leading-tight text-[11.5px]" id="narasi-kausalitas-text">
+                  ...
+                </p>
+              </div>
 
-                <div class="d-flex align-items-center gap-2 flex-wrap mono" style="font-size: 0.75rem;">
-                    <span class="badge bg-success bg-opacity-25 text-success border border-success py-1 px-2 d-flex align-items-center gap-1">
-                        <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
-                        <span id="dash-live-conn-badge">● LIVE MT5 & CME STREAMING</span>
-                    </span>
-                    <span class="badge bg-dark border border-secondary text-light py-1 px-2" id="dash-live-clock">
-                        --:--:-- WIB
-                    </span>
-                    <button class="btn btn-sm btn-outline-info mono fw-bold py-1 px-2" onclick="fetchPrices()" style="font-size: 0.72rem;">
-                        🔄 REFRESH
-                    </button>
-                    <!-- Kecepatan Koneksi Server (Ping / Latensi) -->
-                    <span class="badge border py-1 px-2 mono d-flex align-items-center gap-1" id="dash-server-ping-badge" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.35) !important; color: #10b981; font-size: 0.72rem;" title="Kecepatan koneksi & latensi round-trip (RTT) server feed">
-                        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981;" id="dash-server-ping-dot"></span>
-                        <span class="text-secondary" style="font-size: 0.65rem;">SPEED:</span>
-                        <span id="dash-server-ping-val" class="fw-bold text-success">12 ms</span>
-                        <span id="dash-server-ping-status" class="badge bg-success bg-opacity-25 text-success ms-1 py-0 px-1" style="font-size: 0.60rem;">FAST</span>
-                    </span>
+              <!-- Box 2: Forecast 24 Jam & High-Prob Scenario -->
+              <div class="p-1.5 rounded bg-[var(--card)] border border-[var(--border)]">
+                <div class="text-cyan-400 font-bold mb-0.5 flex items-center justify-between">
+                  <span>⏱️ PROYEKSI & SKENARIO 24 JAM</span>
+                  <span class="text-[10px] text-cyan-300" id="narasi-range-badge">Proyeksi Range</span>
                 </div>
+                <p class="text-[var(--foreground)] leading-tight text-[11.5px]" id="narasi-forecast-text">
+                  ...
+                </p>
+              </div>
+
+              <!-- Box 3: Taktik Eksekusi Sniper & Invalidation -->
+              <div class="p-1.5 rounded bg-[var(--card)] border border-rose-500/25">
+                <div class="text-rose-400 font-bold mb-0.5 flex items-center justify-between">
+                  <span>🎯 TAKTIK SNIPER & ATURAN RISIKO</span>
+                  <span class="text-[10px] text-rose-300 font-bold" id="narasi-taktik-badge">INVALIDASI: SL</span>
+                </div>
+                <p class="text-[var(--foreground)] leading-tight text-[11.5px]" id="narasi-taktik-text">
+                  ...
+                </p>
+              </div>
             </div>
 
-            <!-- 2. Section A: Executive Rate Cards Grid (6 Major Assets) -->
-            <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-xl-3" id="dash-cards-grid">
-                
-                <!-- CARD 1: USDJPY -->
-                <div class="col">
-                    <div class="dash-card p-3 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.3); box-shadow: 0 4px 18px rgba(0,0,0,0.35);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <span style="font-size: 1.4rem;">🇺🇸🇯🇵</span>
-                                <div>
-                                    <div class="fw-bold text-white mono" style="font-size: 1.05rem;">USDJPY</div>
-                                    <div class="text-secondary mono" style="font-size: 0.68rem;">U.S. Dollar / Japanese Yen</div>
-                                </div>
-                            </div>
-                            <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="dash-card-chg-USDJPY" style="font-size: 0.72rem;">▲ +0.17%</span>
-                        </div>
-                        
-                        <!-- Dual Box Bid & Ask -->
-                        <div class="row g-2 mb-2 text-center mono">
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(0, 240, 255, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">BID (SELL)</div>
-                                    <div class="fw-bold text-cyan" id="dash-card-bid-USDJPY" style="font-size: 1.25rem;">158.361</div>
-                                </div>
-                            </div>
-                            <div class="col-2 d-flex flex-column align-items-center justify-content-center">
-                                <div class="text-secondary" style="font-size: 0.60rem;">SPREAD</div>
-                                <div class="fw-bold text-warning" id="dash-card-spread-USDJPY" style="font-size: 0.85rem;">2.1p</div>
-                            </div>
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(244, 63, 94, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">ASK (BUY)</div>
-                                    <div class="fw-bold text-danger" id="dash-card-ask-USDJPY" style="font-size: 1.25rem;">158.363</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Low, High & Range -->
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded mb-2 mono" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06); font-size: 0.75rem;">
-                            <div>
-                                <span class="text-secondary" style="font-size: 0.65rem;">LOW (L)</span>
-                                <div class="fw-bold text-danger" id="dash-card-low-USDJPY">157.569</div>
-                            </div>
-                            <div class="text-center">
-                                <span class="text-secondary" style="font-size: 0.65rem;">H-L RANGE</span>
-                                <div class="fw-bold text-warning" id="dash-card-hl-USDJPY">158.4 pips</div>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-secondary" style="font-size: 0.65rem;">HIGH (H)</span>
-                                <div class="fw-bold text-success" id="dash-card-high-USDJPY">159.153</div>
-                            </div>
-                        </div>
-
-                        <!-- Range Progress Gauge -->
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between align-items-center mono text-secondary mb-1" style="font-size: 0.65rem;">
-                                <span>L: 0%</span>
-                                <span id="dash-card-pct-USDJPY" class="text-cyan fw-bold">50% in Day Range</span>
-                                <span>H: 100%</span>
-                            </div>
-                            <div style="width: 100%; height: 6px; background: #050c18; border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
-                                <div id="dash-card-gauge-USDJPY" style="height: 100%; width: 50%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%); border-radius: 999px;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Action -->
-                        <div class="d-flex gap-2 mt-auto pt-1">
-                            <button class="btn btn-sm btn-outline-info flex-fill mono fw-bold py-1" onclick="switchTvPair('USDJPY'); switchNavTab('forecast');" style="font-size: 0.70rem;">
-                                ⚡ Forecast & Velocity
-                            </button>
-                            <button class="btn btn-sm btn-outline-primary flex-fill mono fw-bold py-1" onclick="selectPair('USDJPY'); switchNavTab('precision');" style="font-size: 0.70rem;">
-                                🎯 Precision Engine
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD 2: XAUUSD -->
-                <div class="col">
-                    <div class="dash-card p-3 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(250, 204, 21, 0.35); box-shadow: 0 4px 18px rgba(0,0,0,0.35);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <span style="font-size: 1.4rem;">🥇🇺🇸</span>
-                                <div>
-                                    <div class="fw-bold text-warning mono" style="font-size: 1.05rem;">XAUUSD (GOLD)</div>
-                                    <div class="text-secondary mono" style="font-size: 0.68rem;">Spot Gold / U.S. Dollar (COMEX:GC)</div>
-                                </div>
-                            </div>
-                            <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="dash-card-chg-XAUUSD" style="font-size: 0.72rem;">▲ +0.44%</span>
-                        </div>
-                        
-                        <!-- Dual Box Bid & Ask -->
-                        <div class="row g-2 mb-2 text-center mono">
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(250, 204, 21, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">BID (SELL)</div>
-                                    <div class="fw-bold text-warning" id="dash-card-bid-XAUUSD" style="font-size: 1.25rem;">4193.58</div>
-                                </div>
-                            </div>
-                            <div class="col-2 d-flex flex-column align-items-center justify-content-center">
-                                <div class="text-secondary" style="font-size: 0.60rem;">SPREAD</div>
-                                <div class="fw-bold text-warning" id="dash-card-spread-XAUUSD" style="font-size: 0.85rem;">1.8p</div>
-                            </div>
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(244, 63, 94, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">ASK (BUY)</div>
-                                    <div class="fw-bold text-danger" id="dash-card-ask-XAUUSD" style="font-size: 1.25rem;">4194.03</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Low, High & Range -->
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded mb-2 mono" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06); font-size: 0.75rem;">
-                            <div>
-                                <span class="text-secondary" style="font-size: 0.65rem;">LOW (L)</span>
-                                <div class="fw-bold text-danger" id="dash-card-low-XAUUSD">4172.61</div>
-                            </div>
-                            <div class="text-center">
-                                <span class="text-secondary" style="font-size: 0.65rem;">H-L RANGE</span>
-                                <div class="fw-bold text-warning" id="dash-card-hl-XAUUSD">419.4 pips</div>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-secondary" style="font-size: 0.65rem;">HIGH (H)</span>
-                                <div class="fw-bold text-success" id="dash-card-high-XAUUSD">4214.55</div>
-                            </div>
-                        </div>
-
-                        <!-- Range Progress Gauge -->
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between align-items-center mono text-secondary mb-1" style="font-size: 0.65rem;">
-                                <span>L: 0%</span>
-                                <span id="dash-card-pct-XAUUSD" class="text-warning fw-bold">50% in Day Range</span>
-                                <span>H: 100%</span>
-                            </div>
-                            <div style="width: 100%; height: 6px; background: #050c18; border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
-                                <div id="dash-card-gauge-XAUUSD" style="height: 100%; width: 50%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%); border-radius: 999px;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Action -->
-                        <div class="d-flex gap-2 mt-auto pt-1">
-                            <button class="btn btn-sm btn-outline-warning flex-fill mono fw-bold py-1" onclick="switchTvPair('XAUUSD'); switchNavTab('forecast');" style="font-size: 0.70rem;">
-                                ⚡ Forecast & Velocity
-                            </button>
-                            <button class="btn btn-sm btn-outline-primary flex-fill mono fw-bold py-1" onclick="selectPair('XAUUSD'); switchNavTab('precision');" style="font-size: 0.70rem;">
-                                🎯 Precision Engine
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD 3: EURUSD -->
-                <div class="col">
-                    <div class="dash-card p-3 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.3); box-shadow: 0 4px 18px rgba(0,0,0,0.35);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <span style="font-size: 1.4rem;">🇪🇺🇺🇸</span>
-                                <div>
-                                    <div class="fw-bold text-white mono" style="font-size: 1.05rem;">EURUSD</div>
-                                    <div class="text-secondary mono" style="font-size: 0.68rem;">Euro / U.S. Dollar (CME:6E)</div>
-                                </div>
-                            </div>
-                            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger mono py-1 px-2" id="dash-card-chg-EURUSD" style="font-size: 0.72rem;">▼ -0.11%</span>
-                        </div>
-                        
-                        <!-- Dual Box Bid & Ask -->
-                        <div class="row g-2 mb-2 text-center mono">
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(0, 240, 255, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">BID (SELL)</div>
-                                    <div class="fw-bold text-cyan" id="dash-card-bid-EURUSD" style="font-size: 1.25rem;">1.12059</div>
-                                </div>
-                            </div>
-                            <div class="col-2 d-flex flex-column align-items-center justify-content-center">
-                                <div class="text-secondary" style="font-size: 0.60rem;">SPREAD</div>
-                                <div class="fw-bold text-warning" id="dash-card-spread-EURUSD" style="font-size: 0.85rem;">0.8p</div>
-                            </div>
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(244, 63, 94, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">ASK (BUY)</div>
-                                    <div class="fw-bold text-danger" id="dash-card-ask-EURUSD" style="font-size: 1.25rem;">1.12060</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Low, High & Range -->
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded mb-2 mono" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06); font-size: 0.75rem;">
-                            <div>
-                                <span class="text-secondary" style="font-size: 0.65rem;">LOW (L)</span>
-                                <div class="fw-bold text-danger" id="dash-card-low-EURUSD">1.11499</div>
-                            </div>
-                            <div class="text-center">
-                                <span class="text-secondary" style="font-size: 0.65rem;">H-L RANGE</span>
-                                <div class="fw-bold text-warning" id="dash-card-hl-EURUSD">112.0 pips</div>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-secondary" style="font-size: 0.65rem;">HIGH (H)</span>
-                                <div class="fw-bold text-success" id="dash-card-high-EURUSD">1.12619</div>
-                            </div>
-                        </div>
-
-                        <!-- Range Progress Gauge -->
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between align-items-center mono text-secondary mb-1" style="font-size: 0.65rem;">
-                                <span>L: 0%</span>
-                                <span id="dash-card-pct-EURUSD" class="text-cyan fw-bold">50% in Day Range</span>
-                                <span>H: 100%</span>
-                            </div>
-                            <div style="width: 100%; height: 6px; background: #050c18; border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
-                                <div id="dash-card-gauge-EURUSD" style="height: 100%; width: 50%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%); border-radius: 999px;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Action -->
-                        <div class="d-flex gap-2 mt-auto pt-1">
-                            <button class="btn btn-sm btn-outline-info flex-fill mono fw-bold py-1" onclick="switchTvPair('EURUSD'); switchNavTab('forecast');" style="font-size: 0.70rem;">
-                                ⚡ Forecast & Velocity
-                            </button>
-                            <button class="btn btn-sm btn-outline-primary flex-fill mono fw-bold py-1" onclick="selectPair('EURUSD'); switchNavTab('precision');" style="font-size: 0.70rem;">
-                                🎯 Precision Engine
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD 4: GBPUSD -->
-                <div class="col">
-                    <div class="dash-card p-3 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(0, 240, 255, 0.3); box-shadow: 0 4px 18px rgba(0,0,0,0.35);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <span style="font-size: 1.4rem;">🇬🇧🇺🇸</span>
-                                <div>
-                                    <div class="fw-bold text-white mono" style="font-size: 1.05rem;">GBPUSD</div>
-                                    <div class="text-secondary mono" style="font-size: 0.68rem;">British Pound / U.S. Dollar (CME:6B)</div>
-                                </div>
-                            </div>
-                            <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="dash-card-chg-GBPUSD" style="font-size: 0.72rem;">▲ +0.18%</span>
-                        </div>
-                        
-                        <!-- Dual Box Bid & Ask -->
-                        <div class="row g-2 mb-2 text-center mono">
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(0, 240, 255, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">BID (SELL)</div>
-                                    <div class="fw-bold text-cyan" id="dash-card-bid-GBPUSD" style="font-size: 1.25rem;">1.32416</div>
-                                </div>
-                            </div>
-                            <div class="col-2 d-flex flex-column align-items-center justify-content-center">
-                                <div class="text-secondary" style="font-size: 0.60rem;">SPREAD</div>
-                                <div class="fw-bold text-warning" id="dash-card-spread-GBPUSD" style="font-size: 0.85rem;">1.1p</div>
-                            </div>
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(244, 63, 94, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">ASK (BUY)</div>
-                                    <div class="fw-bold text-danger" id="dash-card-ask-GBPUSD" style="font-size: 1.25rem;">1.32416</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Low, High & Range -->
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded mb-2 mono" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06); font-size: 0.75rem;">
-                            <div>
-                                <span class="text-secondary" style="font-size: 0.65rem;">LOW (L)</span>
-                                <div class="fw-bold text-danger" id="dash-card-low-GBPUSD">1.31754</div>
-                            </div>
-                            <div class="text-center">
-                                <span class="text-secondary" style="font-size: 0.65rem;">H-L RANGE</span>
-                                <div class="fw-bold text-warning" id="dash-card-hl-GBPUSD">132.4 pips</div>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-secondary" style="font-size: 0.65rem;">HIGH (H)</span>
-                                <div class="fw-bold text-success" id="dash-card-high-GBPUSD">1.33078</div>
-                            </div>
-                        </div>
-
-                        <!-- Range Progress Gauge -->
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between align-items-center mono text-secondary mb-1" style="font-size: 0.65rem;">
-                                <span>L: 0%</span>
-                                <span id="dash-card-pct-GBPUSD" class="text-cyan fw-bold">50% in Day Range</span>
-                                <span>H: 100%</span>
-                            </div>
-                            <div style="width: 100%; height: 6px; background: #050c18; border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
-                                <div id="dash-card-gauge-GBPUSD" style="height: 100%; width: 50%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%); border-radius: 999px;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Action -->
-                        <div class="d-flex gap-2 mt-auto pt-1">
-                            <button class="btn btn-sm btn-outline-info flex-fill mono fw-bold py-1" onclick="switchTvPair('GBPUSD'); switchNavTab('forecast');" style="font-size: 0.70rem;">
-                                ⚡ Forecast & Velocity
-                            </button>
-                            <button class="btn btn-sm btn-outline-primary flex-fill mono fw-bold py-1" onclick="selectPair('GBPUSD'); switchNavTab('precision');" style="font-size: 0.70rem;">
-                                🎯 Precision Engine
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD 5: CRUDE OIL (USOIL) -->
-                <div class="col">
-                    <div class="dash-card p-3 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 4px 18px rgba(0,0,0,0.35);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <span style="font-size: 1.4rem;">🛢️🇺🇸</span>
-                                <div>
-                                    <div class="fw-bold text-info mono" style="font-size: 1.05rem;">USOIL (CRUDE)</div>
-                                    <div class="text-secondary mono" style="font-size: 0.68rem;">WTI Light Sweet Crude Oil</div>
-                                </div>
-                            </div>
-                            <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="dash-card-chg-OIL" style="font-size: 0.72rem;">▲ +0.65%</span>
-                        </div>
-                        
-                        <!-- Dual Box Bid & Ask -->
-                        <div class="row g-2 mb-2 text-center mono">
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(56, 189, 248, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">BID (SELL)</div>
-                                    <div class="fw-bold text-info" id="dash-card-bid-OIL" style="font-size: 1.25rem;">90.45</div>
-                                </div>
-                            </div>
-                            <div class="col-2 d-flex flex-column align-items-center justify-content-center">
-                                <div class="text-secondary" style="font-size: 0.60rem;">SPREAD</div>
-                                <div class="fw-bold text-warning" id="dash-card-spread-OIL" style="font-size: 0.85rem;">1.0p</div>
-                            </div>
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(244, 63, 94, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">ASK (BUY)</div>
-                                    <div class="fw-bold text-danger" id="dash-card-ask-OIL" style="font-size: 1.25rem;">90.46</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Low, High & Range -->
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded mb-2 mono" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06); font-size: 0.75rem;">
-                            <div>
-                                <span class="text-secondary" style="font-size: 0.65rem;">LOW (L)</span>
-                                <div class="fw-bold text-danger" id="dash-card-low-OIL">89.61</div>
-                            </div>
-                            <div class="text-center">
-                                <span class="text-secondary" style="font-size: 0.65rem;">H-L RANGE</span>
-                                <div class="fw-bold text-warning" id="dash-card-hl-OIL">301.0 pips</div>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-secondary" style="font-size: 0.65rem;">HIGH (H)</span>
-                                <div class="fw-bold text-success" id="dash-card-high-OIL">92.62</div>
-                            </div>
-                        </div>
-
-                        <!-- Range Progress Gauge -->
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between align-items-center mono text-secondary mb-1" style="font-size: 0.65rem;">
-                                <span>L: 0%</span>
-                                <span id="dash-card-pct-OIL" class="text-info fw-bold">48% in Day Range</span>
-                                <span>H: 100%</span>
-                            </div>
-                            <div style="width: 100%; height: 6px; background: #050c18; border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
-                                <div id="dash-card-gauge-OIL" style="height: 100%; width: 48%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%); border-radius: 999px;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Action -->
-                        <div class="d-flex gap-2 mt-auto pt-1">
-                            <button class="btn btn-sm btn-outline-info flex-fill mono fw-bold py-1" onclick="switchNavTab('moneyflow');" style="font-size: 0.70rem;">
-                                🌊 Money Flow Radar
-                            </button>
-                            <button class="btn btn-sm btn-outline-primary flex-fill mono fw-bold py-1" onclick="switchNavTab('precision');" style="font-size: 0.70rem;">
-                                🎯 Precision S/R
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD 6: BITCOIN (BTCUSD) -->
-                <div class="col">
-                    <div class="dash-card p-3 rounded h-100" style="background: #0B1B30; border: 1px solid rgba(245, 158, 11, 0.35); box-shadow: 0 4px 18px rgba(0,0,0,0.35);">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <span style="font-size: 1.4rem;">₿🇺🇸</span>
-                                <div>
-                                    <div class="fw-bold text-amber mono" style="font-size: 1.05rem;">BTCUSD</div>
-                                    <div class="text-secondary mono" style="font-size: 0.68rem;">Bitcoin / U.S. Dollar (Crypto)</div>
-                                </div>
-                            </div>
-                            <span class="badge bg-success bg-opacity-25 text-success border border-success mono py-1 px-2" id="dash-card-chg-BTCUSD" style="font-size: 0.72rem;">▲ +0.88%</span>
-                        </div>
-                        
-                        <!-- Dual Box Bid & Ask -->
-                        <div class="row g-2 mb-2 text-center mono">
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(245, 158, 11, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">BID (SELL)</div>
-                                    <div class="fw-bold text-amber" id="dash-card-bid-BTCUSD" style="font-size: 1.15rem;">84,088.37</div>
-                                </div>
-                            </div>
-                            <div class="col-2 d-flex flex-column align-items-center justify-content-center">
-                                <div class="text-secondary" style="font-size: 0.60rem;">SPREAD</div>
-                                <div class="fw-bold text-warning" id="dash-card-spread-BTCUSD" style="font-size: 0.85rem;">1.0$</div>
-                            </div>
-                            <div class="col-5">
-                                <div class="p-2 rounded" style="background: #050c18; border: 1px solid rgba(244, 63, 94, 0.25);">
-                                    <div class="text-secondary" style="font-size: 0.65rem;">ASK (BUY)</div>
-                                    <div class="fw-bold text-danger" id="dash-card-ask-BTCUSD" style="font-size: 1.15rem;">84,089.37</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Low, High & Range -->
-                        <div class="d-flex justify-content-between align-items-center p-2 rounded mb-2 mono" style="background: #050c18; border: 1px solid rgba(255,255,255,0.06); font-size: 0.75rem;">
-                            <div>
-                                <span class="text-secondary" style="font-size: 0.65rem;">LOW (L)</span>
-                                <div class="fw-bold text-danger" id="dash-card-low-BTCUSD">83,354.25</div>
-                            </div>
-                            <div class="text-center">
-                                <span class="text-secondary" style="font-size: 0.65rem;">H-L RANGE</span>
-                                <div class="fw-bold text-warning" id="dash-card-hl-BTCUSD">$744.08</div>
-                            </div>
-                            <div class="text-end">
-                                <span class="text-secondary" style="font-size: 0.65rem;">HIGH (H)</span>
-                                <div class="fw-bold text-success" id="dash-card-high-BTCUSD">84,098.33</div>
-                            </div>
-                        </div>
-
-                        <!-- Range Progress Gauge -->
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between align-items-center mono text-secondary mb-1" style="font-size: 0.65rem;">
-                                <span>L: 0%</span>
-                                <span id="dash-card-pct-BTCUSD" class="text-amber fw-bold">98% in Day Range</span>
-                                <span>H: 100%</span>
-                            </div>
-                            <div style="width: 100%; height: 6px; background: #050c18; border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
-                                <div id="dash-card-gauge-BTCUSD" style="height: 100%; width: 98%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #10b981 100%); border-radius: 999px;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Action -->
-                        <div class="d-flex gap-2 mt-auto pt-1">
-                            <button class="btn btn-sm btn-outline-warning flex-fill mono fw-bold py-1" onclick="switchNavTab('moneyflow');" style="font-size: 0.70rem;">
-                                🌊 Money Flow
-                            </button>
-                            <button class="btn btn-sm btn-outline-primary flex-fill mono fw-bold py-1" onclick="switchNavTab('precision');" style="font-size: 0.70rem;">
-                                🎯 Precision S/R
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
+            <!-- Bottom Action: Quick Copy -->
+            <div class="pt-1 border-t border-[var(--border)] flex justify-between items-center text-[11px] shrink-0">
+              <span class="text-[var(--muted-foreground)]">Sintesis: XEDY Macro & AI Qwen SnR</span>
+              <button onclick="copyNarasiText()" class="px-2 py-0.5 rounded bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 border border-cyan-500/40 font-bold flex items-center gap-1 active:scale-95 transition-all">
+                <span>📋</span> <span id="btn-copy-narasi-lbl">Salin Narasi</span>
+              </button>
             </div>
+          </div>
 
-            <!-- 3. Section B: Comprehensive Rates & LH Table -->
-            <div class="p-3 rounded" style="background: #08162b; border: 1px solid rgba(0, 240, 255, 0.35); box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.04);">
-                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                    <div class="fw-bold mono text-light d-flex align-items-center gap-2" style="font-size: 0.90rem;">
-                        <span>📋</span> TABEL LENGKAP HARGA BID, ASK, SPREAD &amp; RENTANG LOW - HIGH (LH) SEMUA PAIR
-                        <span class="badge bg-primary bg-opacity-25 text-info mono ms-1" style="font-size: 0.65rem;">REAL-TIME UPDATE 1 DETIK</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 mono" style="font-size: 0.72rem;">
-                        <span class="text-secondary">Klik tombol aksi untuk membuka analisis presisi &amp; forecast lilin H4.</span>
-                    </div>
-                </div>
-
-                <div class="table-responsive rounded" style="border: 1px solid rgba(0, 240, 255, 0.2);">
-                    <table class="table table-dark table-hover mb-0 align-middle text-center mono" style="font-size: 0.78rem;">
-                        <thead style="background: #050c18; color: #94a3b8; font-size: 0.70rem; text-transform: uppercase;">
-                            <tr>
-                                <th style="padding: 10px 8px; text-align: left;">Instrumen / Pasangan</th>
-                                <th style="padding: 10px 8px; color: #38bdf8;">Bid (Harga Jual)</th>
-                                <th style="padding: 10px 8px; color: #f43f5e;">Ask (Harga Beli)</th>
-                                <th style="padding: 10px 8px; color: #eab308;">Spread (Pips)</th>
-                                <th style="padding: 10px 8px; color: #ef4444;">Low (L) Hari Ini</th>
-                                <th style="padding: 10px 8px; color: #10b981;">High (H) Hari Ini</th>
-                                <th style="padding: 10px 8px; color: #eab308;">Rentang H-L (Pips)</th>
-                                <th style="padding: 10px 8px; min-width: 140px;">Posisi Lilin (L &lt;==&gt; H)</th>
-                                <th style="padding: 10px 8px;">Perubahan 24h</th>
-                                <th style="padding: 10px 8px;">Aksi / Navigasi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dash-all-pairs-table-body">
-                            <!-- Populated dynamically via JS -->
-                        </tbody>
-                    </table>
-                </div>
+          <!-- SUBVIEW 3: MULTI-TIMEFRAME CONFLUENCE MATRIX & VOLUME PROFILE -->
+          <div id="subview-mtf" class="w-full h-full p-2 flex flex-col justify-between hidden">
+            <div class="text-[12px] font-bold text-cyan-400 pb-1 border-b border-[var(--border)] flex justify-between items-center">
+              <span>🧭 MULTI-TIMEFRAME CONFLUENCE MATRIX</span>
+              <span class="text-[var(--muted-foreground)]" id="mtf-view-pair-title">USDJPY</span>
             </div>
+            <div class="grid grid-cols-5 gap-1 text-center my-auto text-[11px]">
+              <div class="p-1 rounded bg-[var(--card)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] block">D1 TREND</span>
+                <b class="text-rose-400 block text-[12px]" id="mtf-d1-status">BEARISH</b>
+                <span class="text-[10px] text-[var(--muted-foreground)]">MoF Cap</span>
+              </div>
+              <div class="p-1 rounded bg-[var(--card)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] block">H4 SWING</span>
+                <b class="text-rose-400 block text-[12px]" id="mtf-h4-status">BEARISH</b>
+                <span class="text-[10px] text-[var(--muted-foreground)]">Below 158.30</span>
+              </div>
+              <div class="p-1 rounded bg-[var(--card)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] block">H1 CYCLE</span>
+                <b class="text-rose-400 block text-[12px]" id="mtf-h1-status">BEARISH</b>
+                <span class="text-[10px] text-[var(--muted-foreground)]">EMA50 Barrier</span>
+              </div>
+              <div class="p-1 rounded bg-[var(--card)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] block">M15 STRUCTURE</span>
+                <b class="text-amber-400 block text-[12px]" id="mtf-m15-status">RETEST</b>
+                <span class="text-[10px] text-[var(--muted-foreground)]">Pullback Zone</span>
+              </div>
+              <div class="p-1 rounded bg-[var(--card)] border border-[var(--border)]">
+                <span class="text-[var(--muted-foreground)] block">M5 TRIGGER</span>
+                <b class="text-rose-400 block text-[12px]" id="mtf-m5-status">BEARISH</b>
+                <span class="text-[10px] text-[var(--muted-foreground)]">Rejection Ready</span>
+              </div>
+            </div>
+            <!-- Volume Profile Cluster -->
+            <div class="p-1 rounded bg-[var(--card)] border border-[var(--border)] text-[11px] space-y-1">
+              <div class="flex justify-between">
+                <span>Value Area High (VAH): <b class="text-rose-400" id="prof-vah">158.42</b></span>
+                <span>POC (Point of Control): <b class="text-cyan-400" id="prof-poc">158.21</b></span>
+                <span>Value Area Low (VAL): <b class="text-emerald-400" id="prof-val">157.90</b></span>
+              </div>
+              <div class="w-full bg-[var(--border)] h-1 rounded overflow-hidden flex">
+                <div class="bg-rose-500/70" style="width: 25%"></div>
+                <div class="bg-cyan-400" style="width: 50%"></div>
+                <div class="bg-emerald-500/70" style="width: 25%"></div>
+              </div>
+            </div>
+          </div>
 
+          <!-- SUBVIEW 4: DEEP ORDER FLOW & TICK DELTA -->
+          <div id="subview-orderflow" class="w-full h-full p-2 flex flex-col justify-between hidden">
+            <div class="text-[12px] font-bold text-cyan-400 pb-1 border-b border-[var(--border)] flex justify-between items-center">
+              <span>🌊 REAL-TIME TICK DELTA & VOLUME ABSORPTION</span>
+              <span class="text-emerald-400">Institutional Aggressors</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 my-auto text-[11px]">
+              <div class="p-1.5 rounded bg-[var(--card)] border border-rose-500/30">
+                <span class="text-rose-400 font-bold block mb-0.5">🔻 SELLER AGGRESSION (LOCKED ASK)</span>
+                <div class="text-[12px] font-mono text-[var(--foreground)]" id="of-ask-detail">
+                  Ask Absorption: <b class="text-rose-400">2,400 Lots</b><br>
+                  Speed: <b class="text-amber-400">1.4x Surge Velocity</b><br>
+                  Wall Defense: <b class="text-rose-400">R1 158.34 Hard Wall</b>
+                </div>
+              </div>
+              <div class="p-1.5 rounded bg-[var(--card)] border border-emerald-500/30">
+                <span class="text-emerald-400 font-bold block mb-0.5">🔺 BUYER EXHAUSTION (PASSIVE BID)</span>
+                <div class="text-[12px] font-mono text-[var(--foreground)]" id="of-bid-detail">
+                  Bid Liquidity: <b class="text-emerald-400">1,420 Lots</b><br>
+                  Replenish: <b class="text-[var(--muted-foreground)]">Slow (-42% inflow)</b><br>
+                  Slippage Risk: <b class="text-emerald-400">Low (0.3 pips)</b>
+                </div>
+              </div>
+            </div>
+            <div class="p-1 rounded bg-[var(--card)] border border-[var(--border)] text-[11px] flex justify-between items-center">
+              <span>Cumulative Volume Delta (CVD): <b class="text-rose-400 font-bold" id="of-cvd-val">-1,240 Ticks (Bearish Absorption)</b></span>
+              <span class="px-1.5 py-0.2 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30 font-bold">FADE RALLY</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Orderbook Depth Bar (Persistent in Center Column) -->
+        <div class="space-y-1 shrink-0 text-[12px]">
+          <div class="grid grid-cols-3 gap-1 text-center">
+            <div class="p-0.5 rounded bg-[var(--card)] border border-[var(--border)]">
+              <span class="text-[var(--muted-foreground)] block text-[11px]">DELTA</span>
+              <b class="text-rose-400" id="hud-tick-delta">-344 Ticks</b>
+            </div>
+            <div class="p-0.5 rounded bg-[var(--card)] border border-[var(--border)]">
+              <span class="text-[var(--muted-foreground)] block text-[11px]">VOLUME</span>
+              <b class="text-cyan-400" id="hud-vol-ratio">68% S / 32% B</b>
+            </div>
+            <div class="p-0.5 rounded bg-[var(--card)] border border-[var(--border)]">
+              <span class="text-[var(--muted-foreground)] block text-[11px]">H4 POSITION</span>
+              <b class="text-amber-400" id="hud-h4-pos">52.0% Mid</b>
+            </div>
+          </div>
+
+          <div class="p-1 rounded bg-[var(--card)] border border-[var(--border)]">
+            <div class="flex justify-between text-[11px] mb-0.5">
+              <span>Bid: <b class="text-emerald-400" id="ob-bid-lots">1,420</b></span>
+              <span class="text-rose-400 font-bold" id="ob-wall-label">-980 Lots Net Ask Wall</span>
+              <span>Ask: <b class="text-rose-400" id="ob-ask-lots">2,400</b></span>
+            </div>
+            <div class="flex h-1.5 rounded-full overflow-hidden bg-[var(--border)]">
+              <div class="bg-emerald-400 transition-all duration-300" id="ob-bar-bid" style="width: 37%"></div>
+              <div class="bg-rose-400 transition-all duration-300" id="ob-bar-ask" style="width: 63%"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COL 3 (RIGHT, 4 cols): EXECUTION DESK & 1% LOT SIZER -->
+      <div class="col-span-4 flex flex-col justify-between bg-[var(--background)] border border-[var(--border)] rounded-lg p-2 font-mono overflow-hidden">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-1 border-b border-[var(--border)] text-[12px]">
+          <span class="font-bold text-[var(--muted-foreground)] uppercase">PARAMETER EKSEKUSI</span>
+          <span class="px-1.5 py-0.2 rounded font-bold" id="exec-badge-type">SELL LIMIT / PULLBACK</span>
+        </div>
+
+        <!-- Levels Grid -->
+        <div class="space-y-1 my-auto text-[12px]">
+          
+          <!-- NARASI SINGKAT TICKER QUICK-VIEW -->
+          <div class="p-1 rounded bg-[var(--card)] border border-cyan-500/25 flex items-center justify-between text-[11px] gap-1 overflow-hidden">
+            <span class="text-cyan-400 font-bold shrink-0 flex items-center gap-0.5"><span>📋</span> NARASI:</span>
+            <span id="exec-narrative-summary" class="text-[var(--foreground)] truncate flex-grow">MoF Caution Zone 158.00-158.30 menahan reli; fokus sell pullback di R1.</span>
+            <button onclick="switchCenterView('narasi')" class="text-cyan-400 underline shrink-0 hover:text-cyan-300 font-bold text-[10px]">Detail</button>
+          </div>
+
+          <!-- Entry Zone -->
+          <div class="p-1.5 rounded bg-[var(--card)] border border-[var(--border)] flex justify-between items-center">
+            <div>
+              <span class="text-[var(--muted-foreground)] block text-[11px]">ZONA ENTRY</span>
+              <b class="text-cyan-400" id="exec-entry">158.280 – 158.350</b>
+            </div>
+            <span class="px-1 py-0.2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-[11px]" id="exec-zone-badge">R1 Retest</span>
+          </div>
+
+          <!-- SL & Risk -->
+          <div class="p-1.5 rounded bg-[var(--card)] border border-rose-500/30 flex justify-between items-center">
+            <div>
+              <span class="text-rose-400 block text-[11px]">STOP LOSS</span>
+              <b class="text-rose-400" id="exec-sl">158.480</b>
+            </div>
+            <span class="text-rose-400 font-bold" id="exec-risk">Risk: 18.0p</span>
+          </div>
+
+          <!-- TP1 & TP2 -->
+          <div class="grid grid-cols-2 gap-1">
+            <div class="p-1.5 rounded bg-[var(--card)] border border-emerald-500/30">
+              <span class="text-emerald-400 block text-[11px]">TP1 (35p)</span>
+              <b class="text-emerald-400" id="exec-tp1">157.950</b>
+              <span class="text-[var(--muted-foreground)] block text-[10px]">R:R 1:1.9</span>
+            </div>
+            <div class="p-1.5 rounded bg-[var(--card)] border border-emerald-500/30">
+              <span class="text-emerald-400 block text-[11px]">TP2 (65p)</span>
+              <b class="text-emerald-400" id="exec-tp2">157.650</b>
+              <span class="text-[var(--muted-foreground)] block text-[10px]">R:R 1:3.6</span>
+            </div>
+          </div>
+
+          <!-- S/R 4 Boxes with exact pip distance -->
+          <div class="grid grid-cols-4 gap-1 text-center text-[11px]">
+            <div class="p-0.5 rounded bg-[var(--card)] border border-[var(--border)]">
+              <span class="text-rose-400 block">R2</span><b id="lvl-r2">158.60</b>
+            </div>
+            <div class="p-0.5 rounded bg-[var(--card)] border border-[var(--border)]">
+              <span class="text-rose-400 block">R1</span><b id="lvl-r1">158.34</b>
+            </div>
+            <div class="p-0.5 rounded bg-[var(--card)] border border-[var(--border)]">
+              <span class="text-cyan-400 block">VWAP</span><b id="lvl-vwap">158.21</b>
+            </div>
+            <div class="p-0.5 rounded bg-[var(--card)] border border-[var(--border)]">
+              <span class="text-emerald-400 block">S1</span><b id="lvl-s1">157.95</b>
+            </div>
+          </div>
+        </div>
+
+        <!-- Position Sizer & Action Button -->
+        <div class="pt-1 border-t border-[var(--border)] space-y-1 shrink-0 text-[12px]">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1">
+              <span class="text-[var(--muted-foreground)]">Modal:</span>
+              <input type="number" id="calc-balance-input" value="10000" step="1000" oninput="calculateLotSize()" class="w-16 bg-[var(--card)] border border-[var(--border)] rounded px-1 py-0.2 text-[12px] text-right font-mono text-[var(--foreground)]">
+              <span class="text-[var(--muted-foreground)]">Risk:</span>
+              <select id="calc-risk-pct" onchange="calculateLotSize()" class="bg-[var(--card)] border border-[var(--border)] rounded px-1 py-0.2 text-[12px] text-[var(--foreground)]">
+                <option value="0.5">0.5% ($50)</option>
+                <option value="1.0" selected>1.0% ($100)</option>
+                <option value="2.0">2.0% ($200)</option>
+              </select>
+            </div>
+            <div>
+              <span class="text-[var(--muted-foreground)]">Lot: </span>
+              <b class="text-emerald-400 font-bold text-sm" id="calc-lot-res">0.55 Lot</b>
+            </div>
+          </div>
+
+          <!-- Copy Button -->
+          <button onclick="copyMt5OrderCommand(this)" class="w-full py-1 px-2 rounded text-[12px] font-bold transition-all bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow flex items-center justify-center gap-1 active:scale-[0.98]">
+            <span>📋</span>
+            <span id="btn-copy-label">SALIN ORDER TIKET MT5</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 4. MACRO RADAR & HIGH-IMPACT NEWS TICKER (Height: ~24px) -->
+    <footer class="flex items-center justify-between pt-1 border-t border-[var(--border)] text-[12px] font-mono shrink-0 bg-[var(--background)] px-1.5 py-0.5 rounded">
+      <!-- Left: Macro Indices Radar -->
+      <div class="flex items-center gap-2">
+        <span class="text-cyan-400 font-bold flex items-center gap-1">
+          <span>🌐</span> MACRO:
+        </span>
+        <span class="text-[var(--muted-foreground)]">DXY: <b class="text-emerald-400" id="macro-dxy">104.28 (+0.14% ▲)</b></span>
+        <span class="text-[var(--border)]">•</span>
+        <span class="text-[var(--muted-foreground)]">US10Y: <b class="text-amber-400" id="macro-us10y">4.22% (-2bp)</b></span>
+      </div>
+
+      <!-- Right: Economic Calendar High Impact Alert -->
+      <div class="flex items-center gap-1.5" id="macro-news-alert">
+        <span class="text-amber-400 animate-pulse font-bold">⚡ HIGH-IMPACT NEWS:</span>
+        <span class="text-[var(--foreground)]" id="macro-news-title">USD Retail Sales & PPI</span>
+        <span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-[11px]" id="macro-news-time">
+          In 38m (Caution Zone)
+        </span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // 5-PAIR INSTITUTIONAL KNOWLEDGE BASE WITH FULL NARRATIVE ENGINE
+    const PAIRS_DATABASE = {
+      'USDJPY': {
+        flag: '🇺🇸🇯🇵',
+        name: 'USD/JPY (Dollar / Yen)',
+        price: 158.159,
+        digits: 3,
+        spread: '0.3p',
+        vel: '16.4t/s',
+        bias: 'SELL ONLY',
+        bias_color: 'rose',
+        pip_risk_val: 18.0,
+        trigger_status: '🎯 RETEST ZONE READY',
+        trigger_badge_class: 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
+        exec_type: 'SELL LIMIT / PULLBACK',
+        exec_type_class: 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
+        entry: '158.280 – 158.350',
+        entry_mid: '158.300',
+        sl: '158.480',
+        risk_pips: '18.0p',
+        tp1: '157.950 (+35p)',
+        tp2: '157.650 (+65p)',
+        r2: '158.60',
+        r1: '158.34',
+        vwap: '158.21',
+        s1: '157.95',
+        vah: '158.42',
+        poc: '158.21',
+        val: '157.90',
+        net_usd: '-$340.2M',
+        net_pct: '-6.4%',
+        is_inflow: false,
+        cmf: '-0.22',
+        mfi: '38.4',
+        driver: 'MoF Verbal Threat & JPY Longs',
+        orderbook: '-980 Lots Net Ask Wall',
+        bid_lots: '1,420',
+        ask_lots: '2,400',
+        bid_pct: 37,
+        ask_pct: 63,
+        delta: '-344 Ticks',
+        vol_ratio: '68% S / 32% B',
+        h4_pos: '52.0% Mid',
+        cvd: '-1,240 Ticks (Bearish Absorption)',
+        news_event: 'BOJ Core Inflation & MoF Briefing',
+        news_time: 'In 45m',
+        // NARASI SINGKAT FIELDS
+        narasi_quick: 'MoF Caution Zone 158.00-158.30 menahan reli; fokus sell pullback di R1 158.34.',
+        narasi_driver_badge: 'MoF Threat vs US Yield',
+        narasi_kausalitas: 'Penguatan DXY didukung imbal hasil US10Y 4.22%, namun Kementerian Keuangan Jepang (MoF) berulang kali menegaskan siap intervensi langsung jika USDJPY naik di atas 158.00. Dana institusional mulai menutup posisi carry trade Yen.',
+        narasi_range_badge: 'Range 24j: 157.65 – 158.48',
+        narasi_forecast: 'Harga sedang menguji area supply 158.28–158.35 (R1). Skenario probabilitas 82% adalah penolakan (rejection) di level R1 lalu tergelincir turun menguji Daily Pivot 157.95 dan support S1 157.65.',
+        narasi_taktik_badge: 'SL 158.480 (18p Risk)',
+        narasi_taktik: 'Eksekusi Sell Limit di 158.280–158.350. Geser SL ke Break-Even (BEP) setelah floating +15 pips. Batalkan rencana jika candle H1 berhasil ditutup di atas 158.50.',
+        mtf: {
+          d1: { trend: 'BEARISH', color: 'rose', note: 'MoF Cap' },
+          h4: { trend: 'BEARISH', color: 'rose', note: 'Under 158.30' },
+          h1: { trend: 'BEARISH', color: 'rose', note: 'EMA50 Barrier' },
+          m15: { trend: 'RETEST', color: 'amber', note: 'Pullback Zone' },
+          m5: { trend: 'BEARISH', color: 'rose', note: 'Rejection Ready' },
+          confluence: '94% BEARISH'
+        }
+      },
+      'XAUUSD': {
+        flag: '🥇',
+        name: 'GOLD (XAU/USD Spot)',
+        price: 4182.40,
+        digits: 2,
+        spread: '1.2p',
+        vel: '24.8t/s',
+        bias: 'BUY ONLY',
+        bias_color: 'emerald',
+        pip_risk_val: 35.0,
+        trigger_status: '⚡ L1 BREAKOUT READY',
+        trigger_badge_class: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+        exec_type: 'BUY STOP / PULLBACK',
+        exec_type_class: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+        entry: '4178.50 – 4181.00',
+        entry_mid: '4180.00',
+        sl: '4145.00',
+        risk_pips: '35.0p',
+        tp1: '4220.00 (+40p)',
+        tp2: '4260.00 (+80p)',
+        r2: '4245.00',
+        r1: '4210.00',
+        vwap: '4176.50',
+        s1: '4152.00',
+        vah: '4225.00',
+        poc: '4176.50',
+        val: '4150.00',
+        net_usd: '+$485.4M',
+        net_pct: '+8.6%',
+        is_inflow: true,
+        cmf: '+0.28',
+        mfi: '74.2',
+        driver: 'Central Bank Reserves & Geo-hedge',
+        orderbook: '+1,420 Lots Net Bid Wall',
+        bid_lots: '3,850',
+        ask_lots: '2,430',
+        bid_pct: 61,
+        ask_pct: 39,
+        delta: '+612 Ticks',
+        vol_ratio: '64% B / 36% S',
+        h4_pos: '78.5% High',
+        cvd: '+2,850 Ticks (Whale Accumulation)',
+        news_event: 'US CPI & Real Yield Re-anchor',
+        news_time: 'In 1h 20m',
+        // NARASI SINGKAT FIELDS
+        narasi_quick: 'Akumulasi bank sentral & yield riil tertekan menopang Gold; fokus buy on dip di atas 4176.',
+        narasi_driver_badge: 'Sovereign Reserves & Safe Haven',
+        narasi_kausalitas: 'Bank sentral global (PBoC, RBI) konsisten menambah cadangan emas fisik. Pelemahan yield riil AS dan eskalasi risiko geopolitik menjaga aliran modal institusi masuk ke kontrak spot emas.',
+        narasi_range_badge: 'Range 24j: 4152 – 4245',
+        narasi_forecast: 'Konsolidasi sehat di atas VWAP 4176.50. Skenario probabilitas 86% adalah kelanjutan reli bullish menembus R1 4210 menuju All-Time High baru di rentang 4245–4260.',
+        narasi_taktik_badge: 'SL 4145.00 (35p Risk)',
+        narasi_taktik: 'Buy on Dip di area 4178.50–4181.00. Kunci profit 50% di TP1 (4220) dan trailing sisa posisi ke TP2 (4260). Waspadai rilis data inflasi AS jika melesat lebih tinggi.',
+        mtf: {
+          d1: { trend: 'BULLISH', color: 'emerald', note: 'All-Time High Base' },
+          h4: { trend: 'BULLISH', color: 'emerald', note: 'Ascending Channel' },
+          h1: { trend: 'BULLISH', color: 'emerald', note: 'Above VWAP' },
+          m15: { trend: 'BULLISH', color: 'emerald', note: 'Support Bounce' },
+          m5: { trend: 'PULLBACK', color: 'amber', note: 'Dip Absorption' },
+          confluence: '96% BULLISH'
+        }
+      },
+      'EURUSD': {
+        flag: '🇪🇺🇺🇸',
+        name: 'EUR/USD (Euro / Dollar)',
+        price: 1.12154,
+        digits: 5,
+        spread: '0.2p',
+        vel: '12.1t/s',
+        bias: 'SELL ONLY',
+        bias_color: 'rose',
+        pip_risk_val: 14.0,
+        trigger_status: '🎯 RESISTANCE REJECTION',
+        trigger_badge_class: 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
+        exec_type: 'SELL LIMIT / RALLY',
+        exec_type_class: 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
+        entry: '1.12250 – 1.12320',
+        entry_mid: '1.12280',
+        sl: '1.12420',
+        risk_pips: '14.0p',
+        tp1: '1.11950 (+33p)',
+        tp2: '1.11600 (+68p)',
+        r2: '1.1260',
+        r1: '1.1235',
+        vwap: '1.1218',
+        s1: '1.1185',
+        vah: '1.1240',
+        poc: '1.1218',
+        val: '1.1180',
+        net_usd: '-$280.5M',
+        net_pct: '-5.1%',
+        is_inflow: false,
+        cmf: '-0.18',
+        mfi: '41.5',
+        driver: 'ECB Rate Cut & German Factory Slump',
+        orderbook: '-650 Lots Net Ask Wall',
+        bid_lots: '1,120',
+        ask_lots: '1,770',
+        bid_pct: 39,
+        ask_pct: 61,
+        delta: '-210 Ticks',
+        vol_ratio: '61% S / 39% B',
+        h4_pos: '41.0% Low',
+        cvd: '-890 Ticks (Institutional Outflow)',
+        news_event: 'ECB President Lagarde Speech',
+        news_time: 'In 2h 10m',
+        // NARASI SINGKAT FIELDS
+        narasi_quick: 'Siklus pemotongan suku bunga ECB & pelambatan pabrik Jerman menekan Euro; fokus sell rally.',
+        narasi_driver_badge: 'ECB Easing Divergence',
+        narasi_kausalitas: 'Inflasi Zona Euro yang merosot cepat membuka jalan pemotongan suku bunga lanjutan oleh ECB. Ditambah data manufaktur Jerman yang melemah, modal institusi beralih keluar dari instrumen EUR ke aset berimbal hasil USD.',
+        narasi_range_badge: 'Range 24j: 1.1160 – 1.1242',
+        narasi_forecast: 'Kenaikan korektif menuju 1.1225–1.1232 (R1) dihadang resistensi teknikal EMA50 H1. Skenario probabilitas 80% adalah kelanjutan downtrend menguji kembali support S1 1.1195 dan 1.1160.',
+        narasi_taktik_badge: 'SL 1.12420 (14p Risk)',
+        narasi_taktik: 'Sell on Rally di 1.12250–1.12320. Ambil TP1 di 1.11950 (+33p). Jangan membuka posisi buy counter-trend sebelum ada sinyal hawkish dari Dewan Gubernur ECB.',
+        mtf: {
+          d1: { trend: 'BEARISH', color: 'rose', note: 'Policy Divergence' },
+          h4: { trend: 'BEARISH', color: 'rose', note: 'Lower Highs' },
+          h1: { trend: 'BEARISH', color: 'rose', note: 'Under H1 VWAP' },
+          m15: { trend: 'RETEST', color: 'amber', note: 'Supply Zone' },
+          m5: { trend: 'BEARISH', color: 'rose', note: 'Sell Imbalance' },
+          confluence: '91% BEARISH'
+        }
+      },
+      'GBPUSD': {
+        flag: '🇬🇧🇺🇸',
+        name: 'GBP/USD (Pound / Dollar)',
+        price: 1.33420,
+        digits: 5,
+        spread: '0.4p',
+        vel: '14.2t/s',
+        bias: 'BUY ONLY',
+        bias_color: 'emerald',
+        pip_risk_val: 16.0,
+        trigger_status: '⚡ SUPPORT BOUNCE',
+        trigger_badge_class: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+        exec_type: 'BUY DIP / ACCUM',
+        exec_type_class: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+        entry: '1.33200 – 1.33300',
+        entry_mid: '1.33250',
+        sl: '1.33090',
+        risk_pips: '16.0p',
+        tp1: '1.33750 (+50p)',
+        tp2: '1.34100 (+85p)',
+        r2: '1.3420',
+        r1: '1.3385',
+        vwap: '1.3335',
+        s1: '1.3310',
+        vah: '1.3395',
+        poc: '1.3335',
+        val: '1.3305',
+        net_usd: '+$195.8M',
+        net_pct: '+3.8%',
+        is_inflow: true,
+        cmf: '+0.15',
+        mfi: '62.0',
+        driver: 'BoE Hawkish Hold vs Fed Easing',
+        orderbook: '+720 Lots Net Bid Wall',
+        bid_lots: '2,100',
+        ask_lots: '1,380',
+        bid_pct: 60,
+        ask_pct: 40,
+        delta: '+185 Ticks',
+        vol_ratio: '58% B / 42% S',
+        h4_pos: '64.0% High',
+        cvd: '+750 Ticks (London Inflow)',
+        news_event: 'UK Retail Sales & GDP MoM',
+        news_time: 'Tomorrow 13:00',
+        // NARASI SINGKAT FIELDS
+        narasi_quick: 'Sikap hawkish BoE menahan laju penurunan Pound; cari peluang buy dip di atas support 1.3310.',
+        narasi_driver_badge: 'BoE Hawkish Hold',
+        narasi_kausalitas: 'Kekakuan inflasi sektor jasa Inggris memaksa Bank of England berhati-hati dalam memangkas bunga. Aliran likuiditas London session tetap menyerap setiap pelemahan Pound terhadap USD.',
+        narasi_range_badge: 'Range 24j: 1.3310 – 1.3410',
+        narasi_forecast: 'Retest zona demand 1.3320–1.3330 membentuk pola higher-low. Skenario probabilitas 78% adalah pantulan menuju resistance R1 1.3385 dan target ekstensi 1.3410.',
+        narasi_taktik_badge: 'SL 1.33090 (16p Risk)',
+        narasi_taktik: 'Buy Dip di 1.33200–1.33300. Target TP1 di 1.3375 (+50p). Pasang trailing stop saat harga melewati 1.3350 untuk mengamankan modal dari volatilitas sesi New York.',
+        mtf: {
+          d1: { trend: 'BULLISH', color: 'emerald', note: 'Higher Lows' },
+          h4: { trend: 'BULLISH', color: 'emerald', note: 'Bull Flag' },
+          h1: { trend: 'NEUTRAL', color: 'amber', note: 'Range Bound' },
+          m15: { trend: 'BULLISH', color: 'emerald', note: 'VWAP Cushion' },
+          m5: { trend: 'BULLISH', color: 'emerald', note: 'Accumulation' },
+          confluence: '89% BULLISH'
+        }
+      },
+      'OIL': {
+        flag: '🛢️',
+        name: 'OIL (Crude WTI)',
+        price: 71.25,
+        digits: 2,
+        spread: '2.5p',
+        vel: '11.8t/s',
+        bias: 'SELL ONLY',
+        bias_color: 'rose',
+        pip_risk_val: 22.0,
+        trigger_status: '🎯 SUPPLY FADE READY',
+        trigger_badge_class: 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
+        exec_type: 'SELL RALLY / RESIST',
+        exec_type_class: 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
+        entry: '71.50 – 71.85',
+        entry_mid: '71.65',
+        sl: '72.30',
+        risk_pips: '22.0p',
+        tp1: '70.20 (+45p)',
+        tp2: '68.80 (+85p)',
+        r2: '72.80',
+        r1: '71.95',
+        vwap: '71.35',
+        s1: '70.10',
+        vah: '72.10',
+        poc: '71.35',
+        val: '69.80',
+        net_usd: '-$145.2M',
+        net_pct: '-3.2%',
+        is_inflow: false,
+        cmf: '-0.14',
+        mfi: '39.8',
+        driver: 'OPEC+ Supply Quota vs Demand Drag',
+        orderbook: '-580 Lots Net Ask Wall',
+        bid_lots: '980',
+        ask_lots: '1,560',
+        bid_pct: 38,
+        ask_pct: 62,
+        delta: '-140 Ticks',
+        vol_ratio: '62% S / 38% B',
+        h4_pos: '38.0% Low',
+        cvd: '-620 Ticks (Supply Defense)',
+        news_event: 'EIA Crude Oil Inventories',
+        news_time: 'In 3h 15m',
+        // NARASI SINGKAT FIELDS
+        narasi_quick: 'Pembatasan kuota OPEC+ menjaga lantai harga $70; fokus sell rally rejection di area $71.85.',
+        narasi_driver_badge: 'OPEC+ Quota vs Demand Drag',
+        narasi_kausalitas: 'Meskipun OPEC+ mempertahankan pemotongan kuota produksi, pelambatan konsumsi bahan bakar global dan pasokan non-OPEC membatasi kenaikan harga minyak mentah di atas level $72.00.',
+        narasi_range_badge: 'Range 24j: $69.80 – $72.30',
+        narasi_forecast: 'Rebound menguji batas atas range di 71.50–71.85 (R1) rentan terhadap aksi jual pasokan. Skenario 75% adalah penurunan kembali menguji lantai support $70.10 dan $68.80.',
+        narasi_taktik_badge: 'SL $72.30 (22p Risk)',
+        narasi_taktik: 'Sell Rally di 71.50–71.85 dengan invalidasi di $72.30. Ambil target TP1 di 70.20 (+45p). Hindari posisi baru sesaat sebelum rilis data cadangan EIA.',
+        mtf: {
+          d1: { trend: 'BEARISH', color: 'rose', note: 'Demand Downgrade' },
+          h4: { trend: 'BEARISH', color: 'rose', note: 'Descending Trend' },
+          h1: { trend: 'BEARISH', color: 'rose', note: 'Failed Breakout' },
+          m15: { trend: 'BEARISH', color: 'rose', note: 'Under Pivot' },
+          m5: { trend: 'RETEST', color: 'amber', note: 'Consolidation' },
+          confluence: '95% BEARISH'
+        }
+      }
+    };
+
+    let activeCockpitPair = 'USDJPY';
+    let currentCenterView = 'chart';
+
+    function switchCenterView(viewName) {
+      currentCenterView = viewName;
+      
+      const subviews = {
+        'chart': document.getElementById('subview-chart'),
+        'narasi': document.getElementById('subview-narasi'),
+        'mtf': document.getElementById('subview-mtf'),
+        'orderflow': document.getElementById('subview-orderflow')
+      };
+      
+      const buttons = {
+        'chart': document.getElementById('btn-view-chart'),
+        'narasi': document.getElementById('btn-view-narasi'),
+        'mtf': document.getElementById('btn-view-mtf'),
+        'orderflow': document.getElementById('btn-view-orderflow')
+      };
+
+      Object.keys(subviews).forEach(key => {
+        if (!subviews[key] || !buttons[key]) return;
+        if (key === viewName) {
+          subviews[key].classList.remove('hidden');
+          subviews[key].classList.add('block');
+          buttons[key].className = 'px-1.5 py-0.2 rounded text-[11px] font-bold transition-all bg-[var(--accent)] text-[var(--foreground)] shadow';
+        } else {
+          subviews[key].classList.add('hidden');
+          subviews[key].classList.remove('block');
+          buttons[key].className = 'px-1.5 py-0.2 rounded text-[11px] font-bold transition-all text-[var(--muted-foreground)] hover:text-[var(--foreground)]';
+        }
+      });
+
+      if (viewName === 'chart') {
+        setTimeout(() => drawLiveCanvasChart(activeCockpitPair), 30);
+      }
+    }
+
+    function selectCockpitPair(pairKey) {
+      if (!PAIRS_DATABASE[pairKey]) return;
+      activeCockpitPair = pairKey;
+      const d = PAIRS_DATABASE[pairKey];
+
+      // Update Top Tabs
+      ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL'].forEach(pk => {
+        const btn = document.getElementById(`tab-${pk}`);
+        if (!btn) return;
+        if (pk === pairKey) {
+          btn.className = "px-2 py-0.5 rounded text-[12px] font-bold transition-all bg-[var(--accent)] text-[var(--foreground)] shadow";
+        } else {
+          btn.className = "px-2 py-0.5 rounded text-[12px] font-bold transition-all text-[var(--muted-foreground)] hover:text-[var(--foreground)]";
+        }
+      });
+
+      // Update Telemetry Header
+      document.getElementById('hdr-spread').textContent = d.spread;
+      document.getElementById('hdr-vel').textContent = d.vel;
+      const biasBadge = document.getElementById('hdr-bias-badge');
+      biasBadge.textContent = `BIAS: ${d.bias}`;
+      biasBadge.className = `px-1.5 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] font-bold text-${d.bias_color}-400`;
+
+      // Update Quality Gate & MTF strip
+      renderMtfConfluenceStrip(d);
+
+      // Update Left Barometer List
+      renderBarometerList();
+      document.getElementById('flow-dominant-driver').textContent = d.driver;
+      document.getElementById('flow-cmf-mfi').textContent = `${d.cmf} / ${d.mfi}`;
+
+      // Update Center Column Titles
+      document.getElementById('chart-flag').textContent = d.flag;
+      document.getElementById('chart-pair-name').textContent = `${pairKey}`;
+      document.getElementById('mtf-view-pair-title').textContent = `${pairKey} Confluence Matrix`;
+
+      // Populate 📋 NARASI SINGKAT Subview
+      document.getElementById('narasi-driver-badge').textContent = d.narasi_driver_badge;
+      document.getElementById('narasi-kausalitas-text').textContent = d.narasi_kausalitas;
+      document.getElementById('narasi-range-badge').textContent = d.narasi_range_badge;
+      document.getElementById('narasi-forecast-text').textContent = d.narasi_forecast;
+      document.getElementById('narasi-taktik-badge').textContent = d.narasi_taktik_badge;
+      document.getElementById('narasi-taktik-text').textContent = d.narasi_taktik;
+      document.getElementById('narasi-update-stamp').textContent = `Live WIB • ${d.bias}`;
+
+      // Update Narasi Cepat in Right Column Ticker
+      document.getElementById('exec-narrative-summary').textContent = d.narasi_quick;
+
+      // Update MTF Subview values
+      document.getElementById('mtf-d1-status').textContent = d.mtf.d1.trend;
+      document.getElementById('mtf-d1-status').className = `text-${d.mtf.d1.color}-400 block text-[12px]`;
+      document.getElementById('mtf-h4-status').textContent = d.mtf.h4.trend;
+      document.getElementById('mtf-h4-status').className = `text-${d.mtf.h4.color}-400 block text-[12px]`;
+      document.getElementById('mtf-h1-status').textContent = d.mtf.h1.trend;
+      document.getElementById('mtf-h1-status').className = `text-${d.mtf.h1.color}-400 block text-[12px]`;
+      document.getElementById('mtf-m15-status').textContent = d.mtf.m15.trend;
+      document.getElementById('mtf-m15-status').className = `text-${d.mtf.m15.color}-400 block text-[12px]`;
+      document.getElementById('mtf-m5-status').textContent = d.mtf.m5.trend;
+      document.getElementById('mtf-m5-status').className = `text-${d.mtf.m5.color}-400 block text-[12px]`;
+
+      document.getElementById('prof-vah').textContent = d.vah;
+      document.getElementById('prof-poc').textContent = d.poc;
+      document.getElementById('prof-val').textContent = d.val;
+
+      // Update Order Flow Subview
+      document.getElementById('of-cvd-val').textContent = d.cvd;
+
+      // Update Orderbook persistent bar
+      document.getElementById('hud-tick-delta').textContent = d.delta;
+      document.getElementById('hud-vol-ratio').textContent = d.vol_ratio;
+      document.getElementById('hud-h4-pos').textContent = d.h4_pos;
+
+      document.getElementById('ob-bid-lots').textContent = d.bid_lots;
+      document.getElementById('ob-ask-lots').textContent = d.ask_lots;
+      document.getElementById('ob-wall-label').textContent = d.orderbook;
+      document.getElementById('ob-bar-bid').style.width = `${d.bid_pct}%`;
+      document.getElementById('ob-bar-ask').style.width = `${d.ask_pct}%`;
+
+      // Update Execution Desk
+      const execBadge = document.getElementById('exec-badge-type');
+      execBadge.textContent = d.exec_type;
+      execBadge.className = `px-1.5 py-0.2 rounded font-bold text-[11px] ${d.exec_type_class}`;
+
+      document.getElementById('exec-entry').textContent = d.entry;
+      document.getElementById('exec-sl').textContent = d.sl;
+      document.getElementById('exec-risk').textContent = `Risk: ${d.risk_pips}`;
+      document.getElementById('exec-tp1').textContent = d.tp1;
+      document.getElementById('exec-tp2').textContent = d.tp2;
+
+      document.getElementById('lvl-r2').textContent = d.r2;
+      document.getElementById('lvl-r1').textContent = d.r1;
+      document.getElementById('lvl-vwap').textContent = d.vwap;
+      document.getElementById('lvl-s1').textContent = d.s1;
+
+      // Update Macro Footer Alert for active pair
+      document.getElementById('macro-news-title').textContent = `${pairKey}: ${d.news_event}`;
+      document.getElementById('macro-news-time').textContent = d.news_time;
+
+      calculateLotSize();
+
+      if (currentCenterView === 'chart') {
+        drawLiveCanvasChart(pairKey);
+      }
+    }
+
+    function renderMtfConfluenceStrip(d) {
+      const container = document.getElementById('mtf-confluence-strip');
+      container.innerHTML = `
+        <span class="px-1 py-0.2 rounded bg-[var(--card)] border border-[var(--border)] text-${d.mtf.d1.color}-400">D1</span>
+        <span class="px-1 py-0.2 rounded bg-[var(--card)] border border-[var(--border)] text-${d.mtf.h4.color}-400">H4</span>
+        <span class="px-1 py-0.2 rounded bg-[var(--card)] border border-[var(--border)] text-${d.mtf.h1.color}-400">H1</span>
+        <span class="px-1 py-0.2 rounded bg-[var(--card)] border border-[var(--border)] text-${d.mtf.m15.color}-400">M15</span>
+        <span class="px-1 py-0.2 rounded bg-[var(--card)] border border-[var(--border)] text-${d.mtf.m5.color}-400">M5</span>
+      `;
+      document.getElementById('mtf-confluence-score').textContent = d.mtf.confluence;
+      document.getElementById('mtf-confluence-score').className = `px-1.5 py-0.2 rounded font-bold text-[11px] bg-${d.bias_color}-500/15 text-${d.bias_color}-400 border border-${d.bias_color}-500/30`;
+    }
+
+    function calculateLotSize() {
+      const d = PAIRS_DATABASE[activeCockpitPair];
+      const balInput = document.getElementById('calc-balance-input');
+      const balance = parseFloat(balInput ? balInput.value : 10000) || 10000;
+      const riskPct = parseFloat(document.getElementById('calc-risk-pct').value) || 1.0;
+      const riskAmount = balance * (riskPct / 100);
+      const pips = d.pip_risk_val || 20;
+
+      let lot = 0.5;
+      if (activeCockpitPair === 'USDJPY') {
+        lot = riskAmount / (pips * 6.5);
+      } else if (activeCockpitPair === 'XAUUSD') {
+        lot = riskAmount / (pips * 10);
+      } else if (activeCockpitPair === 'OIL') {
+        lot = riskAmount / (pips * 10);
+      } else {
+        lot = riskAmount / (pips * 10);
+      }
+
+      lot = Math.max(0.01, Math.min(50.0, Math.round(lot * 100) / 100));
+      document.getElementById('calc-lot-res').textContent = `${lot.toFixed(2)} Lot`;
+    }
+
+    function copyMt5OrderCommand(btn) {
+      const d = PAIRS_DATABASE[activeCockpitPair];
+      const lot = document.getElementById('calc-lot-res').textContent.replace(' Lot', '');
+      const isBuy = d.bias.includes('BUY');
+      const cmdType = isBuy ? 'BUY' : 'SELL';
+      const orderText = `[MT5_ORDER] SYMBOL=${activeCockpitPair} TYPE=${cmdType} LOTS=${lot} ENTRY=${d.entry_mid} SL=${d.sl} TP=${d.tp1.split(' ')[0]} COMMENT=XEDY_SNIPER`;
+
+      navigator.clipboard.writeText(orderText).then(() => {
+        const lbl = document.getElementById('btn-copy-label');
+        lbl.textContent = '✅ ORDER TERSALIN!';
+        setTimeout(() => { lbl.textContent = 'SALIN ORDER TIKET MT5'; }, 1800);
+      }).catch(() => { prompt('Salin order tiket MT5:', orderText); });
+    }
+
+    function copyNarasiText() {
+      const d = PAIRS_DATABASE[activeCockpitPair];
+      const text = `📋 XEDY NARASI INSTITUSIONAL (${activeCockpitPair})\n` +
+        `• Bias: ${d.bias} (${d.mtf.confluence})\n` +
+        `• Kausalitas: ${d.narasi_kausalitas}\n` +
+        `• Forecast 24j: ${d.narasi_forecast}\n` +
+        `• Taktik: ${d.narasi_taktik}\n` +
+        `• Entry: ${d.entry} | SL: ${d.sl} | TP1: ${d.tp1}`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        const lbl = document.getElementById('btn-copy-narasi-lbl');
+        lbl.textContent = '✅ Tersalin!';
+        setTimeout(() => { lbl.textContent = 'Salin Narasi'; }, 1600);
+      }).catch(() => { prompt('Salin teks narasi:', text); });
+    }
+
+    function renderBarometerList() {
+      const container = document.getElementById('barometer-list-container');
+      container.innerHTML = '';
+      const order = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL'];
+
+      order.forEach(pk => {
+        const d = PAIRS_DATABASE[pk];
+        const isSel = pk === activeCockpitPair;
+        const netColor = d.is_inflow ? 'text-emerald-400' : 'text-rose-400';
+        
+        const card = document.createElement('div');
+        card.className = `p-1 rounded border transition-all cursor-pointer flex items-center justify-between text-[12px] ${isSel ? 'bg-[var(--accent)]/20 border-cyan-400 font-bold' : 'bg-[var(--card)] border-[var(--border)] hover:bg-[var(--accent)]/10'}`;
+        card.onclick = () => selectCockpitPair(pk);
+
+        card.innerHTML = `
+          <div class="flex items-center gap-1">
+            <span>${d.flag}</span>
+            <span>${pk}</span>
+          </div>
+          <div class="text-right">
+            <span class="${netColor} font-bold">${d.net_usd}</span>
+            <span class="text-[var(--muted-foreground)]"> (${d.cmf})</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function drawLiveCanvasChart(pairKey) {
+      const canvas = document.getElementById('live-candle-canvas');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const d = PAIRS_DATABASE[pairKey];
+      const p = d.price;
+      const isUp = d.bias.includes('BUY');
+      const baseO = isUp ? p - 0.45 : p + 0.35;
+      const baseH = Math.max(p, baseO) + 0.25;
+      const baseL = Math.min(p, baseO) - 0.20;
+
+      document.getElementById('ohlc-c').textContent = p.toFixed(d.digits);
+
+      const numCandles = 24;
+      const candleWidth = (w - 16) / numCandles;
+      const paddingY = 16;
+      const chartH = h - paddingY * 2;
+
+      let cur = baseO - (isUp ? 0.9 : -0.8);
+      const candles = [];
+      for (let i = 0; i < numCandles; i++) {
+        const step = isUp ? (Math.sin(i * 0.4) * 0.10 + (Math.random() - 0.45) * 0.15) : (-Math.sin(i * 0.4) * 0.10 + (Math.random() - 0.55) * 0.15);
+        const o = cur;
+        const c = i === numCandles - 1 ? p : o + step;
+        const high = Math.max(o, c) + Math.random() * 0.08;
+        const low = Math.min(o, c) - Math.random() * 0.08;
+        candles.push({ o, h: high, l: low, c });
+        cur = c;
+      }
+
+      const minVal = Math.min(...candles.map(c => c.l));
+      const maxVal = Math.max(...candles.map(c => c.h));
+      const rangeVal = maxVal - minVal || 1;
+      const getY = val => h - paddingY - ((val - minVal) / rangeVal) * chartH;
+
+      // S/R Level Lines
+      const r1Y = getY(parseFloat(d.r1) || (maxVal - rangeVal * 0.2));
+      const vwapY = getY(parseFloat(d.vwap) || (minVal + rangeVal * 0.5));
+      const s1Y = getY(parseFloat(d.s1) || (minVal + rangeVal * 0.2));
+
+      ctx.strokeStyle = 'rgba(244, 63, 94, 0.45)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(0, r1Y); ctx.lineTo(w, r1Y); ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.55)';
+      ctx.beginPath(); ctx.moveTo(0, vwapY); ctx.lineTo(w, vwapY); ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.45)';
+      ctx.beginPath(); ctx.moveTo(0, s1Y); ctx.lineTo(w, s1Y); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Candlesticks
+      candles.forEach((c, i) => {
+        const x = 8 + i * candleWidth;
+        const isGreen = c.c >= c.o;
+        const top = getY(Math.max(c.o, c.c));
+        const bot = getY(Math.min(c.o, c.c));
+        const highY = getY(c.h);
+        const lowY = getY(c.l);
+        const bodyH = Math.max(bot - top, 2);
+
+        ctx.strokeStyle = isGreen ? '#10b981' : '#f43f5e';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(x + candleWidth * 0.5, highY);
+        ctx.lineTo(x + candleWidth * 0.5, lowY);
+        ctx.stroke();
+
+        ctx.fillStyle = isGreen ? '#10b981' : '#f43f5e';
+        ctx.fillRect(x + 1, top, candleWidth - 2, bodyH);
+      });
+
+      // Price Pulse
+      const lastY = getY(p);
+      ctx.fillStyle = isUp ? '#10b981' : '#f43f5e';
+      ctx.beginPath();
+      ctx.arc(w - 6, lastY, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // LIVE MT5 LOCAL SERVER POLLING (HTTP PORT 8000)
+    async function pollLiveMt5Server() {
+      try {
+        const res = await fetch('http://localhost:8000/api/prices', { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP status ' + res.status);
+        const data = await res.json();
+        
+        if (data && data.pairs) {
+          // Update database from live server
+          Object.keys(data.pairs).forEach(pk => {
+            if (PAIRS_DATABASE[pk]) {
+              const liveP = data.pairs[pk];
+              if (liveP.price) PAIRS_DATABASE[pk].price = liveP.price;
+              if (liveP.spread_pips) PAIRS_DATABASE[pk].spread = `${liveP.spread_pips}p`;
+              if (liveP.sr) {
+                if (liveP.sr.resistance) PAIRS_DATABASE[pk].r1 = liveP.sr.resistance;
+                if (liveP.sr.support) PAIRS_DATABASE[pk].s1 = liveP.sr.support;
+              }
+            }
+          });
+
+          // Update Bridge Status Badge
+          const badge = document.getElementById('bridge-status-pill');
+          const txt = document.getElementById('bridge-status-text');
+          badge.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
+          txt.textContent = "MT5 LIVE 8000";
+
+          // Re-render active pair
+          selectCockpitPair(activeCockpitPair);
+        }
+      } catch (e) {
+        // Fallback gracefully
+        const badge = document.getElementById('bridge-status-pill');
+        const txt = document.getElementById('bridge-status-text');
+        badge.className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30";
+        txt.textContent = "LOCAL SIM";
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      if (currentCenterView === 'chart') {
+        setTimeout(() => drawLiveCanvasChart(activeCockpitPair), 50);
+      }
+    });
+
+    // Initialize
+    selectCockpitPair('USDJPY');
+    pollLiveMt5Server();
+    setInterval(pollLiveMt5Server, 3000);
+  </script>
         </section>
 
 
@@ -8103,7 +8721,9 @@
         try {
             const pair = (typeof currentSelectedPair !== 'undefined' && currentSelectedPair) ? currentSelectedPair : 'USDJPY';
             
-            if (tabKey === 'trade') {
+            if (tabKey === 'dashboard') {
+                if (typeof selectCockpitPair === 'function') setTimeout(() => selectCockpitPair(activeCockpitPair || 'USDJPY'), 50);
+            } else if (tabKey === 'trade') {
                 if (typeof updateTradeDeskView === 'function') updateTradeDeskView(currentTradePair || pair);
             } else if (tabKey === 'forecast') {
                 if (typeof initForecastSubTabs === 'function') initForecastSubTabs();
@@ -16112,7 +16732,7 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         }
 
         // Default to TRADE desk (or restore user's last visited tab)
-        const initialNavTab = localStorage.getItem('xedy_active_nav_tab') || 'trade';
+        const initialNavTab = localStorage.getItem('xedy_active_nav_tab') || 'dashboard';
         switchNavTab(initialNavTab);
 
         // Pre-render immediately with instant benchmark defaults so NO box is EVER blank
