@@ -4729,6 +4729,35 @@
                     </div>
                 </div>
 
+                <!-- PARAMETER TAMBAHAN KIRIM TELEGRAM -->
+                <div style="background: linear-gradient(90deg, #07152b 0%, #050d1a 100%); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
+                        <!-- 1. Mendekati ... % S/R -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.78rem; font-weight: 800; color: #38bdf8; letter-spacing: 0.3px;">🎯 1. MENDEKATI:</span>
+                            <div style="display: flex; align-items: center; background: #030814; border: 1px solid #38bdf8; border-radius: 5px; padding: 2px 8px;">
+                                <input type="number" id="cfg-sr-proximity-pct" step="0.1" min="0.01" max="10" value="0.5" onchange="updateSrParams()" style="width: 58px; background: transparent; border: none; color: #38bdf8; font-weight: 800; font-family: monospace; font-size: 0.85rem; text-align: center; outline: none;">
+                                <span style="color: #94a3b8; font-size: 0.75rem; font-weight: bold; margin-left: 2px;">%</span>
+                            </div>
+                            <span style="font-size: 0.72rem; color: #cbd5e1;">Support / Resistance</span>
+                        </div>
+
+                        <!-- 2. Interval Durasi Update ... Jam sekali -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.78rem; font-weight: 800; color: #f59e0b; letter-spacing: 0.3px;">⏱️ 2. INTERVAL UPDATE:</span>
+                            <div style="display: flex; align-items: center; background: #030814; border: 1px solid #f59e0b; border-radius: 5px; padding: 2px 8px;">
+                                <input type="number" id="cfg-sr-interval-hours" step="0.5" min="0.1" max="72" value="1" onchange="updateSrParams()" style="width: 52px; background: transparent; border: none; color: #f59e0b; font-weight: 800; font-family: monospace; font-size: 0.85rem; text-align: center; outline: none;">
+                                <span style="color: #94a3b8; font-size: 0.75rem; font-weight: bold; margin-left: 2px;">Jam</span>
+                            </div>
+                            <span style="font-size: 0.72rem; color: #cbd5e1;">sekali</span>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.70rem; color: #10b981; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 6px; padding: 5px 10px;">
+                        📌 <b>Filter:</b> Hanya pair dengan <b>[☑ AKTIF]</b> &amp; level terisi yang dikirim ke Telegram (kosong diabaikan).
+                    </div>
+                </div>
+
                 <!-- Table for all 6 pairs -->
                 <div style="overflow-x: auto;">
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.78rem;">
@@ -11276,13 +11305,35 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
 
     let alertHistoryList = [];
 
+    let TELEGRAM_SR_PARAMS = {
+        proximity_pct: 0.5,
+        interval_hours: 1.0,
+        chime_enabled: true
+    };
+
+    function updateSrParams() {
+        const proxInput = document.getElementById('cfg-sr-proximity-pct');
+        const intvInput = document.getElementById('cfg-sr-interval-hours');
+        const chimeInput = document.getElementById('chk-sound-alert');
+        if (proxInput) TELEGRAM_SR_PARAMS.proximity_pct = parseFloat(proxInput.value) || 0.5;
+        if (intvInput) TELEGRAM_SR_PARAMS.interval_hours = parseFloat(intvInput.value) || 1.0;
+        if (chimeInput) TELEGRAM_SR_PARAMS.chime_enabled = chimeInput.checked;
+        saveAlertsConfig(false);
+    }
+
     async function loadAlertsConfig() {
         try {
             const res = await fetch('/api/telegram_alerts_config?t=' + Date.now());
             if (res.ok) {
                 const j = await res.json();
-                if (j && Object.keys(j).length > 0) {
-                    TELEGRAM_ALERTS = j;
+                if (j) {
+                    if (j._params) {
+                        TELEGRAM_SR_PARAMS = { ...TELEGRAM_SR_PARAMS, ...j._params };
+                        delete j._params;
+                    }
+                    if (Object.keys(j).length > 0) {
+                        TELEGRAM_ALERTS = j;
+                    }
                 }
             }
         } catch(e) {
@@ -11291,7 +11342,20 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             if (saved) {
                 try { TELEGRAM_ALERTS = JSON.parse(saved); } catch(err){}
             }
+            const savedParams = localStorage.getItem('xedy_tg_sr_params');
+            if (savedParams) {
+                try { TELEGRAM_SR_PARAMS = JSON.parse(savedParams); } catch(err){}
+            }
         }
+
+        // Apply loaded values to UI inputs
+        const proxInput = document.getElementById('cfg-sr-proximity-pct');
+        const intvInput = document.getElementById('cfg-sr-interval-hours');
+        const chimeInput = document.getElementById('chk-sound-alert');
+        if (proxInput && TELEGRAM_SR_PARAMS.proximity_pct !== undefined) proxInput.value = TELEGRAM_SR_PARAMS.proximity_pct;
+        if (intvInput && TELEGRAM_SR_PARAMS.interval_hours !== undefined) intvInput.value = TELEGRAM_SR_PARAMS.interval_hours;
+        if (chimeInput && TELEGRAM_SR_PARAMS.chime_enabled !== undefined) chimeInput.checked = TELEGRAM_SR_PARAMS.chime_enabled;
+
         renderAlertsTable();
     }
 
@@ -11428,7 +11492,9 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         if (TELEGRAM_ALERTS[pair]) {
             TELEGRAM_ALERTS[pair].op_triggered = false;
             TELEGRAM_ALERTS[pair].tp_triggered = false;
-            saveAlertsConfig();
+            TELEGRAM_ALERTS[pair].last_sup_alert_time = 0;
+            TELEGRAM_ALERTS[pair].last_res_alert_time = 0;
+            saveAlertsConfig(false);
             renderAlertsTable();
             addAlertLog(`🔄 Trigger untuk ${pair} berhasil di-reset ke mode Standby.`);
         }
@@ -11438,20 +11504,34 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         Object.keys(TELEGRAM_ALERTS).forEach(p => {
             TELEGRAM_ALERTS[p].op_triggered = false;
             TELEGRAM_ALERTS[p].tp_triggered = false;
+            TELEGRAM_ALERTS[p].last_sup_alert_time = 0;
+            TELEGRAM_ALERTS[p].last_res_alert_time = 0;
         });
-        saveAlertsConfig();
+        saveAlertsConfig(false);
         renderAlertsTable();
-        addAlertLog(`🔄 Semua trigger OP & TP 6 pair berhasil di-reset.`);
+        addAlertLog(`🔄 Semua trigger OP & TP 5 pair berhasil di-reset.`);
         alert("✅ Semua trigger berhasil di-reset! Sistem siap mendeteksi pergerakan harga kembali.");
     }
 
     async function saveAlertsConfig(isManualClick = false) {
+        // Collect current UI values for parameters
+        const proxInput = document.getElementById('cfg-sr-proximity-pct');
+        const intvInput = document.getElementById('cfg-sr-interval-hours');
+        const chimeInput = document.getElementById('chk-sound-alert');
+        if (proxInput) TELEGRAM_SR_PARAMS.proximity_pct = parseFloat(proxInput.value) || 0.5;
+        if (intvInput) TELEGRAM_SR_PARAMS.interval_hours = parseFloat(intvInput.value) || 1.0;
+        if (chimeInput) TELEGRAM_SR_PARAMS.chime_enabled = chimeInput.checked;
+
         localStorage.setItem('xedy_tg_alerts', JSON.stringify(TELEGRAM_ALERTS));
+        localStorage.setItem('xedy_tg_sr_params', JSON.stringify(TELEGRAM_SR_PARAMS));
+
+        const payload = { ...TELEGRAM_ALERTS, _params: TELEGRAM_SR_PARAMS };
+
         try {
             await fetch('/api/telegram_alerts_config', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(TELEGRAM_ALERTS)
+                body: JSON.stringify(payload)
             });
         } catch(e) {
             console.error('Error saving config to server:', e);
@@ -11476,7 +11556,7 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
 
             // Log to console
             if (typeof addAlertLog === 'function') {
-                addAlertLog(`💾 [STATUS: SUDAH DISIMPAN] Konfigurasi Support & Resistance Manual berhasil disimpan.`);
+                addAlertLog(`💾 [STATUS: SUDAH DISIMPAN] Konfigurasi 5 Pair & Parameter (% Mendekati: ${TELEGRAM_SR_PARAMS.proximity_pct}%, Interval: ${TELEGRAM_SR_PARAMS.interval_hours} Jam) berhasil disimpan.`);
             }
 
             // Pop-up modal
@@ -11496,16 +11576,35 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
             tsEl.textContent = `Status: Sudah Disimpan • ${timeStr} WIB (${dateStr})`;
         }
 
+        const proxEl = document.getElementById('save-modal-param-proximity');
+        if (proxEl) proxEl.textContent = `${TELEGRAM_SR_PARAMS.proximity_pct}%`;
+        const intvEl = document.getElementById('save-modal-param-interval');
+        if (intvEl) intvEl.textContent = `${TELEGRAM_SR_PARAMS.interval_hours} Jam sekali`;
+
         const listEl = document.getElementById('save-modal-pairs-list');
         if (listEl && window.TELEGRAM_ALERTS) {
             let html = '';
-            Object.keys(TELEGRAM_ALERTS).forEach(p => {
-                const cfg = TELEGRAM_ALERTS[p];
-                const sup = cfg.support !== undefined ? cfg.support : cfg.op;
-                const res = cfg.resistance !== undefined ? cfg.resistance : cfg.tp;
-                const statusBadge = cfg.enabled 
-                    ? '<span class="badge" style="background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; font-size: 0.62rem; padding: 2px 6px;">AKTIF</span>' 
-                    : '<span class="badge" style="background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid #475569; font-size: 0.62rem; padding: 2px 6px;">STANDBY</span>';
+            const pairs = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL'];
+            pairs.forEach(p => {
+                const cfg = TELEGRAM_ALERTS[p] || {};
+                const sup = parseFloat(cfg.support !== undefined ? cfg.support : cfg.op) || 0;
+                const res = parseFloat(cfg.resistance !== undefined ? cfg.resistance : cfg.tp) || 0;
+                const isEnabled = !!cfg.enabled;
+                const hasLevel = (sup > 0 || res > 0);
+
+                let statusBadge = '';
+                let statusDesc = '';
+
+                if (isEnabled && hasLevel) {
+                    statusBadge = '<span class="badge" style="background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; font-size: 0.62rem; padding: 2px 6px;">✅ AKAN DIKIRIM</span>';
+                    statusDesc = `<span style="color: #6ee7b7;">Dipantau (Mendekati &le; ${TELEGRAM_SR_PARAMS.proximity_pct}%)</span>`;
+                } else if (!isEnabled) {
+                    statusBadge = '<span class="badge" style="background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid #475569; font-size: 0.62rem; padding: 2px 6px;">⚪ DIABAIKAN</span>';
+                    statusDesc = '<span style="color: #64748b;">Checkbox tidak dicentang</span>';
+                } else {
+                    statusBadge = '<span class="badge" style="background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid #d97706; font-size: 0.62rem; padding: 2px 6px;">⚪ DIABAIKAN</span>';
+                    statusDesc = '<span style="color: #64748b;">Level Support/Resistance kosong</span>';
+                }
                 
                 const liveEl = document.getElementById(`alert-live-${p}`);
                 const livePrice = liveEl ? liveEl.textContent : '-';
@@ -11516,10 +11615,11 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
                             <span style="font-weight: 800; color: #f8fafc; font-size: 0.8rem; letter-spacing: 0.5px;">${p}</span>
                             ${statusBadge}
                         </div>
-                        <div style="font-size: 0.72rem; color: #cbd5e1; text-align: right;">
+                        <div style="font-size: 0.70rem; color: #cbd5e1; text-align: right;">
                             <span style="color: #38bdf8;">Sup: <b>${sup || '-'}</b></span> | 
                             <span style="color: #f43f5e;">Res: <b>${res || '-'}</b></span>
                             <span style="color: #64748b; margin-left: 6px;">(Live: ${livePrice})</span>
+                            <div style="font-size: 0.64rem; margin-top: 1px;">${statusDesc}</div>
                         </div>
                     </div>
                 `;
@@ -11541,28 +11641,40 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         }
     }
 
-    // Realtime Price Crossing Checker
+    // Realtime Price Crossing & Proximity Checker
     function checkRealtimePriceAlerts(priceData) {
         if (!priceData || !priceData.pairs) return;
 
+        const proximityPct = parseFloat(TELEGRAM_SR_PARAMS.proximity_pct) || 0.5;
+        const intervalHours = parseFloat(TELEGRAM_SR_PARAMS.interval_hours) || 1.0;
+        const intervalMs = intervalHours * 3600 * 1000;
+        const nowMs = Date.now();
+
         Object.keys(TELEGRAM_ALERTS).forEach(pair => {
             const cfg = TELEGRAM_ALERTS[pair];
-            if (!cfg || !cfg.enabled) return;
+            if (!cfg) return;
+
+            // Aturan user: "yg ada check box yg dikirim ,kalau kosong abaikan"
+            if (!cfg.enabled) return;
 
             const pairData = priceData.pairs[pair];
             if (!pairData || !pairData.price) return;
             const livePrice = parseFloat(pairData.price);
+            if (!livePrice || livePrice <= 0) return;
 
             // Update live price text in table
             const liveEl = document.getElementById(`alert-live-${pair}`);
             if (liveEl) liveEl.textContent = livePrice;
 
-            const supportLevel = cfg.support !== undefined ? cfg.support : cfg.op;
-            const resistLevel = cfg.resistance !== undefined ? cfg.resistance : cfg.tp;
+            const supportLevel = parseFloat(cfg.support !== undefined ? cfg.support : cfg.op) || 0;
+            const resistLevel = parseFloat(cfg.resistance !== undefined ? cfg.resistance : cfg.tp) || 0;
 
-            // Update live dynamic SETUP badge
+            // Kalau kedua level kosong / 0 -> abaikan!
+            if (supportLevel <= 0 && resistLevel <= 0) return;
+
+            // Update live dynamic SETUP badge (Buy Limit / Sell Limit)
             const setupCell = document.getElementById(`setup-cell-${pair}`);
-            if (setupCell && livePrice > 0 && supportLevel > 0 && resistLevel > 0) {
+            if (setupCell && supportLevel > 0 && resistLevel > 0) {
                 const distToSup = Math.abs(livePrice - supportLevel);
                 const distToRes = Math.abs(resistLevel - livePrice);
                 if (distToSup <= distToRes) {
@@ -11582,29 +11694,63 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
                 }
             }
 
-            // 1. Check Support Trigger (Price drops to or touches Support level -> BUY LIMIT)
-            if (!cfg.op_triggered && supportLevel > 0) {
-                let sCrossed = false;
-                if (livePrice <= supportLevel) sCrossed = true;
+            // 1. Check Support Trigger & Mendekati ... %
+            if (supportLevel > 0) {
+                let isNearSup = false;
+                let pctToSup = 0;
+                if (livePrice <= supportLevel) {
+                    isNearSup = true; // Tembus / Sentuh persis
+                    pctToSup = 0;
+                } else {
+                    pctToSup = ((livePrice - supportLevel) / supportLevel) * 100;
+                    if (pctToSup <= proximityPct) {
+                        isNearSup = true;
+                    }
+                }
 
-                if (sCrossed) {
-                    cfg.op_triggered = true;
-                    saveAlertsConfig();
-                    renderAlertsTable();
-                    dispatchPriceAlert(pair, 'SUPPORT', livePrice, supportLevel, 'BUY LIMIT', 'Harga Mendekati / Menyentuh Support Manual');
+                if (isNearSup) {
+                    const lastAlert = cfg.last_sup_alert_time || 0;
+                    const canSend = !cfg.op_triggered || ((nowMs - lastAlert) >= intervalMs);
+                    if (canSend) {
+                        cfg.op_triggered = true;
+                        cfg.last_sup_alert_time = nowMs;
+                        saveAlertsConfig(false);
+                        renderAlertsTable();
+                        const noteMsg = livePrice <= supportLevel 
+                            ? `Level Support ${supportLevel} TERSENTUH/TEMBUS! Live: ${livePrice}` 
+                            : `Harga Mendekati Support (Jarak: ${pctToSup.toFixed(2)}% | Ambang: ${proximityPct}%)`;
+                        dispatchPriceAlert(pair, 'SUPPORT', livePrice, supportLevel, 'BUY LIMIT', noteMsg);
+                    }
                 }
             }
 
-            // 2. Check Resistance Trigger (Price rises to or touches Resistance level -> SELL LIMIT)
-            if (!cfg.tp_triggered && resistLevel > 0) {
-                let rCrossed = false;
-                if (livePrice >= resistLevel) rCrossed = true;
+            // 2. Check Resistance Trigger & Mendekati ... %
+            if (resistLevel > 0) {
+                let isNearRes = false;
+                let pctToRes = 0;
+                if (livePrice >= resistLevel) {
+                    isNearRes = true; // Tembus / Sentuh persis
+                    pctToRes = 0;
+                } else {
+                    pctToRes = ((resistLevel - livePrice) / resistLevel) * 100;
+                    if (pctToRes <= proximityPct) {
+                        isNearRes = true;
+                    }
+                }
 
-                if (rCrossed) {
-                    cfg.tp_triggered = true;
-                    saveAlertsConfig();
-                    renderAlertsTable();
-                    dispatchPriceAlert(pair, 'RESISTANCE', livePrice, resistLevel, 'SELL LIMIT', 'Harga Mendekati / Menyentuh Resistance Manual');
+                if (isNearRes) {
+                    const lastAlert = cfg.last_res_alert_time || 0;
+                    const canSend = !cfg.tp_triggered || ((nowMs - lastAlert) >= intervalMs);
+                    if (canSend) {
+                        cfg.tp_triggered = true;
+                        cfg.last_res_alert_time = nowMs;
+                        saveAlertsConfig(false);
+                        renderAlertsTable();
+                        const noteMsg = livePrice >= resistLevel 
+                            ? `Level Resistance ${resistLevel} TERSENTUH/TEMBUS! Live: ${livePrice}` 
+                            : `Harga Mendekati Resistance (Jarak: ${pctToRes.toFixed(2)}% | Ambang: ${proximityPct}%)`;
+                        dispatchPriceAlert(pair, 'RESISTANCE', livePrice, resistLevel, 'SELL LIMIT', noteMsg);
+                    }
                 }
             }
         });
@@ -11612,10 +11758,12 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
 
     async function dispatchPriceAlert(pair, type, currPrice, targetPrice, direction, note) {
         const timeStr = new Date().toLocaleTimeString('id-ID');
-        addAlertLog(`🚨 [ALERT DISPATCHED] ${pair} melewati ${type}! Live: ${currPrice} (Target: ${targetPrice})`);
+        addAlertLog(`🚨 [ALERT DISPATCHED] ${pair} ${type}! Live: ${currPrice} (Target: ${targetPrice}) - ${note}`);
         
         // Audio Chime
-        playChime();
+        if (TELEGRAM_SR_PARAMS.chime_enabled !== false) {
+            playChime();
+        }
 
         try {
             await fetch('/api/telegram_price_alert', {
@@ -11627,7 +11775,9 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
                     current_price: currPrice,
                     target_price: targetPrice,
                     direction: direction,
-                    note: note
+                    note: note,
+                    proximity_pct: TELEGRAM_SR_PARAMS.proximity_pct,
+                    interval_hours: TELEGRAM_SR_PARAMS.interval_hours
                 })
             });
         } catch(e) {
@@ -18820,13 +18970,13 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
      MODAL: STATUS PENYIMPANAN SUPPORT & RESISTANCE
      ========================================== -->
 <div id="modal-save-status" class="theme-modal-backdrop" style="display: none; align-items: center; justify-content: center; z-index: 100000;" onclick="closeSaveStatusModalOnBackdrop(event)">
-    <div class="theme-modal-dialog" onclick="event.stopPropagation()" style="max-width: 540px; border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.85), 0 0 25px rgba(16, 185, 129, 0.25);">
+    <div class="theme-modal-dialog" onclick="event.stopPropagation()" style="max-width: 560px; border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.85), 0 0 25px rgba(16, 185, 129, 0.25);">
         <!-- Header -->
         <div class="theme-modal-header" style="background: linear-gradient(135deg, #064e3b 0%, #081a18 100%); border-bottom: 1px solid rgba(16, 185, 129, 0.35); padding: 12px 18px;">
             <div class="d-flex align-items-center gap-2">
                 <span style="font-size: 1.35rem;">💾</span>
                 <div>
-                    <h5 class="mb-0 fw-bold mono" style="font-size: 0.95rem; color: #34d399; letter-spacing: 0.5px;">KONFIRMASI PENYIMPANAN</h5>
+                    <h5 class="mb-0 fw-bold mono" style="font-size: 0.95rem; color: #34d399; letter-spacing: 0.5px;">KONFIRMASI PENYIMPANAN PARAMETER</h5>
                     <span class="text-secondary mono" style="font-size: 0.68rem;">XEDY TELEGRAM S&amp;R ENGINE</span>
                 </div>
             </div>
@@ -18835,36 +18985,46 @@ Tepat 10 s/d 15 Menit Sebelum Open H4 (04:45, 08:45, 12:45, 16:45, 20:45, 00:45 
 
         <!-- Body -->
         <div class="p-3 mono text-white" style="background: #08121e;">
-            <div class="text-center py-2.5 mb-3" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px;">
-                <div style="font-size: 2.2rem; line-height: 1; margin-bottom: 6px;">✅</div>
-                <div class="fw-bold" style="font-size: 1.25rem; color: #10b981; letter-spacing: 1px;">SUDAH DISIMPAN!</div>
+            <div class="text-center py-2 mb-3" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px;">
+                <div style="font-size: 2rem; line-height: 1; margin-bottom: 4px;">✅</div>
+                <div class="fw-bold" style="font-size: 1.2rem; color: #10b981; letter-spacing: 1px;">SEMUA PARAMETER SUDAH DISIMPAN!</div>
                 <div class="text-secondary" style="font-size: 0.72rem; margin-top: 3px;" id="save-modal-timestamp">Status: Sudah Disimpan</div>
             </div>
 
-            <div style="font-size: 0.76rem; color: #cbd5e1; margin-bottom: 12px; line-height: 1.45;">
-                Pengaturan parameter <b>Support &amp; Resistance Manual</b> untuk seluruh instrumen telah <b>berhasil disimpan</b> ke penyimpanan lokal browser dan server database bot Telegram.
+            <!-- Parameters Summary Grid -->
+            <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 10px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <div style="font-size: 0.66rem; color: #94a3b8; font-weight: bold;">🎯 1. AMBANG MENDEKATI S/R:</div>
+                    <div style="font-size: 1.05rem; font-weight: 800; color: #38bdf8;" id="save-modal-param-proximity">0.5%</div>
+                    <div style="font-size: 0.62rem; color: #64748b;">Alert jika jarak &le; persentase ini</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.66rem; color: #94a3b8; font-weight: bold;">⏱️ 2. INTERVAL DURASI UPDATE:</div>
+                    <div style="font-size: 1.05rem; font-weight: 800; color: #f59e0b;" id="save-modal-param-interval">1 Jam sekali</div>
+                    <div style="font-size: 0.62rem; color: #64748b;">Jeda pengiriman berkala Telegram</div>
+                </div>
             </div>
 
             <!-- Ringkasan Level Aktif -->
             <div style="background: #040912; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
                 <div class="d-flex justify-content-between align-items-center mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
-                    <span class="text-secondary fw-bold" style="font-size: 0.68rem;">📋 RINGKASAN LEVEL TERAKHIR DISIMPAN:</span>
-                    <span class="badge" style="background: rgba(56,189,248,0.15); color: #38bdf8; font-size: 0.60rem;">5 PAIR</span>
+                    <span class="text-secondary fw-bold" style="font-size: 0.68rem;">📋 STATUS PENGIRIMAN PAIR (FILTER AKTIF):</span>
+                    <span class="badge" style="background: rgba(56,189,248,0.15); color: #38bdf8; font-size: 0.60rem;">5 INSTRUMEN</span>
                 </div>
                 <div id="save-modal-pairs-list" style="font-size: 0.72rem; max-height: 160px; overflow-y: auto;">
                     <!-- Diisi secara dinamis oleh openSaveStatusModal() -->
                 </div>
             </div>
 
-            <div class="d-flex align-items-center gap-2 p-2 rounded" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); font-size: 0.70rem; color: #7dd3fc;">
-                <span>🤖</span>
-                <span>Bot Telegram akan otomatis mengirim notifikasi instan saat harga live menyentuh atau menembus level Support (Buy Limit) atau Resistance (Sell Limit) yang diaktifkan.</span>
+            <div class="d-flex align-items-center gap-2 p-2 rounded" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); font-size: 0.68rem; color: #6ee7b7;">
+                <span>🛡️</span>
+                <span>Hanya pair yang <b>dicentang [Aktif]</b> dan memiliki nilai Support/Resistance yang akan dipantau &amp; dikirim ke bot Telegram. Pair yang tidak dicentang atau kosong otomatis <b>diabaikan</b>.</span>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="theme-modal-footer" style="background: #050c18; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; padding: 10px 18px;">
-            <span style="font-size: 0.68rem; color: #64748b;" class="mono">Tekan tombol atau klik area luar untuk menutup</span>
+            <span style="font-size: 0.68rem; color: #64748b;" class="mono">Parameter tersimpan di storage lokal &amp; server</span>
             <button class="btn btn-sm mono fw-bold px-4" onclick="closeSaveStatusModal()" style="background: #10b981; color: #ffffff; border: none; border-radius: 4px; font-size: 0.8rem; cursor: pointer; box-shadow: 0 0 10px rgba(16,185,129,0.4);">
                 ✓ TUTUP / OK
             </button>

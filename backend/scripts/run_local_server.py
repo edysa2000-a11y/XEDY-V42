@@ -2197,8 +2197,12 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
                 direction = data.get('direction', '')
                 note = data.get('note', '')
 
-                icon = "🛡️" if "SUPPORT" in alert_type.upper() else ("🎯" if "RESIST" in alert_type.upper() else "🚨")
-                title = f"{icon} <b>PRICE ALERT: {pair} MELEWATI {alert_type}!</b>"
+                prox_pct = data.get('proximity_pct', 0.5)
+                intv_hrs = data.get('interval_hours', 1)
+
+                is_sup = "SUPPORT" in alert_type.upper()
+                icon = "🛡️" if is_sup else ("🎯" if "RESIST" in alert_type.upper() else "🚨")
+                title = f"{icon} <b>PRICE ALERT: {pair} MENDEKATI / MELEWATI {alert_type}!</b>"
                 msg = (
                     f"{title}\n"
                     f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -2206,10 +2210,14 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
                     f"🎯 <b>Target {alert_type}:</b> <code>{target_price}</code>\n"
                     f"⚡ <b>Arah / Setup:</b> <b>{direction}</b>\n"
                     f"🕒 <b>Waktu:</b> {datetime.now(timezone(timedelta(hours=7))).strftime('%H:%M:%S WIB • %d/%m/%Y')}\n"
-                    f"🛡️ <i>XEDY Realtime Price Cross Engine</i>\n"
                 )
                 if note:
-                    msg += f"📝 <i>Catatan: {note}</i>\n"
+                    msg += f"📊 <b>Kondisi:</b> <i>{note}</i>\n"
+                msg += (
+                    f"⚙️ <b>Parameter:</b> Ambang &le; {prox_pct}% • Interval: {intv_hrs} Jam sekali\n"
+                    f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    f"🛡️ <i>XEDY Support & Resistance Engine</i>"
+                )
 
                 success = send_telegram_direct_message(msg)
                 resp = {"status": "ok" if success else "failed", "sent": success}
