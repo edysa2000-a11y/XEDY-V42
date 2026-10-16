@@ -1677,9 +1677,19 @@ def poll_market_data():
         if MT5_AVAILABLE:
             try:
                 if not mt5_initialized:
-                    finex_path = r"C:\Program Files\Finex Bisnis Solusi MT5 Terminal\terminal64.exe"
-                    if os.path.exists(finex_path):
-                        mt5_initialized = mt5.initialize(path=finex_path)
+                    cand_paths = [
+                        r"C:\Program Files\MetaTrader 5\terminal64.exe",
+                        r"C:\Program Files\Finex Bisnis Solusi MT5 Terminal\terminal64.exe"
+                    ]
+                    for cp in cand_paths:
+                        if os.path.exists(cp):
+                            try:
+                                if mt5.initialize(path=cp):
+                                    mt5_initialized = True
+                                    print(f"[MT5] Connected to active terminal: {cp}")
+                                    break
+                            except Exception as e:
+                                print(f"[MT5] Init error on {cp}: {e}")
                     if not mt5_initialized:
                         mt5_initialized = mt5.initialize()
 
@@ -1787,8 +1797,10 @@ def poll_market_data():
                             except Exception:
                                 pass
                     else:
+                        print(f"[MT5 WARN] Disconnected: term={term}, connected={getattr(term, 'connected', None)}, acc={acc}")
                         mt5_initialized = False
-            except Exception:
+            except Exception as e:
+                print(f"[MT5 ERROR in poll]: {e}")
                 mt5_initialized = False
 
         # 2. TradingView Scanner query for All Pairs (High/Low, Change%, and Oil + BTC + Fallback)

@@ -35,7 +35,7 @@
     "op_triggered": true,
     "tp_triggered": true,
     "note": "Support 1.1160 \u2022 Resistance 1.1300",
-    "last_sup_alert_time": 1792115112231,
+    "last_sup_alert_time": 1792122070952,
     "last_res_alert_time": 1792119193007
   },
   "GBPUSD": {
@@ -78,6 +78,6 @@
     "proximity_pct": 0.5,
     "interval_hours": 1.1,
     "chime_enabled": true,
-    "last_interval_report_time": 1792120574.987168
+    "last_interval_report_time": 1792122075.6324131
   }
 }
