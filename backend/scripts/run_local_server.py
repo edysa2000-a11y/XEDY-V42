@@ -1969,6 +1969,202 @@ def send_telegram_direct_message(text_html):
         print(f"[TELEGRAM] Error sending message: {e}")
         return False
 
+def build_and_send_sr_interval_report(custom_pairs=None, proximity_pct=None, interval_hours=None):
+    alerts_file = os.path.join(PROJECT_ROOT, "backend", "data", "telegram_alerts.json")
+    cfg_data = {}
+    if os.path.exists(alerts_file):
+        try:
+            with open(alerts_file, 'r', encoding='utf-8') as f:
+                cfg_data = json.load(f)
+        except Exception:
+            cfg_data = {}
+
+    params = cfg_data.get("_params", {})
+    if proximity_pct is None:
+        try:
+            proximity_pct = float(params.get("proximity_pct", 0.5))
+        except (ValueError, TypeError):
+            proximity_pct = 0.5
+    if interval_hours is None:
+        try:
+            interval_hours = float(params.get("interval_hours", 1.1))
+        except (ValueError, TypeError):
+            interval_hours = 1.1
+
+    now_wib = datetime.now(timezone(timedelta(hours=7))).strftime('%d %b %Y • %H:%M:%S WIB')
+
+    pair_icons = {
+        "USDJPY": "🇯🇵",
+        "XAUUSD": "🥇",
+        "EURUSD": "🇪🇺",
+        "GBPUSD": "🇬🇧",
+        "OIL": "🛢️",
+        "BTCUSD": "⚡"
+    }
+
+    pair_names = {
+        "USDJPY": "USD/JPY (Dolar / Yen)",
+        "XAUUSD": "GOLD (XAU/USD)",
+        "EURUSD": "EUR/USD (Euro / Dolar)",
+        "GBPUSD": "GBP/USD (Pound / Dolar)",
+        "OIL": "OIL (Crude Oil WTI)",
+        "BTCUSD": "BITCOIN (BTC/USD)"
+    }
+
+    lines = [
+        "🎯 <b>XEDY COCKPIT • REKAP S&amp;R MANUAL</b>",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        f"⏰ <b>Interval Update:</b> Setiap <b>{interval_hours} Jam</b>",
+        f"📅 <b>Waktu:</b> <code>{now_wib}</code>",
+        f"🎯 <b>Ambang Mendekati:</b> <code>{proximity_pct}%</code>",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    ]
+
+    reported_count = 0
+    active_keys = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL']
+
+    for idx, sym in enumerate(active_keys, 1):
+        c_pair = custom_pairs.get(sym) if isinstance(custom_pairs, dict) else None
+        stored_cfg = cfg_data.get(sym, {})
+
+        enabled = c_pair.get('enabled') if (c_pair and 'enabled' in c_pair) else stored_cfg.get('enabled', False)
+        if not enabled:
+            continue
+
+        # Live price
+        live_price = "--"
+        if c_pair and c_pair.get('live_price'):
+            live_price = str(c_pair['live_price'])
+        else:
+            cached_pair = PRICE_CACHE.get("pairs", {}).get(sym, {})
+            if cached_pair and cached_pair.get("price"):
+                live_price = str(cached_pair["price"])
+            elif sym.lower() in PRICE_CACHE and "price" in PRICE_CACHE[sym.lower()]:
+                live_price = str(PRICE_CACHE[sym.lower()]["price"])
+
+        # Support & Resistance
+        sup = c_pair.get('support') if (c_pair and 'support' in c_pair) else stored_cfg.get('support', stored_cfg.get('op', 0))
+        res = c_pair.get('resistance') if (c_pair and 'resistance' in c_pair) else stored_cfg.get('resistance', stored_cfg.get('tp', 0))
+
+        try:
+            num_sup = float(str(sup).replace(',', '.'))
+        except (ValueError, TypeError):
+            num_sup = 0.0
+
+        try:
+            num_res = float(str(res).replace(',', '.'))
+        except (ValueError, TypeError):
+            num_res = 0.0
+
+        try:
+            num_live = float(str(live_price).replace(',', '.'))
+        except (ValueError, TypeError):
+            num_live = 0.0
+
+        # Aturan user: "yg ada check box yg dikirim ,kalau kosong abaikan"
+        if num_sup <= 0 and num_res <= 0:
+            continue
+
+        # Inversion safety
+        if num_sup > 0 and num_res > 0 and num_sup > num_res:
+            num_sup, num_res = num_res, num_sup
+            sup, res = num_sup, num_res
+
+        # Setup / Arah
+        if c_pair and c_pair.get('setup'):
+            setup_str = str(c_pair['setup'])
+        elif num_live > 0 and num_sup > 0 and num_res > 0:
+            dist_sup = abs(num_live - num_sup)
+            dist_res = abs(num_res - num_live)
+            if dist_sup <= dist_res:
+                setup_str = "🟢 <b>BUY LIMIT</b> (Mendekati Support)"
+            else:
+                setup_str = "🔴 <b>SELL LIMIT</b> (Mendekati Resistance)"
+        else:
+            setup_str = "⚪ <b>AUTO S/R LIMIT</b>"
+
+        # Status Deteksi
+        if c_pair and c_pair.get('status'):
+            status_str = str(c_pair['status'])
+        else:
+            op_trig = stored_cfg.get('op_triggered', False)
+            tp_trig = stored_cfg.get('tp_triggered', False)
+            if op_trig and tp_trig:
+                status_str = "✅ <code>SUPPORT &amp; RESIST TERKIRIM</code>"
+            elif op_trig:
+                status_str = "🛡️ <code>SUPPORT TERSENTUH (BUY)</code>"
+            elif tp_trig:
+                status_str = "🎯 <code>RESIST TERSENTUH (SELL)</code>"
+            else:
+                status_str = "⏳ <code>STANDBY MONITORING</code>"
+
+        icon = pair_icons.get(sym, "📌")
+        pname = pair_names.get(sym, sym)
+
+        lines.append(f"{icon} <b>{idx}. {sym}</b> — <i>{pname}</i>")
+        lines.append(f"• <b>Live Price:</b> <code>{live_price}</code>")
+        lines.append(f"• <b>Setup / Arah:</b> {setup_str}")
+        lines.append(f"• <b>Support Manual:</b> <code>{sup}</code> | <b>Resistance Manual:</b> <code>{res}</code>")
+        lines.append(f"• <b>Status Deteksi:</b> {status_str}\n")
+        reported_count += 1
+
+    if reported_count == 0:
+        lines.append("<i>Tidak ada pair aktif dengan level Support &amp; Resistance terisi saat ini.</i>\n")
+
+    lines.append("━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    lines.append("📌 <i>Filter: Hanya pair dengan [✔ AKTIF] &amp; level terisi yang dilaporkan.</i>")
+    lines.append("🌐 <i>Live Cockpit: http://localhost:8000/sr.html</i>")
+
+    full_msg = "\n".join(lines)
+    sent = send_telegram_direct_message(full_msg)
+
+    # Update last_interval_report_time
+    now_ts = time.time()
+    params["last_interval_report_time"] = now_ts
+    params["interval_hours"] = interval_hours
+    params["proximity_pct"] = proximity_pct
+    cfg_data["_params"] = params
+    try:
+        with open(alerts_file, 'w', encoding='utf-8') as f:
+            json.dump(cfg_data, f, indent=2)
+    except Exception as e:
+        print(f"[INTERVAL] Error saving last_interval_report_time: {e}")
+
+    return sent, reported_count, full_msg
+
+def sr_interval_reporter_worker():
+    print("[INTERVAL REPORT] Background worker initialized.")
+    while True:
+        try:
+            alerts_file = os.path.join(PROJECT_ROOT, "backend", "data", "telegram_alerts.json")
+            if os.path.exists(alerts_file):
+                with open(alerts_file, 'r', encoding='utf-8') as f:
+                    cfg_data = json.load(f)
+                params = cfg_data.get("_params", {})
+                try:
+                    interval_hours = float(params.get("interval_hours", 1.1))
+                except (ValueError, TypeError):
+                    interval_hours = 1.1
+
+                if interval_hours <= 0:
+                    interval_hours = 1.0
+
+                interval_secs = interval_hours * 3600.0
+                last_time = float(params.get("last_interval_report_time", 0))
+                now = time.time()
+
+                if last_time == 0:
+                    params["last_interval_report_time"] = now
+                    cfg_data["_params"] = params
+                    with open(alerts_file, 'w', encoding='utf-8') as f:
+                        json.dump(cfg_data, f, indent=2)
+                elif (now - last_time) >= interval_secs:
+                    print(f"[INTERVAL REPORT] Periodic interval of {interval_hours}h triggered. Dispatching Telegram report...")
+                    build_and_send_sr_interval_report(interval_hours=interval_hours)
+        except Exception as e:
+            print(f"[INTERVAL REPORT] Worker error: {e}")
+        time.sleep(30)
+
 class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
     timeout = 15
 
@@ -2060,6 +2256,36 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
             self.wfile.write(json.dumps(gs, ensure_ascii=False).encode('utf-8'))
+            return
+
+        if self.path.startswith('/api/telegram_interval_report'):
+            alerts_file = os.path.join(PROJECT_ROOT, "backend", "data", "telegram_alerts.json")
+            last_time = 0
+            interval_hours = 1.1
+            proximity_pct = 0.5
+            if os.path.exists(alerts_file):
+                try:
+                    with open(alerts_file, 'r', encoding='utf-8') as f:
+                        cfg_data = json.load(f)
+                    params = cfg_data.get("_params", {})
+                    interval_hours = float(params.get("interval_hours", 1.1))
+                    proximity_pct = float(params.get("proximity_pct", 0.5))
+                    last_time = float(params.get("last_interval_report_time", 0))
+                except Exception:
+                    pass
+            now = time.time()
+            remaining_secs = max(0, (last_time + (interval_hours * 3600.0)) - now)
+            resp = {
+                "last_interval_report_time": last_time,
+                "interval_hours": interval_hours,
+                "proximity_pct": proximity_pct,
+                "remaining_seconds": int(remaining_secs),
+                "server_time": now
+            }
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp).encode('utf-8'))
             return
 
         if self.path.startswith('/api/telegram_alerts_config'):
@@ -2231,6 +2457,24 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(resp).encode('utf-8'))
             return
 
+        if self.path.startswith('/api/telegram_interval_report'):
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length) if content_length > 0 else b'{}'
+            try:
+                data = json.loads(body.decode('utf-8')) if body else {}
+                custom_pairs = data.get('pairs')
+                prox_pct = data.get('proximity_pct')
+                intv_hrs = data.get('interval_hours')
+                sent, count, _ = build_and_send_sr_interval_report(custom_pairs, prox_pct, intv_hrs)
+                resp = {"status": "ok" if sent else "failed", "sent": sent, "pairs_reported": count}
+            except Exception as e:
+                resp = {"status": "error", "message": str(e)}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp).encode('utf-8'))
+            return
+
         if self.path.startswith('/api/telegram_trigger_d1h4'):
             resp = {
                 "status": "disabled",
@@ -2310,6 +2554,9 @@ def main():
 
     # Start background Qwen validator
     threading.Thread(target=qwen_periodic_worker, daemon=True).start()
+
+    # Start background S/R interval reporter
+    threading.Thread(target=sr_interval_reporter_worker, daemon=True).start()
 
     port = 8000
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

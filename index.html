@@ -4731,26 +4731,37 @@
 
                 <!-- PARAMETER TAMBAHAN KIRIM TELEGRAM -->
                 <div style="background: linear-gradient(90deg, #07152b 0%, #050d1a 100%); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                    <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
                         <!-- 1. Mendekati ... % S/R -->
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 0.78rem; font-weight: 800; color: #38bdf8; letter-spacing: 0.3px;">🎯 1. MENDEKATI:</span>
                             <div style="display: flex; align-items: center; background: #030814; border: 1px solid #38bdf8; border-radius: 5px; padding: 2px 8px;">
-                                <input type="number" id="cfg-sr-proximity-pct" step="0.1" min="0.01" max="10" value="0.5" onchange="updateSrParams()" style="width: 58px; background: transparent; border: none; color: #38bdf8; font-weight: 800; font-family: monospace; font-size: 0.85rem; text-align: center; outline: none;">
+                                <input type="text" inputmode="decimal" id="cfg-sr-proximity-pct" value="0.5" onchange="updateSrParams()" style="width: 50px; background: transparent; border: none; color: #38bdf8; font-weight: 800; font-family: monospace; font-size: 0.85rem; text-align: center; outline: none;">
                                 <span style="color: #94a3b8; font-size: 0.75rem; font-weight: bold; margin-left: 2px;">%</span>
                             </div>
                             <span style="font-size: 0.72rem; color: #cbd5e1;">Support / Resistance</span>
                         </div>
 
                         <!-- 2. Interval Durasi Update ... Jam sekali -->
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 0.78rem; font-weight: 800; color: #f59e0b; letter-spacing: 0.3px;">⏱️ 2. INTERVAL UPDATE:</span>
                             <div style="display: flex; align-items: center; background: #030814; border: 1px solid #f59e0b; border-radius: 5px; padding: 2px 8px;">
-                                <input type="number" id="cfg-sr-interval-hours" step="0.5" min="0.1" max="72" value="1" onchange="updateSrParams()" style="width: 52px; background: transparent; border: none; color: #f59e0b; font-weight: 800; font-family: monospace; font-size: 0.85rem; text-align: center; outline: none;">
+                                <input type="text" inputmode="decimal" id="cfg-sr-interval-hours" value="1.1" onchange="updateSrParams()" style="width: 48px; background: transparent; border: none; color: #f59e0b; font-weight: 800; font-family: monospace; font-size: 0.85rem; text-align: center; outline: none;">
                                 <span style="color: #94a3b8; font-size: 0.75rem; font-weight: bold; margin-left: 2px;">Jam</span>
                             </div>
                             <span style="font-size: 0.72rem; color: #cbd5e1;">sekali</span>
                         </div>
+
+                        <!-- 3. Countdown Rekap Berkala -->
+                        <div style="display: flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.12); border: 1px dashed rgba(245, 158, 11, 0.5); border-radius: 5px; padding: 3px 8px;">
+                            <span style="font-size: 0.68rem; color: #f59e0b; font-weight: 700;">⏳ Rekap Berikutnya:</span>
+                            <span id="interval-countdown-timer" style="font-size: 0.76rem; font-family: monospace; font-weight: 800; color: #fbbf24;">--:--:--</span>
+                        </div>
+
+                        <!-- 4. Tombol Kirim Rekap Manual Sekarang -->
+                        <button type="button" id="btn-manual-interval-report" onclick="triggerImmediateIntervalReport()" class="btn btn-sm" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fbbf24; font-size: 0.70rem; font-weight: 800; padding: 4px 10px; border-radius: 5px; cursor: pointer; transition: all 0.2s;" title="Kirimkan rekap tabel status S&R saat ini ke Telegram sesuai interval">
+                            📤 KIRIM REKAP SEKARANG
+                        </button>
                     </div>
 
                     <div style="font-size: 0.70rem; color: #10b981; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 6px; padding: 5px 10px;">
@@ -11325,9 +11336,10 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         const intvInput = document.getElementById('cfg-sr-interval-hours');
         const chimeInput = document.getElementById('chk-sound-alert');
         if (proxInput) TELEGRAM_SR_PARAMS.proximity_pct = parseNum(proxInput.value) || 0.5;
-        if (intvInput) TELEGRAM_SR_PARAMS.interval_hours = parseNum(intvInput.value) || 1.0;
+        if (intvInput) TELEGRAM_SR_PARAMS.interval_hours = parseNum(intvInput.value) || 1.1;
         if (chimeInput) TELEGRAM_SR_PARAMS.chime_enabled = chimeInput.checked;
         saveAlertsConfig(false);
+        if (typeof resetIntervalCountdown === 'function') resetIntervalCountdown();
     }
 
     async function loadAlertsConfig() {
@@ -11366,6 +11378,7 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         if (chimeInput && TELEGRAM_SR_PARAMS.chime_enabled !== undefined) chimeInput.checked = TELEGRAM_SR_PARAMS.chime_enabled;
 
         renderAlertsTable();
+        if (typeof startIntervalCountdown === 'function') startIntervalCountdown();
     }
 
     function renderAlertsTable() {
@@ -11917,6 +11930,160 @@ Catatan: Disalin otomatis untuk Terminal MT5 / Eksekusi Scalping.`;
         } catch(e) {
             alert(`⚠️ Error: ${e.message}`);
         }
+    }
+
+    let intervalCountdownTimer = null;
+    let nextIntervalReportTimestamp = 0;
+
+    async function triggerImmediateIntervalReport() {
+        const btn = document.getElementById('btn-manual-interval-report');
+        let oldHtml = '';
+        if (btn) {
+            oldHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Mengirim...';
+            btn.disabled = true;
+        }
+
+        addAlertLog(`📤 [INTERVAL REKAP] Menyiapkan rekap tabel S&R manual untuk dikirim ke Telegram...`);
+
+        // Collect pairs snapshot
+        const pairsList = ['USDJPY', 'XAUUSD', 'EURUSD', 'GBPUSD', 'OIL'];
+        const snapshot = {};
+
+        pairsList.forEach(p => {
+            const chk = document.getElementById(`chk-${p}`);
+            const enabled = chk ? chk.checked : (TELEGRAM_ALERTS[p] ? TELEGRAM_ALERTS[p].enabled : false);
+            const liveEl = document.getElementById(`alert-live-${p}`);
+            const livePrice = liveEl ? liveEl.textContent.trim() : (TELEGRAM_ALERTS[p] ? TELEGRAM_ALERTS[p].op : '--');
+            const supInput = document.getElementById(`op-${p}`);
+            const resInput = document.getElementById(`tp-${p}`);
+            const supVal = supInput ? parseNum(supInput.value) : (TELEGRAM_ALERTS[p] ? TELEGRAM_ALERTS[p].support : 0);
+            const resVal = resInput ? parseNum(resInput.value) : (TELEGRAM_ALERTS[p] ? TELEGRAM_ALERTS[p].resistance : 0);
+
+            // Setup text
+            let setupText = '';
+            const dirBadge = document.getElementById(`dir-badge-${p}`);
+            if (dirBadge) {
+                setupText = dirBadge.innerText.replace(/\s+/g, ' ').trim();
+            }
+
+            // Status text
+            let statusText = '';
+            const statusEl = document.getElementById(`status-badge-${p}`);
+            if (statusEl) {
+                statusText = statusEl.innerText.trim();
+            }
+
+            snapshot[p] = {
+                enabled: enabled,
+                live_price: livePrice,
+                support: supVal,
+                resistance: resVal,
+                setup: setupText,
+                status: statusText
+            };
+        });
+
+        const intvVal = parseNum(TELEGRAM_SR_PARAMS.interval_hours) || 1.1;
+        const proxVal = parseNum(TELEGRAM_SR_PARAMS.proximity_pct) || 0.5;
+
+        try {
+            const res = await fetch('/api/telegram_interval_report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pairs: snapshot,
+                    proximity_pct: proxVal,
+                    interval_hours: intvVal
+                })
+            });
+            const data = await res.json();
+            if (data.status === 'ok' || data.sent) {
+                addAlertLog(`✅ [INTERVAL REKAP TERKIRIM] Berhasil mengirim rekap ${data.pairs_reported || ''} pair ke Telegram!`);
+                if (btn) {
+                    btn.innerHTML = '✅ TERKIRIM KE TELEGRAM!';
+                    btn.style.background = '#059669';
+                    btn.style.borderColor = '#10b981';
+                    btn.style.color = '#ffffff';
+                    setTimeout(() => {
+                        btn.innerHTML = oldHtml;
+                        btn.style.background = 'rgba(245, 158, 11, 0.2)';
+                        btn.style.borderColor = '#f59e0b';
+                        btn.style.color = '#fbbf24';
+                        btn.disabled = false;
+                    }, 3000);
+                }
+            } else {
+                addAlertLog(`⚠️ [INTERVAL REKAP GAGAL] ${data.message || 'Cek koneksi bot'}`);
+                if (btn) {
+                    btn.innerHTML = '⚠️ GAGAL KIRIM';
+                    setTimeout(() => {
+                        btn.innerHTML = oldHtml;
+                        btn.disabled = false;
+                    }, 2500);
+                }
+            }
+        } catch(e) {
+            addAlertLog(`❌ [ERROR REKAP] ${e.message}`);
+            if (btn) {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+            }
+        }
+
+        // Reset countdown timer
+        resetIntervalCountdown();
+    }
+
+    function resetIntervalCountdown() {
+        const intvHours = parseNum(TELEGRAM_SR_PARAMS.interval_hours) || 1.1;
+        const intvMs = intvHours * 3600 * 1000;
+        nextIntervalReportTimestamp = Date.now() + intvMs;
+        localStorage.setItem('xedy_next_interval_time', nextIntervalReportTimestamp.toString());
+        updateIntervalCountdownUI();
+    }
+
+    function updateIntervalCountdownUI() {
+        const el = document.getElementById('interval-countdown-timer');
+        if (!el) return;
+
+        if (!nextIntervalReportTimestamp) {
+            const saved = localStorage.getItem('xedy_next_interval_time');
+            if (saved) {
+                nextIntervalReportTimestamp = parseInt(saved, 10);
+            }
+            if (!nextIntervalReportTimestamp || isNaN(nextIntervalReportTimestamp) || nextIntervalReportTimestamp < Date.now()) {
+                const intvHours = parseNum(TELEGRAM_SR_PARAMS.interval_hours) || 1.1;
+                nextIntervalReportTimestamp = Date.now() + (intvHours * 3600 * 1000);
+                localStorage.setItem('xedy_next_interval_time', nextIntervalReportTimestamp.toString());
+            }
+        }
+
+        const now = Date.now();
+        const diffMs = nextIntervalReportTimestamp - now;
+
+        if (diffMs <= 0) {
+            el.textContent = '00:00:00 (Mengirim...)';
+            triggerImmediateIntervalReport();
+            return;
+        }
+
+        const totalSecs = Math.floor(diffMs / 1000);
+        const hrs = Math.floor(totalSecs / 3600);
+        const mins = Math.floor((totalSecs % 3600) / 60);
+        const secs = totalSecs % 60;
+
+        const hh = String(hrs).padStart(2, '0');
+        const mm = String(mins).padStart(2, '0');
+        const ss = String(secs).padStart(2, '0');
+
+        el.textContent = `${hh}:${mm}:${ss}`;
+    }
+
+    function startIntervalCountdown() {
+        if (intervalCountdownTimer) clearInterval(intervalCountdownTimer);
+        updateIntervalCountdownUI();
+        intervalCountdownTimer = setInterval(updateIntervalCountdownUI, 1000);
     }
 
     async function triggerD1H4Now() {
