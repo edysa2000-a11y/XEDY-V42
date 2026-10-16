@@ -2177,6 +2177,24 @@ def sr_interval_reporter_worker():
             print(f"[INTERVAL REPORT] Worker error: {e}")
         time.sleep(30)
 
+CALENDAR_CACHE = []
+LAST_CALENDAR_FETCH = 0
+
+def get_economic_calendar():
+    global CALENDAR_CACHE, LAST_CALENDAR_FETCH
+    now = time.time()
+    if CALENDAR_CACHE and (now - LAST_CALENDAR_FETCH < 300):
+        return CALENDAR_CACHE
+    try:
+        url = "https://nfs.faireconomy.media/ff_calendar_thisweek.json"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            CALENDAR_CACHE = json.loads(resp.read().decode("utf-8"))
+            LAST_CALENDAR_FETCH = now
+    except Exception as e:
+        print(f"[CALENDAR] Error fetching calendar: {e}")
+    return CALENDAR_CACHE
+
 class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
     timeout = 15
 
@@ -2268,6 +2286,13 @@ class CORSStaticServer(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
             self.wfile.write(json.dumps(gs, ensure_ascii=False).encode('utf-8'))
+            return
+        if self.path.startswith('/api/economic_calendar') or self.path.startswith('/api/news_calendar'):
+            cal_data = get_economic_calendar()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(cal_data, ensure_ascii=False).encode('utf-8'))
             return
 
         if self.path.startswith('/api/telegram_interval_report'):

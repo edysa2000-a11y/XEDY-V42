@@ -49,7 +49,7 @@
     "note": "London Accumulation",
     "support": 1.3125,
     "resistance": 1.3385,
-    "last_res_alert_time": 1792118290989
+    "last_res_alert_time": 1792122273343
   },
   "OIL": {
     "name": "OIL (Crude Oil WTI)",
@@ -62,7 +62,7 @@
     "note": "Supply Resistance",
     "resistance": 96.1,
     "support": 82.8,
-    "last_res_alert_time": 1792119224329
+    "last_res_alert_time": 1792123210538
   },
   "BTCUSD": {
     "name": "BITCOIN (BTC/USD)",
@@ -78,6 +78,6 @@
     "proximity_pct": 0.5,
     "interval_hours": 1.1,
     "chime_enabled": true,
-    "last_interval_report_time": 1792122075.6324131
+    "last_interval_report_time": 1792123215.09688
   }
 }
