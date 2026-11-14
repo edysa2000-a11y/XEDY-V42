@@ -1,0 +1,17 @@
+{
+  "current_state": {
+    "XAUUSD": "NORMAL",
+    "USDJPY": "NORMAL"
+  },
+  "last_hourly_hour": 2,
+  "raw_outside_count": {
+    "XAUUSD": {
+      "BREAKOUT": 0,
+      "BREAKDOWN": 0
+    },
+    "USDJPY": {
+      "BREAKOUT": 0,
+      "BREAKDOWN": 0
+    }
+  }
+}
