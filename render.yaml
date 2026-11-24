@@ -1,18 +1,1 @@
-services:
-  - type: web
-    name: xedy-telegram-bot
-    env: python
-    region: singapore
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: python backend/cloud_runner.py
-    envVars:
-      - key: TELEGRAM_BOT_TOKEN
-        value: 8670995678:AAEvTX6Ii222QVCW4AIlRhzQYKbOR-lj06c
-      - key: TELEGRAM_ADMIN_ID
-        value: "-1003468917523"
-      - key: PYTHON_VERSION
-        value: 3.11.8
-      - key: PYTHONUNBUFFERED
-        value: "1"
 
